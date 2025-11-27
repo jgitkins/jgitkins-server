@@ -1,0 +1,32 @@
+# 기본 설정
+server:
+  port: 8084
+  servlet:
+    context-path: /
+---
+# Mybatis 설정
+mybatis:
+  mapper-locations: classpath*:/mapper/**/*.xml
+---
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ["health", "refresh", "prometheus", "env"]
+  endpoint:
+    health:
+      show-details: "always"
+      probes:
+        enabled: true
+---
+# Swagger 설정
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    operations-sorter: method
+    display-request-duration: true
+    persist-authorization: true
+---

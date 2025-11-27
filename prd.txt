@@ -1,0 +1,61 @@
+
+
+## Project 개요
+내부 깃랩서버 저장소 시스템을 구축하기 위한 프로젝트 모음
+
+## Requirements
+### Funtional
+    - **내부 깃서버 (JgitServer + Spring)**
+        - [x] 저장소 생성 테스트 (Bare Repository)
+            - [ ] archive 첨부
+            - [ ] 외부 Git 정보
+        - [x] 저장소 인증/인가 (포털 사용자)
+        - [x] 저장소 트리 조회
+        - [x] 파일 추가 (업로드) (시스템 브랜치 제외)
+        - [ ] 저장소 기본정보 조회
+        - [ ] Revision 비교
+        - [x] 파일 검색
+
+    - **커밋**
+        - [x] 커밋 히스토리 조회
+            - [x] 커밋 이력
+            - [x] 커밋 상세
+
+    - **병합**
+        - [x] 병합 (Bare Repository)
+        - [x] 병합 가능 여부 확인 (Bare Repository)
+
+    - **인증/인가 추상화**: 
+        - [ ] SSO, SAML 방식으로 연동 예정으로 추상화 필요(현재 포털 내부사용자 연동예제 있음)
+    
+    - **인가**
+        - [x] 인증: 포털 사용자 인증 가능 (Pull, Push)
+        - [ ] 인가: 기획 필요 (저장소 멤버 기준으로 할지...)
+
+    - **브랜치**
+        - [ ] 브랜치 생성
+            - [ ] 화면
+            - [x] Hook
+        - [ ] 브랜치 잠금 (인증/인가 제어)
+
+    - **부가기능**
+        - [ ] 리셋 기능 (시스템 브랜치)
+
+### NON Funtional
+
+- **예외 공통처리**
+    - Restful 예외 처리
+    - 커스텀 예외 처리
+        - RuntimeException
+        - Exception
+- **Transaction 처리**: 트랜잭션 관리 구현 예정.
+- 모니터링 시스템 구현 Prometheus or Grafana
+- 캐싱 시스템 구현 Redis(Valkey)
+- 비동기 처리
+- 데이터 복구
+- Best Practice 보일러 플레이트
+
+
+---
+
+
