@@ -1,0 +1,13 @@
+#!/bin/sh
+
+CHANGED_TASKS=$(git diff --cached --name-only | grep ".taskmaster/tasks/tasks.json" || true)
+
+if [ -z "$CHANGED_TASKS" ]; then
+  exit 0
+fi
+
+echo "[pre-commit-hook] Updating ReadME"
+
+node scripts/update-readme-tasks.js
+
+git add README.md

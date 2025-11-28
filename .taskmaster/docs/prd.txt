@@ -1,0 +1,12 @@
+### Planned Features (Roadmap)
+
+#### CI/CD Orchestration
+- [ ] **Pipeline Instantiation**: Logic to read `Jenkinsfile` from the repository and create a Job instance.
+- [ ] **Runner Dispatch**: Mechanism to assign created Jobs to connected **JGitkins Runners**.
+
+#### Runner Management
+- [ ] **Runner Registration API**: Endpoints for Runners to register themselves and report status.
+
+#### Advanced Git Features
+- [ ] **Webhooks**: Trigger events on push/merge to notify external systems or start pipelines.
+

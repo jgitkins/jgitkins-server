@@ -1,0 +1,33 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Feature Runner Management API",
+        "description": "Create the core pipeline/job aggregates, DTOs, and storage ports that will back CI orchestration.",
+        "details": "Introduce `PipelineJob`, `PipelineStage`, `JobStatus`, and `RunnerAssignment` records under `application`/`domain`, expose `PipelineJobCommand` DTOs, and declare `PipelineJobPersistencePort` plus an in-memory adapter (later swappable for DB). Include metadata fields (repository path, taskCd, commitSha, requestedBy, Jenkinsfile digest, queue timestamps) so downstream tasks can reason about dispatching. Pseudo-code: `PipelineJob job = PipelineJob.create(taskCd, repoName, commitSha, definition); pipelineJobRepository.save(job);`. Wire the adapter through Spring configuration and expose MapStruct mappers for REST payloads.",
+        "testStrategy": "Add unit tests for the aggregate factory/transition logic (e.g., pending→queued→running→succeeded) and repository adapter tests verifying save/find/lock semantics using Spring Boot slice tests.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Feature MQ",
+        "description": "Provide a service that loads `Jenkinsfile` via JGit and converts it into an internal pipeline definition model usable by the orchestrator.",
+        "details": "Add `JenkinsfileLoader` that uses existing `RepositoryContentAdapter`/JGit to read the file at the requested commit; implement `JenkinsfileParser` using a sandboxed GroovyShell + Jenkins declarative model (e.g., leverage `org.jenkinsci.plugins.workflow.cps.CpsScript`). Map parsed stages/steps/env vars into the new `PipelineStageDefinition`. Pseudo-code: `String script = repositoryContentPort.loadFile(taskCd, repo, commitSha, \"Jenkinsfile\"); PipelineDefinition def = parser.parse(script);`. Capture validation errors and expose them via domain exceptions.",
+        "testStrategy": "Mock repository adapter to feed sample Jenkinsfiles and assert parser output, plus integration tests running real Groovy parsing to ensure stage/step extraction and validation of unsupported syntax.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-11-28T05:58:36.061Z",
+      "updated": "2025-11-28T05:58:36.061Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

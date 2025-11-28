@@ -25,6 +25,15 @@ JGitkins Server acts as the "Brain" of the system:
 
 ---
 
+## 📋 Project Status
+<!-- TASK-LIST-START -->
+
+_No tasks found._
+
+<!-- TASK-LIST-END -->
+
+---
+
 ## Features & Roadmap
 
 ### Implemented (POC)
@@ -45,6 +54,17 @@ JGitkins Server acts as the "Brain" of the system:
 
 #### Advanced Git Features
 - [ ] **Webhooks**: Trigger events on push/merge to notify external systems or start pipelines.
+
+## Tasks
+<!-- TASKS-TABLE:START -->
+
+| ID | Title | Status | Priority | Subtasks |
+| --- | --- | --- | --- | --- |
+| 1 | Feature Runner Management API | pending | medium | 0 |
+| 2 | Feature MQ | pending | medium | 0 |
+
+<!-- TASKS-TABLE:END -->
+
 
 ---
 
