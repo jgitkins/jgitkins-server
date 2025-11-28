@@ -1,43 +1,54 @@
-# 🚀 JGitkins Server (POC)
-**Lightweight Git Server + Minimal Pipeline Runner (POC stage)**
+# JGitkins Server
 
-JGitkins Server is an experimental Proof-of-Concept (POC) that combines:
-- A lightweight **Git server** powered by JGit
-- A minimal [jgitkins runner (pipeline runner)](https://github.com/jgitkins/jgitkins-runner) using Jenkinsfile Runner (Docker-based)
+**A Self-Hosted Git Server & CI Coordinator**
 
-> ⚠️ Important  
-> This project is in an **early POC phase**.  
-> Only core functionality is partially implemented.  
-> Many features described below are **planned but not yet implemented**.
+JGitkins Server is a Spring Boot application powered by **Eclipse JGit**. It serves as both a lightweight Git server and the central API coordinator for CI/CD pipelines.
 
----
+## Target Audience
+This project is designed for:
+- Organizations requiring a **Self-Hosted** Git repository management solution.
+- Teams looking for a customizable CI coordinator that integrates seamlessly with [jgitkins-runner](https://github.com/jgitkins/jgitkins-runner).
+- Developers who need a Java-based, extensible Git server architecture.
 
-## ✨ Overview
+## Architecture & Design
 
-JGitkins Server aims to provide:
-- A fully Java-based Git repository server
-- A simple CI execution engine that runs Jenkinsfiles using Docker (from [jgitkins-runner](https://github.com/jgitkins/jgitkins-runner))
-- A clean, modular architecture based on Ports & Adapters
-- A foundation for future internal DevOps automation
+### Central Coordinator (Like GitLab Server)
+JGitkins Server acts as the "Brain" of the system:
+- **Git Server**: Manages repositories and supports standard Git operations via HTTP.
+- **CI Coordinator**: It parses `Jenkinsfile` from repositories, instantiates build jobs, and dispatches them to connected Runners.
+- It provides the API layer that **JGitkins Runners** poll to receive work.
 
-This POC validates basic feasibility of:
-1. Hosting Git repositories with JGit
-2. Creating workspaces from Git commits
-3. Running pipelines inside disposable Docker containers
-4. Returning execution results
+### Tech Stack
+- **Framework**: Spring Boot
+- **Core Engine**: [Eclipse JGit](https://www.eclipse.org/jgit/) (JGit Server)
+- **Protocol**: Smart HTTP (via JGit Servlet)
 
 ---
 
-## ✅ Currently Implemented (POC Completed)
-These features **already work** in the current POC:
+## Features & Roadmap
 
-### ✔ 1. Minimal Git Server (JGit)
-- Bare repository creation
-- Clone / fetch / push (HTTP smart protocol)
-- Branch listing
-- Commit checkout into a temporary workspace
+### Implemented (POC)
+- [x] **Repository Management**: API to create and manage Bare Repositories.
+- [x] **Smart HTTP Support**: Full support for `git clone`, `git fetch`, and `git push` via JGit Servlet.
+- [x] **Branch Management**: API to list and manage branches.
+- [x] **History & Tree**: APIs to retrieve commit history (hashes) and file trees.
+- [x] **File Operations**: API to upload files (creates a commit) and view file content.
 
-### ✔ 2. Basic JGitkins Runner
-- Runs a Jenkinsfile using a Docker container
-- Uses `jenkins/jenkinsfile-runner` image
-- Binds workspace → `/workspace` in container
+### Planned Features (Roadmap)
+
+#### CI/CD Orchestration
+- [ ] **Pipeline Instantiation**: Logic to read `Jenkinsfile` from the repository and create a Job instance.
+- [ ] **Runner Dispatch**: Mechanism to assign created Jobs to connected **JGitkins Runners**.
+
+#### Runner Management
+- [ ] **Runner Registration API**: Endpoints for Runners to register themselves and report status.
+
+#### Advanced Git Features
+- [ ] **Webhooks**: Trigger events on push/merge to notify external systems or start pipelines.
+
+---
+
+## ❓ FAQ / Design Decisions
+
+**Q: Why JGit instead of calling native Git?**
+A: JGit allows us to embed the Git server logic directly into the Java application (Spring Boot), making it portable and easier to integrate with other Java-based services without relying on system-level Git binaries.
