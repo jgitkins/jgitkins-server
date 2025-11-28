@@ -62,6 +62,8 @@ _No tasks found._
 | --- | --- | --- | --- | --- |
 | 1 | Feature Runner Management API | pending | medium | 0 |
 | 2 | Feature MQ | pending | medium | 0 |
+| 3 | Feature Batch Job Publisher | pending | medium | 0 |
+| 4 | Feature Runner Image & Plugin Catalog | pending | medium | 0 |
 
 <!-- TASKS-TABLE:END -->
 
