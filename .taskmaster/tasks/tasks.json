@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
+        "id": "1",
         "title": "Feature Runner Management API",
         "description": "Create the core pipeline/job aggregates, DTOs, and storage ports that will back CI orchestration.",
         "details": "Introduce `PipelineJob`, `PipelineStage`, `JobStatus`, and `RunnerAssignment` records under `application`/`domain`, expose `PipelineJobCommand` DTOs, and declare `PipelineJobPersistencePort` plus an in-memory adapter (later swappable for DB). Include metadata fields (repository path, taskCd, commitSha, requestedBy, Jenkinsfile digest, queue timestamps) so downstream tasks can reason about dispatching. Pseudo-code: `PipelineJob job = PipelineJob.create(taskCd, repoName, commitSha, definition); pipelineJobRepository.save(job);`. Wire the adapter through Spring configuration and expose MapStruct mappers for REST payloads.",
@@ -13,48 +13,53 @@
         "subtasks": []
       },
       {
-        "id": 2,
-        "title": "Feature MQ",
+        "id": "2",
+        "title": "Feature Integrate MQ",
         "description": "Introduce the Feature MQ message-bus so the CI coordinator can asynchronously push pipeline job definitions and runner heartbeat signals between the Spring Boot orchestrator and external JGitkins Runners, ensuring jobs created from parsed Jenkinsfiles are queued and acknowledged reliably.",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [],
         "priority": "medium",
         "details": "Define queue-facing ports beside existing adapters (see `src/main/java/io/jgitkins/server/application/port/out/RepositoryContentPort.java`) so the application layer can remain storage-agnostic: add a `JobQueuePort` for enqueue/dequeue operations plus a `RunnerHeartbeatPort` for status updates. Implement matching infrastructure adapters under `src/main/java/io/jgitkins/server/infrastructure/adapter/mq/` (start with an in-memory queue, but structure the beans so a real MQ provider can be swapped later). Extend the job creation service to serialize payloads that mirror metadata in `data/ERD.md` (`job_id`, `repository_id`, `commit_hash`, `runner_id`) and emit them via the new port whenever a Jenkinsfile is parsed into a runnable job. Capture queue failures and surface them as domain exceptions so dispatchers know when a job failed to enqueue.",
         "testStrategy": "Add unit tests around the new `JobQueuePort`-backed service to ensure payloads derived from job metadata (repo, commit, runner assignment) are serialized consistently before enqueue. Provide integration-style tests that spin up the in-memory MQ adapter in Spring and verify enqueue/dequeue semantics plus error propagation when the queue is unavailable.",
-        "subtasks": []
+        "subtasks": [],
+        "updatedAt": "2025-11-29T00:48:03.671Z"
       },
       {
-        "id": 3,
+        "id": "3",
         "title": "Feature Batch Job Publisher",
         "description": "Create a scheduled dispatcher that scans stored pipeline jobs and enqueues them only when at least one runnable runner is currently reporting heartbeats.",
         "details": "1. Follow the service layout under `src/main/java/io/jgitkins/server/application/port/service/` (see `RepositoryService` as a reference) to add a `JobDispatchService` that consumes `PipelineJobPersistencePort`, `JobQueuePort`, and `RunnerHeartbeatPort` (from Tasks 1 & 2). The service should expose `publishPendingJobs()` that: a) loads pending `PipelineJob`s flagged as runnable, b) checks runner availability via heartbeat data (only runners with recent timestamps and matching labels/architectures should qualify), c) transitions the job status to `QUEUED` and persists it before enqueueing via `JobQueuePort`, and d) skips jobs when no runner fits.\n2. Implement a Spring `@Component` scheduler (e.g., `PipelineJobPublisherBatch` under `src/main/java/io/jgitkins/server/infrastructure/batch/`) using `@Scheduled(fixedDelay = …)` and enable scheduling in `JGitkinsServerApplication` if not already. The batch should call `JobDispatchService.publishPendingJobs()` and log outcomes with structured log messages (job id, runner id) using SLF4J, mirroring logging already present in adapters like `JGitRepositoryAdapter`.\n3. Add configuration knobs in `application.yml` (new `jgitkins.dispatcher.*` section) for delay interval, heartbeat freshness threshold, and per-runner concurrency guard. Bind them via a `@ConfigurationProperties` class under `infrastructure/config` similar to existing configs (e.g., `DataSourceConfig`). Inject these properties into the batch component.\n4. Extend the domain from Task 1 by documenting the new `QUEUED` transition and runner-selection constraints inside the `PipelineJob` aggregate (update its JavaDoc or KDoc comments once implemented) so later tasks understand invariants. Ensure the dispatch logic throws `ResourceLockedException` when concurrent updates race, matching existing exception types in `application/common/exception`.\n5. Prepare the infrastructure adapter for recording runner occupancy: add a lightweight `RunnerAssignmentTracker` (in-memory Map for now) under `infrastructure/adapter/mq/` that mirrors how other adapters (e.g., `JGitBranchAdapter`) encapsulate external resources, so future MQ-backed implementations can reuse the selection logic.",
         "testStrategy": "- Add unit tests in `src/test/java/.../application/port/service/JobDispatchServiceTest` using mocks for `PipelineJobPersistencePort`, `JobQueuePort`, and `RunnerHeartbeatPort` to cover: (a) publishing succeeds when a runner is available, (b) no enqueue occurs when no runner heartbeat meets freshness criteria, and (c) concurrency guard prevents double enqueue. Use Spring’s `@ExtendWith(SpringExtension.class)` and Mockito as in existing tests.\n- Create a Spring Boot slice/integration test (e.g., `PipelineJobPublisherBatchIT`) that wires the real in-memory adapters, runs the `PipelineJobPublisherBatch` via `@SpringBootTest` with `@ActiveProfiles(\"test\")`, and verifies that jobs inserted through the persistence port are moved to the in-memory queue only when a heartbeat entry exists.\n- Include a configuration binding test asserting that `jgitkins.dispatcher` properties map correctly by loading the context with a custom `@TestPropertySource`.",
         "status": "pending",
         "dependencies": [
-          1,
-          2
+          "1",
+          "2"
         ],
         "priority": "medium",
         "subtasks": []
       },
       {
-        "id": 4,
+        "id": "4",
         "title": "Feature Runner Image & Plugin Catalog",
         "description": "Introduce server-side management for Runner base images and plugin manifests so runners can fetch a curated `plugin.yaml` describing the plugins they should install.",
         "details": "1. Model runner assets beside existing domain records (see `src/main/java/io/jgitkins/server/application/domain`) by adding `RunnerImage`, `RunnerPluginDescriptor`, and `RunnerManifest` aggregates that capture image digest, supported architectures, plugin metadata, and last-updated hashes so `RunnerAssignment` from Task 1 can reference a concrete manifest version when dispatching jobs.\n2. Define input DTOs/use cases (`RegisterRunnerImageCommand`, `UpdateRunnerManifestCommand`, etc.) under `application/port/in` patterned after `CreateRepositoryUseCase`, plus new outbound ports `RunnerCatalogPort` and `RunnerManifestPort` in `application/port/out` for storing image inventory and persisting runner-specific `plugin.yaml` content.\n3. Implement `RunnerManagementService` in `application/port/service` (follow `RepositoryService` structure) coordinating validation (unique image name, plugin compatibility with image architecture), diffing manifests, and exposing methods for runners to fetch resolved manifests or request plugin refresh tokens.\n4. Provide infrastructure adapters in `src/main/java/io/jgitkins/server/infrastructure/adapter/persistence` backed by an in-memory map plus filesystem snapshots under `data/runner-manifests/<runnerId>/plugin.yaml`; introduce a `PluginYamlMapper` component that uses Jackson YAML (`com.fasterxml.jackson.dataformat:jackson-dataformat-yaml`) added to `build.gradle` to convert manifest aggregates to canonical YAML before storing.\n5. Add REST endpoints in a new `RunnerManagementController` (`presentation/api`) with POST/GET routes for image registration, plugin manifest updates, manifest retrieval, and plugin checksum introspection; reuse the mapper style from `BranchCreateMapper` for translating DTOs, enforce optimistic locking via ETag headers so runners do not download unchanged manifests.\n6. Document the workflow in `README.md` Runner Management section describing how runners call the new endpoints to sync their images/plugins and how plugin manifests relate to Task 2's MQ heartbeat payloads once available.",
         "testStrategy": "- Domain/unit tests under `src/test/java/.../domain` verifying manifest merge logic, architecture validation, and YAML round-trip serialization (object -> YAML -> object matches expected fields).\n- Service-layer tests mocking `RunnerCatalogPort` and `RunnerManifestPort` to ensure registration rejects duplicate images, plugin updates create new manifest revisions, and checksum calculation matches stored YAML bytes.\n- Adapter integration tests using `@SpringBootTest` with temporary directories to assert the persistence adapter writes readable `plugin.yaml` files under `data/runner-manifests/<runnerId>` and reloads them on startup.\n- MVC tests (`@WebMvcTest(RunnerManagementController.class)`) confirming HTTP contracts, validation errors, and ETag handling for the new endpoints.",
         "status": "pending",
         "dependencies": [
-          1
+          "1"
         ],
         "priority": "medium",
         "subtasks": []
       }
     ],
     "metadata": {
-      "created": "2025-11-28T05:58:36.061Z",
-      "updated": "2025-11-28T13:15:43.616Z",
-      "description": "Tasks for master context"
+      "version": "1.0.0",
+      "lastModified": "2025-11-29T00:48:03.672Z",
+      "taskCount": 4,
+      "completedCount": 0,
+      "tags": [
+        "master"
+      ]
     }
   }
 }
