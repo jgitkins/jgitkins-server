@@ -31,3 +31,7 @@ node_modules/
 # Task files
 # tasks.json
 # tasks/ 
+.settings
+.classpath
+.factorypath
+.project

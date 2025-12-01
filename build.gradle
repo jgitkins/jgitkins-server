@@ -29,6 +29,7 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+implementation 'org.springframework.boot:spring-boot-starter-amqp'
 //	implementation 'org.springframework.boot:spring-boot-starter-security' // required
 
 	implementation 'org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r'

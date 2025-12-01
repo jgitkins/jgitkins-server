@@ -61,7 +61,7 @@ _No tasks found._
 | ID | Title | Status | Priority | Subtasks |
 | --- | --- | --- | --- | --- |
 | 1 | Feature Runner Management API | pending | medium | 0 |
-| 2 | Feature Integrate MQ | in-progress | medium | 0 |
+| 2 | Feature Integrate MQ | in-progress | medium | 5 |
 | 3 | Feature Batch Job Publisher | pending | medium | 0 |
 | 4 | Feature Runner Image & Plugin Catalog | pending | medium | 0 |
 
