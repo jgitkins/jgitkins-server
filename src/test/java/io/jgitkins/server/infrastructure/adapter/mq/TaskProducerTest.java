@@ -12,6 +12,11 @@ class TaskProducerTest {
 
     @Test
     void sendTask() {
-        taskProducer.sendTask("Hello RabbitMQ from JUnit!");
+        int loop = 5;
+
+        for (int i = 0; i < loop; i++) {
+
+            taskProducer.sendTask("Hello RabbitMQ from JUnit!: " + i);
+        }
     }
 }
