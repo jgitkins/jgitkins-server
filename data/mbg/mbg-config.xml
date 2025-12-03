@@ -3,13 +3,7 @@
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 
 <generatorConfiguration>
-    <!--
-        <context/> entire document: https://mybatis.org/generator/configreference/context.html
 
-        context.id: A unique identifier you like
-        context.targetRuntime: Used to specify the runtime target for generated code.
-            It has MyBatis3DynamicSql / MyBatis3Kotlin / MyBatis3 / MyBatis3Simple 4 selection to choice.
-    -->
     <classPathEntry location="./mariadb-java-client-3.1.4.jar"/>
 
     <context id="simple" targetRuntime="MyBatis3">
@@ -45,9 +39,9 @@
 
 
    <jdbcConnection driverClass="org.mariadb.jdbc.Driver"
-                       connectionURL="jdbc:mariadb://172.10.60.36:3306/TPS"
-                       userId="trbuser"
-                       password="cloud1234"/>
+                       connectionURL="jdbc:mariadb://localhost:3306/JGITKINS"
+                       userId="root"
+                       password="root1234"/>
 
         <!-- Date > LocalDateTime -->
         <javaTypeResolver type="org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl">
@@ -55,62 +49,34 @@
             <property name="useJSR310Types" value="true"/>
         </javaTypeResolver>
 
-        <javaModelGenerator targetPackage="org.okestro.tps.core.persistence.model"
-                            targetProject="../src/main/java">
+        <javaModelGenerator targetPackage="io.jgitkins.server.infrastructure.persistence.model"
+                            targetProject="../../src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
 
 
         <sqlMapGenerator targetPackage="mbg"
-                         targetProject="../src/main/resources/mapper">
+                         targetProject="../../src/main/resources/mapper">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
 
         <javaClientGenerator type="XMLMAPPER"
-                             targetPackage="org.okestro.tps.core.persistence.mapper"
-                             targetProject="../src/main/java">
+                             targetPackage="io.jgitkins.server.infrastructure.persistence.mapper"
+                             targetProject="../../src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-<!--        <table schema="public" tableName="TB%"/>-->
-<!--        <table tableName="TB_TPS_CM_064"/>-->
-<!--        <table tableName="TB_TPS_TK_005"/>-->
-<!--        <table tableName="TB_TPS_FR_006"/>-->
-<!--        <table tableName="TB_TPS_FR_007"/>-->
-<!--        <table tableName="TB_TPS_FR_008"/>-->
-<!--        <table tableName="TB_TPS_WK_035"/>-->
-<!--                <table tableName="TB_TPS_WK_02B"/>-->
-<!--                <table tableName="TB_TPS_WK_02C"/>-->
-<!--            <table tableName="TB_TPS_FR_001"/>-->
-<!--            <table tableName="TB_TPS_WK_033"/>-->
-<!--            <table tableName="TB_TPS_WK_034"/>-->
-<!--        <table tableName="TB_TPS_WK_023"/>-->
-<!--        <table tableName="TB_TPS_FR_004"/>-->
-<!--        <table tableName="TB_TPS_FR_005"/>-->
-<!--        <table tableName="TB_TPS_TK_005"/>-->
-<!--        <table tableName="TB_TPS_FR_007"/>-->
-<!--        <table tableName="TB_TPS_WK_02D"/>-->
-
-<!--        <table tableName="TB_TPS_CM_061"/>-->
-<!--        <table tableName="TB_TPS_WK_033"/>-->
-<!--        <table tableName="TB_TPS_WK_039"/>-->
-<!--        <table tableName="TB_TPS_FR_004"/>-->
-<!--        <table tableName="TB_TPS_FR_005"/>-->
-<!--        <table tableName="TB_TPS_FR_006"/>-->
-<!--        <table tableName="TB_TPS_WK_036"/>-->
-<!--        <table tableName="TB_TPS_WK_039"/>-->
-<!--        <table tableName="TB_TPS_TK_001"/>-->
-<!--        <table tableName="TB_TPS_TK_005"/>-->
-<!--        <table tableName="TB_TPS_PL_005"/>-->
-<!--        <table tableName="TB_TPS_FR_011"/>-->
-<!--        <table tableName="TB_TPS_PL_050"/>-->
-<!--        <table tableName="TB_TPS_PL_051"/>-->
-<!--        <table tableName="TB_TPS_PL_052"/>-->
-<!--            <table tableName="TB_TPS_CM_150"/>-->
-<!--        <table tableName="TB_TPS_PL_045"/>-->
-<!--        <table tableName="TB_TPS_FR_022"/>-->
-        <table tableName="TB_TPS_FR_024"/>
+        <table tableName="USERS" domainObjectName="UserEntity"/>
+        <table tableName="ORGANIZE" domainObjectName="OrganizeEntity"/>
+        <table tableName="ORGANIZE_MEMBER" domainObjectName="OrganizeMemberEntity"/>
+        <table tableName="REPOSITORY" domainObjectName="RepositoryEntity"/>
+        <table tableName="REPOSITORY_MEMBER" domainObjectName="RepositoryMemberEntity"/>
+        <table tableName="BRANCH" domainObjectName="BranchEntity"/>
+        <table tableName="RUNNER" domainObjectName="RunnerEntity"/>
+        <table tableName="RUNNER_ASSIGNMENT" domainObjectName="RunnerAssignmentEntity"/>
+        <table tableName="JOB" domainObjectName="JobEntity"/>
+        <table tableName="JOB_HISTORY" domainObjectName="JobHistoryEntity"/>
 
     </context>
 </generatorConfiguration>
