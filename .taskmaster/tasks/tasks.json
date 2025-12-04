@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
+        "id": "1",
         "title": "Feature Runner Management API",
         "description": "Create the core pipeline/job aggregates, DTOs, and storage ports that will back CI orchestration.",
         "details": "Introduce `PipelineJob`, `PipelineStage`, `JobStatus`, and `RunnerAssignment` records under `application`/`domain`, expose `PipelineJobCommand` DTOs, and declare `PipelineJobPersistencePort` plus an in-memory adapter (later swappable for DB). Include metadata fields (repository path, taskCd, commitSha, requestedBy, Jenkinsfile digest, queue timestamps) so downstream tasks can reason about dispatching. Pseudo-code: `PipelineJob job = PipelineJob.create(taskCd, repoName, commitSha, definition); pipelineJobRepository.save(job);`. Wire the adapter through Spring configuration and expose MapStruct mappers for REST payloads.",
@@ -13,13 +13,13 @@
         "subtasks": []
       },
       {
-        "id": 2,
+        "id": "2",
         "title": "Feature Integrate MQ",
         "description": "Introduce the Feature MQ message-bus so the CI coordinator can asynchronously push pipeline job definitions and runner heartbeat signals between the Spring Boot orchestrator and external JGitkins Runners, ensuring jobs created from parsed Jenkinsfiles are queued and acknowledged reliably.",
         "status": "in-progress",
         "dependencies": [],
         "priority": "medium",
-        "details": "Define queue-facing ports beside existing adapters (see `src/main/java/io/jgitkins/server/application/port/out/RepositoryContentPort.java`) so the application layer can remain storage-agnostic: add a `JobQueuePort` for enqueue/dequeue operations plus a `RunnerHeartbeatPort` for status updates. Implement matching infrastructure adapters under `src/main/java/io/jgitkins/server/infrastructure/adapter/mq/` (start with an in-memory queue, but structure the beans so a real MQ provider can be swapped later). Extend the job creation service to serialize payloads that mirror metadata in `data/ERD.md` (`job_id`, `repository_id`, `commit_hash`, `runner_id`) and emit them via the new port whenever a Jenkinsfile is parsed into a runnable job. Capture queue failures and surface them as domain exceptions so dispatchers know when a job failed to enqueue.",
+        "details": "요청 문구 개선: “Please translate the implementation details into Korean.” 이하 구현 지침은 한국어로 정리했습니다.\n`src/main/java/io/jgitkins/server/application/port/out/` 패키지에 `RepositoryContentPort`(참고: RepositoryService가 사용)와 나란히 `JobQueuePort`, `RunnerHeartbeatPort`를 추가해 애플리케이션 계층이 저장소·메시징 구현에서 분리되도록 한다. 각 포트는 Jenkinsfile 파싱 이후 생성되는 잡 메타데이터(`job_id`, `repository_id`, `commit_hash`, `runner_id`, 타임스탬프)를 직렬화·enqueue/dequeue하거나 러너 하트비트를 upsert/조회하는 메서드를 정의한다. 인프라 계층에는 `src/main/java/io/jgitkins/server/infrastructure/adapter/mq/` 이하에 인메모리 구현(예: `InMemoryJobQueueAdapter`, `InMemoryRunnerHeartbeatAdapter`)을 두고, 향후 실제 MQ 프로바이더로 교체할 수 있도록 스프링 빈 구성을 `infrastructure/config/mq/MessagingConfig`에서 관리한다. 파이프라인 잡 생성 서비스(`src/main/java/io/jgitkins/server/application/port/service/` 내 예정)에는 새 포트를 주입하여 Jenkinsfile 파싱 시 직렬화 payload를 큐에 push하고 실패 시 도메인 예외를 던지며, 하트비트 어댑터를 통해 러너 생존 신호를 읽고 필요 시 갱신한다. 큐 작업 중 발생한 예외는 도메인 계층으로 전파하여 디스패처가 enqueue 실패를 감지하도록 한다.",
         "testStrategy": "Add unit tests around the new `JobQueuePort`-backed service to ensure payloads derived from job metadata (repo, commit, runner assignment) are serialized consistently before enqueue. Provide integration-style tests that spin up the in-memory MQ adapter in Spring and verify enqueue/dequeue semantics plus error propagation when the queue is unavailable.",
         "subtasks": [
           {
@@ -27,9 +27,10 @@
             "title": "Define MQ application ports and payload DTOs",
             "description": "Add queue-specific contracts in the application layer so services can enqueue jobs and track runner heartbeats without binding to infrastructure.",
             "dependencies": [],
-            "details": "Create `JobQueuePort` and `RunnerHeartbeatPort` beside `RepositoryContentPort` under `src/main/java/io/jgitkins/server/application/port/out/` with methods for enqueue, dequeue/ack, and heartbeat read/write. Introduce immutable DTOs such as `JobQueuePayload` and `RunnerHeartbeatSnapshot` (fields: job_id, repository_id, commit_hash, runner_id, timestamps) under `application/dto` plus domain exceptions (e.g., `JobQueueException`) so upstream services can surface enqueue failures.",
+            "details": "`src/main/java/io/jgitkins/server/application/port/out/`에 `JobQueuePort`, `RunnerHeartbeatPort` 인터페이스를 추가하여 enqueue/dequeue, ack, 하트비트 조회·저장을 추상화하고, DTO(`application/dto/JobQueuePayload`, `RunnerHeartbeatSnapshot`)에는 `job_id`, `repository_id`, `commit_hash`, `runner_id`, 타임스탬프 필드를 포함한 불변 객체를 정의한다. 큐 작업 실패를 표준화하기 위해 `application/exception/JobQueueException`(새로운 패키지 위치 허용)을 만들어 서비스 계층이 명확한 메시지와 함께 예외를 전달할 수 있게 한다.",
             "status": "pending",
-            "testStrategy": "Add compile-time focused unit tests (or contract tests using mocks) to ensure DTO builders and exception wiring behave as expected."
+            "testStrategy": "Add compile-time focused unit tests (or contract tests using mocks) to ensure DTO builders and exception wiring behave as expected.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -38,9 +39,10 @@
             "dependencies": [
               1
             ],
-            "details": "Under `src/main/java/io/jgitkins/server/infrastructure/adapter/mq/`, implement classes like `InMemoryJobQueueAdapter` (backed by `BlockingQueue<JobQueuePayload>`) and `InMemoryRunnerHeartbeatAdapter` (stores `ConcurrentHashMap<runnerId, RunnerHeartbeatSnapshot>`). Ensure adapters implement the new ports, are annotated with Spring stereotypes, and expose clear error messages when enqueue/dequeue fails.",
+            "details": "`src/main/java/io/jgitkins/server/infrastructure/adapter/mq/`에 `InMemoryJobQueueAdapter`(예: `BlockingQueue<JobQueuePayload>` 기반)와 `InMemoryRunnerHeartbeatAdapter`(예: `ConcurrentHashMap<String, RunnerHeartbeatSnapshot>`)를 구현해 각각 `JobQueuePort`, `RunnerHeartbeatPort`를 충족시키고, Spring `@Component` 혹은 구성 클래스로 빈 등록 가능한 형태로 작성한다. 큐 오퍼레이션 실패 시 `JobQueueException`을 던지며, 로그에 직렬화된 payload/runner id를 포함해 추적하기 쉽게 만든다.",
             "status": "pending",
-            "testStrategy": "Write focused unit tests targeting the adapters (e.g., verifying enqueue/dequeue order, heartbeat freshness) using plain JUnit without Spring context."
+            "testStrategy": "Write focused unit tests targeting the adapters (e.g., verifying enqueue/dequeue order, heartbeat freshness) using plain JUnit without Spring context.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -49,9 +51,10 @@
             "dependencies": [
               2
             ],
-            "details": "Add a configuration class (e.g., `MessagingConfig`) within `src/main/java/io/jgitkins/server/infrastructure/config/mq/` that instantiates the new adapters as `@Bean` definitions, optionally gated by `@ConditionalOnMissingBean`. Ensure any required scheduler/executor beans for heartbeat expiry are defined here and document bean names for future replacements.",
+            "details": "`src/main/java/io/jgitkins/server/infrastructure/config/mq/MessagingConfig.java`(새 디렉터리)에서 `@Configuration` 클래스를 정의하고 `@Bean` 메서드로 인메모리 어댑터를 등록하며, `@ConditionalOnMissingBean(JobQueuePort.class)` 등 조건을 붙여 실제 MQ 구현이 존재할 경우 자동으로 대체되도록 한다. 러너 하트비트 만료 처리나 재시도 스케줄러가 필요하면 같은 구성 클래스 안에서 `TaskScheduler` 또는 `Executor` 빈을 정의해 어댑터에 주입한다.",
             "status": "pending",
-            "testStrategy": "Add a simple Spring context test verifying the configuration loads and that `JobQueuePort` and `RunnerHeartbeatPort` beans resolve without conflicts."
+            "testStrategy": "Add a simple Spring context test verifying the configuration loads and that `JobQueuePort` and `RunnerHeartbeatPort` beans resolve without conflicts.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -61,9 +64,10 @@
               1,
               3
             ],
-            "details": "Update or create a service under `application/port/service/` (e.g., `PipelineJobService`) so when a Jenkinsfile is parsed and a job entity is created it maps metadata (job_id, repository_id, commit_hash, runner_id) to `JobQueuePayload`, calls `JobQueuePort.enqueue`, and captures failures by throwing a domain exception. Also record runner heartbeat interactions if the workflow should acknowledge a runner before assignment.",
+            "details": "`src/main/java/io/jgitkins/server/application/port/service/` 경로에 `PipelineJobService`(또는 기존 서비스 확장)를 두고, Jenkinsfile 파싱으로 생성된 잡 엔터티를 `JobQueuePayload`로 변환하여 `JobQueuePort.enqueue`를 호출한다. 직렬화 시 `data/ERD.md`에 맞춘 필드 네이밍을 유지하며, enqueue 실패는 `JobQueueException`으로 감싸 상위 호출자가 재시도/롤백을 결정할 수 있게 한다. 러너 배정 전 하트비트 확인이 필요하면 `RunnerHeartbeatPort`를 주입해 특정 러너가 최신 신호를 보냈는지 검사하고, 필요 시 하트비트를 갱신하는 헬퍼 메서드를 추가한다.",
             "status": "pending",
-            "testStrategy": "Use a service-level unit test with mocked `JobQueuePort` to ensure payload serialization matches ERD fields and exceptions propagate when enqueueing fails."
+            "testStrategy": "Use a service-level unit test with mocked `JobQueuePort` to ensure payload serialization matches ERD fields and exceptions propagate when enqueueing fails.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -74,15 +78,27 @@
               2,
               4
             ],
-            "details": "Create tests under `src/test/java/.../mq/` (e.g., `JobQueueIntegrationTest`) that spin up the Spring context, persist a fake job, trigger the service to enqueue it, and verify the in-memory queue contains the serialized payload while heartbeat data is updated. Cover negative scenarios like enqueue failure raising the domain exception.",
+            "details": "`src/test/java/io/jgitkins/server/mq/JobQueueIntegrationTest` 등 패키지에서 스프링 테스트 슬라이스를 띄우고 `MessagingConfig`를 불러온 뒤, 페이크 파이프라인 잡을 persist/생성하고 서비스가 `JobQueuePort`를 통해 enqueue 했는지, 인메모리 큐에 직렬화 payload가 저장됐는지, `RunnerHeartbeatPort`가 러너 하트비트 타임스탬프를 최신 상태로 유지하는지 검증한다. 큐 예외를 강제로 발생시켜 도메인 예외가 상위로 전파되는 네거티브 시나리오도 포함한다.",
             "status": "pending",
-            "testStrategy": "Spring Boot integration-style tests using the in-memory adapters to validate enqueue/dequeue + heartbeat freshness, alongside assertions on emitted payload fields."
+            "testStrategy": "Spring Boot integration-style tests using the in-memory adapters to validate enqueue/dequeue + heartbeat freshness, alongside assertions on emitted payload fields.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 6,
+            "title": "Job Creation UseCase",
+            "description": "Working Creation Job UseCase And Integration",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "updatedAt": "2025-12-04T08:37:59.733Z",
+            "parentId": "undefined"
           }
         ],
-        "updatedAt": "2025-11-29T00:48:03.671Z"
+        "updatedAt": "2025-12-04T08:37:59.733Z"
       },
       {
-        "id": 3,
+        "id": "3",
         "title": "Feature Batch Job Publisher",
         "description": "Create a scheduled dispatcher that scans stored pipeline jobs and enqueues them only when at least one runnable runner is currently reporting heartbeats.",
         "details": "1. Follow the service layout under `src/main/java/io/jgitkins/server/application/port/service/` (see `RepositoryService` as a reference) to add a `JobDispatchService` that consumes `PipelineJobPersistencePort`, `JobQueuePort`, and `RunnerHeartbeatPort` (from Tasks 1 & 2). The service should expose `publishPendingJobs()` that: a) loads pending `PipelineJob`s flagged as runnable, b) checks runner availability via heartbeat data (only runners with recent timestamps and matching labels/architectures should qualify), c) transitions the job status to `QUEUED` and persists it before enqueueing via `JobQueuePort`, and d) skips jobs when no runner fits.\n2. Implement a Spring `@Component` scheduler (e.g., `PipelineJobPublisherBatch` under `src/main/java/io/jgitkins/server/infrastructure/batch/`) using `@Scheduled(fixedDelay = …)` and enable scheduling in `JGitkinsServerApplication` if not already. The batch should call `JobDispatchService.publishPendingJobs()` and log outcomes with structured log messages (job id, runner id) using SLF4J, mirroring logging already present in adapters like `JGitRepositoryAdapter`.\n3. Add configuration knobs in `application.yml` (new `jgitkins.dispatcher.*` section) for delay interval, heartbeat freshness threshold, and per-runner concurrency guard. Bind them via a `@ConfigurationProperties` class under `infrastructure/config` similar to existing configs (e.g., `DataSourceConfig`). Inject these properties into the batch component.\n4. Extend the domain from Task 1 by documenting the new `QUEUED` transition and runner-selection constraints inside the `PipelineJob` aggregate (update its JavaDoc or KDoc comments once implemented) so later tasks understand invariants. Ensure the dispatch logic throws `ResourceLockedException` when concurrent updates race, matching existing exception types in `application/common/exception`.\n5. Prepare the infrastructure adapter for recording runner occupancy: add a lightweight `RunnerAssignmentTracker` (in-memory Map for now) under `infrastructure/adapter/mq/` that mirrors how other adapters (e.g., `JGitBranchAdapter`) encapsulate external resources, so future MQ-backed implementations can reuse the selection logic.",
@@ -96,7 +112,7 @@
         "subtasks": []
       },
       {
-        "id": 4,
+        "id": "4",
         "title": "Feature Runner Image & Plugin Catalog",
         "description": "Introduce server-side management for Runner base images and plugin manifests so runners can fetch a curated `plugin.yaml` describing the plugins they should install.",
         "details": "1. Model runner assets beside existing domain records (see `src/main/java/io/jgitkins/server/application/domain`) by adding `RunnerImage`, `RunnerPluginDescriptor`, and `RunnerManifest` aggregates that capture image digest, supported architectures, plugin metadata, and last-updated hashes so `RunnerAssignment` from Task 1 can reference a concrete manifest version when dispatching jobs.\n2. Define input DTOs/use cases (`RegisterRunnerImageCommand`, `UpdateRunnerManifestCommand`, etc.) under `application/port/in` patterned after `CreateRepositoryUseCase`, plus new outbound ports `RunnerCatalogPort` and `RunnerManifestPort` in `application/port/out` for storing image inventory and persisting runner-specific `plugin.yaml` content.\n3. Implement `RunnerManagementService` in `application/port/service` (follow `RepositoryService` structure) coordinating validation (unique image name, plugin compatibility with image architecture), diffing manifests, and exposing methods for runners to fetch resolved manifests or request plugin refresh tokens.\n4. Provide infrastructure adapters in `src/main/java/io/jgitkins/server/infrastructure/adapter/persistence` backed by an in-memory map plus filesystem snapshots under `data/runner-manifests/<runnerId>/plugin.yaml`; introduce a `PluginYamlMapper` component that uses Jackson YAML (`com.fasterxml.jackson.dataformat:jackson-dataformat-yaml`) added to `build.gradle` to convert manifest aggregates to canonical YAML before storing.\n5. Add REST endpoints in a new `RunnerManagementController` (`presentation/api`) with POST/GET routes for image registration, plugin manifest updates, manifest retrieval, and plugin checksum introspection; reuse the mapper style from `BranchCreateMapper` for translating DTOs, enforce optimistic locking via ETag headers so runners do not download unchanged manifests.\n6. Document the workflow in `README.md` Runner Management section describing how runners call the new endpoints to sync their images/plugins and how plugin manifests relate to Task 2's MQ heartbeat payloads once available.",
@@ -111,14 +127,12 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-11-29T00:48:03.672Z",
+      "lastModified": "2025-12-04T08:37:59.735Z",
       "taskCount": 4,
       "completedCount": 0,
       "tags": [
         "master"
-      ],
-      "created": "2025-11-29T01:02:45.098Z",
-      "description": "Tasks for master context"
+      ]
     }
   }
 }

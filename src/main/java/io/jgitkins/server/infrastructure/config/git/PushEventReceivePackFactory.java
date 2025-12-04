@@ -1,5 +1,6 @@
 package io.jgitkins.server.infrastructure.config.git;
 
+import io.jgitkins.server.application.port.in.JobCreateUseCase;
 import io.jgitkins.server.application.port.out.BranchPersistencePort;
 import io.jgitkins.server.application.port.out.RepositoryLoadPort;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,7 +10,6 @@ import org.eclipse.jgit.transport.ReceivePack;
 import org.eclipse.jgit.transport.resolver.ReceivePackFactory;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-import io.jgitkins.server.application.port.in.CreateBranchUseCase;
 import io.jgitkins.server.infrastructure.config.git.hook.push.PushHook;
 import org.springframework.stereotype.Component;
 
@@ -17,9 +17,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PushEventReceivePackFactory implements ReceivePackFactory<HttpServletRequest> {
 
-    private final CreateBranchUseCase createBranchUseCase;
     private final BranchPersistencePort branchPersistencePort;
     private final RepositoryLoadPort repositoryLookupPort;
+    private final JobCreateUseCase jobCreateUseCase;
 
     // @Override
     // public UploadPack create(HttpServletRequest req, Repository db) {
@@ -46,8 +46,7 @@ public class PushEventReceivePackFactory implements ReceivePackFactory<HttpServl
         ReceivePack rp = new ReceivePack(db);
 
         // 브랜치 신규 생성 Listener (브랜치 관리 가능)
-//        rp.setPostReceiveHook(new PushHook(req, createBranchUseCase));
-        rp.setPostReceiveHook(new PushHook(req, branchPersistencePort, repositoryLookupPort));
+        rp.setPostReceiveHook(new PushHook(req, branchPersistencePort, repositoryLookupPort, jobCreateUseCase));
 
         return rp;
 

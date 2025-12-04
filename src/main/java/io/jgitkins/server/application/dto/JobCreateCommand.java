@@ -8,7 +8,8 @@ import lombok.Getter;
 public class JobCreateCommand {
     private final String taskCd;
     private final String repoName;
+    private final Long repositoryId;
     private final String commitHash;
     private final String branchName;
-    private final String triggeredBy; // username or userId
+    private final Long triggeredBy; // Users.id (FK)
 }

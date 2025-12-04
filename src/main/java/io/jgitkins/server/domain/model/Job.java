@@ -32,11 +32,10 @@ public class Job {
      * Job 생성 (Factory Method)
      * 초기 상태는 PENDING으로 자동 생성
      */
-    public static Job create(
-            RepositoryId repositoryId,
-            CommitHash commitHash,
-            BranchName branchName,
-            UserId triggeredBy) {
+    public static Job create(RepositoryId repositoryId,
+                             CommitHash commitHash,
+                             BranchName branchName,
+                             UserId triggeredBy) {
         JobId jobId = JobId.generate();
         LocalDateTime now = LocalDateTime.now();
 
@@ -46,14 +45,13 @@ public class Job {
         List<JobHistory> histories = new ArrayList<>();
         histories.add(initialHistory);
 
-        return new Job(
-                jobId,
-                repositoryId,
-                commitHash,
-                branchName,
-                triggeredBy,
-                now,
-                histories);
+        return new Job(jobId,
+                       repositoryId,
+                       commitHash,
+                       branchName,
+                       triggeredBy,
+                       now,
+                       histories);
     }
 
     /**

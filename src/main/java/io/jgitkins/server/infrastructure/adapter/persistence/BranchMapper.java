@@ -5,7 +5,7 @@ import io.jgitkins.server.infrastructure.persistence.model.BranchEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface BranchMapper {
 
     BranchMapper INSTANCE = Mappers.getMapper(BranchMapper.class);
@@ -14,6 +14,6 @@ public interface BranchMapper {
     BranchEntity toEntity(Branch branch);
 
     // 영속성 모델 -> 도메인 모델 변환
-    Branch fromEntity(BranchEntity branchEntity);
+//    Branch fromEntity(BranchEntity branchEntity);
 }
 
