@@ -36,7 +36,8 @@ public class JGitRepositoryAdapter implements
         LoadAllFilesPort,
         LoadCommitDetailPort,
         LoadBranchCommitHistoriesPort,
-        RepositoryCommitPort {
+        RepositoryCommitPort,
+        CheckFileExistencePort {
 
     private final RepositoryResolver repositoryResolver;
 
@@ -47,7 +48,8 @@ public class JGitRepositoryAdapter implements
             treeWalk.setRecursive(false);
 
             while (treeWalk.next()) {
-                files.add(buildEntry(repository, treeWalk.getObjectId(0), treeWalk.getPathString(), treeWalk.getFileMode(0)));
+                files.add(buildEntry(repository, treeWalk.getObjectId(0), treeWalk.getPathString(),
+                        treeWalk.getFileMode(0)));
             }
         }
         return files;
@@ -55,12 +57,16 @@ public class JGitRepositoryAdapter implements
 
     private void createRepositoryDir(File gitDir) {
         if (gitDir.exists()) {
-            throw new ConflictException(ErrorCode.REPOSITORY_ALREADY_EXISTS, "Repository already exists: " + gitDir.getAbsolutePath());
-//            throw new CreationFailedException("Repository already exists: " + gitDir.getAbsolutePath());
+            throw new ConflictException(ErrorCode.REPOSITORY_ALREADY_EXISTS,
+                    "Repository already exists: " + gitDir.getAbsolutePath());
+            // throw new CreationFailedException("Repository already exists: " +
+            // gitDir.getAbsolutePath());
         }
         if (!gitDir.mkdirs() && !gitDir.exists()) {
-            throw new InternalServerErrorException(ErrorCode.REPOSITORY_CREATE_FAILED, "Failed to create directories: " + gitDir.getAbsolutePath());
-//            throw new CreationFailedException("Failed to create directories: " + gitDir.getAbsolutePath());
+            throw new InternalServerErrorException(ErrorCode.REPOSITORY_CREATE_FAILED,
+                    "Failed to create directories: " + gitDir.getAbsolutePath());
+            // throw new CreationFailedException("Failed to create directories: " +
+            // gitDir.getAbsolutePath());
         }
     }
 
@@ -72,7 +78,8 @@ public class JGitRepositoryAdapter implements
 
     private RevTree resolveCommitTree(Repository repository, String branch) throws IOException {
         ObjectId branchId = Optional.ofNullable(resolveRef(repository, branch))
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.COMMIT_TREE_NOT_FOUND, "Unknown ref: " + branch));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException(ErrorCode.COMMIT_TREE_NOT_FOUND, "Unknown ref: " + branch));
 
         try (RevWalk revWalk = new RevWalk(repository)) {
             RevCommit commit = revWalk.parseCommit(branchId);
@@ -80,18 +87,21 @@ public class JGitRepositoryAdapter implements
         }
     }
 
-    private List<FileEntry> collectTreeEntries(Repository repository, RevTree commitTree, String directory) throws IOException {
+    private List<FileEntry> collectTreeEntries(Repository repository, RevTree commitTree, String directory)
+            throws IOException {
         if (StringUtils.isBlank(directory)) {
             return listTopLevelEntries(repository, commitTree);
         }
         return listDirectoryEntries(repository, commitTree, directory);
     }
 
-    private List<FileEntry> listDirectoryEntries(Repository repository, RevTree commitTree, String directory) throws IOException {
+    private List<FileEntry> listDirectoryEntries(Repository repository, RevTree commitTree, String directory)
+            throws IOException {
 
         try (TreeWalk at = TreeWalk.forPath(repository, directory, commitTree)) {
             if (at == null) {
-                throw new IOException(String.format("Repository [%s] Does Not Exist Path: [%s]", repository, directory));
+                throw new IOException(
+                        String.format("Repository [%s] Does Not Exist Path: [%s]", repository, directory));
             }
             return listTree(repository, at.getObjectId(0), ensureTrailingSlash(directory), false);
         }
@@ -110,9 +120,9 @@ public class JGitRepositoryAdapter implements
     }
 
     private DirCache buildUpdatedIndex(Repository repo,
-                                       RevCommit parentCommit,
-                                       List<CommitFile> files,
-                                       ObjectInserter inserter) throws IOException {
+            RevCommit parentCommit,
+            List<CommitFile> files,
+            ObjectInserter inserter) throws IOException {
 
         DirCache inCoreIndex = DirCache.newInCore();
         DirCacheBuilder builder = inCoreIndex.builder();
@@ -136,9 +146,9 @@ public class JGitRepositoryAdapter implements
     }
 
     private void addExistingEntries(Repository repo,
-                                    RevCommit parentCommit,
-                                    DirCacheBuilder builder,
-                                    Set<String> updatedPaths) throws IOException {
+            RevCommit parentCommit,
+            DirCacheBuilder builder,
+            Set<String> updatedPaths) throws IOException {
 
         try (TreeWalk tw = new TreeWalk(repo)) {
             tw.addTree(parentCommit.getTree());
@@ -157,8 +167,8 @@ public class JGitRepositoryAdapter implements
     }
 
     private void addNewFileEntries(List<CommitFile> files,
-                                   DirCacheBuilder builder,
-                                   ObjectInserter inserter) throws IOException {
+            DirCacheBuilder builder,
+            ObjectInserter inserter) throws IOException {
 
         for (CommitFile file : files) {
             ObjectId blobId = inserter.insert(Constants.OBJ_BLOB, file.getContent());
@@ -170,10 +180,10 @@ public class JGitRepositoryAdapter implements
     }
 
     private ObjectId createCommit(ObjectInserter inserter,
-                                  ObjectId treeId,
-                                  RevCommit parentCommit,
-                                  PersonIdent author,
-                                  String message) throws IOException {
+            ObjectId treeId,
+            RevCommit parentCommit,
+            PersonIdent author,
+            String message) throws IOException {
 
         CommitBuilder cb = new CommitBuilder();
         cb.setTreeId(treeId);
@@ -190,9 +200,9 @@ public class JGitRepositoryAdapter implements
     }
 
     private void updateBranchRef(Repository repo,
-                                 String branch,
-                                 ObjectId commitId,
-                                 RevCommit parentCommit) throws IOException {
+            String branch,
+            ObjectId commitId,
+            RevCommit parentCommit) throws IOException {
 
         String originRef = GitConstants.REFS_HEADS_PREFIX + branch;
         RefUpdate ru = repo.updateRef(originRef);
@@ -201,12 +211,14 @@ public class JGitRepositoryAdapter implements
         RefUpdate.Result updateResult = ru.update();
 
         if (updateResult == RefUpdate.Result.REJECTED || updateResult == RefUpdate.Result.LOCK_FAILURE) {
-            throw new InternalServerErrorException(ErrorCode.HEAD_POINT_FAILED, String.format("Failed to update originRef %s, %s", originRef, updateResult));
+            throw new InternalServerErrorException(ErrorCode.HEAD_POINT_FAILED,
+                    String.format("Failed to update originRef %s, %s", originRef, updateResult));
         }
     }
 
     // helpers copied from original service
-    private List<FileEntry> listTree(Repository repo, ObjectId treeId, String prefix, boolean recursive) throws IOException {
+    private List<FileEntry> listTree(Repository repo, ObjectId treeId, String prefix, boolean recursive)
+            throws IOException {
         List<FileEntry> out = new ArrayList<>();
         try (TreeWalk treeWalk = new TreeWalk(repo)) {
             treeWalk.addTree(treeId);
@@ -216,7 +228,8 @@ public class JGitRepositoryAdapter implements
                 if (!recursive && treeWalk.getPathString().contains("/")) {
                     continue;
                 }
-                out.add(buildEntry(repo, treeWalk.getObjectId(0), prefix + treeWalk.getPathString(), treeWalk.getFileMode(0)));
+                out.add(buildEntry(repo, treeWalk.getObjectId(0), prefix + treeWalk.getPathString(),
+                        treeWalk.getFileMode(0)));
             }
         }
 
@@ -242,8 +255,7 @@ public class JGitRepositoryAdapter implements
                 fullPath,
                 type,
                 String.format("%06o", mode.getBits()),
-                size
-        );
+                size);
     }
 
     private static ObjectId resolveRef(Repository repo, String ref) throws IOException {
@@ -253,10 +265,12 @@ public class JGitRepositoryAdapter implements
         }
         return oid;
     }
+
     private RevTree resolveAllFilesTree(Repository repository, String ref) throws IOException {
 
         ObjectId branchId = Optional.ofNullable(resolveRef(repository, ref))
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND, "Branch Not Found: " + ref));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND, "Branch Not Found: " + ref));
 
         try (RevWalk revWalk = new RevWalk(repository)) {
             return revWalk.parseCommit(branchId).getTree();
@@ -288,28 +302,6 @@ public class JGitRepositoryAdapter implements
                 || FileMode.SYMLINK.equals(mode);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public void createBareRepository(String taskCd, String repoName) {
         File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
@@ -321,27 +313,27 @@ public class JGitRepositoryAdapter implements
                 log.info("Bare repository initialized. repo=[{}], task=[{}]", gitDir.getName(), taskCd);
             }
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.REPOSITORY_CREATE_FAILED, "Repository creation failed: " + gitDir.getAbsolutePath(), e);
-//            throw new CreationFailedException("Repository creation failed: " + gitDir.getAbsolutePath(), e);
+            throw new InternalServerErrorException(ErrorCode.REPOSITORY_CREATE_FAILED,
+                    "Repository creation failed: " + gitDir.getAbsolutePath(), e);
+            // throw new CreationFailedException("Repository creation failed: " +
+            // gitDir.getAbsolutePath(), e);
         }
     }
 
-
-
     @Override
     public void commit(String taskCd,
-                       String repoName,
-                       String branch,
-                       String message,
-                       String authorName,
-                       String authorEmail,
-                       List<CommitFile> files) {
+            String repoName,
+            String branch,
+            String message,
+            String authorName,
+            String authorEmail,
+            List<CommitFile> files) {
 
         File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
 
         try (Repository repo = repositoryResolver.openBareRepository(gitDir);
-             ObjectInserter inserter = repo.newObjectInserter();
-             RevWalk revWalk = new RevWalk(repo)) {
+                ObjectInserter inserter = repo.newObjectInserter();
+                RevWalk revWalk = new RevWalk(repo)) {
 
             RevCommit parentCommit = resolveParentCommit(repo, revWalk, branch);
             DirCache inCoreIndex = buildUpdatedIndex(repo, parentCommit, files, inserter);
@@ -353,8 +345,10 @@ public class JGitRepositoryAdapter implements
             updateBranchRef(repo, branch, commitId, parentCommit);
 
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.COMMIT_CREATE_FAILED, String.format("Failed to commit to repo %s/%s", taskCd, repoName), e);
-//            throw new RepositoryCommitException(String.format("Failed to commit to repo %s/%s", taskCd, repoName), e);
+            throw new InternalServerErrorException(ErrorCode.COMMIT_CREATE_FAILED,
+                    String.format("Failed to commit to repo %s/%s", taskCd, repoName), e);
+            // throw new RepositoryCommitException(String.format("Failed to commit to repo
+            // %s/%s", taskCd, repoName), e);
         }
     }
 
@@ -366,11 +360,12 @@ public class JGitRepositoryAdapter implements
             RevTree commitTree = resolveCommitTree(repository, branch);
             return collectTreeEntries(repository, commitTree, directory);
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.COMMIT_TREE_LOAD_FAILED, String.format("Failed to load tree for repo %s/%s", taskCd, repoName), e);
-//            throw new TreeLoadException(String.format("Failed to load tree for repo %s/%s", taskCd, repoName), e);
+            throw new InternalServerErrorException(ErrorCode.COMMIT_TREE_LOAD_FAILED,
+                    String.format("Failed to load tree for repo %s/%s", taskCd, repoName), e);
+            // throw new TreeLoadException(String.format("Failed to load tree for repo
+            // %s/%s", taskCd, repoName), e);
         }
     }
-
 
     @Override
     public List<FileEntry> getAllFiles(String taskCd, String repoName, String branch) {
@@ -381,7 +376,8 @@ public class JGitRepositoryAdapter implements
             RevTree tree = resolveAllFilesTree(repository, ref);
             return collectAllFileEntries(repository, tree);
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.FILE_LOAD_FAILED, String.format("Failed to load files for repo %s/%s", taskCd, repoName), e);
+            throw new InternalServerErrorException(ErrorCode.FILE_LOAD_FAILED,
+                    String.format("Failed to load files for repo %s/%s", taskCd, repoName), e);
         }
     }
 
@@ -393,8 +389,9 @@ public class JGitRepositoryAdapter implements
 
             ObjectId commitId = repository.resolve(commitHash);
             if (commitId == null) {
-//                throw new CommitDetailLoadException("Unknown commit hash: " + commitHash);
-                throw new ResourceNotFoundException(ErrorCode.COMMIT_LOAD_FAILED, String.format("Failed to load commit detail for repo %s/%s", taskCd, repoName));
+                // throw new CommitDetailLoadException("Unknown commit hash: " + commitHash);
+                throw new ResourceNotFoundException(ErrorCode.COMMIT_LOAD_FAILED,
+                        String.format("Failed to load commit detail for repo %s/%s", taskCd, repoName));
             }
 
             try (RevWalk revWalk = new RevWalk(repository)) {
@@ -409,12 +406,14 @@ public class JGitRepositoryAdapter implements
                         .committerEmail(commit.getCommitterIdent().getEmailAddress())
                         .shortMessage(commit.getShortMessage())
                         .fullMessage(commit.getFullMessage())
-                        .commitTime(commit.getAuthorIdent().getWhen().toInstant().atZone(commit.getAuthorIdent().getTimeZone().toZoneId()).toLocalDateTime())
+                        .commitTime(commit.getAuthorIdent().getWhen().toInstant()
+                                .atZone(commit.getAuthorIdent().getTimeZone().toZoneId()).toLocalDateTime())
                         .parentId(commit.getParentCount() > 0 ? commit.getParent(0).name() : null)
                         .build();
             }
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.COMMIT_LOAD_FAILED, String.format("Failed to load commit detail for repo %s/%s", taskCd, repoName), e);
+            throw new InternalServerErrorException(ErrorCode.COMMIT_LOAD_FAILED,
+                    String.format("Failed to load commit detail for repo %s/%s", taskCd, repoName), e);
         }
     }
 
@@ -428,7 +427,7 @@ public class JGitRepositoryAdapter implements
             ObjectId branchId = resolveRef(repository, branch);
             if (branchId == null) {
                 throw new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND, "Branch Not Found");
-//                throw new CommitHistoriesLoadException("Unknown branch: " + branch);
+                // throw new CommitHistoriesLoadException("Unknown branch: " + branch);
             }
 
             try (RevWalk revWalk = new RevWalk(repository)) {
@@ -444,16 +443,43 @@ public class JGitRepositoryAdapter implements
                             .committerEmail(commit.getCommitterIdent().getEmailAddress())
                             .shortMessage(commit.getShortMessage())
                             .fullMessage(commit.getFullMessage())
-                            .commitTime(commit.getAuthorIdent().getWhen().toInstant().atZone(commit.getAuthorIdent().getTimeZone().toZoneId()).toLocalDateTime())
+                            .commitTime(commit.getAuthorIdent().getWhen().toInstant()
+                                    .atZone(commit.getAuthorIdent().getTimeZone().toZoneId()).toLocalDateTime())
                             .parentId(commit.getParentCount() > 0 ? commit.getParent(0).name() : null)
                             .build());
                 }
             }
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.COMMIT_LOAD_FAILED, String.format("Failed to retrieve branch commit histories for repo %s/%s", taskCd, repoName), e);
-//            throw new CommitHistoriesLoadException(String.format("Failed to retrieve branch commit histories for repo %s/%s", taskCd, repoName), e);
+            throw new InternalServerErrorException(ErrorCode.COMMIT_LOAD_FAILED,
+                    String.format("Failed to retrieve branch commit histories for repo %s/%s", taskCd, repoName), e);
+            // throw new CommitHistoriesLoadException(String.format("Failed to retrieve
+            // branch commit histories for repo %s/%s", taskCd, repoName), e);
         }
         return commitHistories;
+    }
+
+    @Override
+    public boolean exists(String taskCd, String repoName, String commitHash, String filePath) {
+        File bareRepositoryPath = repositoryResolver.resolveGitDir(taskCd, repoName);
+
+        try (Repository repository = repositoryResolver.openBareRepository(bareRepositoryPath)) {
+            ObjectId commitId = repository.resolve(commitHash);
+            if (commitId == null) {
+                return false;
+            }
+
+            try (RevWalk revWalk = new RevWalk(repository)) {
+                RevCommit commit = revWalk.parseCommit(commitId);
+                RevTree tree = commit.getTree();
+
+                try (TreeWalk treeWalk = TreeWalk.forPath(repository, filePath, tree)) {
+                    return treeWalk != null;
+                }
+            }
+        } catch (IOException e) {
+            log.error("Failed to check file existence: {} in repo: {}/{}", filePath, taskCd, repoName, e);
+            return false;
+        }
     }
 
 }

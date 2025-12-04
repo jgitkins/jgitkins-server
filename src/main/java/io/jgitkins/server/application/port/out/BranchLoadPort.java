@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import io.jgitkins.server.application.dto.BranchInfo;
 
-public interface LoadBranchPort {
+public interface BranchLoadPort {
     List<BranchInfo> getBranches(String taskCd, String repoName) throws IOException;
     Optional<BranchInfo> getBranch(String taskCd, String repoName, String branchName) throws IOException;
 }

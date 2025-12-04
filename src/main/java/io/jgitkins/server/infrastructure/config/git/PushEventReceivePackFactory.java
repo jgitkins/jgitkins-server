@@ -1,5 +1,7 @@
 package io.jgitkins.server.infrastructure.config.git;
 
+import io.jgitkins.server.application.port.out.BranchPersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryLoadPort;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.jgit.lib.Repository;
@@ -16,33 +18,36 @@ import org.springframework.stereotype.Component;
 public class PushEventReceivePackFactory implements ReceivePackFactory<HttpServletRequest> {
 
     private final CreateBranchUseCase createBranchUseCase;
+    private final BranchPersistencePort branchPersistencePort;
+    private final RepositoryLoadPort repositoryLookupPort;
 
-
-
-//    @Override
-//    public UploadPack create(HttpServletRequest req, Repository db) {
-//        UploadPack up = new UploadPack(db);
-//
-//        up.setAdvertiseRefsHook(new AdvertiseRefsLogger(req));
-//        up.setRefFilter(new RefLogger());
-//        up.setPreUploadHook(new NegotiationEventLogger()); // 사용자의 Fetching Packfile 요청에 대한 로깅
-//        up.setPostUploadHook(new LoggingPostUploadHook());
-//        up.setProtocolV2Hook(new LoggingProtocolV2Hook());
-//
-//        System.out.println("req.requestUri!!!: " + req.getRequestURI());
-//        System.out.println("req.queryStr: " + req.getQueryString());
-//        System.out.println("req.contextPath: " + req.getContextPath());
-//
-//        return up;
-//
-//    }
+    // @Override
+    // public UploadPack create(HttpServletRequest req, Repository db) {
+    // UploadPack up = new UploadPack(db);
+    //
+    // up.setAdvertiseRefsHook(new AdvertiseRefsLogger(req));
+    // up.setRefFilter(new RefLogger());
+    // up.setPreUploadHook(new NegotiationEventLogger()); // 사용자의 Fetching Packfile
+    // 요청에 대한 로깅
+    // up.setPostUploadHook(new LoggingPostUploadHook());
+    // up.setProtocolV2Hook(new LoggingProtocolV2Hook());
+    //
+    // System.out.println("req.requestUri!!!: " + req.getRequestURI());
+    // System.out.println("req.queryStr: " + req.getQueryString());
+    // System.out.println("req.contextPath: " + req.getContextPath());
+    //
+    // return up;
+    //
+    // }
 
     @Override
-    public ReceivePack create(HttpServletRequest req, Repository db) throws ServiceNotEnabledException, ServiceNotAuthorizedException {
+    public ReceivePack create(HttpServletRequest req, Repository db)
+            throws ServiceNotEnabledException, ServiceNotAuthorizedException {
         ReceivePack rp = new ReceivePack(db);
 
         // 브랜치 신규 생성 Listener (브랜치 관리 가능)
-        rp.setPostReceiveHook(new PushHook(req, createBranchUseCase));
+//        rp.setPostReceiveHook(new PushHook(req, createBranchUseCase));
+        rp.setPostReceiveHook(new PushHook(req, branchPersistencePort, repositoryLookupPort));
 
         return rp;
 

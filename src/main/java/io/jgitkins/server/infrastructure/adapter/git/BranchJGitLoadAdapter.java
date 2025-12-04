@@ -9,7 +9,7 @@ import io.jgitkins.server.application.dto.BranchInfo;
 import io.jgitkins.server.application.port.out.CreateBranchPort;
 import io.jgitkins.server.application.port.out.DeleteBranchPort;
 import io.jgitkins.server.application.port.out.LinkHeadPort;
-import io.jgitkins.server.application.port.out.LoadBranchPort;
+import io.jgitkins.server.application.port.out.BranchLoadPort;
 import io.jgitkins.server.infrastructure.support.RepositoryResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class JGitBranchAdapter implements LinkHeadPort, LoadBranchPort, CreateBranchPort, DeleteBranchPort {
+public class BranchJGitLoadAdapter implements LinkHeadPort, BranchLoadPort, CreateBranchPort, DeleteBranchPort {
 
     private final RepositoryResolver repositoryResolver;
 

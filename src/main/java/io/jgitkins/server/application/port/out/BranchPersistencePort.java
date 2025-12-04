@@ -1,7 +1,8 @@
 package io.jgitkins.server.application.port.out;
 
 public interface BranchPersistencePort {
-    void saveBranch(String taskCd, String repoName, String branchName);
-
-    void deleteBranch(String taskCd, String repoName, String branchName);
+    void create(Long repositoryId, String name);
+    void delete(Long id);
+//    void create(String taskCd, String repoName, String branchName);
+//    void deleteBranch(String taskCd, String repoName, String branchName);
 }
