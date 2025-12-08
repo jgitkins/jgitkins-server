@@ -1,7 +1,6 @@
 package io.jgitkins.server.application.common.exception;
 
 import io.jgitkins.server.application.common.ErrorCode;
-import org.springframework.http.HttpStatus;
 
 public class ApplicationException extends RuntimeException {
     private final ErrorCode errorCode;
@@ -23,9 +22,5 @@ public class ApplicationException extends RuntimeException {
 
     public ErrorCode getErrorCode() {
         return errorCode;
-    }
-
-    public HttpStatus getStatus() {
-        return errorCode.getStatus();
     }
 }

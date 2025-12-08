@@ -1,0 +1,27 @@
+### Variable 
+@url = localhost:8084
+
+
+
+
+
+
+#######################################################
+### Runner ############################################
+#######################################################
+
+### Repository 등록
+POST {{url}}/runners
+
+{
+  "description": "hihi"
+}
+
+### Repository 목록 조회
+GET {{url}}/runners
+
+### Repository 상세 조회
+GET {{url}}/runners/4
+
+### Repository 단건 삭제
+DELETE {{url}}/runners/1

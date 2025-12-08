@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.jgitkins.server.infrastructure.persistence.mapper.JobEntityMbgMapper">
+  <resultMap id="BaseResultMap" type="io.jgitkins.server.infrastructure.persistence.model.JobEntity">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="repository_id" jdbcType="BIGINT" property="repositoryId" />
+    <result column="commit_hash" jdbcType="VARCHAR" property="commitHash" />
+    <result column="branch_name" jdbcType="VARCHAR" property="branchName" />
+    <result column="triggered_by" jdbcType="BIGINT" property="triggeredBy" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+  </resultMap>
+  <sql id="Condition_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Condition_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, repository_id, commit_hash, branch_name, triggered_by, created_at
+  </sql>
+  <select id="selectByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntityCondition" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from job
+    <if test="_parameter != null">
+      <include refid="Condition_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from job
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from job
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntityCondition">
+    delete from job
+    <if test="_parameter != null">
+      <include refid="Condition_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity">
+    insert into job (id, repository_id, commit_hash, 
+      branch_name, triggered_by, created_at
+      )
+    values (#{id,jdbcType=BIGINT}, #{repositoryId,jdbcType=BIGINT}, #{commitHash,jdbcType=VARCHAR}, 
+      #{branchName,jdbcType=VARCHAR}, #{triggeredBy,jdbcType=BIGINT}, #{createdAt,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity">
+    insert into job
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="repositoryId != null">
+        repository_id,
+      </if>
+      <if test="commitHash != null">
+        commit_hash,
+      </if>
+      <if test="branchName != null">
+        branch_name,
+      </if>
+      <if test="triggeredBy != null">
+        triggered_by,
+      </if>
+      <if test="createdAt != null">
+        created_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="repositoryId != null">
+        #{repositoryId,jdbcType=BIGINT},
+      </if>
+      <if test="commitHash != null">
+        #{commitHash,jdbcType=VARCHAR},
+      </if>
+      <if test="branchName != null">
+        #{branchName,jdbcType=VARCHAR},
+      </if>
+      <if test="triggeredBy != null">
+        #{triggeredBy,jdbcType=BIGINT},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntityCondition" resultType="java.lang.Long">
+    select count(*) from job
+    <if test="_parameter != null">
+      <include refid="Condition_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByConditionSelective" parameterType="map">
+    update job
+    <set>
+      <if test="row.id != null">
+        id = #{row.id,jdbcType=BIGINT},
+      </if>
+      <if test="row.repositoryId != null">
+        repository_id = #{row.repositoryId,jdbcType=BIGINT},
+      </if>
+      <if test="row.commitHash != null">
+        commit_hash = #{row.commitHash,jdbcType=VARCHAR},
+      </if>
+      <if test="row.branchName != null">
+        branch_name = #{row.branchName,jdbcType=VARCHAR},
+      </if>
+      <if test="row.triggeredBy != null">
+        triggered_by = #{row.triggeredBy,jdbcType=BIGINT},
+      </if>
+      <if test="row.createdAt != null">
+        created_at = #{row.createdAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="example != null">
+      <include refid="Update_By_Condition_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByCondition" parameterType="map">
+    update job
+    set id = #{row.id,jdbcType=BIGINT},
+      repository_id = #{row.repositoryId,jdbcType=BIGINT},
+      commit_hash = #{row.commitHash,jdbcType=VARCHAR},
+      branch_name = #{row.branchName,jdbcType=VARCHAR},
+      triggered_by = #{row.triggeredBy,jdbcType=BIGINT},
+      created_at = #{row.createdAt,jdbcType=TIMESTAMP}
+    <if test="example != null">
+      <include refid="Update_By_Condition_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity">
+    update job
+    <set>
+      <if test="repositoryId != null">
+        repository_id = #{repositoryId,jdbcType=BIGINT},
+      </if>
+      <if test="commitHash != null">
+        commit_hash = #{commitHash,jdbcType=VARCHAR},
+      </if>
+      <if test="branchName != null">
+        branch_name = #{branchName,jdbcType=VARCHAR},
+      </if>
+      <if test="triggeredBy != null">
+        triggered_by = #{triggeredBy,jdbcType=BIGINT},
+      </if>
+      <if test="createdAt != null">
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity">
+    update job
+    set repository_id = #{repositoryId,jdbcType=BIGINT},
+      commit_hash = #{commitHash,jdbcType=VARCHAR},
+      branch_name = #{branchName,jdbcType=VARCHAR},
+      triggered_by = #{triggeredBy,jdbcType=BIGINT},
+      created_at = #{createdAt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -73,7 +73,9 @@
         <table tableName="REPOSITORY" domainObjectName="RepositoryEntity"/>
         <table tableName="REPOSITORY_MEMBER" domainObjectName="RepositoryMemberEntity"/>
         <table tableName="BRANCH" domainObjectName="BranchEntity"/>
-        <table tableName="RUNNER" domainObjectName="RunnerEntity"/>
+        <table tableName="RUNNER" domainObjectName="RunnerEntity">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
         <table tableName="RUNNER_ASSIGNMENT" domainObjectName="RunnerAssignmentEntity"/>
         <table tableName="JOB" domainObjectName="JobEntity"/>
         <table tableName="JOB_HISTORY" domainObjectName="JobHistoryEntity"/>
