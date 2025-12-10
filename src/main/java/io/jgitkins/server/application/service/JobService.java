@@ -3,14 +3,12 @@ package io.jgitkins.server.application.service;
 import io.jgitkins.server.application.dto.JobCreateCommand;
 import io.jgitkins.server.application.port.in.JobCreateUseCase;
 import io.jgitkins.server.application.port.out.CheckFileExistencePort;
-import io.jgitkins.server.application.port.out.JobPersistencePort;
+import io.jgitkins.server.application.port.out.JobCommandPort;
 import io.jgitkins.server.domain.model.Job;
 import io.jgitkins.server.domain.model.vo.BranchName;
 import io.jgitkins.server.domain.model.vo.CommitHash;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.UserId;
-import io.jgitkins.server.infrastructure.adapter.persistence.JobMapper;
-import io.jgitkins.server.infrastructure.persistence.model.JobEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,14 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class JobService implements JobCreateUseCase {
 
     private final CheckFileExistencePort checkFileExistencePort;
-    private final JobPersistencePort jobPersistencePort;
-    private final JobMapper jobMapper;
+    private final JobCommandPort jobCommandPort;
 
     private static final String JENKINS_FILE_PATH = "Jenkinsfile";
 
     @Override
     @Transactional
-    public void createJob(JobCreateCommand command) {
+    public void create(JobCreateCommand command) {
         // 1. Jenkinsfile 존재 여부 확인
         boolean hasJenkinsFile = checkFileExistencePort.exists(command.getTaskCd(),
                                                                command.getRepoName(),
@@ -49,13 +46,9 @@ public class JobService implements JobCreateUseCase {
                              BranchName.of(command.getBranchName()),
                              UserId.of(command.getTriggeredBy()));
 
-        JobEntity jobEntity = jobMapper.toEntity(job);
-
-        // 3. Job 저장
-        jobPersistencePort.create(jobEntity);
+        jobCommandPort.create(job);
 
         log.info("Job created successfully. JobId: {}", job.getId());
 
-        // TODO: 추후 큐잉 로직이 필요하다면 여기서 job.enqueue() 호출 후 저장
     }
 }

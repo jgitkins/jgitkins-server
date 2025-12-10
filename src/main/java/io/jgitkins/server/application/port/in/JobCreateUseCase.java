@@ -8,5 +8,5 @@ public interface JobCreateUseCase {
      * 
      * @param command Job 생성에 필요한 정보
      */
-    void createJob(JobCreateCommand command);
+    void create(JobCreateCommand command);
 }

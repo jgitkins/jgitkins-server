@@ -9,8 +9,7 @@ public class FakeRunnerMybatisAdapter implements RunnerCommandPort {
 
     @Override
     public Runner save(Runner runner) {
-        return Runner.create("description")
-                .withId(1L);
+        return runner.withId(1L);
     }
 
     @Override

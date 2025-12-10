@@ -77,8 +77,12 @@
             <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
         <table tableName="RUNNER_ASSIGNMENT" domainObjectName="RunnerAssignmentEntity"/>
-        <table tableName="JOB" domainObjectName="JobEntity"/>
-        <table tableName="JOB_HISTORY" domainObjectName="JobHistoryEntity"/>
+        <table tableName="JOB" domainObjectName="JobEntity">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="JOB_HISTORY" domainObjectName="JobHistoryEntity">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
 
     </context>
 </generatorConfiguration>

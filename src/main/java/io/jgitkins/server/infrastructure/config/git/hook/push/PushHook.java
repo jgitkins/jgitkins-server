@@ -84,7 +84,7 @@ public class PushHook implements PostReceiveHook {
                 .triggeredBy(triggeredBy.get())
                 .build();
 
-        createJobUseCase.createJob(jobCommand);
+        createJobUseCase.create(jobCommand);
     }
 
     private Optional<RepositoryContext> resolveRepositoryContext(Repository repository) {

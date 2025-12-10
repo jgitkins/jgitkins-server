@@ -1,5 +1,6 @@
 package io.jgitkins.server.application.dto;
 
+import io.jgitkins.server.domain.model.vo.RunnerScopeType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -7,5 +8,7 @@ import lombok.Getter;
 @Getter
 public class RunnerRegisterCommand {
     private final String description;
+    private final RunnerScopeType scopeType;
+    private final Long targetId;
 //    private final String ipAddress;
 }

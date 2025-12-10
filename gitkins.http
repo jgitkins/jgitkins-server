@@ -14,6 +14,7 @@
 POST {{url}}/runners
 
 {
+  "scopeType": "GLOBAL",
   "description": "hihi"
 }
 
@@ -24,4 +25,14 @@ GET {{url}}/runners
 GET {{url}}/runners/4
 
 ### Repository 단건 삭제
-DELETE {{url}}/runners/1
+DELETE {{url}}/runners/
+
+
+### Runner 활성화
+POST {{url}}/runners/6/activate
+Accept: application/json
+Content-Type: application/json
+
+{
+  "token": "RNR-85B46DCBB9BF4A4F896B3E3E"
+}

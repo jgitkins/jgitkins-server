@@ -30,8 +30,12 @@ public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeleteUs
     @Override
     @Transactional
     public RunnerRegistrationResult register(RunnerRegisterCommand command) {
-        Runner runner = Runner.create(command.getDescription());
+        Runner runner = Runner.create(command.getDescription(),
+                                      command.getScopeType(),
+                                      command.getTargetId());
+
         Runner savedRunner = runnerCommandPort.save(runner);
+
         log.info("Runner registered. runnerId={}", savedRunner.getId());
         return runnerApplicationMapper.toRegistrationResult(savedRunner);
     }
@@ -54,19 +58,17 @@ public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeleteUs
 
     @Override
     @Transactional
-    public RunnerDetailResult activate(Long runnerId) {
+    public RunnerDetailResult activate(Long runnerId, String token, String remoteIp) {
         Runner runner = runnerQueryPort.findById(runnerId)
                                        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RUNNER_NOT_FOUND));
-
-        Runner activated = runner.activate();
+        Runner activated = runner.activate(token, remoteIp);
         try {
-            Runner persisted = runnerCommandPort.update(activated);
+            Runner persisted = runnerCommandPort.save(activated);
+            log.info("Runner activated. runnerId={}", runnerId);
             return runnerApplicationMapper.toDetailResult(persisted);
         } catch (RuntimeException ex) {
             log.error("Runner activation failed. runnerId={}", runnerId, ex);
-            throw new InternalServerErrorException(ErrorCode.RUNNER_ACTIVATION_FAILED,
-                                                   "Runner activation failed",
-                                                   ex);
+            throw new InternalServerErrorException(ErrorCode.RUNNER_ACTIVATION_FAILED, "Runner activation failed", ex);
         }
     }
 }

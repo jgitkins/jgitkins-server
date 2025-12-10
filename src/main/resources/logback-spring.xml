@@ -20,6 +20,7 @@
     <logger name="jdbc.sqlonly" level="WARN" />
     <logger name="jdbc.resultsettable" level="WARN" />
     <logger name="jdbc.sqltiming" level="WARN" />
+    <logger name="io.jgitkins.server.infrastructure.persistence.mapper" level="WARN" />
 
 
 

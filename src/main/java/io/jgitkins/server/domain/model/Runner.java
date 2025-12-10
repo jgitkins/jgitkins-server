@@ -1,5 +1,6 @@
 package io.jgitkins.server.domain.model;
 
+import io.jgitkins.server.domain.model.vo.RunnerScopeType;
 import io.jgitkins.server.domain.model.vo.RunnerStatus;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -19,12 +20,23 @@ public class Runner {
     private final String token;
     private final String description;
     private final RunnerStatus status;
+    private final RunnerScopeType scopeType;
+    private final Long scopeTargetId;
+    private final String ipAddress;
     private final LocalDateTime lastHeartbeatAt;
     private final LocalDateTime createdAt;
 
-    public static Runner create(String description) {
+    public static Runner create(String description,
+                                RunnerScopeType scopeType,
+                                Long scopeTargetId) {
         if (description == null || description.isBlank()) {
             throw new IllegalArgumentException("Runner description is required when registering");
+        }
+        if (scopeType == null) {
+            throw new IllegalArgumentException("Runner scope type is required when registering");
+        }
+        if (scopeType.requiresTargetId() && scopeTargetId == null) {
+            throw new IllegalArgumentException("Runner scope target id is required for scope " + scopeType);
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -33,6 +45,9 @@ public class Runner {
                           generateToken(),
                           description.trim(),
                           RunnerStatus.OFFLINE,
+                          scopeType,
+                          scopeTargetId,
+                          null,
                           now,
                           now);
     }
@@ -46,6 +61,9 @@ public class Runner {
                           token,
                           description,
                           status,
+                          scopeType,
+                          scopeTargetId,
+                          ipAddress,
                           lastHeartbeatAt,
                           createdAt);
     }
@@ -55,6 +73,9 @@ public class Runner {
                           token,
                           description,
                           newStatus,
+                          scopeType,
+                          scopeTargetId,
+                          ipAddress,
                           lastHeartbeatAt,
                           createdAt);
     }
@@ -64,15 +85,23 @@ public class Runner {
                           token,
                           description,
                           status,
+                          scopeType,
+                          scopeTargetId,
+                          ipAddress,
                           heartbeatAt,
                           createdAt);
     }
 
-    public Runner activate() {
+    public Runner activate(String providedToken, String remoteIp) {
+        validateToken(providedToken);
+        validateActivationState();
         return new Runner(id,
                           token,
                           description,
                           RunnerStatus.ONLINE,
+                          scopeType,
+                          scopeTargetId,
+                          normalizeIp(remoteIp),
                           LocalDateTime.now(),
                           createdAt);
     }
@@ -81,13 +110,41 @@ public class Runner {
                                  String token,
                                  String description,
                                  RunnerStatus status,
+                                 RunnerScopeType scopeType,
+                                 Long scopeTargetId,
+                                 String ipAddress,
                                  LocalDateTime lastHeartbeatAt,
                                  LocalDateTime createdAt) {
         return new Runner(id,
                           token,
                           description,
                           status,
+                          scopeType,
+                          scopeTargetId,
+                          ipAddress,
                           lastHeartbeatAt,
                           createdAt);
+    }
+
+    private void validateToken(String providedToken) {
+        if (providedToken == null || providedToken.isBlank()) {
+            throw new IllegalArgumentException("Runner activation token is required");
+        }
+        if (!token.equals(providedToken)) {
+            throw new IllegalArgumentException("Runner token does not match activation request");
+        }
+    }
+
+    private void validateActivationState() {
+        if (status != RunnerStatus.OFFLINE) {
+            throw new IllegalStateException("Runner is not in OFFLINE state and cannot be activated");
+        }
+    }
+
+    private String normalizeIp(String remoteIp) {
+        if (remoteIp == null || remoteIp.isBlank()) {
+            return ipAddress;
+        }
+        return remoteIp.trim();
     }
 }

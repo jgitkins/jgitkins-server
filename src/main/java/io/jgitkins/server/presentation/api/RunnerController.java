@@ -8,19 +8,20 @@ import io.jgitkins.server.application.port.in.RunnerDeleteUseCase;
 import io.jgitkins.server.application.port.in.RunnerQueryUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
 import io.jgitkins.server.presentation.common.ApiResponse;
+import io.jgitkins.server.presentation.dto.RunnerActivationRequest;
 import io.jgitkins.server.presentation.dto.RunnerRegistrationRequest;
 import io.jgitkins.server.presentation.dto.RunnerResponse;
 import io.jgitkins.server.presentation.mapper.RunnerRegistrationMapper;
 import io.jgitkins.server.presentation.mapper.RunnerResponseMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -68,8 +69,19 @@ public class RunnerController {
 
     @Operation(summary = "Activate Runner", description = "Activate a runner and set it ONLINE")
     @PostMapping("/{runnerId}/activate")
-    public ResponseEntity<RunnerResponse> activateRunner(@PathVariable Long runnerId) {
-        RunnerDetailResult result = runnerActivateUseCase.activate(runnerId);
+    public ResponseEntity<RunnerResponse> activateRunner(@PathVariable Long runnerId,
+                                                         @Valid @RequestBody RunnerActivationRequest request,
+                                                         HttpServletRequest httpServletRequest) {
+        String clientIp = extractClientIp(httpServletRequest);
+        RunnerDetailResult result = runnerActivateUseCase.activate(runnerId, request.getToken(), clientIp);
         return ResponseEntity.ok(runnerResponseMapper.toResponse(result));
+    }
+
+    private String extractClientIp(HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) {
+            return forwarded.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 }

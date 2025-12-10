@@ -11,6 +11,8 @@ import org.mapstruct.Mapping;
 public interface RunnerRegistrationMapper {
 
     @Mapping(target = "description", source = "request.description")
+    @Mapping(target = "scopeType", source = "request.scopeType")
+    @Mapping(target = "targetId", source = "request.targetId")
 //    @Mapping(target = "ipAddress", source = "resolvedIpAddress")
     RunnerRegisterCommand toCommand(RunnerRegistrationRequest request);
 

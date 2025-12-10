@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
+        "id": "1",
         "title": "Feature Runner Management API",
         "description": "Create the core pipeline/job aggregates, DTOs, and storage ports that will back CI orchestration.",
         "status": "done",
@@ -39,7 +39,8 @@
             "details": "",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 1
+            "parentTaskId": 1,
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -48,13 +49,14 @@
             "details": "",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 1
+            "parentTaskId": 1,
+            "parentId": "undefined"
           }
         ],
         "updatedAt": "2025-12-08T07:31:21.514Z"
       },
       {
-        "id": 2,
+        "id": "2",
         "title": "Feature Integrate MQ",
         "description": "Introduce the Feature MQ message-bus so the CI coordinator can asynchronously push pipeline job definitions and runner heartbeat signals between the Spring Boot orchestrator and external JGitkins Runners, ensuring jobs created from parsed Jenkinsfiles are queued and acknowledged reliably.",
         "status": "in-progress",
@@ -137,19 +139,20 @@
           },
           {
             "id": 7,
-            "title": "Job Message Publis",
-            "description": "Working Job Messsage Publish When Available Runner Detected",
+            "title": "Job Message Publish",
+            "description": "1. Scheduling 작업 진행\n2. Dispatch Job to Runnable Runner",
             "details": "",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2,
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-10T11:05:16.998Z"
           }
         ],
-        "updatedAt": "2025-12-04T08:37:59.733Z"
+        "updatedAt": "2025-12-10T11:05:16.998Z"
       },
       {
-        "id": 3,
+        "id": "3",
         "title": "Feature Batch Job Publisher",
         "description": "Create a scheduled dispatcher that scans stored pipeline jobs and enqueues them only when at least one runnable runner is currently reporting heartbeats.",
         "details": "1. Follow the service layout under `src/main/java/io/jgitkins/server/application/port/service/` (see `RepositoryService` as a reference) to add a `JobDispatchService` that consumes `PipelineJobPersistencePort`, `JobQueuePort`, and `RunnerHeartbeatPort` (from Tasks 1 & 2). The service should expose `publishPendingJobs()` that: a) loads pending `PipelineJob`s flagged as runnable, b) checks runner availability via heartbeat data (only runners with recent timestamps and matching labels/architectures should qualify), c) transitions the job status to `QUEUED` and persists it before enqueueing via `JobQueuePort`, and d) skips jobs when no runner fits.\n2. Implement a Spring `@Component` scheduler (e.g., `PipelineJobPublisherBatch` under `src/main/java/io/jgitkins/server/infrastructure/batch/`) using `@Scheduled(fixedDelay = …)` and enable scheduling in `JGitkinsServerApplication` if not already. The batch should call `JobDispatchService.publishPendingJobs()` and log outcomes with structured log messages (job id, runner id) using SLF4J, mirroring logging already present in adapters like `JGitRepositoryAdapter`.\n3. Add configuration knobs in `application.yml` (new `jgitkins.dispatcher.*` section) for delay interval, heartbeat freshness threshold, and per-runner concurrency guard. Bind them via a `@ConfigurationProperties` class under `infrastructure/config` similar to existing configs (e.g., `DataSourceConfig`). Inject these properties into the batch component.\n4. Extend the domain from Task 1 by documenting the new `QUEUED` transition and runner-selection constraints inside the `PipelineJob` aggregate (update its JavaDoc or KDoc comments once implemented) so later tasks understand invariants. Ensure the dispatch logic throws `ResourceLockedException` when concurrent updates race, matching existing exception types in `application/common/exception`.\n5. Prepare the infrastructure adapter for recording runner occupancy: add a lightweight `RunnerAssignmentTracker` (in-memory Map for now) under `infrastructure/adapter/mq/` that mirrors how other adapters (e.g., `JGitBranchAdapter`) encapsulate external resources, so future MQ-backed implementations can reuse the selection logic.",
@@ -163,7 +166,7 @@
         "subtasks": []
       },
       {
-        "id": 4,
+        "id": "4",
         "title": "Feature Runner Image & Plugin Catalog",
         "description": "Introduce server-side management for Runner base images and plugin manifests so runners can fetch a curated `plugin.yaml` describing the plugins they should install.",
         "details": "1. Model runner assets beside existing domain records (see `src/main/java/io/jgitkins/server/application/domain`) by adding `RunnerImage`, `RunnerPluginDescriptor`, and `RunnerManifest` aggregates that capture image digest, supported architectures, plugin metadata, and last-updated hashes so `RunnerAssignment` from Task 1 can reference a concrete manifest version when dispatching jobs.\n2. Define input DTOs/use cases (`RegisterRunnerImageCommand`, `UpdateRunnerManifestCommand`, etc.) under `application/port/in` patterned after `CreateRepositoryUseCase`, plus new outbound ports `RunnerCatalogPort` and `RunnerManifestPort` in `application/port/out` for storing image inventory and persisting runner-specific `plugin.yaml` content.\n3. Implement `RunnerManagementService` in `application/port/service` (follow `RepositoryService` structure) coordinating validation (unique image name, plugin compatibility with image architecture), diffing manifests, and exposing methods for runners to fetch resolved manifests or request plugin refresh tokens.\n4. Provide infrastructure adapters in `src/main/java/io/jgitkins/server/infrastructure/adapter/persistence` backed by an in-memory map plus filesystem snapshots under `data/runner-manifests/<runnerId>/plugin.yaml`; introduce a `PluginYamlMapper` component that uses Jackson YAML (`com.fasterxml.jackson.dataformat:jackson-dataformat-yaml`) added to `build.gradle` to convert manifest aggregates to canonical YAML before storing.\n5. Add REST endpoints in a new `RunnerManagementController` (`presentation/api`) with POST/GET routes for image registration, plugin manifest updates, manifest retrieval, and plugin checksum introspection; reuse the mapper style from `BranchCreateMapper` for translating DTOs, enforce optimistic locking via ETag headers so runners do not download unchanged manifests.\n6. Document the workflow in `README.md` Runner Management section describing how runners call the new endpoints to sync their images/plugins and how plugin manifests relate to Task 2's MQ heartbeat payloads once available.",
@@ -174,18 +177,31 @@
         ],
         "priority": "medium",
         "subtasks": []
+      },
+      {
+        "id": "5",
+        "title": "Scheduled Job Publication Flow",
+        "description": "Implement a scheduler-driven service that detects pending pipeline jobs, ensures a compatible runnable runner exists, updates job history, and enqueues the job for execution.",
+        "details": "1. Add a Spring `@Scheduled` component (e.g., `JobSchedulePoller` under `src/main/java/io/jgitkins/server/application/scheduling/`) that invokes the existing `JobDispatchService.publishPendingJobs()` from Task 3 at configurable intervals (default 30s via `application.yml`).\n2. Within `JobDispatchService`, implement logic to query `PipelineJobPersistencePort` for pending jobs, ask `RunnerHeartbeatPort` for runners whose heartbeats fall within the freshness window and match required labels/arch, and pick the best runner via `RunnerAssignment` metadata.\n3. When a runner is selected, update the job’s domain aggregate: append a history entry (new `JobHistoryEvent`/value object) capturing transition `PENDING→QUEUED`, runner id, timestamp, and any queue reference.\n4. Persist the updated job via `PipelineJobPersistencePort` using optimistic locking to prevent duplicate dispatch, then call `JobQueuePort.enqueue()` with a DTO mirroring Task 2’s payload specification.\n5. Emit structured logs/metrics (Micrometer counter for dispatched jobs, gauge for backlog) to aid observability and ensure the scheduler is idempotent (skip processing when no runners qualify).",
+        "testStrategy": "- Add `JobDispatchServiceTest` cases: (a) verifies pending job transitions to queued when a fresh runner is available—assert history entry and enqueue call; (b) ensures no enqueue when no runner passes freshness/label filters; (c) concurrency test mocking persistence lock failure to confirm retry/skip behavior.\n- Create `JobSchedulePollerTest` (Spring slice) to assert the scheduler delegates to `JobDispatchService` and honors configuration (use `@ExtendWith(SpringExtension.class)` plus `@Import(JobSchedulePoller.class)` with mocked service).\n- Optional integration test wiring in-memory implementations of ports to ensure full flow updates job records and publishes to queue.",
+        "status": "pending",
+        "dependencies": [
+          "1",
+          "2",
+          "3"
+        ],
+        "priority": "medium",
+        "subtasks": []
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-08T07:31:21.515Z",
-      "taskCount": 4,
-      "completedCount": 0,
+      "lastModified": "2025-12-10T11:05:17.001Z",
+      "taskCount": 5,
+      "completedCount": 1,
       "tags": [
         "master"
-      ],
-      "created": "2025-12-08T09:55:39.743Z",
-      "description": "Tasks for master context"
+      ]
     }
   }
 }
