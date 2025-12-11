@@ -1,7 +1,7 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
 import io.jgitkins.server.application.port.out.RunnerCommandPort;
-import io.jgitkins.server.domain.model.Runner;
+import io.jgitkins.server.domain.aggregate.Runner;
 import org.springframework.context.annotation.Profile;
 
 @Profile("test")

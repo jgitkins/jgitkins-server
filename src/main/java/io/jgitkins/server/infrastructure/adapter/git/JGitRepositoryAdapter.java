@@ -32,6 +32,7 @@ import java.util.*;
 @Slf4j
 public class JGitRepositoryAdapter implements
         CreateRepositoryPort,
+        DeleteRepositoryPort,
         LoadTreePort,
         LoadAllFilesPort,
         LoadCommitDetailPort,
@@ -74,6 +75,21 @@ public class JGitRepositoryAdapter implements
         repo.create(true);
         repo.getConfig().setBoolean("http", null, "receivepack", true);
         repo.getConfig().save();
+    }
+
+    private void deleteRecursively(File target) throws IOException {
+        if (target == null || !target.exists()) {
+            return;
+        }
+        File[] contents = target.listFiles();
+        if (contents != null) {
+            for (File child : contents) {
+                deleteRecursively(child);
+            }
+        }
+        if (!target.delete()) {
+            throw new IOException("Failed to delete " + target.getAbsolutePath());
+        }
     }
 
     private RevTree resolveCommitTree(Repository repository, String branch) throws IOException {
@@ -303,7 +319,7 @@ public class JGitRepositoryAdapter implements
     }
 
     @Override
-    public void createBareRepository(String taskCd, String repoName) {
+    public void create(String taskCd, String repoName) {
         File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
 
         try {
@@ -317,6 +333,27 @@ public class JGitRepositoryAdapter implements
                     "Repository creation failed: " + gitDir.getAbsolutePath(), e);
             // throw new CreationFailedException("Repository creation failed: " +
             // gitDir.getAbsolutePath(), e);
+        }
+    }
+
+    @Override
+    public void delete(String taskCd, String repoName) {
+        File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
+        if (!gitDir.exists()) {
+            log.info("Skip repository delete. repo not found path={}, task={}", gitDir.getAbsolutePath(), taskCd);
+            return;
+        }
+        try {
+            deleteRecursively(gitDir);
+            File parent = gitDir.getParentFile();
+            if (parent != null && parent.isDirectory()) {
+                File[] siblings = parent.listFiles();
+                if (siblings != null && siblings.length == 0) {
+                    parent.delete();
+                }
+            }
+        } catch (IOException e) {
+            throw new InternalServerErrorException(ErrorCode.REPOSITORY_DELETE_FAILED, "Failed to delete repository directory: " + gitDir.getAbsolutePath(), e);
         }
     }
 

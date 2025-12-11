@@ -6,8 +6,14 @@
     <result column="organize_id" jdbcType="BIGINT" property="organizeId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="path" jdbcType="VARCHAR" property="path" />
+    <result column="repository_type" jdbcType="VARCHAR" property="repositoryType" />
+    <result column="owner_id" jdbcType="BIGINT" property="ownerId" />
+    <result column="credential_id" jdbcType="VARCHAR" property="credentialId" />
+    <result column="clone_path" jdbcType="VARCHAR" property="clonePath" />
     <result column="default_branch" jdbcType="VARCHAR" property="defaultBranch" />
     <result column="visibility" jdbcType="VARCHAR" property="visibility" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="last_synced_at" jdbcType="TIMESTAMP" property="lastSyncedAt" />
     <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
     <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
@@ -73,7 +79,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, organize_id, name, path, default_branch, visibility, created_at, updated_at
+    id, organize_id, name, path, repository_type, owner_id, credential_id, clone_path, 
+    default_branch, visibility, status, last_synced_at, created_at, updated_at
   </sql>
   <sql id="Blob_Column_List">
     description
@@ -126,22 +133,21 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity">
-    insert into repository (id, organize_id, name, 
-      path, default_branch, visibility, 
-      created_at, updated_at, description
-      )
-    values (#{id,jdbcType=BIGINT}, #{organizeId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
-      #{path,jdbcType=VARCHAR}, #{defaultBranch,jdbcType=VARCHAR}, #{visibility,jdbcType=VARCHAR}, 
-      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{description,jdbcType=LONGVARCHAR}
-      )
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity" useGeneratedKeys="true">
+    insert into repository (organize_id, name, path, 
+      repository_type, owner_id, credential_id, 
+      clone_path, default_branch, visibility, 
+      status, last_synced_at, created_at, 
+      updated_at, description)
+    values (#{organizeId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
+      #{repositoryType,jdbcType=VARCHAR}, #{ownerId,jdbcType=BIGINT}, #{credentialId,jdbcType=VARCHAR}, 
+      #{clonePath,jdbcType=VARCHAR}, #{defaultBranch,jdbcType=VARCHAR}, #{visibility,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{lastSyncedAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=TIMESTAMP}, 
+      #{updatedAt,jdbcType=TIMESTAMP}, #{description,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity">
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity" useGeneratedKeys="true">
     insert into repository
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="organizeId != null">
         organize_id,
       </if>
@@ -151,11 +157,29 @@
       <if test="path != null">
         path,
       </if>
+      <if test="repositoryType != null">
+        repository_type,
+      </if>
+      <if test="ownerId != null">
+        owner_id,
+      </if>
+      <if test="credentialId != null">
+        credential_id,
+      </if>
+      <if test="clonePath != null">
+        clone_path,
+      </if>
       <if test="defaultBranch != null">
         default_branch,
       </if>
       <if test="visibility != null">
         visibility,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="lastSyncedAt != null">
+        last_synced_at,
       </if>
       <if test="createdAt != null">
         created_at,
@@ -168,9 +192,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
       <if test="organizeId != null">
         #{organizeId,jdbcType=BIGINT},
       </if>
@@ -180,11 +201,29 @@
       <if test="path != null">
         #{path,jdbcType=VARCHAR},
       </if>
+      <if test="repositoryType != null">
+        #{repositoryType,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerId != null">
+        #{ownerId,jdbcType=BIGINT},
+      </if>
+      <if test="credentialId != null">
+        #{credentialId,jdbcType=VARCHAR},
+      </if>
+      <if test="clonePath != null">
+        #{clonePath,jdbcType=VARCHAR},
+      </if>
       <if test="defaultBranch != null">
         #{defaultBranch,jdbcType=VARCHAR},
       </if>
       <if test="visibility != null">
         #{visibility,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="lastSyncedAt != null">
+        #{lastSyncedAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createdAt != null">
         #{createdAt,jdbcType=TIMESTAMP},
@@ -218,11 +257,29 @@
       <if test="row.path != null">
         path = #{row.path,jdbcType=VARCHAR},
       </if>
+      <if test="row.repositoryType != null">
+        repository_type = #{row.repositoryType,jdbcType=VARCHAR},
+      </if>
+      <if test="row.ownerId != null">
+        owner_id = #{row.ownerId,jdbcType=BIGINT},
+      </if>
+      <if test="row.credentialId != null">
+        credential_id = #{row.credentialId,jdbcType=VARCHAR},
+      </if>
+      <if test="row.clonePath != null">
+        clone_path = #{row.clonePath,jdbcType=VARCHAR},
+      </if>
       <if test="row.defaultBranch != null">
         default_branch = #{row.defaultBranch,jdbcType=VARCHAR},
       </if>
       <if test="row.visibility != null">
         visibility = #{row.visibility,jdbcType=VARCHAR},
+      </if>
+      <if test="row.status != null">
+        status = #{row.status,jdbcType=VARCHAR},
+      </if>
+      <if test="row.lastSyncedAt != null">
+        last_synced_at = #{row.lastSyncedAt,jdbcType=TIMESTAMP},
       </if>
       <if test="row.createdAt != null">
         created_at = #{row.createdAt,jdbcType=TIMESTAMP},
@@ -244,8 +301,14 @@
       organize_id = #{row.organizeId,jdbcType=BIGINT},
       name = #{row.name,jdbcType=VARCHAR},
       path = #{row.path,jdbcType=VARCHAR},
+      repository_type = #{row.repositoryType,jdbcType=VARCHAR},
+      owner_id = #{row.ownerId,jdbcType=BIGINT},
+      credential_id = #{row.credentialId,jdbcType=VARCHAR},
+      clone_path = #{row.clonePath,jdbcType=VARCHAR},
       default_branch = #{row.defaultBranch,jdbcType=VARCHAR},
       visibility = #{row.visibility,jdbcType=VARCHAR},
+      status = #{row.status,jdbcType=VARCHAR},
+      last_synced_at = #{row.lastSyncedAt,jdbcType=TIMESTAMP},
       created_at = #{row.createdAt,jdbcType=TIMESTAMP},
       updated_at = #{row.updatedAt,jdbcType=TIMESTAMP},
       description = #{row.description,jdbcType=LONGVARCHAR}
@@ -259,8 +322,14 @@
       organize_id = #{row.organizeId,jdbcType=BIGINT},
       name = #{row.name,jdbcType=VARCHAR},
       path = #{row.path,jdbcType=VARCHAR},
+      repository_type = #{row.repositoryType,jdbcType=VARCHAR},
+      owner_id = #{row.ownerId,jdbcType=BIGINT},
+      credential_id = #{row.credentialId,jdbcType=VARCHAR},
+      clone_path = #{row.clonePath,jdbcType=VARCHAR},
       default_branch = #{row.defaultBranch,jdbcType=VARCHAR},
       visibility = #{row.visibility,jdbcType=VARCHAR},
+      status = #{row.status,jdbcType=VARCHAR},
+      last_synced_at = #{row.lastSyncedAt,jdbcType=TIMESTAMP},
       created_at = #{row.createdAt,jdbcType=TIMESTAMP},
       updated_at = #{row.updatedAt,jdbcType=TIMESTAMP}
     <if test="example != null">
@@ -279,11 +348,29 @@
       <if test="path != null">
         path = #{path,jdbcType=VARCHAR},
       </if>
+      <if test="repositoryType != null">
+        repository_type = #{repositoryType,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerId != null">
+        owner_id = #{ownerId,jdbcType=BIGINT},
+      </if>
+      <if test="credentialId != null">
+        credential_id = #{credentialId,jdbcType=VARCHAR},
+      </if>
+      <if test="clonePath != null">
+        clone_path = #{clonePath,jdbcType=VARCHAR},
+      </if>
       <if test="defaultBranch != null">
         default_branch = #{defaultBranch,jdbcType=VARCHAR},
       </if>
       <if test="visibility != null">
         visibility = #{visibility,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="lastSyncedAt != null">
+        last_synced_at = #{lastSyncedAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createdAt != null">
         created_at = #{createdAt,jdbcType=TIMESTAMP},
@@ -302,8 +389,14 @@
     set organize_id = #{organizeId,jdbcType=BIGINT},
       name = #{name,jdbcType=VARCHAR},
       path = #{path,jdbcType=VARCHAR},
+      repository_type = #{repositoryType,jdbcType=VARCHAR},
+      owner_id = #{ownerId,jdbcType=BIGINT},
+      credential_id = #{credentialId,jdbcType=VARCHAR},
+      clone_path = #{clonePath,jdbcType=VARCHAR},
       default_branch = #{defaultBranch,jdbcType=VARCHAR},
       visibility = #{visibility,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      last_synced_at = #{lastSyncedAt,jdbcType=TIMESTAMP},
       created_at = #{createdAt,jdbcType=TIMESTAMP},
       updated_at = #{updatedAt,jdbcType=TIMESTAMP},
       description = #{description,jdbcType=LONGVARCHAR}
@@ -314,8 +407,14 @@
     set organize_id = #{organizeId,jdbcType=BIGINT},
       name = #{name,jdbcType=VARCHAR},
       path = #{path,jdbcType=VARCHAR},
+      repository_type = #{repositoryType,jdbcType=VARCHAR},
+      owner_id = #{ownerId,jdbcType=BIGINT},
+      credential_id = #{credentialId,jdbcType=VARCHAR},
+      clone_path = #{clonePath,jdbcType=VARCHAR},
       default_branch = #{defaultBranch,jdbcType=VARCHAR},
       visibility = #{visibility,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      last_synced_at = #{lastSyncedAt,jdbcType=TIMESTAMP},
       created_at = #{createdAt,jdbcType=TIMESTAMP},
       updated_at = #{updatedAt,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}

@@ -199,7 +199,7 @@
         "description": "Establish a robust domain model for repositories and enhance the existing API for managing them, including CRUD operations and state tracking.",
         "details": "1. Define Repository Aggregate: Following the pattern established in `src/main/java/io/jgitkins/server/domain/model/Job.java` (from Task 1), introduce a `Repository` aggregate (e.g., as a Java record) within `src/main/java/io/jgitkins/server/application/domain/model/`. This aggregate should include properties such as `id` (UUID), `url` (e.g., Git URL), `name`, `branch`, `credentialId` (if applicable), `lastSyncedAt`, `status` (e.g., 'ACTIVE', 'INACTIVE', 'ERROR'), and `ownerId`. Consider `RepositoryType` (e.g., GITHUB, GITLAB) as a Value Object. 2. Refine RepositoryService: Update or extend `src/main/java/io/jgitkins/server/application/port/service/RepositoryService.java` to operate on the new `Repository` domain model. Implement use cases for creating, updating, retrieving, and deleting repositories. This service will act as the application-layer entry point for repository management. 3. Implement RepositoryPersistencePort: Define a `RepositoryPersistencePort` interface in `src/main/java/io/jgitkins/server/application/port/out/` alongside `RepositoryContentPort` (as per Task 2). Implement methods like `save(Repository repository)`, `findById(UUID id)`, `findByUrl(String url)`, and `delete(UUID id)`. 4. Create Persistence Adapter: Develop an in-memory adapter (`InMemoryRepositoryAdapter`) for `RepositoryPersistencePort` in `src/main/java/io/jgitkins/server/infrastructure/adapter/out/persistence/` for initial development and testing, mirroring the approach of other in-memory adapters. 5. Develop Repository DTOs: Create corresponding Data Transfer Objects (DTOs) in `src/main/java/io/jgitkins/server/application/dto/` for `CreateRepositoryCommand`, `UpdateRepositoryCommand`, and `RepositoryResponse` to facilitate API interactions. 6. Expose REST Endpoints: Implement or modify REST controllers (e.g., `RepositoryController` in `src/main/java/io/jgitkins/server/interfaces/rest/`) to expose endpoints for managing repositories (e.g., `POST /api/repositories`, `GET /api/repositories/{id}`, `PUT /api/repositories/{id}`, `DELETE /api/repositories/{id}`). These endpoints should use the newly defined DTOs and interact with `RepositoryService`. 7. Integrate with RepositoryContentPort: Ensure the refined `RepositoryService` can leverage or integrate with the existing `RepositoryContentPort` for operations requiring interaction with the actual repository content (e.g., fetching Jenkinsfile, although this specific part might be a follow-up task, ensure compatibility.",
         "testStrategy": "1. Domain Unit Tests: Add unit tests under `src/test/java/.../domain/model/RepositoryTest` to verify the `Repository` aggregate's constructor, invariants, and state transitions. 2. Service Layer Tests: Create `RepositoryServiceTest` under `src/test/java/.../application/port/service/` using mocks for `RepositoryPersistencePort` to test business logic for creating, updating, and retrieving repositories, ensuring correct data flow and error handling. 3. Persistence Adapter Tests: Implement Spring Boot slice tests for `InMemoryRepositoryAdapter` to verify `save`, `findById`, `findByUrl`, and `delete` operations correctly persist and retrieve `Repository` objects. 4. API Integration Tests: Develop integration tests for the `RepositoryController` using tools like MockMvc or TestRestTemplate to ensure REST endpoints function as expected, handle various HTTP methods, status codes, and data payloads for repository management.",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           1,
           2
@@ -214,7 +214,7 @@
               1
             ],
             "details": "Introduce the `Repository` aggregate as a Java record in `src/main/java/io/jgitkins/server/application/domain/model/`. It should include properties such as `id` (UUID), `url`, `name`, `branch`, `credentialId`, `lastSyncedAt`, `status` (e.g., 'ACTIVE', 'INACTIVE', 'ERROR'), and `ownerId`. Define `RepositoryType` (e.g., GITHUB, GITLAB) as a Value Object, potentially an enum or record. Ensure consistency with the `Job.java` pattern from Task 1.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Add unit tests under `src/test/java/io/jgitkins/server/application/domain/model/RepositoryTest` to verify the `Repository` aggregate's constructor, property immutability, invariants, and potential state transitions."
           },
           {
@@ -225,7 +225,7 @@
               1
             ],
             "details": "Define the `RepositoryPersistencePort` interface in `src/main/java/io/jgitkins/server/application/port/out/` with methods such as `save(Repository repository)`, `findById(UUID id)`, `findByUrl(String url)`, and `delete(UUID id)`. Implement an `InMemoryRepositoryAdapter` for this port in `src/main/java/io/jgitkins/server/infrastructure/adapter/out/persistence/`, mirroring the approach of other in-memory adapters.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Create `InMemoryRepositoryAdapterTest` under `src/test/java/io/jgitkins/server/infrastructure/adapter/out/persistence/` to verify that all CRUD methods (save, find by ID, find by URL, delete) function correctly against the in-memory store."
           },
           {
@@ -236,7 +236,7 @@
               1
             ],
             "details": "Develop corresponding Data Transfer Objects (DTOs) in `src/main/java/io/jgitkins/server/application/dto/`. These DTOs should include `CreateRepositoryCommand` (for initial repository data), `UpdateRepositoryCommand` (for modifying repository details), and `RepositoryResponse` (for returning repository information via the API). Ensure these DTOs align with the `Repository` domain model.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": null
           },
           {
@@ -249,7 +249,7 @@
               3
             ],
             "details": "Update or extend `src/main/java/io/jgitkins/server/application/port/service/RepositoryService.java` to implement use cases for creating, updating, retrieving, and deleting repositories. This service will operate on the `Repository` domain model, utilize `RepositoryPersistencePort`, and integrate with the new DTOs. Ensure its design accommodates future integration with `RepositoryContentPort` from Task 2.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Create `RepositoryServiceTest` under `src/test/java/io/jgitkins/server/application/port/service/` using mocked `RepositoryPersistencePort` to verify correct handling of CRUD operations, business rules, and interaction with the persistence layer, including mapping DTOs to domain objects."
           },
           {
@@ -260,8 +260,80 @@
               4
             ],
             "details": "Implement or modify REST controllers (e.g., `RepositoryController` in `src/main/java/io/jgitkins/server/interfaces/rest/`) to expose endpoints for managing repositories. This includes `POST /api/repositories` (create), `GET /api/repositories/{id}` (retrieve by ID), `PUT /api/repositories/{id}` (update), and `DELETE /api/repositories/{id}` (delete). These endpoints must use the newly defined DTOs and interact with `RepositoryService`.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Implement integration tests for `RepositoryController` using Spring Boot's testing capabilities (`@WebMvcTest` or `@SpringBootTest` with MockMvc) to verify endpoint behavior, HTTP status codes, request/response payload mapping, and proper interaction with `RepositoryService`."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Define Organize Domain and Refine Repository Management API",
+        "description": "Define Organize Domain and Refine Repository Management API",
+        "details": "",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          1,
+          6
+        ],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Organize Domain Aggregate and Value Objects",
+            "description": "Create the Organize aggregate as a Java record and OrganizeType as a Value Object, mirroring the Job domain model pattern established in Task 1.",
+            "dependencies": [
+              1
+            ],
+            "details": "Introduce the `Organize` aggregate as a Java record in `src/main/java/io/jgitkins/server/application/domain/model/`. It should include properties such as `id` (UUID), `url`, `name`, `branch`, `credentialId`, `lastSyncedAt`, `status` (e.g., 'ACTIVE', 'INACTIVE', 'ERROR'), and `ownerId`. Define `OrganizeType` (e.g., GITHUB, GITLAB) as a Value Object, potentially an enum or record. Ensure consistency with the `Job.java` pattern from Task 1.",
+            "status": "done",
+            "testStrategy": "Add unit tests under `src/test/java/io/jgitkins/server/application/domain/model/OrganizeTest` to verify the `Organize` aggregate's constructor, property immutability, invariants, and potential state transitions."
+          },
+          {
+            "id": 2,
+            "title": "Implement Organize Persistence Port and In-Memory Adapter",
+            "description": "Define the `OrganizePersistencePort` interface for CRUD operations and create its in-memory implementation for initial development and testing, following existing adapter patterns.",
+            "dependencies": [
+              1
+            ],
+            "details": "Define the `OrganizePersistencePort` interface in `src/main/java/io/jgitkins/server/application/port/out/` with methods such as `save(Organize repository)`, `findById(UUID id)`, `findByUrl(String url)`, and `delete(UUID id)`. Implement an `InMemoryOrganizeAdapter` for this port in `src/main/java/io/jgitkins/server/infrastructure/adapter/out/persistence/`, mirroring the approach of other in-memory adapters.",
+            "status": "done",
+            "testStrategy": "Create `InMemoryOrganizeAdapterTest` under `src/test/java/io/jgitkins/server/infrastructure/adapter/out/persistence/` to verify that all CRUD methods (save, find by ID, find by URL, delete) function correctly against the in-memory store."
+          },
+          {
+            "id": 3,
+            "title": "Develop Organize Management Data Transfer Objects",
+            "description": "Create Data Transfer Objects (DTOs) specifically for managing repositories, including commands for creation and update, and a response DTO for API interactions.",
+            "dependencies": [
+              1
+            ],
+            "details": "Develop corresponding Data Transfer Objects (DTOs) in `src/main/java/io/jgitkins/server/application/dto/`. These DTOs should include `CreateOrganizeCommand` (for initial repository data), `UpdateOrganizeCommand` (for modifying repository details), and `OrganizeResponse` (for returning repository information via the API). Ensure these DTOs align with the `Organize` domain model.",
+            "status": "done",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Implement Organize Service Logic with CRUD Operations",
+            "description": "Develop or extend the `OrganizeService` to handle core business logic for managing repositories, including CRUD operations, by interacting with the persistence layer.",
+            "dependencies": [
+              1,
+              2,
+              3
+            ],
+            "details": "Update or extend `src/main/java/io/jgitkins/server/application/port/service/OrganizeService.java` to implement use cases for creating, updating, retrieving, and deleting repositories. This service will operate on the `Organize` domain model, utilize `OrganizePersistencePort`, and integrate with the new DTOs. Ensure its design accommodates future integration with `OrganizeContentPort` from Task 2.",
+            "status": "done",
+            "testStrategy": "Create `OrganizeServiceTest` under `src/test/java/io/jgitkins/server/application/port/service/` using mocked `OrganizePersistencePort` to verify correct handling of CRUD operations, business rules, and interaction with the persistence layer, including mapping DTOs to domain objects."
+          },
+          {
+            "id": 5,
+            "title": "Expose Organize Management REST Endpoints",
+            "description": "Implement REST API endpoints for creating, retrieving, updating, and deleting repositories, utilizing the `OrganizeService` and newly defined DTOs.",
+            "dependencies": [
+              4
+            ],
+            "details": "Implement or modify REST controllers (e.g., `OrganizeController` in `src/main/java/io/jgitkins/server/interfaces/rest/`) to expose endpoints for managing repositories. This includes `POST /api/repositories` (create), `GET /api/repositories/{id}` (retrieve by ID), `PUT /api/repositories/{id}` (update), and `DELETE /api/repositories/{id}` (delete). These endpoints must use the newly defined DTOs and interact with `OrganizeService`.",
+            "status": "done",
+            "testStrategy": "Implement integration tests for `OrganizeController` using Spring Boot's testing capabilities (`@WebMvcTest` or `@SpringBootTest` with MockMvc) to verify endpoint behavior, HTTP status codes, request/response payload mapping, and proper interaction with `OrganizeService`."
           }
         ]
       }
@@ -276,7 +348,7 @@
       ],
       "created": "2025-12-11T03:42:24.639Z",
       "description": "Tasks for master context",
-      "updated": "2025-12-11T03:42:51.103Z"
+      "updated": "2025-12-11T07:14:05.262Z"
     }
   }
 }

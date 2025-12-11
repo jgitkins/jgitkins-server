@@ -67,16 +67,33 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="USERS" domainObjectName="UserEntity"/>
-        <table tableName="ORGANIZE" domainObjectName="OrganizeEntity"/>
-        <table tableName="ORGANIZE_MEMBER" domainObjectName="OrganizeMemberEntity"/>
-        <table tableName="REPOSITORY" domainObjectName="RepositoryEntity"/>
-        <table tableName="REPOSITORY_MEMBER" domainObjectName="RepositoryMemberEntity"/>
-        <table tableName="BRANCH" domainObjectName="BranchEntity"/>
+        <table tableName="USERS" domainObjectName="UserEntity">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+        <table tableName="ORGANIZE" domainObjectName="OrganizeEntity">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="ORGANIZE_MEMBER" domainObjectName="OrganizeMemberEntity">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+        <table tableName="REPOSITORY" domainObjectName="RepositoryEntity">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="REPOSITORY_MEMBER" domainObjectName="RepositoryMemberEntity">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+        <table tableName="BRANCH" domainObjectName="BranchEntity">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
         <table tableName="RUNNER" domainObjectName="RunnerEntity">
             <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
-        <table tableName="RUNNER_ASSIGNMENT" domainObjectName="RunnerAssignmentEntity"/>
+        <table tableName="RUNNER_ASSIGNMENT" domainObjectName="RunnerAssignmentEntity">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
         <table tableName="JOB" domainObjectName="JobEntity">
             <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>

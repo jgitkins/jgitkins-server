@@ -60,10 +60,13 @@ _No tasks found._
 
 | ID | Title | Status | Priority | Subtasks |
 | --- | --- | --- | --- | --- |
-| 1 | Feature Runner Management API | pending | medium | 0 |
-| 2 | Feature Integrate MQ | in-progress | medium | 5 |
+| 1 | Feature Runner Management API | done | medium | 4 |
+| 2 | Feature Integrate MQ | in-progress | medium | 7 |
 | 3 | Feature Batch Job Publisher | pending | medium | 0 |
 | 4 | Feature Runner Image & Plugin Catalog | pending | medium | 0 |
+| 5 | Scheduled Job Publication Flow | pending | medium | 0 |
+| 6 | Define Repository Domain and Refine Repository Management API | done | medium | 5 |
+| 7 | Define Organize Domain and Refine Repository Management API | done | medium | 5 |
 
 <!-- TASKS-TABLE:END -->
 

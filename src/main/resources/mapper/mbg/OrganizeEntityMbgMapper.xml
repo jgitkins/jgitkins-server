@@ -124,20 +124,17 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity">
-    insert into organize (id, name, path, 
-      owner_id, created_at, updated_at, 
-      description)
-    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
-      #{ownerId,jdbcType=BIGINT}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, 
-      #{description,jdbcType=LONGVARCHAR})
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity" useGeneratedKeys="true">
+    insert into organize (name, path, owner_id, 
+      created_at, updated_at, description
+      )
+    values (#{name,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{ownerId,jdbcType=BIGINT}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}, #{description,jdbcType=LONGVARCHAR}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity">
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity" useGeneratedKeys="true">
     insert into organize
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="name != null">
         name,
       </if>
@@ -158,9 +155,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>

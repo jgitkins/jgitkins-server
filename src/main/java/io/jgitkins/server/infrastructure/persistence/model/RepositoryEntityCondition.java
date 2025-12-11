@@ -365,6 +365,276 @@ public class RepositoryEntityCondition {
             return (Criteria) this;
         }
 
+        public Criteria andRepositoryTypeIsNull() {
+            addCriterion("repository_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeIsNotNull() {
+            addCriterion("repository_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeEqualTo(String value) {
+            addCriterion("repository_type =", value, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeNotEqualTo(String value) {
+            addCriterion("repository_type <>", value, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeGreaterThan(String value) {
+            addCriterion("repository_type >", value, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("repository_type >=", value, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeLessThan(String value) {
+            addCriterion("repository_type <", value, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeLessThanOrEqualTo(String value) {
+            addCriterion("repository_type <=", value, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeLike(String value) {
+            addCriterion("repository_type like", value, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeNotLike(String value) {
+            addCriterion("repository_type not like", value, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeIn(List<String> values) {
+            addCriterion("repository_type in", values, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeNotIn(List<String> values) {
+            addCriterion("repository_type not in", values, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeBetween(String value1, String value2) {
+            addCriterion("repository_type between", value1, value2, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepositoryTypeNotBetween(String value1, String value2) {
+            addCriterion("repository_type not between", value1, value2, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerIdIsNull() {
+            addCriterion("owner_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerIdIsNotNull() {
+            addCriterion("owner_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerIdEqualTo(Long value) {
+            addCriterion("owner_id =", value, "ownerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerIdNotEqualTo(Long value) {
+            addCriterion("owner_id <>", value, "ownerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerIdGreaterThan(Long value) {
+            addCriterion("owner_id >", value, "ownerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerIdGreaterThanOrEqualTo(Long value) {
+            addCriterion("owner_id >=", value, "ownerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerIdLessThan(Long value) {
+            addCriterion("owner_id <", value, "ownerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerIdLessThanOrEqualTo(Long value) {
+            addCriterion("owner_id <=", value, "ownerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerIdIn(List<Long> values) {
+            addCriterion("owner_id in", values, "ownerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerIdNotIn(List<Long> values) {
+            addCriterion("owner_id not in", values, "ownerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerIdBetween(Long value1, Long value2) {
+            addCriterion("owner_id between", value1, value2, "ownerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerIdNotBetween(Long value1, Long value2) {
+            addCriterion("owner_id not between", value1, value2, "ownerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdIsNull() {
+            addCriterion("credential_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdIsNotNull() {
+            addCriterion("credential_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdEqualTo(String value) {
+            addCriterion("credential_id =", value, "credentialId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdNotEqualTo(String value) {
+            addCriterion("credential_id <>", value, "credentialId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdGreaterThan(String value) {
+            addCriterion("credential_id >", value, "credentialId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdGreaterThanOrEqualTo(String value) {
+            addCriterion("credential_id >=", value, "credentialId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdLessThan(String value) {
+            addCriterion("credential_id <", value, "credentialId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdLessThanOrEqualTo(String value) {
+            addCriterion("credential_id <=", value, "credentialId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdLike(String value) {
+            addCriterion("credential_id like", value, "credentialId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdNotLike(String value) {
+            addCriterion("credential_id not like", value, "credentialId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdIn(List<String> values) {
+            addCriterion("credential_id in", values, "credentialId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdNotIn(List<String> values) {
+            addCriterion("credential_id not in", values, "credentialId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdBetween(String value1, String value2) {
+            addCriterion("credential_id between", value1, value2, "credentialId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCredentialIdNotBetween(String value1, String value2) {
+            addCriterion("credential_id not between", value1, value2, "credentialId");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathIsNull() {
+            addCriterion("clone_path is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathIsNotNull() {
+            addCriterion("clone_path is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathEqualTo(String value) {
+            addCriterion("clone_path =", value, "clonePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathNotEqualTo(String value) {
+            addCriterion("clone_path <>", value, "clonePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathGreaterThan(String value) {
+            addCriterion("clone_path >", value, "clonePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathGreaterThanOrEqualTo(String value) {
+            addCriterion("clone_path >=", value, "clonePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathLessThan(String value) {
+            addCriterion("clone_path <", value, "clonePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathLessThanOrEqualTo(String value) {
+            addCriterion("clone_path <=", value, "clonePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathLike(String value) {
+            addCriterion("clone_path like", value, "clonePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathNotLike(String value) {
+            addCriterion("clone_path not like", value, "clonePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathIn(List<String> values) {
+            addCriterion("clone_path in", values, "clonePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathNotIn(List<String> values) {
+            addCriterion("clone_path not in", values, "clonePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathBetween(String value1, String value2) {
+            addCriterion("clone_path between", value1, value2, "clonePath");
+            return (Criteria) this;
+        }
+
+        public Criteria andClonePathNotBetween(String value1, String value2) {
+            addCriterion("clone_path not between", value1, value2, "clonePath");
+            return (Criteria) this;
+        }
+
         public Criteria andDefaultBranchIsNull() {
             addCriterion("default_branch is null");
             return (Criteria) this;
@@ -502,6 +772,136 @@ public class RepositoryEntityCondition {
 
         public Criteria andVisibilityNotBetween(String value1, String value2) {
             addCriterion("visibility not between", value1, value2, "visibility");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIsNull() {
+            addCriterion("status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIsNotNull() {
+            addCriterion("status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusEqualTo(String value) {
+            addCriterion("status =", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotEqualTo(String value) {
+            addCriterion("status <>", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusGreaterThan(String value) {
+            addCriterion("status >", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusGreaterThanOrEqualTo(String value) {
+            addCriterion("status >=", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusLessThan(String value) {
+            addCriterion("status <", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusLessThanOrEqualTo(String value) {
+            addCriterion("status <=", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusLike(String value) {
+            addCriterion("status like", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotLike(String value) {
+            addCriterion("status not like", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIn(List<String> values) {
+            addCriterion("status in", values, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotIn(List<String> values) {
+            addCriterion("status not in", values, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusBetween(String value1, String value2) {
+            addCriterion("status between", value1, value2, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotBetween(String value1, String value2) {
+            addCriterion("status not between", value1, value2, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSyncedAtIsNull() {
+            addCriterion("last_synced_at is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSyncedAtIsNotNull() {
+            addCriterion("last_synced_at is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSyncedAtEqualTo(LocalDateTime value) {
+            addCriterion("last_synced_at =", value, "lastSyncedAt");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSyncedAtNotEqualTo(LocalDateTime value) {
+            addCriterion("last_synced_at <>", value, "lastSyncedAt");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSyncedAtGreaterThan(LocalDateTime value) {
+            addCriterion("last_synced_at >", value, "lastSyncedAt");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSyncedAtGreaterThanOrEqualTo(LocalDateTime value) {
+            addCriterion("last_synced_at >=", value, "lastSyncedAt");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSyncedAtLessThan(LocalDateTime value) {
+            addCriterion("last_synced_at <", value, "lastSyncedAt");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSyncedAtLessThanOrEqualTo(LocalDateTime value) {
+            addCriterion("last_synced_at <=", value, "lastSyncedAt");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSyncedAtIn(List<LocalDateTime> values) {
+            addCriterion("last_synced_at in", values, "lastSyncedAt");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSyncedAtNotIn(List<LocalDateTime> values) {
+            addCriterion("last_synced_at not in", values, "lastSyncedAt");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSyncedAtBetween(LocalDateTime value1, LocalDateTime value2) {
+            addCriterion("last_synced_at between", value1, value2, "lastSyncedAt");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastSyncedAtNotBetween(LocalDateTime value1, LocalDateTime value2) {
+            addCriterion("last_synced_at not between", value1, value2, "lastSyncedAt");
             return (Criteria) this;
         }
 

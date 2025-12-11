@@ -102,20 +102,17 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity">
-    insert into branch (id, repository_id, name, 
-      is_locked, locked_by, locked_at, 
-      created_at, updated_at)
-    values (#{id,jdbcType=BIGINT}, #{repositoryId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
-      #{isLocked,jdbcType=BOOLEAN}, #{lockedBy,jdbcType=BIGINT}, #{lockedAt,jdbcType=TIMESTAMP}, 
-      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity" useGeneratedKeys="true">
+    insert into branch (repository_id, name, is_locked, 
+      locked_by, locked_at, created_at, 
+      updated_at)
+    values (#{repositoryId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{isLocked,jdbcType=BOOLEAN}, 
+      #{lockedBy,jdbcType=BIGINT}, #{lockedAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=TIMESTAMP}, 
+      #{updatedAt,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity">
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity" useGeneratedKeys="true">
     insert into branch
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="repositoryId != null">
         repository_id,
       </if>
@@ -139,9 +136,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
       <if test="repositoryId != null">
         #{repositoryId,jdbcType=BIGINT},
       </if>

@@ -1,4 +1,4 @@
-package io.jgitkins.server.domain.model;
+package io.jgitkins.server.domain.aggregate;
 
 import io.jgitkins.server.domain.model.vo.RunnerScopeType;
 import io.jgitkins.server.domain.model.vo.RunnerStatus;
@@ -14,7 +14,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Runner {
+public class Runner implements AggregateRoot<Long> {
 
     private final Long id;
     private final String token;

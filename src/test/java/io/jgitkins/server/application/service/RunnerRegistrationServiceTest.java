@@ -9,7 +9,7 @@
 //import io.jgitkins.server.application.dto.RunnerRegistrationResult;
 //import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
 //import io.jgitkins.server.application.port.out.RunnerCommandPort;
-//import io.jgitkins.server.domain.model.Runner;
+//import io.jgitkins.server.domain.aggregate.Runner;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.DisplayName;
 //import org.junit.jupiter.api.Test;

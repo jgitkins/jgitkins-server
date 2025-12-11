@@ -34,6 +34,11 @@ public class PushHook implements PostReceiveHook {
         Repository repository = receivePack.getRepository();
         log.debug("push event: user={} ip={} repo={}", request.getRemoteUser(), request.getRemoteAddr(), repository.getDirectory());
 
+        // TODO: 저장소 도메인 로딩
+        //  1. 저장소 도메인 로딩 with OutgoingPort
+        //  2. 훅이벤트가 신규 브랜치 생성 포함시 브랜치도 생성이 필요함 (반대로 삭제 이벤트때는 브랜치 영속화 해제 해야함)
+        //  3. 마지막으로 이벤트 변경에 따라 Job 생성이 필요
+
         // loading repository's context
         RepositoryContext repositoryContext = resolveRepositoryContext(repository)
                 .orElse(null);

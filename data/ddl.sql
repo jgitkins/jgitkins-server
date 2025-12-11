@@ -39,14 +39,21 @@ CREATE TABLE `REPOSITORY` (
   `organize_id` BIGINT NOT NULL,
   `name` VARCHAR(255) NOT NULL,
   `path` VARCHAR(255) NOT NULL,
+  `repository_type` VARCHAR(32) NOT NULL DEFAULT 'GIT',
+  `owner_id` BIGINT NULL,
+  `credential_id` VARCHAR(128) NULL,
+  `clone_path` VARCHAR(512) NULL,
   `description` TEXT,
   `default_branch` VARCHAR(255) NOT NULL,
   `visibility` VARCHAR(32) NOT NULL,
+  `status` VARCHAR(32) NOT NULL DEFAULT 'REGISTERED',
+  `last_synced_at` TIMESTAMP NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_repository_path` (`path`),
-  CONSTRAINT `FK_repository_organize` FOREIGN KEY (`organize_id`) REFERENCES `ORGANIZE` (`id`)
+  CONSTRAINT `FK_repository_organize` FOREIGN KEY (`organize_id`) REFERENCES `ORGANIZE` (`id`),
+  CONSTRAINT `FK_repository_owner` FOREIGN KEY (`owner_id`) REFERENCES `USERS` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `REPOSITORY_MEMBER` (

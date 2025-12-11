@@ -99,18 +99,15 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntity">
-    insert into ORGANIZE_MEMBER (id, organize_id, user_id, 
-      role, joined_at)
-    values (#{id,jdbcType=BIGINT}, #{organizeId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, 
-      #{role,jdbcType=VARCHAR}, #{joinedAt,jdbcType=TIMESTAMP})
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntity" useGeneratedKeys="true">
+    insert into ORGANIZE_MEMBER (organize_id, user_id, role, 
+      joined_at)
+    values (#{organizeId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{role,jdbcType=VARCHAR}, 
+      #{joinedAt,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntity">
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntity" useGeneratedKeys="true">
     insert into ORGANIZE_MEMBER
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="organizeId != null">
         organize_id,
       </if>
@@ -125,9 +122,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
       <if test="organizeId != null">
         #{organizeId,jdbcType=BIGINT},
       </if>

@@ -8,7 +8,7 @@ import io.jgitkins.server.application.dto.BranchCreateCommand;
 import io.jgitkins.server.application.dto.BranchInfo;
 import io.jgitkins.server.application.port.out.CreateBranchPort;
 import io.jgitkins.server.application.port.out.DeleteBranchPort;
-import io.jgitkins.server.application.port.out.LinkHeadPort;
+import io.jgitkins.server.application.port.out.UpdateHeadReferencePort;
 import io.jgitkins.server.application.port.out.BranchLoadPort;
 import io.jgitkins.server.infrastructure.support.RepositoryResolver;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class BranchJGitLoadAdapter implements LinkHeadPort, BranchLoadPort, CreateBranchPort, DeleteBranchPort {
+public class BranchJGitLoadAdapter implements UpdateHeadReferencePort, BranchLoadPort, CreateBranchPort, DeleteBranchPort {
 
     private final RepositoryResolver repositoryResolver;
 
@@ -58,7 +58,7 @@ public class BranchJGitLoadAdapter implements LinkHeadPort, BranchLoadPort, Crea
 
 
     @Override
-    public void linkHead(String taskCd, String repoName, String branch) {
+    public void updateHeadReference(String taskCd, String repoName, String branch) {
 
         try (Repository repo = repositoryResolver.openBareRepository(taskCd, repoName)) {
             String mainRef = GitConstants.REFS_HEADS_PREFIX + branch;

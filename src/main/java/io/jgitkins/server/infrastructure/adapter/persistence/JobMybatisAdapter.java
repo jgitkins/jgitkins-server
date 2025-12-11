@@ -1,7 +1,7 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
 import io.jgitkins.server.application.port.out.JobCommandPort;
-import io.jgitkins.server.domain.model.Job;
+import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.infrastructure.persistence.mapper.JobEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.JobHistoryEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.JobEntity;

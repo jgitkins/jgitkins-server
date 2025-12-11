@@ -3,23 +3,66 @@
 
 
 
+#######################################################
+### Organize ##########################################
+#######################################################
 
+### 조직 생성
+POST {{url}}/api/organizes
+
+{
+  "name": "demo-org",
+  "path": "demo",
+  "ownerId": 1,
+  "description": "demo organize"
+}
+
+### 조직 목록 조회
+GET {{url}}/api/organizes
+
+### 조직 상세 조회
+GET {{url}}/api/organizes/1
+
+### 조직 수정
+PUT {{url}}/api/organizes/1
+
+{
+  "name": "demo-org",
+  "description": "updated"
+}
+
+### 조직 삭제
+DELETE {{url}}/api/organizes/4
 
 #######################################################
 ### Repository ########################################
 #######################################################
-POST {{url}}/repositories
+
+### 저장소 등록
+POST {{url}}/api/repositories
 
 {
-    "taskCd": "AAA",
-    "repoName": "aaa",
+    "repoName": "bbb",
     "mainBranch": "main",
     "readme": true,
     "username": "heykia3",
     "email": "heykia3@protonmail.com",
-    "message": "Initial Commit"
-
+    "message": "Initial Commit",
+    "organizeId": 5,
+    "path": "bbb",
+    "visibility": "PUBLIC",
+    "repositoryType": "GIT"
 }
+
+### 저장소목록 조회
+### GET {{url}}/api/repositories
+
+### 저장소 상세 조회
+GET {{url}}/api/repositories/3
+
+### 저장소 삭제
+DELETE {{url}}/api/repositories/4
+
 
 #######################################################
 ### Runner ############################################

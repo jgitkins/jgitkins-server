@@ -102,20 +102,17 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntity">
-    insert into JOB_HISTORY (id, job_id, runner_id, 
-      status, log_path, started_at, 
-      finished_at, created_at)
-    values (#{id,jdbcType=BIGINT}, #{jobId,jdbcType=BIGINT}, #{runnerId,jdbcType=BIGINT}, 
-      #{status,jdbcType=VARCHAR}, #{logPath,jdbcType=VARCHAR}, #{startedAt,jdbcType=TIMESTAMP}, 
-      #{finishedAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=TIMESTAMP})
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntity" useGeneratedKeys="true">
+    insert into JOB_HISTORY (job_id, runner_id, status, 
+      log_path, started_at, finished_at, 
+      created_at)
+    values (#{jobId,jdbcType=BIGINT}, #{runnerId,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
+      #{logPath,jdbcType=VARCHAR}, #{startedAt,jdbcType=TIMESTAMP}, #{finishedAt,jdbcType=TIMESTAMP}, 
+      #{createdAt,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntity">
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntity" useGeneratedKeys="true">
     insert into JOB_HISTORY
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="jobId != null">
         job_id,
       </if>
@@ -139,9 +136,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
       <if test="jobId != null">
         #{jobId,jdbcType=BIGINT},
       </if>

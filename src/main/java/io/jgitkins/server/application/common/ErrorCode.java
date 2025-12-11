@@ -8,7 +8,8 @@ public enum ErrorCode {
      * Branches
      */
 
-      REPOSITORY_NOT_FOUND("REPOSITORY_NOT_FOUND", "Source Repository Not Found")
+    BAD_REQUEST("BAD_REQUEST", "BAD_REQUEST")
+    ,  REPOSITORY_NOT_FOUND("REPOSITORY_NOT_FOUND", "Source Repository Not Found")
     , REPOSITORY_CREATE_FAILED("REPOSITORY_CREATE_FAILED", "Repository Create Failed")
     , REPOSITORY_ALREADY_EXISTS("REPOSITORY_ALREADY_EXISTS", "Repository Already Exists")
     , SOURCE_BRANCH_NOT_FOUND("SOURCE_BRANCH_NOT_FOUND", "Source Branch Not Found")
@@ -29,6 +30,9 @@ public enum ErrorCode {
     , RUNNER_NOT_FOUND("RUNNER_NOT_FOUND", "Runner Not Found")
     , RUNNER_DELETE_FAILED("RUNNER_DELETE_FAILED", "Runner Delete Failed")
     , RUNNER_ACTIVATION_FAILED("RUNNER_ACTIVATION_FAILED", "Runner Activation Failed")
+    , ORGANIZE_NOT_FOUND("ORGANIZE_NOT_FOUND", "Organize Not Found")
+    , ORGANIZE_ALREADY_EXISTS("ORGANIZE_ALREADY_EXISTS", "Organize Already Exists")
+    , REPOSITORY_DELETE_FAILED("REPOSITORY_DELETE_FAILED", "Repository Delete Failed")
     ;
 
     private final String code;

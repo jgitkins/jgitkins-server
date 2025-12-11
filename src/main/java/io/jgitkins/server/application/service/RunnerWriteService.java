@@ -12,7 +12,7 @@ import io.jgitkins.server.application.port.in.RunnerDeleteUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
 import io.jgitkins.server.application.port.out.RunnerCommandPort;
 import io.jgitkins.server.application.port.out.RunnerQueryPort;
-import io.jgitkins.server.domain.model.Runner;
+import io.jgitkins.server.domain.aggregate.Runner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -99,18 +99,15 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntity">
-    insert into REPOSITORY_MEMBER (id, repository_id, user_id, 
-      role, added_at)
-    values (#{id,jdbcType=BIGINT}, #{repositoryId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, 
-      #{role,jdbcType=VARCHAR}, #{addedAt,jdbcType=TIMESTAMP})
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntity" useGeneratedKeys="true">
+    insert into REPOSITORY_MEMBER (repository_id, user_id, role, 
+      added_at)
+    values (#{repositoryId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{role,jdbcType=VARCHAR}, 
+      #{addedAt,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntity">
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntity" useGeneratedKeys="true">
     insert into REPOSITORY_MEMBER
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="repositoryId != null">
         repository_id,
       </if>
@@ -125,9 +122,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
       <if test="repositoryId != null">
         #{repositoryId,jdbcType=BIGINT},
       </if>

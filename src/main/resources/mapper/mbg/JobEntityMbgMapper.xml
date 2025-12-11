@@ -100,20 +100,15 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity">
-    insert into job (id, repository_id, commit_hash, 
-      branch_name, triggered_by, created_at
-      )
-    values (#{id,jdbcType=BIGINT}, #{repositoryId,jdbcType=BIGINT}, #{commitHash,jdbcType=VARCHAR}, 
-      #{branchName,jdbcType=VARCHAR}, #{triggeredBy,jdbcType=BIGINT}, #{createdAt,jdbcType=TIMESTAMP}
-      )
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity" useGeneratedKeys="true">
+    insert into job (repository_id, commit_hash, branch_name, 
+      triggered_by, created_at)
+    values (#{repositoryId,jdbcType=BIGINT}, #{commitHash,jdbcType=VARCHAR}, #{branchName,jdbcType=VARCHAR}, 
+      #{triggeredBy,jdbcType=BIGINT}, #{createdAt,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity">
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity" useGeneratedKeys="true">
     insert into job
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="repositoryId != null">
         repository_id,
       </if>
@@ -131,9 +126,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
       <if test="repositoryId != null">
         #{repositoryId,jdbcType=BIGINT},
       </if>

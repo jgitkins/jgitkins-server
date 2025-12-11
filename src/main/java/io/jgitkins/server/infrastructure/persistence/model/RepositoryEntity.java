@@ -11,9 +11,21 @@ public class RepositoryEntity {
 
     private String path;
 
+    private String repositoryType;
+
+    private Long ownerId;
+
+    private String credentialId;
+
+    private String clonePath;
+
     private String defaultBranch;
 
     private String visibility;
+
+    private String status;
+
+    private LocalDateTime lastSyncedAt;
 
     private LocalDateTime createdAt;
 
@@ -73,6 +85,58 @@ public class RepositoryEntity {
         this.path = path == null ? null : path.trim();
     }
 
+    public String getRepositoryType() {
+        return repositoryType;
+    }
+
+    public RepositoryEntity withRepositoryType(String repositoryType) {
+        this.setRepositoryType(repositoryType);
+        return this;
+    }
+
+    public void setRepositoryType(String repositoryType) {
+        this.repositoryType = repositoryType == null ? null : repositoryType.trim();
+    }
+
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public RepositoryEntity withOwnerId(Long ownerId) {
+        this.setOwnerId(ownerId);
+        return this;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public String getCredentialId() {
+        return credentialId;
+    }
+
+    public RepositoryEntity withCredentialId(String credentialId) {
+        this.setCredentialId(credentialId);
+        return this;
+    }
+
+    public void setCredentialId(String credentialId) {
+        this.credentialId = credentialId == null ? null : credentialId.trim();
+    }
+
+    public String getClonePath() {
+        return clonePath;
+    }
+
+    public RepositoryEntity withClonePath(String clonePath) {
+        this.setClonePath(clonePath);
+        return this;
+    }
+
+    public void setClonePath(String clonePath) {
+        this.clonePath = clonePath == null ? null : clonePath.trim();
+    }
+
     public String getDefaultBranch() {
         return defaultBranch;
     }
@@ -97,6 +161,32 @@ public class RepositoryEntity {
 
     public void setVisibility(String visibility) {
         this.visibility = visibility == null ? null : visibility.trim();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public RepositoryEntity withStatus(String status) {
+        this.setStatus(status);
+        return this;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
+    }
+
+    public LocalDateTime getLastSyncedAt() {
+        return lastSyncedAt;
+    }
+
+    public RepositoryEntity withLastSyncedAt(LocalDateTime lastSyncedAt) {
+        this.setLastSyncedAt(lastSyncedAt);
+        return this;
+    }
+
+    public void setLastSyncedAt(LocalDateTime lastSyncedAt) {
+        this.lastSyncedAt = lastSyncedAt;
     }
 
     public LocalDateTime getCreatedAt() {

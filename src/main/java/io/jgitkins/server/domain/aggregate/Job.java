@@ -1,5 +1,6 @@
-package io.jgitkins.server.domain.model;
+package io.jgitkins.server.domain.aggregate;
 
+import io.jgitkins.server.domain.model.JobHistory;
 import io.jgitkins.server.domain.model.vo.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.List;
  */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Job {
+public class Job implements AggregateRoot<JobId> {
 
     private final JobId id;
     private final RepositoryId repositoryId;

@@ -99,18 +99,15 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntity">
-    insert into RUNNER_ASSIGNMENT (id, runner_id, target_type, 
-      target_id, assigned_at)
-    values (#{id,jdbcType=BIGINT}, #{runnerId,jdbcType=BIGINT}, #{targetType,jdbcType=VARCHAR}, 
-      #{targetId,jdbcType=BIGINT}, #{assignedAt,jdbcType=TIMESTAMP})
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntity" useGeneratedKeys="true">
+    insert into RUNNER_ASSIGNMENT (runner_id, target_type, target_id, 
+      assigned_at)
+    values (#{runnerId,jdbcType=BIGINT}, #{targetType,jdbcType=VARCHAR}, #{targetId,jdbcType=BIGINT}, 
+      #{assignedAt,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntity">
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntity" useGeneratedKeys="true">
     insert into RUNNER_ASSIGNMENT
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="runnerId != null">
         runner_id,
       </if>
@@ -125,9 +122,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=BIGINT},
-      </if>
       <if test="runnerId != null">
         #{runnerId,jdbcType=BIGINT},
       </if>

@@ -8,6 +8,7 @@ import io.jgitkins.server.application.port.in.RunnerDeleteUseCase;
 import io.jgitkins.server.application.port.in.RunnerQueryUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
 import io.jgitkins.server.presentation.common.ApiResponse;
+import io.jgitkins.server.presentation.common.ResponseFactory;
 import io.jgitkins.server.presentation.dto.RunnerActivationRequest;
 import io.jgitkins.server.presentation.dto.RunnerRegistrationRequest;
 import io.jgitkins.server.presentation.dto.RunnerResponse;
@@ -19,7 +20,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,9 +41,7 @@ public class RunnerController {
     public ResponseEntity<ApiResponse<RunnerRegistrationResult>> registerRunner(@Valid @RequestBody RunnerRegistrationRequest request) {
         RunnerRegisterCommand registerCommand = runnerRegistrationMapper.toCommand(request);
         RunnerRegistrationResult result = runnerRegisterUseCase.register(registerCommand);
-        return ResponseEntity.status(HttpStatus.CREATED)
-//                .body(runnerRegistrationMapper.toResponse(result));
-                .body(ApiResponse.success(result));
+        return ResponseFactory.created(result.getRunnerId(), result);
     }
 
     @Operation(summary = "List Runners", description = "Retrieve all registered runners")

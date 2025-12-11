@@ -12,11 +12,17 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class CreateRepositoryCommand {
-    private String taskCd;
     private String repoName;
     private String mainBranch;    // e.g., "main" (default if null/blank)
     private boolean readme;       // create README.md on init
     private String authorName;    // initial commit author (fallback if null)
     private String authorEmail;   // initial commit email (fallback if null)
     private String message;       // initial commit message
+    private Long organizeId;
+    private String path;
+    private String visibility;
+    private String repositoryType;
+    private Long ownerId;
+    private String description;
+    private String credentialId;
 }

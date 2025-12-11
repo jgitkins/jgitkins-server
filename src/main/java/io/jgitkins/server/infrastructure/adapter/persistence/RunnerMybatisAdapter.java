@@ -2,7 +2,7 @@ package io.jgitkins.server.infrastructure.adapter.persistence;
 
 import io.jgitkins.server.application.port.out.RunnerCommandPort;
 import io.jgitkins.server.application.port.out.RunnerQueryPort;
-import io.jgitkins.server.domain.model.Runner;
+import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.vo.RunnerScopeType;
 import io.jgitkins.server.infrastructure.persistence.mapper.RunnerAssignmentEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.RunnerEntityMbgMapper;

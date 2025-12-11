@@ -6,7 +6,7 @@ import io.jgitkins.server.application.dto.RunnerDetailResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
 import io.jgitkins.server.application.port.in.RunnerQueryUseCase;
 import io.jgitkins.server.application.port.out.RunnerQueryPort;
-import io.jgitkins.server.domain.model.Runner;
+import io.jgitkins.server.domain.aggregate.Runner;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
