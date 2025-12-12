@@ -38,19 +38,50 @@ public class JobHistory {
     }
 
     /**
-     * IN_QUEUE 상태 History 생성 (Factory Method)
+     * IN_PROGRESS 상태 History 생성 (Factory Method)
      */
-    public static JobHistory createInQueue(
+    public static JobHistory createInProgress(
             JobId jobId,
             int seqNo,
+            RunnerId runnerId,
             LocalDateTime createdAt) {
         return new JobHistory(
                 JobHistoryId.generate(),
                 jobId,
                 SequenceNumber.of(seqNo),
-                null, // runner_id는 아직 null
-                JobStatus.IN_QUEUE,
+                runnerId,
+                JobStatus.IN_PROGRESS,
                 SystemUser.SYSTEM, // created_by = SYSTEM
+                createdAt);
+    }
+
+    public static JobHistory createSuccess(
+            JobId jobId,
+            int seqNo,
+            RunnerId runnerId,
+            LocalDateTime createdAt) {
+        return new JobHistory(
+                JobHistoryId.generate(),
+                jobId,
+                SequenceNumber.of(seqNo),
+                runnerId,
+                JobStatus.SUCCESS,
+                SystemUser.SYSTEM,
+                createdAt);
+    }
+
+    public static JobHistory createFailed(
+            JobId jobId,
+            int seqNo,
+            RunnerId runnerId,
+            LocalDateTime createdAt) {
+        return new JobHistory(
+                JobHistoryId.generate(),
+                jobId,
+                SequenceNumber.of(seqNo),
+                runnerId,
+                JobStatus.FAILED,
+                SystemUser.SYSTEM,
                 createdAt);
     }
 

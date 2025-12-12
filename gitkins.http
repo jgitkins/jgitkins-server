@@ -42,14 +42,14 @@ DELETE {{url}}/api/organizes/4
 POST {{url}}/api/repositories
 
 {
-    "repoName": "bbb",
+    "repoName": "ccc",
     "mainBranch": "main",
     "readme": true,
     "username": "heykia3",
     "email": "heykia3@protonmail.com",
     "message": "Initial Commit",
     "organizeId": 5,
-    "path": "bbb",
+    "path": "ccc",
     "visibility": "PUBLIC",
     "repositoryType": "GIT"
 }
@@ -58,7 +58,7 @@ POST {{url}}/api/repositories
 ### GET {{url}}/api/repositories
 
 ### 저장소 상세 조회
-GET {{url}}/api/repositories/3
+GET {{url}}/api/repositories/7
 
 ### 저장소 삭제
 DELETE {{url}}/api/repositories/4

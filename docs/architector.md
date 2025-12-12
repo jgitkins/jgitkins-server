@@ -1,28 +1,26 @@
 
 
-
-## Option2
-
+## Option2 (NOW)
 ``` mermaid 
 graph LR
-    A[SERVER] -->|gRPC| D[RUNNER]
-    A[SERVER] -->|gRPC| E[RUNNER2]
-    A[SERVER] -->|gRPC| F[RUNNER3]
-    D -->|gRPC| A[SERVER]
-    E -->|gRPC| A[SERVER]
-    F -->|gRPC| A[SERVER]
+    A[SERVER] <---|gRPC| D[RUNNER]
+    A[SERVER] <---|gRPC| E[RUNNER2]
+    A[SERVER] <---|gRPC| F[RUNNER3]
 ```
+
 
 개선안: gRPC + 독립적 상태관리
 gRPC를 사용해 Server와 Runner간의 직접적인 통신을 하도록 구성해 미들웨어 의존성을 최소화할 수 있고,
 상태를 러너가 독립적으로 관리할 수 있음. 1안의 문제점인 의존성을 줄이면서 독립적인 러너 설계 가능할것으로 판단됨
 
 ### Flow
-1. 커밋이벤트 발생 
-2. Job 이벤트 생성 (PENDING) 
-3. 스케쥴러 INQUEUE 하기위한 스케쥴링 (탐지시 gRPC를 사용해 Job정보를 RUNNER에 전송 (상태 SENT)
-4. RUNNER는 gRPC를 통해 서버로부터 Job을 수신하고 작업 시작 (및 상태변경 IN_PROGRESS) 
-5. 작업에대한 결과 gRPC를 통해 서버로 전송
+1. occur commit event
+2. create job (pending)
+3. a runner checks have to execute job exist to server
+4. server gives jobs and runner executes them 
+5. runner responds execute result to server
+6. server left the result
+
 
 
 ### 

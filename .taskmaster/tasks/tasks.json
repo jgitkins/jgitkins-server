@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
+        "id": "1",
         "title": "Feature Runner Management API",
         "description": "Create the core pipeline/job aggregates, DTOs, and storage ports that will back CI orchestration.",
         "status": "done",
@@ -56,10 +56,10 @@
         "updatedAt": "2025-12-08T07:31:21.514Z"
       },
       {
-        "id": 2,
+        "id": "2",
         "title": "Feature Integrate MQ",
         "description": "Introduce the Feature MQ message-bus so the CI coordinator can asynchronously push pipeline job definitions and runner heartbeat signals between the Spring Boot orchestrator and external JGitkins Runners, ensuring jobs created from parsed Jenkinsfiles are queued and acknowledged reliably.",
-        "status": "in-progress",
+        "status": "cancelled",
         "dependencies": [],
         "priority": "medium",
         "details": "요청 문구 개선: “Please translate the implementation details into Korean.” 이하 구현 지침은 한국어로 정리했습니다.\n`src/main/java/io/jgitkins/server/application/port/out/` 패키지에 `RepositoryContentPort`(참고: RepositoryService가 사용)와 나란히 `JobQueuePort`, `RunnerHeartbeatPort`를 추가해 애플리케이션 계층이 저장소·메시징 구현에서 분리되도록 한다. 각 포트는 Jenkinsfile 파싱 이후 생성되는 잡 메타데이터(`job_id`, `repository_id`, `commit_hash`, `runner_id`, 타임스탬프)를 직렬화·enqueue/dequeue하거나 러너 하트비트를 upsert/조회하는 메서드를 정의한다. 인프라 계층에는 `src/main/java/io/jgitkins/server/infrastructure/adapter/mq/` 이하에 인메모리 구현(예: `InMemoryJobQueueAdapter`, `InMemoryRunnerHeartbeatAdapter`)을 두고, 향후 실제 MQ 프로바이더로 교체할 수 있도록 스프링 빈 구성을 `infrastructure/config/mq/MessagingConfig`에서 관리한다. 파이프라인 잡 생성 서비스(`src/main/java/io/jgitkins/server/application/port/service/` 내 예정)에는 새 포트를 주입하여 Jenkinsfile 파싱 시 직렬화 payload를 큐에 push하고 실패 시 도메인 예외를 던지며, 하트비트 어댑터를 통해 러너 생존 신호를 읽고 필요 시 갱신한다. 큐 작업 중 발생한 예외는 도메인 계층으로 전파하여 디스패처가 enqueue 실패를 감지하도록 한다.",
@@ -128,8 +128,8 @@
           },
           {
             "id": 6,
-            "title": "Job Creation UseCase",
-            "description": "Working Creation Job UseCase And Integration 추가 작업 진행\n\r - Repository 도메인 모델링 \n-`onPostReceive` 훅 로직 변경(Push 이벤트 감지후, 저장소 로딩 및 핸들링)",
+            "title": "Job Integration",
+            "description": "Job 생성 및 메세지 발행 연계 작업 진행\n\r - Repository 도메인 모델링 \n-`onPostReceive` 훅 로직 변경(Push 이벤트 감지후, 저장소 로딩 및 핸들링)",
             "details": "",
             "status": "in-progress",
             "dependencies": [],
@@ -149,10 +149,10 @@
             "updatedAt": "2025-12-10T11:05:16.998Z"
           }
         ],
-        "updatedAt": "2025-12-10T11:05:16.998Z"
+        "updatedAt": "2025-12-12T10:32:23.594Z"
       },
       {
-        "id": 3,
+        "id": "3",
         "title": "Feature Batch Job Publisher",
         "description": "Create a scheduled dispatcher that scans stored pipeline jobs and enqueues them only when at least one runnable runner is currently reporting heartbeats.",
         "details": "1. Follow the service layout under `src/main/java/io/jgitkins/server/application/port/service/` (see `RepositoryService` as a reference) to add a `JobDispatchService` that consumes `PipelineJobPersistencePort`, `JobQueuePort`, and `RunnerHeartbeatPort` (from Tasks 1 & 2). The service should expose `publishPendingJobs()` that: a) loads pending `PipelineJob`s flagged as runnable, b) checks runner availability via heartbeat data (only runners with recent timestamps and matching labels/architectures should qualify), c) transitions the job status to `QUEUED` and persists it before enqueueing via `JobQueuePort`, and d) skips jobs when no runner fits.\n2. Implement a Spring `@Component` scheduler (e.g., `PipelineJobPublisherBatch` under `src/main/java/io/jgitkins/server/infrastructure/batch/`) using `@Scheduled(fixedDelay = …)` and enable scheduling in `JGitkinsServerApplication` if not already. The batch should call `JobDispatchService.publishPendingJobs()` and log outcomes with structured log messages (job id, runner id) using SLF4J, mirroring logging already present in adapters like `JGitRepositoryAdapter`.\n3. Add configuration knobs in `application.yml` (new `jgitkins.dispatcher.*` section) for delay interval, heartbeat freshness threshold, and per-runner concurrency guard. Bind them via a `@ConfigurationProperties` class under `infrastructure/config` similar to existing configs (e.g., `DataSourceConfig`). Inject these properties into the batch component.\n4. Extend the domain from Task 1 by documenting the new `QUEUED` transition and runner-selection constraints inside the `PipelineJob` aggregate (update its JavaDoc or KDoc comments once implemented) so later tasks understand invariants. Ensure the dispatch logic throws `ResourceLockedException` when concurrent updates race, matching existing exception types in `application/common/exception`.\n5. Prepare the infrastructure adapter for recording runner occupancy: add a lightweight `RunnerAssignmentTracker` (in-memory Map for now) under `infrastructure/adapter/mq/` that mirrors how other adapters (e.g., `JGitBranchAdapter`) encapsulate external resources, so future MQ-backed implementations can reuse the selection logic.",
@@ -166,7 +166,7 @@
         "subtasks": []
       },
       {
-        "id": 4,
+        "id": "4",
         "title": "Feature Runner Image & Plugin Catalog",
         "description": "Introduce server-side management for Runner base images and plugin manifests so runners can fetch a curated `plugin.yaml` describing the plugins they should install.",
         "details": "1. Model runner assets beside existing domain records (see `src/main/java/io/jgitkins/server/application/domain`) by adding `RunnerImage`, `RunnerPluginDescriptor`, and `RunnerManifest` aggregates that capture image digest, supported architectures, plugin metadata, and last-updated hashes so `RunnerAssignment` from Task 1 can reference a concrete manifest version when dispatching jobs.\n2. Define input DTOs/use cases (`RegisterRunnerImageCommand`, `UpdateRunnerManifestCommand`, etc.) under `application/port/in` patterned after `CreateRepositoryUseCase`, plus new outbound ports `RunnerCatalogPort` and `RunnerManifestPort` in `application/port/out` for storing image inventory and persisting runner-specific `plugin.yaml` content.\n3. Implement `RunnerManagementService` in `application/port/service` (follow `RepositoryService` structure) coordinating validation (unique image name, plugin compatibility with image architecture), diffing manifests, and exposing methods for runners to fetch resolved manifests or request plugin refresh tokens.\n4. Provide infrastructure adapters in `src/main/java/io/jgitkins/server/infrastructure/adapter/persistence` backed by an in-memory map plus filesystem snapshots under `data/runner-manifests/<runnerId>/plugin.yaml`; introduce a `PluginYamlMapper` component that uses Jackson YAML (`com.fasterxml.jackson.dataformat:jackson-dataformat-yaml`) added to `build.gradle` to convert manifest aggregates to canonical YAML before storing.\n5. Add REST endpoints in a new `RunnerManagementController` (`presentation/api`) with POST/GET routes for image registration, plugin manifest updates, manifest retrieval, and plugin checksum introspection; reuse the mapper style from `BranchCreateMapper` for translating DTOs, enforce optimistic locking via ETag headers so runners do not download unchanged manifests.\n6. Document the workflow in `README.md` Runner Management section describing how runners call the new endpoints to sync their images/plugins and how plugin manifests relate to Task 2's MQ heartbeat payloads once available.",
@@ -179,7 +179,7 @@
         "subtasks": []
       },
       {
-        "id": 5,
+        "id": "5",
         "title": "Scheduled Job Publication Flow",
         "description": "Implement a scheduler-driven service that detects pending pipeline jobs, ensures a compatible runnable runner exists, updates job history, and enqueues the job for execution.",
         "details": "1. Add a Spring `@Scheduled` component (e.g., `JobSchedulePoller` under `src/main/java/io/jgitkins/server/application/scheduling/`) that invokes the existing `JobDispatchService.publishPendingJobs()` from Task 3 at configurable intervals (default 30s via `application.yml`).\n2. Within `JobDispatchService`, implement logic to query `PipelineJobPersistencePort` for pending jobs, ask `RunnerHeartbeatPort` for runners whose heartbeats fall within the freshness window and match required labels/arch, and pick the best runner via `RunnerAssignment` metadata.\n3. When a runner is selected, update the job’s domain aggregate: append a history entry (new `JobHistoryEvent`/value object) capturing transition `PENDING→QUEUED`, runner id, timestamp, and any queue reference.\n4. Persist the updated job via `PipelineJobPersistencePort` using optimistic locking to prevent duplicate dispatch, then call `JobQueuePort.enqueue()` with a DTO mirroring Task 2’s payload specification.\n5. Emit structured logs/metrics (Micrometer counter for dispatched jobs, gauge for backlog) to aid observability and ensure the scheduler is idempotent (skip processing when no runners qualify).",
@@ -194,15 +194,15 @@
         "subtasks": []
       },
       {
-        "id": 6,
+        "id": "6",
         "title": "Define Repository Domain and Refine Repository Management API",
         "description": "Establish a robust domain model for repositories and enhance the existing API for managing them, including CRUD operations and state tracking.",
         "details": "1. Define Repository Aggregate: Following the pattern established in `src/main/java/io/jgitkins/server/domain/model/Job.java` (from Task 1), introduce a `Repository` aggregate (e.g., as a Java record) within `src/main/java/io/jgitkins/server/application/domain/model/`. This aggregate should include properties such as `id` (UUID), `url` (e.g., Git URL), `name`, `branch`, `credentialId` (if applicable), `lastSyncedAt`, `status` (e.g., 'ACTIVE', 'INACTIVE', 'ERROR'), and `ownerId`. Consider `RepositoryType` (e.g., GITHUB, GITLAB) as a Value Object. 2. Refine RepositoryService: Update or extend `src/main/java/io/jgitkins/server/application/port/service/RepositoryService.java` to operate on the new `Repository` domain model. Implement use cases for creating, updating, retrieving, and deleting repositories. This service will act as the application-layer entry point for repository management. 3. Implement RepositoryPersistencePort: Define a `RepositoryPersistencePort` interface in `src/main/java/io/jgitkins/server/application/port/out/` alongside `RepositoryContentPort` (as per Task 2). Implement methods like `save(Repository repository)`, `findById(UUID id)`, `findByUrl(String url)`, and `delete(UUID id)`. 4. Create Persistence Adapter: Develop an in-memory adapter (`InMemoryRepositoryAdapter`) for `RepositoryPersistencePort` in `src/main/java/io/jgitkins/server/infrastructure/adapter/out/persistence/` for initial development and testing, mirroring the approach of other in-memory adapters. 5. Develop Repository DTOs: Create corresponding Data Transfer Objects (DTOs) in `src/main/java/io/jgitkins/server/application/dto/` for `CreateRepositoryCommand`, `UpdateRepositoryCommand`, and `RepositoryResponse` to facilitate API interactions. 6. Expose REST Endpoints: Implement or modify REST controllers (e.g., `RepositoryController` in `src/main/java/io/jgitkins/server/interfaces/rest/`) to expose endpoints for managing repositories (e.g., `POST /api/repositories`, `GET /api/repositories/{id}`, `PUT /api/repositories/{id}`, `DELETE /api/repositories/{id}`). These endpoints should use the newly defined DTOs and interact with `RepositoryService`. 7. Integrate with RepositoryContentPort: Ensure the refined `RepositoryService` can leverage or integrate with the existing `RepositoryContentPort` for operations requiring interaction with the actual repository content (e.g., fetching Jenkinsfile, although this specific part might be a follow-up task, ensure compatibility.",
         "testStrategy": "1. Domain Unit Tests: Add unit tests under `src/test/java/.../domain/model/RepositoryTest` to verify the `Repository` aggregate's constructor, invariants, and state transitions. 2. Service Layer Tests: Create `RepositoryServiceTest` under `src/test/java/.../application/port/service/` using mocks for `RepositoryPersistencePort` to test business logic for creating, updating, and retrieving repositories, ensuring correct data flow and error handling. 3. Persistence Adapter Tests: Implement Spring Boot slice tests for `InMemoryRepositoryAdapter` to verify `save`, `findById`, `findByUrl`, and `delete` operations correctly persist and retrieve `Repository` objects. 4. API Integration Tests: Develop integration tests for the `RepositoryController` using tools like MockMvc or TestRestTemplate to ensure REST endpoints function as expected, handle various HTTP methods, status codes, and data payloads for repository management.",
         "status": "done",
         "dependencies": [
-          1,
-          2
+          "1",
+          "2"
         ],
         "priority": "medium",
         "subtasks": [
@@ -215,7 +215,8 @@
             ],
             "details": "Introduce the `Repository` aggregate as a Java record in `src/main/java/io/jgitkins/server/application/domain/model/`. It should include properties such as `id` (UUID), `url`, `name`, `branch`, `credentialId`, `lastSyncedAt`, `status` (e.g., 'ACTIVE', 'INACTIVE', 'ERROR'), and `ownerId`. Define `RepositoryType` (e.g., GITHUB, GITLAB) as a Value Object, potentially an enum or record. Ensure consistency with the `Job.java` pattern from Task 1.",
             "status": "done",
-            "testStrategy": "Add unit tests under `src/test/java/io/jgitkins/server/application/domain/model/RepositoryTest` to verify the `Repository` aggregate's constructor, property immutability, invariants, and potential state transitions."
+            "testStrategy": "Add unit tests under `src/test/java/io/jgitkins/server/application/domain/model/RepositoryTest` to verify the `Repository` aggregate's constructor, property immutability, invariants, and potential state transitions.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -226,7 +227,8 @@
             ],
             "details": "Define the `RepositoryPersistencePort` interface in `src/main/java/io/jgitkins/server/application/port/out/` with methods such as `save(Repository repository)`, `findById(UUID id)`, `findByUrl(String url)`, and `delete(UUID id)`. Implement an `InMemoryRepositoryAdapter` for this port in `src/main/java/io/jgitkins/server/infrastructure/adapter/out/persistence/`, mirroring the approach of other in-memory adapters.",
             "status": "done",
-            "testStrategy": "Create `InMemoryRepositoryAdapterTest` under `src/test/java/io/jgitkins/server/infrastructure/adapter/out/persistence/` to verify that all CRUD methods (save, find by ID, find by URL, delete) function correctly against the in-memory store."
+            "testStrategy": "Create `InMemoryRepositoryAdapterTest` under `src/test/java/io/jgitkins/server/infrastructure/adapter/out/persistence/` to verify that all CRUD methods (save, find by ID, find by URL, delete) function correctly against the in-memory store.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -237,7 +239,8 @@
             ],
             "details": "Develop corresponding Data Transfer Objects (DTOs) in `src/main/java/io/jgitkins/server/application/dto/`. These DTOs should include `CreateRepositoryCommand` (for initial repository data), `UpdateRepositoryCommand` (for modifying repository details), and `RepositoryResponse` (for returning repository information via the API). Ensure these DTOs align with the `Repository` domain model.",
             "status": "done",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -250,7 +253,8 @@
             ],
             "details": "Update or extend `src/main/java/io/jgitkins/server/application/port/service/RepositoryService.java` to implement use cases for creating, updating, retrieving, and deleting repositories. This service will operate on the `Repository` domain model, utilize `RepositoryPersistencePort`, and integrate with the new DTOs. Ensure its design accommodates future integration with `RepositoryContentPort` from Task 2.",
             "status": "done",
-            "testStrategy": "Create `RepositoryServiceTest` under `src/test/java/io/jgitkins/server/application/port/service/` using mocked `RepositoryPersistencePort` to verify correct handling of CRUD operations, business rules, and interaction with the persistence layer, including mapping DTOs to domain objects."
+            "testStrategy": "Create `RepositoryServiceTest` under `src/test/java/io/jgitkins/server/application/port/service/` using mocked `RepositoryPersistencePort` to verify correct handling of CRUD operations, business rules, and interaction with the persistence layer, including mapping DTOs to domain objects.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -261,20 +265,21 @@
             ],
             "details": "Implement or modify REST controllers (e.g., `RepositoryController` in `src/main/java/io/jgitkins/server/interfaces/rest/`) to expose endpoints for managing repositories. This includes `POST /api/repositories` (create), `GET /api/repositories/{id}` (retrieve by ID), `PUT /api/repositories/{id}` (update), and `DELETE /api/repositories/{id}` (delete). These endpoints must use the newly defined DTOs and interact with `RepositoryService`.",
             "status": "done",
-            "testStrategy": "Implement integration tests for `RepositoryController` using Spring Boot's testing capabilities (`@WebMvcTest` or `@SpringBootTest` with MockMvc) to verify endpoint behavior, HTTP status codes, request/response payload mapping, and proper interaction with `RepositoryService`."
+            "testStrategy": "Implement integration tests for `RepositoryController` using Spring Boot's testing capabilities (`@WebMvcTest` or `@SpringBootTest` with MockMvc) to verify endpoint behavior, HTTP status codes, request/response payload mapping, and proper interaction with `RepositoryService`.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 7,
+        "id": "7",
         "title": "Define Organize Domain and Refine Repository Management API",
         "description": "Define Organize Domain and Refine Repository Management API",
         "details": "",
         "testStrategy": "",
         "status": "done",
         "dependencies": [
-          1,
-          6
+          "1",
+          "6"
         ],
         "priority": "medium",
         "subtasks": [
@@ -287,7 +292,8 @@
             ],
             "details": "Introduce the `Organize` aggregate as a Java record in `src/main/java/io/jgitkins/server/application/domain/model/`. It should include properties such as `id` (UUID), `url`, `name`, `branch`, `credentialId`, `lastSyncedAt`, `status` (e.g., 'ACTIVE', 'INACTIVE', 'ERROR'), and `ownerId`. Define `OrganizeType` (e.g., GITHUB, GITLAB) as a Value Object, potentially an enum or record. Ensure consistency with the `Job.java` pattern from Task 1.",
             "status": "done",
-            "testStrategy": "Add unit tests under `src/test/java/io/jgitkins/server/application/domain/model/OrganizeTest` to verify the `Organize` aggregate's constructor, property immutability, invariants, and potential state transitions."
+            "testStrategy": "Add unit tests under `src/test/java/io/jgitkins/server/application/domain/model/OrganizeTest` to verify the `Organize` aggregate's constructor, property immutability, invariants, and potential state transitions.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -298,7 +304,8 @@
             ],
             "details": "Define the `OrganizePersistencePort` interface in `src/main/java/io/jgitkins/server/application/port/out/` with methods such as `save(Organize repository)`, `findById(UUID id)`, `findByUrl(String url)`, and `delete(UUID id)`. Implement an `InMemoryOrganizeAdapter` for this port in `src/main/java/io/jgitkins/server/infrastructure/adapter/out/persistence/`, mirroring the approach of other in-memory adapters.",
             "status": "done",
-            "testStrategy": "Create `InMemoryOrganizeAdapterTest` under `src/test/java/io/jgitkins/server/infrastructure/adapter/out/persistence/` to verify that all CRUD methods (save, find by ID, find by URL, delete) function correctly against the in-memory store."
+            "testStrategy": "Create `InMemoryOrganizeAdapterTest` under `src/test/java/io/jgitkins/server/infrastructure/adapter/out/persistence/` to verify that all CRUD methods (save, find by ID, find by URL, delete) function correctly against the in-memory store.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -309,7 +316,8 @@
             ],
             "details": "Develop corresponding Data Transfer Objects (DTOs) in `src/main/java/io/jgitkins/server/application/dto/`. These DTOs should include `CreateOrganizeCommand` (for initial repository data), `UpdateOrganizeCommand` (for modifying repository details), and `OrganizeResponse` (for returning repository information via the API). Ensure these DTOs align with the `Organize` domain model.",
             "status": "done",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -322,7 +330,8 @@
             ],
             "details": "Update or extend `src/main/java/io/jgitkins/server/application/port/service/OrganizeService.java` to implement use cases for creating, updating, retrieving, and deleting repositories. This service will operate on the `Organize` domain model, utilize `OrganizePersistencePort`, and integrate with the new DTOs. Ensure its design accommodates future integration with `OrganizeContentPort` from Task 2.",
             "status": "done",
-            "testStrategy": "Create `OrganizeServiceTest` under `src/test/java/io/jgitkins/server/application/port/service/` using mocked `OrganizePersistencePort` to verify correct handling of CRUD operations, business rules, and interaction with the persistence layer, including mapping DTOs to domain objects."
+            "testStrategy": "Create `OrganizeServiceTest` under `src/test/java/io/jgitkins/server/application/port/service/` using mocked `OrganizePersistencePort` to verify correct handling of CRUD operations, business rules, and interaction with the persistence layer, including mapping DTOs to domain objects.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -333,22 +342,36 @@
             ],
             "details": "Implement or modify REST controllers (e.g., `OrganizeController` in `src/main/java/io/jgitkins/server/interfaces/rest/`) to expose endpoints for managing repositories. This includes `POST /api/repositories` (create), `GET /api/repositories/{id}` (retrieve by ID), `PUT /api/repositories/{id}` (update), and `DELETE /api/repositories/{id}` (delete). These endpoints must use the newly defined DTOs and interact with `OrganizeService`.",
             "status": "done",
-            "testStrategy": "Implement integration tests for `OrganizeController` using Spring Boot's testing capabilities (`@WebMvcTest` or `@SpringBootTest` with MockMvc) to verify endpoint behavior, HTTP status codes, request/response payload mapping, and proper interaction with `OrganizeService`."
+            "testStrategy": "Implement integration tests for `OrganizeController` using Spring Boot's testing capabilities (`@WebMvcTest` or `@SpringBootTest` with MockMvc) to verify endpoint behavior, HTTP status codes, request/response payload mapping, and proper interaction with `OrganizeService`.",
+            "parentId": "undefined"
           }
         ]
+      },
+      {
+        "id": "8",
+        "title": "Migrate Service Communication with gRPC",
+        "description": "Implement gRPC services for existing application APIs, starting with Repository and Organize management, to enable efficient, high-performance inter-service communication.",
+        "details": "1. Add gRPC Dependencies: Update the `pom.xml` to include `grpc-netty-shaded`, `grpc-protobuf`, `grpc-stub`, and `protobuf-maven-plugin` for code generation. Ensure the `protobuf-maven-plugin` is configured to generate Java sources from `.proto` files during the build lifecycle, targeting `target/generated-sources/protobuf`.\n2. Define Protocol Buffer Definitions: Create new `.proto` files (e.g., `repository_service.proto`, `organize_service.proto`) under a new `src/main/proto` directory. These files should define gRPC services and message types that mirror the domain models and DTOs used by the existing `RepositoryService` and `OrganizeService` (from Task 6 and Task 7). For instance, a `Repository` message in `repository_service.proto` should reflect `io.jgitkins.server.application.domain.model.Repository`.\n3. Implement gRPC Service Adapters: Create gRPC server implementations (e.g., `GrpcRepositoryService`, `GrpcOrganizeService`) under a new package `io.jgitkins.server.adapter.in.grpc`. These classes must extend the generated `*Grpc.ServiceImplBase` classes and delegate incoming gRPC requests to the corresponding application services (e.g., `RepositoryService`, `OrganizeService`) from `io.jgitkins.server.application.port.service`. Ensure meticulous mapping between gRPC proto messages and the application's domain/DTO objects.\n4. Configure gRPC Server: Integrate the gRPC server into the Spring Boot application. This can be achieved by using `grpc-spring-boot-starter` or by manually configuring and starting a `ServerBuilder` within a Spring `@Configuration` class. The server must register the implemented gRPC services.\n5. Implement Error Handling and Interceptors: Develop global gRPC error handling mechanisms, possibly using a `ServerInterceptor`, to catch exceptions thrown by application services and map them to appropriate gRPC `Status` codes (e.g., `Status.NOT_FOUND`, `Status.INVALID_ARGUMENT`, `Status.INTERNAL`).",
+        "testStrategy": "1. Unit Tests for gRPC Service Adapters: Create unit tests (e.g., `GrpcRepositoryServiceTest`, `GrpcOrganizeServiceTest`) within `src/test/java/.../adapter/in/grpc`. These tests should use mock objects for `RepositoryService` and `OrganizeService` to verify that gRPC requests are correctly translated into application service calls with appropriate parameters and that application service results are correctly mapped back to gRPC responses.\n2. Integration Tests with Embedded gRPC Server: Develop integration tests that start an embedded gRPC server within the test environment. Utilize gRPC client stubs to send requests to the exposed gRPC endpoints (e.g., `RepositoryService/GetRepository`, `OrganizeService/CreateOrganize`) and assert the correctness of the responses. These tests should cover both successful operations and various error scenarios.\n3. Contract Testing: (Optional, for future refinement) Consider implementing basic contract tests to ensure the `.proto` definitions and their server-side implementations adhere to a consistent interface, potentially using a tool like WireMock for client-side stubbing if outbound gRPC calls are introduced.",
+        "status": "done",
+        "dependencies": [
+          "1",
+          "6",
+          "7"
+        ],
+        "priority": "medium",
+        "subtasks": [],
+        "updatedAt": "2025-12-12T10:37:14.459Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-10T11:05:17.001Z",
-      "taskCount": 5,
-      "completedCount": 1,
+      "lastModified": "2025-12-12T10:37:14.464Z",
+      "taskCount": 8,
+      "completedCount": 4,
       "tags": [
         "master"
-      ],
-      "created": "2025-12-11T03:42:24.639Z",
-      "description": "Tasks for master context",
-      "updated": "2025-12-11T07:14:05.262Z"
+      ]
     }
   }
 }

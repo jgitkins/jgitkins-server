@@ -120,6 +120,7 @@ public class RepositoryService implements CreateRepositoryUseCase,
                                     command.getAuthorName(),
                                     command.getAuthorEmail(),
                                     files);
+        updateHeadReferencePort.updateHeadReference(taskCd, command.getRepoName(), command.getMainBranch());
 
         Repository initialized = repositoryPersistencePort.update(savedRepository.markSynced(LocalDateTime.now()));
         return repositoryApplicationMapper.toDto(initialized);

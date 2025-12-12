@@ -59,16 +59,29 @@ public class Job implements AggregateRoot<JobId> {
      * Job을 큐에 등록 (PENDING -> IN_QUEUE)
      * 새로운 JobHistory 추가
      */
-    public void enqueue() {
+    public void publish(RunnerId runnerId) {
         validateCanEnqueue();
 
         int nextSeqNo = histories.size() + 1;
-        JobHistory queuedHistory = JobHistory.createInQueue(
+        JobHistory queuedHistory = JobHistory.createInProgress(
                 id,
                 nextSeqNo,
+                runnerId,
                 LocalDateTime.now());
 
         histories.add(queuedHistory);
+    }
+
+    public void completeSuccess(RunnerId runnerId) {
+        validateCanComplete();
+        int nextSeqNo = histories.size() + 1;
+        histories.add(JobHistory.createSuccess(id, nextSeqNo, runnerId, LocalDateTime.now()));
+    }
+
+    public void completeFailure(RunnerId runnerId) {
+        validateCanComplete();
+        int nextSeqNo = histories.size() + 1;
+        histories.add(JobHistory.createFailed(id, nextSeqNo, runnerId, LocalDateTime.now()));
     }
 
     /**
@@ -98,6 +111,13 @@ public class Job implements AggregateRoot<JobId> {
         return histories.get(histories.size() - 1);
     }
 
+    public JobHistory getPreviousHistory() {
+        if (histories.size() < 2) {
+            throw new IllegalStateException("Job history does not have previous entry");
+        }
+        return histories.get(histories.size() - 2);
+    }
+
     /**
      * Enqueue 가능 여부 검증
      */
@@ -106,6 +126,14 @@ public class Job implements AggregateRoot<JobId> {
         if (currentStatus != JobStatus.PENDING) {
             throw new IllegalStateException(
                     String.format("Cannot enqueue job in status: %s", currentStatus));
+        }
+    }
+
+    private void validateCanComplete() {
+        JobStatus currentStatus = getCurrentStatus();
+        if (currentStatus != JobStatus.IN_PROGRESS) {
+            throw new IllegalStateException(
+                    String.format("Cannot complete job in status: %s", currentStatus));
         }
     }
 

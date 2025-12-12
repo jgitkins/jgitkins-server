@@ -6,5 +6,6 @@ import java.util.Optional;
 
 public interface RunnerQueryPort {
     Optional<Runner> findById(Long runnerId);
+    Optional<Runner> findByToken(String token);
     List<Runner> findAll();
 }

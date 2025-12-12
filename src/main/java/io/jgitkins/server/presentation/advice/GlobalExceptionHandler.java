@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleApplication(ApplicationException exception) {
         ErrorCode errorCode = exception.getErrorCode();
         HttpStatus status = mapToStatus(errorCode);
-        log.warn("Application exception [{}]: {}", errorCode.getCode(), exception.getMessage(), exception);
+        log.warn("Application exception errorCode: [{}] || message: [{}] || stack: [{}], status: [{}] ", errorCode.getCode(), exception.getMessage(), exception,  status);
         return buildResponse(errorCode, status, exception.getMessage());
     }
 

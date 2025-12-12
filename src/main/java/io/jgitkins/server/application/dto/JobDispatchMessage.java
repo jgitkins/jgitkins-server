@@ -16,4 +16,5 @@ public class JobDispatchMessage {
     private final String branchName;
     private final Long triggeredBy;
     private final LocalDateTime dispatchedAt;
+    private final String cloneUrl;
 }

@@ -52,6 +52,21 @@ public class RunnerMybatisAdapter implements RunnerCommandPort, RunnerQueryPort 
     }
 
     @Override
+    public Optional<Runner> findByToken(String token) {
+        if (token == null || token.isBlank()) {
+            return Optional.empty();
+        }
+        RunnerEntityCondition condition = new RunnerEntityCondition();
+        condition.createCriteria().andTokenEqualTo(token);
+        condition.setOrderByClause("id DESC LIMIT 1");
+        List<RunnerEntity> entities = runnerEntityMbgMapper.selectByCondition(condition);
+        if (entities.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(restoreRunner(entities.get(0)));
+    }
+
+    @Override
     public List<Runner> findAll() {
         List<RunnerEntity> entities = runnerEntityMbgMapper.selectByCondition(new RunnerEntityCondition());
         return entities.stream()

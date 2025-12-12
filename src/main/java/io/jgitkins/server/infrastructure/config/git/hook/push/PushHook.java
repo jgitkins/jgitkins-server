@@ -1,9 +1,7 @@
 package io.jgitkins.server.infrastructure.config.git.hook.push;
 
-import io.jgitkins.server.application.dto.JobCreateCommand;
-import io.jgitkins.server.application.port.in.JobCreateUseCase;
-import io.jgitkins.server.application.port.out.BranchPersistencePort;
-import io.jgitkins.server.application.port.out.RepositoryLoadPort;
+import io.jgitkins.server.application.dto.PushEventCommand;
+import io.jgitkins.server.application.port.in.HandlePushEventUseCase;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +23,13 @@ import java.util.Optional;
 public class PushHook implements PostReceiveHook {
 
     private final HttpServletRequest request;
-    private final BranchPersistencePort branchPersistencePort;
-    private final RepositoryLoadPort repositoryLookupPort;
-    private final JobCreateUseCase createJobUseCase;
+    private final HandlePushEventUseCase handlePushEventUseCase;
 
+    // Adapter 일부
     @Override
     public void onPostReceive(ReceivePack receivePack, Collection<ReceiveCommand> commands) {
         Repository repository = receivePack.getRepository();
+        Long requesterId = 1L; // TODO: custom
         log.debug("push event: user={} ip={} repo={}", request.getRemoteUser(), request.getRemoteAddr(), repository.getDirectory());
 
         // TODO: 저장소 도메인 로딩
@@ -40,8 +38,7 @@ public class PushHook implements PostReceiveHook {
         //  3. 마지막으로 이벤트 변경에 따라 Job 생성이 필요
 
         // loading repository's context
-        RepositoryContext repositoryContext = resolveRepositoryContext(repository)
-                .orElse(null);
+        RepositoryContext repositoryContext = resolveRepositoryContext(repository).orElse(null);
         if (repositoryContext == null) {
             return;
         }
@@ -60,36 +57,17 @@ public class PushHook implements PostReceiveHook {
             return;
         }
 
-        // new branch create event
-        if (command.getType() == ReceiveCommand.Type.CREATE) {
-            branchPersistencePort.create(repositoryContext.repositoryId(), branchName);
-        }
-
-        // TODO: get userId from custom header (filter)
-        Optional<Long> triggeredBy = resolveUserId(request.getRemoteUser());
-        if (triggeredBy.isEmpty()) {
-            log.warn("job creation skipped: unable to resolve remote user={} for repository={}",
-                    request.getRemoteUser(), repositoryContext.repositoryName());
-            return;
-        }
-
-        Optional<String> commitHash = resolveCommitHash(command);
-        if (commitHash.isEmpty()) {
-            log.warn("job creation skipped: missing commit hash for ref={} type={}",
-                    command.getRefName(), command.getType());
-            return;
-        }
-
-        JobCreateCommand jobCommand = JobCreateCommand.builder()
-                .taskCd(repositoryContext.organizeCd())
-                .repoName(repositoryContext.repositoryName())
-                .repositoryId(repositoryContext.repositoryId())
+        PushEventCommand pushEventCommand = PushEventCommand.builder()
+                .organizeCode(repositoryContext.organizeCd())
+                .repositoryName(repositoryContext.repositoryName())
                 .branchName(branchName)
-                .commitHash(commitHash.get())
-                .triggeredBy(triggeredBy.get())
+                .branchCreated(command.getType() == ReceiveCommand.Type.CREATE)
+                .commitHash(resolveCommitHash(command).orElse(null))
+//                .triggeredBy(resolveUserId(request.getRemoteUser()).orElse(null))
+                .triggeredBy(requesterId)
                 .build();
 
-        createJobUseCase.create(jobCommand);
+        handlePushEventUseCase.handle(pushEventCommand);
     }
 
     private Optional<RepositoryContext> resolveRepositoryContext(Repository repository) {
@@ -108,13 +86,7 @@ public class PushHook implements PostReceiveHook {
         String repoName = stripGitSuffix(gitDir.getName());
         String organizeCd = organizeDir.getName();
 
-        Optional<Long> repositoryId = repositoryLookupPort.findRepositoryId(organizeCd, repoName);
-        if (repositoryId.isEmpty()) {
-            log.warn("push hook skipped: repository not registered. taskCd={} repo={}", organizeCd, repoName);
-            return Optional.empty();
-        }
-
-        return Optional.of(new RepositoryContext(organizeCd, repoName, repositoryId.get()));
+        return Optional.of(new RepositoryContext(organizeCd, repoName));
     }
 
     private Optional<String> extractBranchName(ReceiveCommand command) {
@@ -153,6 +125,6 @@ public class PushHook implements PostReceiveHook {
         return name.endsWith(".git") ? name.substring(0, name.length() - 4) : name;
     }
 
-    private record RepositoryContext(String organizeCd, String repositoryName, Long repositoryId) {
+    private record RepositoryContext(String organizeCd, String repositoryName) {
     }
 }

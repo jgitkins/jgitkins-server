@@ -58,16 +58,16 @@ public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeleteUs
 
     @Override
     @Transactional
-    public RunnerDetailResult activate(Long runnerId, String token, String remoteIp) {
-        Runner runner = runnerQueryPort.findById(runnerId)
+    public RunnerDetailResult activate(String token, String remoteIp) {
+        Runner runner = runnerQueryPort.findByToken(token)
                                        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RUNNER_NOT_FOUND));
         Runner activated = runner.activate(token, remoteIp);
         try {
             Runner persisted = runnerCommandPort.save(activated);
-            log.info("Runner activated. runnerId={}", runnerId);
+            log.info("Runner activated. runnerId={}", persisted.getId());
             return runnerApplicationMapper.toDetailResult(persisted);
         } catch (RuntimeException ex) {
-            log.error("Runner activation failed. runnerId={}", runnerId, ex);
+            log.error("Runner activation failed. runnerId={}", runner.getId(), ex);
             throw new InternalServerErrorException(ErrorCode.RUNNER_ACTIVATION_FAILED, "Runner activation failed", ex);
         }
     }

@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Runner Management", description = "Runner registration and lifecycle APIs")
-@RequestMapping("/runners")
+@RequestMapping({"/api/runners", "/api/runner"})
 public class RunnerController {
 
     private final RunnerRegisterUseCase runnerRegisterUseCase;
@@ -66,12 +66,15 @@ public class RunnerController {
     }
 
     @Operation(summary = "Activate Runner", description = "Activate a runner and set it ONLINE")
-    @PostMapping("/{runnerId}/activate")
-    public ResponseEntity<RunnerResponse> activateRunner(@PathVariable Long runnerId,
+//    @PostMapping("/{runnerId}/activate")
+    @PostMapping("/activate")
+    public ResponseEntity<RunnerResponse> activateRunner(
+//            @PathVariable Long runnerId,
                                                          @Valid @RequestBody RunnerActivationRequest request,
                                                          HttpServletRequest httpServletRequest) {
         String clientIp = extractClientIp(httpServletRequest);
-        RunnerDetailResult result = runnerActivateUseCase.activate(runnerId, request.getToken(), clientIp);
+//        RunnerDetailResult result = runnerActivateUseCase.activate(runnerId, request.getToken(), clientIp);
+        RunnerDetailResult result = runnerActivateUseCase.activate(request.getToken(), clientIp);
         return ResponseEntity.ok(runnerResponseMapper.toResponse(result));
     }
 

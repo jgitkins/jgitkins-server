@@ -13,6 +13,7 @@ public class RabbitMQConfig {
     public static final String QUEUE_NAME = "jgitkins.task.queue";
     public static final String EXCHANGE_NAME = "jgitkins.task.exchange";
     public static final String ROUTING_KEY = "jgitkins.task.#";
+    public static final String JOB_DISPATCH_ROUTING_KEY = "jgitkins.task.dispatch";
 
     @Bean
     public Queue queue() {
