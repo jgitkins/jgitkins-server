@@ -12,6 +12,7 @@ import io.jgitkins.server.infrastructure.persistence.model.RunnerEntity;
 import io.jgitkins.server.infrastructure.persistence.model.RunnerEntityCondition;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,13 +28,16 @@ public class RunnerMybatisAdapter implements RunnerCommandPort, RunnerQueryPort 
     private final RunnerAssignmentMapper runnerAssignmentMapper;
 
     @Override
+    @Transactional
     public Runner save(Runner runner) {
         RunnerEntity entity = runnerMapper.toEntity(runner);
 
         if (runner.getId() == null) {
             runnerEntityMbgMapper.insertSelective(entity);
-            runnerAssignmentEntityMbgMapper.insertSelective(runnerAssignmentMapper.toEntity(runner));
+            Runner restoredEntity = restoreRunner(entity);
+            runnerAssignmentEntityMbgMapper.insertSelective(runnerAssignmentMapper.toEntity(restoredEntity));
             return runnerMapper.toDomain(entity, runner.getScopeType(), runner.getScopeTargetId());
+
         } else {
             runnerEntityMbgMapper.updateByPrimaryKeySelective(entity);
             runnerAssignmentEntityMbgMapper.updateByPrimaryKeySelective(runnerAssignmentMapper.toEntity(runner));

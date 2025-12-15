@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": "1",
+        "id": 1,
         "title": "Feature Runner Management API",
         "description": "Create the core pipeline/job aggregates, DTOs, and storage ports that will back CI orchestration.",
         "status": "done",
@@ -56,7 +56,7 @@
         "updatedAt": "2025-12-08T07:31:21.514Z"
       },
       {
-        "id": "2",
+        "id": 2,
         "title": "Feature Integrate MQ",
         "description": "Introduce the Feature MQ message-bus so the CI coordinator can asynchronously push pipeline job definitions and runner heartbeat signals between the Spring Boot orchestrator and external JGitkins Runners, ensuring jobs created from parsed Jenkinsfiles are queued and acknowledged reliably.",
         "status": "cancelled",
@@ -152,34 +152,93 @@
         "updatedAt": "2025-12-12T10:32:23.594Z"
       },
       {
-        "id": "3",
+        "id": 3,
         "title": "Feature Batch Job Publisher",
         "description": "Create a scheduled dispatcher that scans stored pipeline jobs and enqueues them only when at least one runnable runner is currently reporting heartbeats.",
         "details": "1. Follow the service layout under `src/main/java/io/jgitkins/server/application/port/service/` (see `RepositoryService` as a reference) to add a `JobDispatchService` that consumes `PipelineJobPersistencePort`, `JobQueuePort`, and `RunnerHeartbeatPort` (from Tasks 1 & 2). The service should expose `publishPendingJobs()` that: a) loads pending `PipelineJob`s flagged as runnable, b) checks runner availability via heartbeat data (only runners with recent timestamps and matching labels/architectures should qualify), c) transitions the job status to `QUEUED` and persists it before enqueueing via `JobQueuePort`, and d) skips jobs when no runner fits.\n2. Implement a Spring `@Component` scheduler (e.g., `PipelineJobPublisherBatch` under `src/main/java/io/jgitkins/server/infrastructure/batch/`) using `@Scheduled(fixedDelay = …)` and enable scheduling in `JGitkinsServerApplication` if not already. The batch should call `JobDispatchService.publishPendingJobs()` and log outcomes with structured log messages (job id, runner id) using SLF4J, mirroring logging already present in adapters like `JGitRepositoryAdapter`.\n3. Add configuration knobs in `application.yml` (new `jgitkins.dispatcher.*` section) for delay interval, heartbeat freshness threshold, and per-runner concurrency guard. Bind them via a `@ConfigurationProperties` class under `infrastructure/config` similar to existing configs (e.g., `DataSourceConfig`). Inject these properties into the batch component.\n4. Extend the domain from Task 1 by documenting the new `QUEUED` transition and runner-selection constraints inside the `PipelineJob` aggregate (update its JavaDoc or KDoc comments once implemented) so later tasks understand invariants. Ensure the dispatch logic throws `ResourceLockedException` when concurrent updates race, matching existing exception types in `application/common/exception`.\n5. Prepare the infrastructure adapter for recording runner occupancy: add a lightweight `RunnerAssignmentTracker` (in-memory Map for now) under `infrastructure/adapter/mq/` that mirrors how other adapters (e.g., `JGitBranchAdapter`) encapsulate external resources, so future MQ-backed implementations can reuse the selection logic.",
         "testStrategy": "- Add unit tests in `src/test/java/.../application/port/service/JobDispatchServiceTest` using mocks for `PipelineJobPersistencePort`, `JobQueuePort`, and `RunnerHeartbeatPort` to cover: (a) publishing succeeds when a runner is available, (b) no enqueue occurs when no runner heartbeat meets freshness criteria, and (c) concurrency guard prevents double enqueue. Use Spring’s `@ExtendWith(SpringExtension.class)` and Mockito as in existing tests.\n- Create a Spring Boot slice/integration test (e.g., `PipelineJobPublisherBatchIT`) that wires the real in-memory adapters, runs the `PipelineJobPublisherBatch` via `@SpringBootTest` with `@ActiveProfiles(\"test\")`, and verifies that jobs inserted through the persistence port are moved to the in-memory queue only when a heartbeat entry exists.\n- Include a configuration binding test asserting that `jgitkins.dispatcher` properties map correctly by loading the context with a custom `@TestPropertySource`.",
-        "status": "pending",
+        "status": "cancelled",
         "dependencies": [
           "1",
           "2"
         ],
         "priority": "medium",
-        "subtasks": []
+        "subtasks": [],
+        "updatedAt": "2025-12-15T07:40:55.588Z"
       },
       {
-        "id": "4",
-        "title": "Feature Runner Image & Plugin Catalog",
-        "description": "Introduce server-side management for Runner base images and plugin manifests so runners can fetch a curated `plugin.yaml` describing the plugins they should install.",
-        "details": "1. Model runner assets beside existing domain records (see `src/main/java/io/jgitkins/server/application/domain`) by adding `RunnerImage`, `RunnerPluginDescriptor`, and `RunnerManifest` aggregates that capture image digest, supported architectures, plugin metadata, and last-updated hashes so `RunnerAssignment` from Task 1 can reference a concrete manifest version when dispatching jobs.\n2. Define input DTOs/use cases (`RegisterRunnerImageCommand`, `UpdateRunnerManifestCommand`, etc.) under `application/port/in` patterned after `CreateRepositoryUseCase`, plus new outbound ports `RunnerCatalogPort` and `RunnerManifestPort` in `application/port/out` for storing image inventory and persisting runner-specific `plugin.yaml` content.\n3. Implement `RunnerManagementService` in `application/port/service` (follow `RepositoryService` structure) coordinating validation (unique image name, plugin compatibility with image architecture), diffing manifests, and exposing methods for runners to fetch resolved manifests or request plugin refresh tokens.\n4. Provide infrastructure adapters in `src/main/java/io/jgitkins/server/infrastructure/adapter/persistence` backed by an in-memory map plus filesystem snapshots under `data/runner-manifests/<runnerId>/plugin.yaml`; introduce a `PluginYamlMapper` component that uses Jackson YAML (`com.fasterxml.jackson.dataformat:jackson-dataformat-yaml`) added to `build.gradle` to convert manifest aggregates to canonical YAML before storing.\n5. Add REST endpoints in a new `RunnerManagementController` (`presentation/api`) with POST/GET routes for image registration, plugin manifest updates, manifest retrieval, and plugin checksum introspection; reuse the mapper style from `BranchCreateMapper` for translating DTOs, enforce optimistic locking via ETag headers so runners do not download unchanged manifests.\n6. Document the workflow in `README.md` Runner Management section describing how runners call the new endpoints to sync their images/plugins and how plugin manifests relate to Task 2's MQ heartbeat payloads once available.",
-        "testStrategy": "- Domain/unit tests under `src/test/java/.../domain` verifying manifest merge logic, architecture validation, and YAML round-trip serialization (object -> YAML -> object matches expected fields).\n- Service-layer tests mocking `RunnerCatalogPort` and `RunnerManifestPort` to ensure registration rejects duplicate images, plugin updates create new manifest revisions, and checksum calculation matches stored YAML bytes.\n- Adapter integration tests using `@SpringBootTest` with temporary directories to assert the persistence adapter writes readable `plugin.yaml` files under `data/runner-manifests/<runnerId>` and reloads them on startup.\n- MVC tests (`@WebMvcTest(RunnerManagementController.class)`) confirming HTTP contracts, validation errors, and ETag handling for the new endpoints.",
+        "id": 4,
+        "title": "Runner Management(Manage Plugin or Runner Configuration (Schedule cycle or.. dockerImage(Jenkinsfile Runner or Jenkinsfile Runner 에 사용되는 플러그인들을 서버에서 설정 ))",
+        "description": "Centralized Runner runtime management on JGitkins Server. Maintain a catalog of Runner Docker images (including Jenkinsfile Runner) and plugin bundles, with versioning, approval, distribution (including offline mirroring), and per-runner configuration such as allowed images/plugins and execution settings.",
+        "details": "",
+        "testStrategy": "",
         "status": "pending",
         "dependencies": [
           "1"
         ],
         "priority": "medium",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define RunnerImage and PluginBundle Domain Models and DTOs",
+            "description": "Create domain aggregates/value objects for RunnerImage and PluginBundle, including properties for versioning, Docker image reference, plugin IDs, and metadata. Also, define corresponding DTOs for API interaction.",
+            "dependencies": [],
+            "details": "Model `RunnerImage` with fields like `id`, `name`, `version`, `dockerImageRef`, `status` (e.g., pending, approved), `creationDate`. Model `PluginBundle` with `id`, `name`, `version`, list of `pluginIds`, `status`, `creationDate`. Place these in `src/main/java/io/jgitkins/server/application/domain/model/runner` and DTOs in `src/main/java/io/jgitkins/server/application/dto/runner`. Benchmarking `src/main/java/io/jgitkins/server/domain/model/Job.java` for Aggregate/Value Object patterns.",
+            "status": "pending",
+            "testStrategy": "Add unit tests for the domain model constructors and basic getters/setters to ensure data integrity."
+          },
+          {
+            "id": 2,
+            "title": "Implement Persistence Ports for Runner Image and Plugin Bundle Catalogs",
+            "description": "Define outbound persistence ports (`RunnerImagePersistencePort`, `PluginBundlePersistencePort`) in the application layer to manage the storage and retrieval of RunnerImage and PluginBundle entities.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create `RunnerImagePersistencePort` and `PluginBundlePersistencePort` interfaces in `src/main/java/io/jgitkins/server/application/port/out/runner`. These ports should define methods like `save`, `findById`, `findByVersion`, `findAll`. Implement in-memory adapters for initial testing, following the pattern of `PipelineJobPersistencePort` used in Task 1.",
+            "status": "pending",
+            "testStrategy": "Develop Spring Boot slice tests for the in-memory adapters to verify save, find, and update scenarios for both RunnerImage and PluginBundle entities, ensuring data persistence and retrieval."
+          },
+          {
+            "id": 3,
+            "title": "Develop Runner Configuration Management Service",
+            "description": "Create a service layer component, `RunnerManagementService`, that orchestrates business logic related to managing the catalog of Runner Docker images and plugin bundles using the defined persistence ports.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Implement `RunnerManagementService` in `src/main/java/io/jgitkins/server/application/port/service/runner`. This service will expose methods such as `createRunnerImage`, `approveRunnerImage`, `getRunnerImage`, `addPluginBundle`, `updatePluginBundle`, etc. It should handle validation and status transitions.",
+            "status": "pending",
+            "testStrategy": "Add unit tests for `RunnerManagementService` in `src/test/java/.../application/port/service/runner/RunnerManagementServiceTest`, mocking the `RunnerImagePersistencePort` and `PluginBundlePersistencePort` to verify business logic, validations, and status changes (e.g., approval flow)."
+          },
+          {
+            "id": 4,
+            "title": "Create REST API Endpoints for Runner Image and Plugin Bundle Management",
+            "description": "Implement REST controllers and define request/response DTOs to expose API endpoints for managing Runner Docker images and plugin bundles.",
+            "dependencies": [
+              1,
+              3
+            ],
+            "details": "Create `RunnerImageController` and `PluginBundleController` in `src/main/java/io/jgitkins/server/interface/rest/runner`. These controllers will expose endpoints like `POST /runner-images`, `GET /runner-images/{id}`, `PUT /runner-images/{id}/approve`, `POST /plugin-bundles`, etc., interacting with the `RunnerManagementService`. Ensure appropriate input validation and error handling.",
+            "status": "pending",
+            "testStrategy": "Write integration tests using Spring Boot's `MockMvc` to verify the API endpoints, ensuring correct request mapping, JSON serialization/deserialization, and proper interaction with the `RunnerManagementService` and error handling."
+          },
+          {
+            "id": 5,
+            "title": "Implement Per-Runner Configuration Storage and Application Logic",
+            "description": "Develop the data structures and persistence mechanisms to store specific configurations for individual runners, such as allowed Docker images, plugin bundles, and execution settings. Implement logic to retrieve and apply these configurations.",
+            "dependencies": [
+              1,
+              2,
+              3
+            ],
+            "details": "Define a new domain model `RunnerConfiguration` (or extend `Runner` if it exists) in `src/main/java/io/jgitkins/server/application/domain/model/runner` to hold settings like `runnerId`, `allowedImageVersions`, `allowedPluginBundles`, `resourceLimits`, `scheduleCycle`. Create a corresponding `RunnerConfigurationPersistencePort` and update `RunnerManagementService` to manage these per-runner settings.",
+            "status": "pending",
+            "testStrategy": "Add unit tests for the `RunnerConfiguration` domain model and service logic for managing these settings. Develop integration tests for the `RunnerConfigurationPersistencePort` to ensure correct saving and retrieval of per-runner settings."
+          }
+        ]
       },
       {
-        "id": "5",
+        "id": 5,
         "title": "Scheduled Job Publication Flow",
         "description": "Implement a scheduler-driven service that detects pending pipeline jobs, ensures a compatible runnable runner exists, updates job history, and enqueues the job for execution.",
         "details": "1. Add a Spring `@Scheduled` component (e.g., `JobSchedulePoller` under `src/main/java/io/jgitkins/server/application/scheduling/`) that invokes the existing `JobDispatchService.publishPendingJobs()` from Task 3 at configurable intervals (default 30s via `application.yml`).\n2. Within `JobDispatchService`, implement logic to query `PipelineJobPersistencePort` for pending jobs, ask `RunnerHeartbeatPort` for runners whose heartbeats fall within the freshness window and match required labels/arch, and pick the best runner via `RunnerAssignment` metadata.\n3. When a runner is selected, update the job’s domain aggregate: append a history entry (new `JobHistoryEvent`/value object) capturing transition `PENDING→QUEUED`, runner id, timestamp, and any queue reference.\n4. Persist the updated job via `PipelineJobPersistencePort` using optimistic locking to prevent duplicate dispatch, then call `JobQueuePort.enqueue()` with a DTO mirroring Task 2’s payload specification.\n5. Emit structured logs/metrics (Micrometer counter for dispatched jobs, gauge for backlog) to aid observability and ensure the scheduler is idempotent (skip processing when no runners qualify).",
@@ -194,7 +253,7 @@
         "subtasks": []
       },
       {
-        "id": "6",
+        "id": 6,
         "title": "Define Repository Domain and Refine Repository Management API",
         "description": "Establish a robust domain model for repositories and enhance the existing API for managing them, including CRUD operations and state tracking.",
         "details": "1. Define Repository Aggregate: Following the pattern established in `src/main/java/io/jgitkins/server/domain/model/Job.java` (from Task 1), introduce a `Repository` aggregate (e.g., as a Java record) within `src/main/java/io/jgitkins/server/application/domain/model/`. This aggregate should include properties such as `id` (UUID), `url` (e.g., Git URL), `name`, `branch`, `credentialId` (if applicable), `lastSyncedAt`, `status` (e.g., 'ACTIVE', 'INACTIVE', 'ERROR'), and `ownerId`. Consider `RepositoryType` (e.g., GITHUB, GITLAB) as a Value Object. 2. Refine RepositoryService: Update or extend `src/main/java/io/jgitkins/server/application/port/service/RepositoryService.java` to operate on the new `Repository` domain model. Implement use cases for creating, updating, retrieving, and deleting repositories. This service will act as the application-layer entry point for repository management. 3. Implement RepositoryPersistencePort: Define a `RepositoryPersistencePort` interface in `src/main/java/io/jgitkins/server/application/port/out/` alongside `RepositoryContentPort` (as per Task 2). Implement methods like `save(Repository repository)`, `findById(UUID id)`, `findByUrl(String url)`, and `delete(UUID id)`. 4. Create Persistence Adapter: Develop an in-memory adapter (`InMemoryRepositoryAdapter`) for `RepositoryPersistencePort` in `src/main/java/io/jgitkins/server/infrastructure/adapter/out/persistence/` for initial development and testing, mirroring the approach of other in-memory adapters. 5. Develop Repository DTOs: Create corresponding Data Transfer Objects (DTOs) in `src/main/java/io/jgitkins/server/application/dto/` for `CreateRepositoryCommand`, `UpdateRepositoryCommand`, and `RepositoryResponse` to facilitate API interactions. 6. Expose REST Endpoints: Implement or modify REST controllers (e.g., `RepositoryController` in `src/main/java/io/jgitkins/server/interfaces/rest/`) to expose endpoints for managing repositories (e.g., `POST /api/repositories`, `GET /api/repositories/{id}`, `PUT /api/repositories/{id}`, `DELETE /api/repositories/{id}`). These endpoints should use the newly defined DTOs and interact with `RepositoryService`. 7. Integrate with RepositoryContentPort: Ensure the refined `RepositoryService` can leverage or integrate with the existing `RepositoryContentPort` for operations requiring interaction with the actual repository content (e.g., fetching Jenkinsfile, although this specific part might be a follow-up task, ensure compatibility.",
@@ -271,7 +330,7 @@
         ]
       },
       {
-        "id": "7",
+        "id": 7,
         "title": "Define Organize Domain and Refine Repository Management API",
         "description": "Define Organize Domain and Refine Repository Management API",
         "details": "",
@@ -348,7 +407,7 @@
         ]
       },
       {
-        "id": "8",
+        "id": 8,
         "title": "Migrate Service Communication with gRPC",
         "description": "Implement gRPC services for existing application APIs, starting with Repository and Organize management, to enable efficient, high-performance inter-service communication.",
         "details": "1. Add gRPC Dependencies: Update the `pom.xml` to include `grpc-netty-shaded`, `grpc-protobuf`, `grpc-stub`, and `protobuf-maven-plugin` for code generation. Ensure the `protobuf-maven-plugin` is configured to generate Java sources from `.proto` files during the build lifecycle, targeting `target/generated-sources/protobuf`.\n2. Define Protocol Buffer Definitions: Create new `.proto` files (e.g., `repository_service.proto`, `organize_service.proto`) under a new `src/main/proto` directory. These files should define gRPC services and message types that mirror the domain models and DTOs used by the existing `RepositoryService` and `OrganizeService` (from Task 6 and Task 7). For instance, a `Repository` message in `repository_service.proto` should reflect `io.jgitkins.server.application.domain.model.Repository`.\n3. Implement gRPC Service Adapters: Create gRPC server implementations (e.g., `GrpcRepositoryService`, `GrpcOrganizeService`) under a new package `io.jgitkins.server.adapter.in.grpc`. These classes must extend the generated `*Grpc.ServiceImplBase` classes and delegate incoming gRPC requests to the corresponding application services (e.g., `RepositoryService`, `OrganizeService`) from `io.jgitkins.server.application.port.service`. Ensure meticulous mapping between gRPC proto messages and the application's domain/DTO objects.\n4. Configure gRPC Server: Integrate the gRPC server into the Spring Boot application. This can be achieved by using `grpc-spring-boot-starter` or by manually configuring and starting a `ServerBuilder` within a Spring `@Configuration` class. The server must register the implemented gRPC services.\n5. Implement Error Handling and Interceptors: Develop global gRPC error handling mechanisms, possibly using a `ServerInterceptor`, to catch exceptions thrown by application services and map them to appropriate gRPC `Status` codes (e.g., `Status.NOT_FOUND`, `Status.INVALID_ARGUMENT`, `Status.INTERNAL`).",
@@ -366,12 +425,14 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-12T10:37:14.464Z",
+      "lastModified": "2025-12-15T07:40:55.589Z",
       "taskCount": 8,
       "completedCount": 4,
       "tags": [
         "master"
-      ]
+      ],
+      "created": "2025-12-15T07:46:36.395Z",
+      "description": "Tasks for master context"
     }
   }
 }

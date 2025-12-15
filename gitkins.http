@@ -32,7 +32,7 @@ PUT {{url}}/api/organizes/1
 }
 
 ### 조직 삭제
-DELETE {{url}}/api/organizes/4
+# DELETE {{url}}/api/organizes/4
 
 #######################################################
 ### Repository ########################################
