@@ -47,7 +47,8 @@ public class GlobalExceptionHandler {
 
             case REPOSITORY_ALREADY_EXISTS,
                  BRANCH_ALREADY_EXISTS,
-                 ORGANIZE_ALREADY_EXISTS -> HttpStatus.CONFLICT;
+                 ORGANIZE_ALREADY_EXISTS,
+                 RUNNER_ALREADY_ACTIVE -> HttpStatus.CONFLICT;
 
             case INTERNAL_SERVER_ERROR,
                  REPOSITORY_CREATE_FAILED,
@@ -62,6 +63,8 @@ public class GlobalExceptionHandler {
                  RUNNER_DELETE_FAILED,
                  RUNNER_ACTIVATION_FAILED,
                  REPOSITORY_DELETE_FAILED -> HttpStatus.INTERNAL_SERVER_ERROR;
+
+            case RUNNER_INVALID_TOKEN -> HttpStatus.BAD_REQUEST;
         };
     }
 

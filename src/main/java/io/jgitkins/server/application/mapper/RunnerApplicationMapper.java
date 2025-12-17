@@ -17,5 +17,5 @@ public interface RunnerApplicationMapper {
     @Mapping(target = "runnerId", source = "id")
     @Mapping(target = "status", expression = "java(runner.getStatus().name())")
     @Mapping(target = "registeredAt", source = "createdAt")
-    RunnerDetailResult toDetailResult(Runner runner);
+    RunnerDetailResult toActivationResult(Runner runner);
 }

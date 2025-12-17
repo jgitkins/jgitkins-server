@@ -24,7 +24,7 @@ public class RunnerReadService implements RunnerQueryUseCase {
     public RunnerDetailResult getRunner(Long runnerId) {
         Runner runner = runnerQueryPort.findById(runnerId)
                                        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RUNNER_NOT_FOUND));
-        return runnerApplicationMapper.toDetailResult(runner);
+        return runnerApplicationMapper.toActivationResult(runner);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class RunnerReadService implements RunnerQueryUseCase {
     public List<RunnerDetailResult> getRunners() {
         List<Runner> runners = runnerQueryPort.findAll();
         return runners.stream()
-                      .map(runnerApplicationMapper::toDetailResult)
+                      .map(runnerApplicationMapper::toActivationResult)
                       .toList();
     }
 }

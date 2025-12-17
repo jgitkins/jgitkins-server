@@ -1,5 +1,8 @@
 package io.jgitkins.server.domain.aggregate;
 
+import io.jgitkins.server.domain.exception.RunnerAlreadyActiveException;
+import io.jgitkins.server.domain.exception.RunnerTokenMismatchException;
+import io.jgitkins.server.domain.exception.RunnerTokenMissingException;
 import io.jgitkins.server.domain.model.vo.RunnerScopeType;
 import io.jgitkins.server.domain.model.vo.RunnerStatus;
 import java.time.LocalDateTime;
@@ -128,16 +131,16 @@ public class Runner implements AggregateRoot<Long> {
 
     private void validateToken(String providedToken) {
         if (providedToken == null || providedToken.isBlank()) {
-            throw new IllegalArgumentException("Runner activation token is required");
+            throw new RunnerTokenMissingException();
         }
         if (!token.equals(providedToken)) {
-            throw new IllegalArgumentException("Runner token does not match activation request");
+            throw new RunnerTokenMismatchException();
         }
     }
 
     private void validateActivationState() {
         if (status != RunnerStatus.OFFLINE) {
-            throw new IllegalStateException("Runner is not in OFFLINE state and cannot be activated");
+            throw new RunnerAlreadyActiveException(id, status);
         }
     }
 

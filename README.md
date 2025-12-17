@@ -63,7 +63,7 @@ _No tasks found._
 | 1 | Feature Runner Management API | done | medium | 4 |
 | 2 | Feature Integrate MQ | cancelled | medium | 7 |
 | 3 | Feature Batch Job Publisher | cancelled | medium | 0 |
-| 4 | Runner Management(Manage Plugin or Runner Configuration (Schedule cycle or.. dockerImage(Jenkinsfile Runner or Jenkinsfile Runner 에 사용되는 플러그인들을 서버에서 설정 )) | pending | medium | 5 |
+| 4 | Runner Management(Manage Plugin or Runner Configuration (Schedule cycle or.. dockerImage(Jenkinsfile Runner or Jenkinsfile Runner 에 사용되는 플러그인들을 서버에서 설정 )) | in-progress | medium | 6 |
 | 5 | Scheduled Job Publication Flow | pending | medium | 0 |
 | 6 | Define Repository Domain and Refine Repository Management API | done | medium | 5 |
 | 7 | Define Organize Domain and Refine Repository Management API | done | medium | 5 |

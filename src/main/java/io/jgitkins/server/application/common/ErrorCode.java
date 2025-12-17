@@ -30,6 +30,8 @@ public enum ErrorCode {
     , RUNNER_NOT_FOUND("RUNNER_NOT_FOUND", "Runner Not Found")
     , RUNNER_DELETE_FAILED("RUNNER_DELETE_FAILED", "Runner Delete Failed")
     , RUNNER_ACTIVATION_FAILED("RUNNER_ACTIVATION_FAILED", "Runner Activation Failed")
+    , RUNNER_ALREADY_ACTIVE("RUNNER_ALREADY_ACTIVE", "Runner Already Active")
+    , RUNNER_INVALID_TOKEN("RUNNER_INVALID_TOKEN", "Runner token is invalid")
     , ORGANIZE_NOT_FOUND("ORGANIZE_NOT_FOUND", "Organize Not Found")
     , ORGANIZE_ALREADY_EXISTS("ORGANIZE_ALREADY_EXISTS", "Organize Already Exists")
     , REPOSITORY_DELETE_FAILED("REPOSITORY_DELETE_FAILED", "Repository Delete Failed")

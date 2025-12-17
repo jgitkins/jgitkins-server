@@ -1,5 +1,6 @@
 package io.jgitkins.server.presentation.api;
 
+import io.jgitkins.server.application.dto.RunnerActivateResult;
 import io.jgitkins.server.application.dto.RunnerDetailResult;
 import io.jgitkins.server.application.dto.RunnerRegisterCommand;
 import io.jgitkins.server.application.dto.RunnerRegistrationResult;
@@ -66,16 +67,12 @@ public class RunnerController {
     }
 
     @Operation(summary = "Activate Runner", description = "Activate a runner and set it ONLINE")
-//    @PostMapping("/{runnerId}/activate")
     @PostMapping("/activate")
-    public ResponseEntity<RunnerResponse> activateRunner(
-//            @PathVariable Long runnerId,
-                                                         @Valid @RequestBody RunnerActivationRequest request,
-                                                         HttpServletRequest httpServletRequest) {
+    public ResponseEntity<ApiResponse<RunnerActivateResult>> activateRunner(@Valid @RequestBody RunnerActivationRequest request,
+                                                                            HttpServletRequest httpServletRequest) {
         String clientIp = extractClientIp(httpServletRequest);
-//        RunnerDetailResult result = runnerActivateUseCase.activate(runnerId, request.getToken(), clientIp);
-        RunnerDetailResult result = runnerActivateUseCase.activate(request.getToken(), clientIp);
-        return ResponseEntity.ok(runnerResponseMapper.toResponse(result));
+        RunnerActivateResult result = runnerActivateUseCase.activate(request.getToken(), clientIp);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
     private String extractClientIp(HttpServletRequest request) {
