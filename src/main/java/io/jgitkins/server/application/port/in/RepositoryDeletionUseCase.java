@@ -1,5 +1,5 @@
 package io.jgitkins.server.application.port.in;
 
-public interface DeleteRepositoryUseCase {
+public interface RepositoryDeletionUseCase {
     void deleteRepository(Long repositoryId);
 }

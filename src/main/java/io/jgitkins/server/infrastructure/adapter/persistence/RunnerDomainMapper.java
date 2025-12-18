@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface RunnerMapper {
+public interface RunnerDomainMapper {
 
     @Mapping(target = "status", expression = "java(runner.getStatus().name())")
     @Mapping(target = "ipAddress", source = "ipAddress")

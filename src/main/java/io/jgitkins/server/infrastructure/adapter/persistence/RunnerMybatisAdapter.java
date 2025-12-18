@@ -24,19 +24,19 @@ public class RunnerMybatisAdapter implements RunnerCommandPort, RunnerQueryPort 
 
     private final RunnerEntityMbgMapper runnerEntityMbgMapper;
     private final RunnerAssignmentEntityMbgMapper runnerAssignmentEntityMbgMapper;
-    private final RunnerMapper runnerMapper;
+    private final RunnerDomainMapper runnerDomainMapper;
     private final RunnerAssignmentMapper runnerAssignmentMapper;
 
     @Override
     @Transactional
     public Runner save(Runner runner) {
-        RunnerEntity entity = runnerMapper.toEntity(runner);
+        RunnerEntity entity = runnerDomainMapper.toEntity(runner);
 
         if (runner.getId() == null) {
             runnerEntityMbgMapper.insertSelective(entity);
             Runner restoredEntity = restoreRunner(entity);
             runnerAssignmentEntityMbgMapper.insertSelective(runnerAssignmentMapper.toEntity(restoredEntity));
-            return runnerMapper.toDomain(entity, runner.getScopeType(), runner.getScopeTargetId());
+            return runnerDomainMapper.toDomain(entity, runner.getScopeType(), runner.getScopeTargetId());
 
         } else {
             runnerEntityMbgMapper.updateByPrimaryKeySelective(entity);
@@ -86,7 +86,7 @@ public class RunnerMybatisAdapter implements RunnerCommandPort, RunnerQueryPort 
 
     @Override
     public Runner update(Runner runner) {
-        RunnerEntity entity = runnerMapper.toEntity(runner);
+        RunnerEntity entity = runnerDomainMapper.toEntity(runner);
         runnerEntityMbgMapper.updateByPrimaryKeySelective(entity);
         RunnerEntity updated = runnerEntityMbgMapper.selectByPrimaryKey(runner.getId());
         return restoreRunner(updated);
@@ -107,7 +107,7 @@ public class RunnerMybatisAdapter implements RunnerCommandPort, RunnerQueryPort 
         RunnerAssignmentEntity assignment = fetchAssignment(entity.getId());
         RunnerScopeType scopeType = assignment != null ? RunnerScopeType.valueOf(assignment.getTargetType()) : RunnerScopeType.GLOBAL;
         Long targetId = assignment != null ? assignment.getTargetId() : null;
-        return runnerMapper.toDomain(entity, scopeType, targetId);
+        return runnerDomainMapper.toDomain(entity, scopeType, targetId);
     }
 
     private RunnerAssignmentEntity fetchAssignment(Long runnerId) {

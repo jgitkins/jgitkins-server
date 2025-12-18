@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CreateOrganizeCommand {
+public class OrganizeCreationCommand {
     private final String name;
     private final String path;
     private final Long ownerId;

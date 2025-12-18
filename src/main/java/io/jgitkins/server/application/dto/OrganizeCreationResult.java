@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class OrganizeResult {
+public class OrganizeCreationResult {
     private final Long id;
     private final String name;
     private final String path;

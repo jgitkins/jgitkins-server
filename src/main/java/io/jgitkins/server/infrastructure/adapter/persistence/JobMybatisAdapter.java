@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 public class JobMybatisAdapter implements JobCommandPort {
     private final JobEntityMbgMapper jobEntityMbgMapper;
     private final JobHistoryEntityMbgMapper jobHistoryEntityMbgMapper;
-    private final JobMapper jobMapper;
+    private final JobDomainMapper jobDomainMapper;
 
     @Override
     public void create(Job job) {
 
-        JobEntity jobEntity = jobMapper.toEntity(job);
+        JobEntity jobEntity = jobDomainMapper.toEntity(job);
         jobEntityMbgMapper.insertSelective(jobEntity);
 
         Long jobId = jobEntity.getId();
@@ -27,7 +27,7 @@ public class JobMybatisAdapter implements JobCommandPort {
         }
 
         job.getHistories()
-           .forEach(history -> jobHistoryEntityMbgMapper.insertSelective(jobMapper.toHistoryEntity(history, jobId)));
+           .forEach(history -> jobHistoryEntityMbgMapper.insertSelective(jobDomainMapper.toHistoryEntity(history, jobId)));
 
     }
 }

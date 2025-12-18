@@ -3,43 +3,16 @@ package io.jgitkins.server.application.port.service;
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.exception.ConflictException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
-import io.jgitkins.server.application.dto.CommitFile;
-import io.jgitkins.server.application.dto.CommitHistory;
-import io.jgitkins.server.application.dto.CreateRepositoryCommand;
-import io.jgitkins.server.application.dto.FileEntry;
-import io.jgitkins.server.application.dto.FileUploadInfo;
-import io.jgitkins.server.application.dto.RepositoryResult;
-import io.jgitkins.server.application.dto.UpdateRepositoryCommand;
-import io.jgitkins.server.application.port.in.CreateRepositoryUseCase;
-import io.jgitkins.server.application.port.in.DeleteRepositoryUseCase;
-import io.jgitkins.server.application.port.in.LoadAllFilesUseCase;
-import io.jgitkins.server.application.port.in.LoadBranchCommitHistoriesUseCase;
-import io.jgitkins.server.application.port.in.LoadCommitDetailUseCase;
-import io.jgitkins.server.application.port.in.LoadRepositoryUseCase;
-import io.jgitkins.server.application.port.in.LoadTreeUseCase;
-import io.jgitkins.server.application.port.in.UpdateRepositoryUseCase;
-import io.jgitkins.server.application.port.in.UploadFileUseCase;
-import io.jgitkins.server.application.port.out.CreateRepositoryPort;
-import io.jgitkins.server.application.port.out.DeleteRepositoryPort;
-import io.jgitkins.server.application.port.out.UpdateHeadReferencePort;
-import io.jgitkins.server.application.port.out.LoadAllFilesPort;
-import io.jgitkins.server.application.port.out.LoadBranchCommitHistoriesPort;
-import io.jgitkins.server.application.port.out.LoadCommitDetailPort;
-import io.jgitkins.server.application.port.out.LoadTreePort;
-import io.jgitkins.server.application.port.out.RepositoryCommitPort;
-import io.jgitkins.server.application.port.out.RepositoryContentPort;
-import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
-import io.jgitkins.server.application.port.out.OrganizePersistencePort;
+import io.jgitkins.server.application.dto.*;
 import io.jgitkins.server.application.mapper.RepositoryApplicationMapper;
+import io.jgitkins.server.application.port.in.*;
+import io.jgitkins.server.application.port.out.*;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.aggregate.Repository;
-import io.jgitkins.server.domain.model.vo.BranchName;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.RepositoryPath;
-import io.jgitkins.server.domain.model.vo.RepositoryVisibility;
-import io.jgitkins.server.domain.model.vo.UserId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -53,15 +26,14 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RepositoryService implements CreateRepositoryUseCase,
-                                          LoadRepositoryUseCase,
-                                          UpdateRepositoryUseCase,
-                                          DeleteRepositoryUseCase,
-                                          UploadFileUseCase,
-                                          LoadTreeUseCase,
-                                          LoadAllFilesUseCase,
-                                          LoadCommitDetailUseCase,
-                                          LoadBranchCommitHistoriesUseCase {
+public class RepositoryDeletionLoadCreationService implements RepositoryCreationUseCase,
+        RepositoryLoadUseCase,
+//        UpdateRepositoryUseCase,
+        RepositoryDeletionUseCase,
+        FileUploadUseCase,
+        LoadTreeUseCase,
+        FileLoadUseCase,
+        CommitLoadUseCase {
 
     private final CreateRepositoryPort createRepositoryPort;
     private final LoadTreePort getTreePort;
@@ -135,47 +107,47 @@ public class RepositoryService implements CreateRepositoryUseCase,
         return repositoryApplicationMapper.toDto(repository);
     }
 
-    @Override
-    @Transactional
-    public RepositoryResult updateRepository(Long repositoryId, UpdateRepositoryCommand command) {
-        Repository repository = repositoryPersistencePort.findById(RepositoryId.of(repositoryId))
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND, "Repository not found: " + repositoryId));
-
-        String normalizedType = command.getRepositoryType() != null
-                ? command.getRepositoryType().trim().toUpperCase()
-                : null;
-
-        if (command.getName() != null) {
-            RepositoryName newName = RepositoryName.from(command.getName());
-            if (!repository.getName().getValue().equalsIgnoreCase(newName.getValue())) {
-                ensureRepositoryNameUnique(repository.getOrganizeId(), newName, repository.getId());
-            }
-        }
-
-        RepositoryPath newPath = command.getPath() != null ? RepositoryPath.from(command.getPath()) : null;
-        String organizeSlug = loadOrganize(repository.getOrganizeId()).getPath().getValue();
-        String effectiveRepoPath = newPath != null ? newPath.getValue() : repository.getPath().getValue();
-        String clonePath = buildClonePath(organizeSlug, effectiveRepoPath);
-
-        Repository updated = repository.updateMetadata(
-                command.getName() != null ? RepositoryName.from(command.getName()) : null,
-                newPath,
-                command.getDefaultBranch() != null ? BranchName.of(command.getDefaultBranch()) : null,
-                command.getVisibility() != null ? RepositoryVisibility.from(command.getVisibility()) : null,
-                normalizedType,
-                command.getOwnerId() != null ? UserId.of(command.getOwnerId()) : null,
-                command.getDescription(),
-                clonePath,
-                command.getCredentialId()
-        );
-
-        if (command.getLastSyncedAt() != null) {
-            updated = updated.markSynced(command.getLastSyncedAt());
-        }
-
-        Repository persisted = repositoryPersistencePort.update(updated);
-        return repositoryApplicationMapper.toDto(persisted);
-    }
+//    @Override
+//    @Transactional
+//    public RepositoryResult updateRepository(Long repositoryId, UpdateRepositoryCommand command) {
+//        Repository repository = repositoryPersistencePort.findById(RepositoryId.of(repositoryId))
+//                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND, "Repository not found: " + repositoryId));
+//
+//        String normalizedType = command.getRepositoryType() != null
+//                ? command.getRepositoryType().trim().toUpperCase()
+//                : null;
+//
+//        if (command.getName() != null) {
+//            RepositoryName newName = RepositoryName.from(command.getName());
+//            if (!repository.getName().getValue().equalsIgnoreCase(newName.getValue())) {
+//                ensureRepositoryNameUnique(repository.getOrganizeId(), newName, repository.getId());
+//            }
+//        }
+//
+//        RepositoryPath newPath = command.getPath() != null ? RepositoryPath.from(command.getPath()) : null;
+//        String organizeSlug = loadOrganize(repository.getOrganizeId()).getPath().getValue();
+//        String effectiveRepoPath = newPath != null ? newPath.getValue() : repository.getPath().getValue();
+//        String clonePath = buildClonePath(organizeSlug, effectiveRepoPath);
+//
+//        Repository updated = repository.updateMetadata(
+//                command.getName() != null ? RepositoryName.from(command.getName()) : null,
+//                newPath,
+//                command.getDefaultBranch() != null ? BranchName.of(command.getDefaultBranch()) : null,
+//                command.getVisibility() != null ? RepositoryVisibility.from(command.getVisibility()) : null,
+//                normalizedType,
+//                command.getOwnerId() != null ? UserId.of(command.getOwnerId()) : null,
+//                command.getDescription(),
+//                clonePath,
+//                command.getCredentialId()
+//        );
+//
+//        if (command.getLastSyncedAt() != null) {
+//            updated = updated.markSynced(command.getLastSyncedAt());
+//        }
+//
+//        Repository persisted = repositoryPersistencePort.update(updated);
+//        return repositoryApplicationMapper.toDto(persisted);
+//    }
 
     @Override
     @Transactional
@@ -210,12 +182,12 @@ public class RepositoryService implements CreateRepositoryUseCase,
     }
 
     @Override
-    public CommitHistory getCommitDetail(String taskCd, String repoName, String commitHash) throws IOException {
+    public CommitHistory getCommit(String taskCd, String repoName, String commitHash) throws IOException {
         return getCommitDetailPort.getCommitDetail(taskCd, repoName, commitHash);
     }
 
     @Override
-    public List<CommitHistory> getBranchCommitHistories(String taskCd, String repoName, String branch) throws IOException {
+    public List<CommitHistory> getCommits(String taskCd, String repoName, String branch) throws IOException {
         return getBranchCommitHistoriesPort.getCommitHistories(taskCd, repoName, branch);
     }
 

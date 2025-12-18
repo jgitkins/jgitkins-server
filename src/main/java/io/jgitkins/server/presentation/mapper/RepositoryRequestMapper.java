@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface CreateRepositoryMapper {
+public interface RepositoryRequestMapper {
 
     @Mapping(source = "username", target = "authorName")
     @Mapping(source = "email", target = "authorEmail")

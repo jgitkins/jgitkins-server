@@ -3,7 +3,7 @@ package io.jgitkins.server.presentation.dto;
 import lombok.Getter;
 
 @Getter
-public class CreateOrganizeRequest {
+public class OrganizeCreationRequest {
     private String name;
     private String path;
     private Long ownerId;

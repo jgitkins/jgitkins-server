@@ -1,5 +1,6 @@
 package io.jgitkins.server.domain.aggregate;
 
+import io.jgitkins.server.domain.event.RepositoryProvisionedEvent;
 import io.jgitkins.server.domain.model.vo.BranchName;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Repository implements AggregateRoot<RepositoryId> {
+public class Repository extends AbstractAggregateRoot<RepositoryId> {
 
     private final RepositoryId id;
     private final OrganizeId organizeId;
@@ -85,7 +86,7 @@ public class Repository implements AggregateRoot<RepositoryId> {
                                       String credentialId,
                                       boolean requiresInitialContent) {
         LocalDateTime now = LocalDateTime.now();
-        return new Repository(
+        Repository repository = new Repository(
                 null,
                 organizeId,
                 name,
@@ -102,45 +103,51 @@ public class Repository implements AggregateRoot<RepositoryId> {
                 null,
                 requiresInitialContent
         );
+        repository.registerEvent(RepositoryProvisionedEvent.from(repository));
+        return repository;
     }
 
     public Repository withIdentity(RepositoryId repositoryId,
                                    LocalDateTime createdAt,
                                    LocalDateTime updatedAt) {
-        return new Repository(repositoryId,
-                              organizeId,
-                              name,
-                              path,
-                              defaultBranch,
-                              visibility,
-                              description,
-                              createdAt,
-                              updatedAt,
-                              repositoryType,
-                              ownerId,
-                              credentialId,
-                              clonePath,
-                              lastSyncedAt,
-                              requiresInitialContent);
+        Repository identified = new Repository(repositoryId,
+                                               organizeId,
+                                               name,
+                                               path,
+                                               defaultBranch,
+                                               visibility,
+                                               description,
+                                               createdAt,
+                                               updatedAt,
+                                               repositoryType,
+                                               ownerId,
+                                               credentialId,
+                                               clonePath,
+                                               lastSyncedAt,
+                                               requiresInitialContent);
+        identified.copyDomainEventsFrom(this);
+        return identified;
     }
 
     public Repository markSynced(LocalDateTime syncedAt) {
-        return new Repository(id,
-                organizeId,
-                name,
-                path,
-                defaultBranch,
-                visibility,
-                description,
-                createdAt,
-                updatedAt,
-                repositoryType,
-                ownerId,
-                credentialId,
-                clonePath,
-                syncedAt,
-                false
+        Repository synced = new Repository(id,
+                                           organizeId,
+                                           name,
+                                           path,
+                                           defaultBranch,
+                                           visibility,
+                                           description,
+                                           createdAt,
+                                           updatedAt,
+                                           repositoryType,
+                                           ownerId,
+                                           credentialId,
+                                           clonePath,
+                                           syncedAt,
+                                           false
         );
+        synced.copyDomainEventsFrom(this);
+        return synced;
     }
 
     public Repository updateMetadata(RepositoryName newName,
@@ -152,21 +159,23 @@ public class Repository implements AggregateRoot<RepositoryId> {
                                      String newDescription,
                                      String newClonePath,
                                      String newCredentialId) {
-        return new Repository(id,
-                              organizeId,
-                              newName != null ? newName : name,
-                              newPath != null ? newPath : path,
-                              newDefaultBranch != null ? newDefaultBranch : defaultBranch,
-                              newVisibility != null ? newVisibility : visibility,
-                              newDescription != null ? newDescription : description,
-                              createdAt,
-                              updatedAt,
-                              newRepositoryType != null ? newRepositoryType : repositoryType,
-                              newOwner != null ? newOwner : ownerId,
-                              newCredentialId != null ? newCredentialId : credentialId,
-                              newClonePath != null ? newClonePath : clonePath,
-                              lastSyncedAt,
-                              requiresInitialContent);
+        Repository updated = new Repository(id,
+                                            organizeId,
+                                            newName != null ? newName : name,
+                                            newPath != null ? newPath : path,
+                                            newDefaultBranch != null ? newDefaultBranch : defaultBranch,
+                                            newVisibility != null ? newVisibility : visibility,
+                                            newDescription != null ? newDescription : description,
+                                            createdAt,
+                                            updatedAt,
+                                            newRepositoryType != null ? newRepositoryType : repositoryType,
+                                            newOwner != null ? newOwner : ownerId,
+                                            newCredentialId != null ? newCredentialId : credentialId,
+                                            newClonePath != null ? newClonePath : clonePath,
+                                            lastSyncedAt,
+                                            requiresInitialContent);
+        updated.copyDomainEventsFrom(this);
+        return updated;
     }
 
     public static Repository rehydrate(RepositoryId repositoryId,

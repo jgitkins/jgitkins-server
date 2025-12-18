@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BranchMybatisAdapter implements BranchPersistencePort {
 
-    private final BranchMapper branchMapper;
+    private final BranchDomainMapper branchDomainMapper;
     private final BranchEntityMbgMapper branchEntityMbgMapper;
 
 
     @Override
     public void create(Long repositoryId, String name) {
         Branch branch = Branch.create(repositoryId, name);
-        BranchEntity branchEntity = branchMapper.toEntity(branch);
+        BranchEntity branchEntity = branchDomainMapper.toEntity(branch);
         branchEntityMbgMapper.insertSelective(branchEntity);
     }
 

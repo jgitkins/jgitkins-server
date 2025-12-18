@@ -11,9 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Mapper(componentModel = "spring")
-public interface JobMapper {
+public interface JobDomainMapper {
 
-    Logger LOG = LoggerFactory.getLogger(JobMapper.class);
+    Logger LOG = LoggerFactory.getLogger(JobDomainMapper.class);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "repositoryId", expression = "java(job.getRepositoryId().getValue())")

@@ -6,9 +6,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
-public interface BranchMapper {
+public interface BranchDomainMapper {
 
-    BranchMapper INSTANCE = Mappers.getMapper(BranchMapper.class);
+    BranchDomainMapper INSTANCE = Mappers.getMapper(BranchDomainMapper.class);
 
     // 도메인 모델 -> 영속성 모델 변환
     BranchEntity toEntity(Branch branch);

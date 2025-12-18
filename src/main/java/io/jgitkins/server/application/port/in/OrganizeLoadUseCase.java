@@ -4,6 +4,8 @@ import io.jgitkins.server.application.dto.OrganizeCreationResult;
 
 import java.util.List;
 
-public interface ListOrganizeUseCase {
+public interface OrganizeLoadUseCase {
+    OrganizeCreationResult getOrganize(Long organizeId);
     List<OrganizeCreationResult> getOrganizes();
+
 }

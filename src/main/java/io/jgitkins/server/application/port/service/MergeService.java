@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import io.jgitkins.server.application.dto.MergeRequest;
 import io.jgitkins.server.application.dto.MergeResult;
-import io.jgitkins.server.application.port.in.CheckMergeabilityUseCase;
-import io.jgitkins.server.application.port.in.PerformMergeUseCase;
+import io.jgitkins.server.application.port.in.MergeabilityCheckUseCase;
+import io.jgitkins.server.application.port.in.MergeUseCase;
 import io.jgitkins.server.application.port.out.CheckMergeabilityPort;
 import io.jgitkins.server.application.port.out.PerformMergePort;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class MergeService implements CheckMergeabilityUseCase, PerformMergeUseCase {
+public class MergeService implements MergeabilityCheckUseCase, MergeUseCase {
 
     private final CheckMergeabilityPort checkMergeabilityPort;
     private final PerformMergePort performMergePort;

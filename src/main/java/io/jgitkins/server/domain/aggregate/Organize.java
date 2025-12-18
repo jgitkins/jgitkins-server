@@ -1,5 +1,6 @@
 package io.jgitkins.server.domain.aggregate;
 
+import io.jgitkins.server.domain.event.OrganizeCreatedEvent;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
 import io.jgitkins.server.domain.model.vo.OrganizePath;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Organize implements AggregateRoot<OrganizeId> {
+public class Organize extends AbstractAggregateRoot<OrganizeId> {
 
     private final OrganizeId id;
     private final OrganizeName name;
@@ -30,7 +31,7 @@ public class Organize implements AggregateRoot<OrganizeId> {
                                   Long ownerId,
                                   String description) {
         LocalDateTime now = LocalDateTime.now();
-        return new Organize(
+        Organize organize = new Organize(
                 null,
                 OrganizeName.from(name),
                 OrganizePath.from(path),
@@ -39,13 +40,15 @@ public class Organize implements AggregateRoot<OrganizeId> {
                 now,
                 now
         );
+        organize.registerEvent(OrganizeCreatedEvent.from(organize));
+        return organize;
     }
 
     public Organize updateMetadata(String newName,
                                    String newPath,
                                    Long newOwnerId,
                                    String newDescription) {
-        return new Organize(
+        Organize updated = new Organize(
                 id,
                 newName != null ? OrganizeName.from(newName) : name,
                 newPath != null ? OrganizePath.from(newPath) : path,
@@ -54,18 +57,22 @@ public class Organize implements AggregateRoot<OrganizeId> {
                 createdAt,
                 LocalDateTime.now()
         );
+        updated.copyDomainEventsFrom(this);
+        return updated;
     }
 
     public Organize withIdentity(OrganizeId organizeId,
                                  LocalDateTime createdAt,
                                  LocalDateTime updatedAt) {
-        return new Organize(organizeId,
-                            name,
-                            path,
-                            description,
-                            ownerId,
-                            createdAt != null ? createdAt : this.createdAt,
-                            updatedAt != null ? updatedAt : this.updatedAt);
+        Organize identified = new Organize(organizeId,
+                                           name,
+                                           path,
+                                           description,
+                                           ownerId,
+                                           createdAt != null ? createdAt : this.createdAt,
+                                           updatedAt != null ? updatedAt : this.updatedAt);
+        identified.copyDomainEventsFrom(this);
+        return identified;
     }
 
     public static Organize reconstruct(OrganizeId id,

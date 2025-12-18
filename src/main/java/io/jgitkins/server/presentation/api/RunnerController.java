@@ -13,7 +13,7 @@ import io.jgitkins.server.presentation.common.ResponseFactory;
 import io.jgitkins.server.presentation.dto.RunnerActivationRequest;
 import io.jgitkins.server.presentation.dto.RunnerRegistrationRequest;
 import io.jgitkins.server.presentation.dto.RunnerResponse;
-import io.jgitkins.server.presentation.mapper.RunnerRegistrationMapper;
+import io.jgitkins.server.presentation.mapper.RunnerRequestMapper;
 import io.jgitkins.server.presentation.mapper.RunnerResponseMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,13 +34,14 @@ public class RunnerController {
     private final RunnerQueryUseCase runnerQueryUseCase;
     private final RunnerDeleteUseCase runnerDeleteUseCase;
     private final RunnerActivateUseCase runnerActivateUseCase;
-    private final RunnerRegistrationMapper runnerRegistrationMapper;
+
+    private final RunnerRequestMapper runnerRequestMapper;
     private final RunnerResponseMapper runnerResponseMapper;
 
     @Operation(summary = "Register Runner", description = "Register a runner instance and receive an authentication token")
     @PostMapping
     public ResponseEntity<ApiResponse<RunnerRegistrationResult>> registerRunner(@Valid @RequestBody RunnerRegistrationRequest request) {
-        RunnerRegisterCommand registerCommand = runnerRegistrationMapper.toCommand(request);
+        RunnerRegisterCommand registerCommand = runnerRequestMapper.toCommand(request);
         RunnerRegistrationResult result = runnerRegisterUseCase.register(registerCommand);
         return ResponseFactory.created(result.getRunnerId(), result);
     }

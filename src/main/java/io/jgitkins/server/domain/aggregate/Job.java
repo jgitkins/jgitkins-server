@@ -1,5 +1,6 @@
 package io.jgitkins.server.domain.aggregate;
 
+import io.jgitkins.server.domain.event.JobQueuedEvent;
 import io.jgitkins.server.domain.model.JobHistory;
 import io.jgitkins.server.domain.model.vo.*;
 import lombok.AccessLevel;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Job implements AggregateRoot<JobId> {
+public class Job extends AbstractAggregateRoot<JobId> {
 
     private final JobId id;
     private final RepositoryId repositoryId;
@@ -70,6 +71,7 @@ public class Job implements AggregateRoot<JobId> {
                 LocalDateTime.now());
 
         histories.add(queuedHistory);
+        registerEvent(JobQueuedEvent.from(this, runnerId));
     }
 
     public void completeSuccess(RunnerId runnerId) {

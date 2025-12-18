@@ -1,20 +1,17 @@
 package io.jgitkins.server.presentation.api;
 
-import io.jgitkins.server.application.port.in.CreateRepositoryUseCase;
-import io.jgitkins.server.application.port.in.DeleteRepositoryUseCase;
-import io.jgitkins.server.application.port.in.LoadRepositoryUseCase;
+import io.jgitkins.server.application.port.in.RepositoryCreationUseCase;
+import io.jgitkins.server.application.port.in.RepositoryDeletionUseCase;
+import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
 import io.jgitkins.server.application.port.in.LoadTreeUseCase;
-import io.jgitkins.server.application.port.in.UpdateRepositoryUseCase;
-import io.jgitkins.server.application.port.in.UploadFileUseCase;
+import io.jgitkins.server.application.port.in.FileUploadUseCase;
 import io.jgitkins.server.application.dto.CreateRepositoryCommand;
 import io.jgitkins.server.application.dto.FileEntry;
 import io.jgitkins.server.application.dto.FileUploadInfo;
 import io.jgitkins.server.application.dto.FileUploadRequest;
 import io.jgitkins.server.application.dto.RepositoryResult;
-import io.jgitkins.server.application.dto.UpdateRepositoryCommand;
 import io.jgitkins.server.presentation.dto.CreateRepositoryRequest;
-import io.jgitkins.server.presentation.dto.UpdateRepositoryRequest;
-import io.jgitkins.server.presentation.mapper.CreateRepositoryMapper;
+import io.jgitkins.server.presentation.mapper.RepositoryRequestMapper;
 import io.jgitkins.server.presentation.common.ApiResponse;
 import io.jgitkins.server.presentation.common.ResponseFactory;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +28,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -47,41 +43,42 @@ import java.util.List;
 @RequestMapping("/api/repositories")
 public class RepositoryManagementController {
 
-    private final CreateRepositoryUseCase createRepositoryUseCase;
-    private final UploadFileUseCase uploadFileUseCase;
+    private final RepositoryCreationUseCase repositoryCreationUseCase;
+    private final FileUploadUseCase fileUploadUseCase;
     private final LoadTreeUseCase getTreeUseCase;
-    private final LoadRepositoryUseCase loadRepositoryUseCase;
-    private final UpdateRepositoryUseCase updateRepositoryUseCase;
-    private final DeleteRepositoryUseCase deleteRepositoryUseCase;
-    private final CreateRepositoryMapper createRepositoryMapper;
+    private final RepositoryLoadUseCase repositoryLoadUseCase;
+    private final RepositoryDeletionUseCase repositoryDeletionUseCase;
+    //    private final UpdateRepositoryUseCase updateRepositoryUseCase;
+
+    private final RepositoryRequestMapper repositoryRequestMapper;
 
     @Operation(summary = "Create Repository")
     @PostMapping
     public ResponseEntity<ApiResponse<RepositoryResult>> create(@org.springframework.web.bind.annotation.RequestBody CreateRepositoryRequest request) {
-        CreateRepositoryCommand createCommand = createRepositoryMapper.toCommand(request);
-        RepositoryResult result = createRepositoryUseCase.create(createCommand);
+        CreateRepositoryCommand createCommand = repositoryRequestMapper.toCommand(request);
+        RepositoryResult result = repositoryCreationUseCase.create(createCommand);
         return ResponseFactory.created(result.getId(), result);
     }
 
     @Operation(summary = "Get Repository Metadata")
     @GetMapping("/{repositoryId}")
     public ResponseEntity<ApiResponse<RepositoryResult>> getRepository(@PathVariable Long repositoryId) {
-        return ResponseEntity.ok(ApiResponse.success(loadRepositoryUseCase.getRepository(repositoryId)));
+        return ResponseEntity.ok(ApiResponse.success(repositoryLoadUseCase.getRepository(repositoryId)));
     }
 
-    @Operation(summary = "Update Repository Metadata")
-    @PutMapping("/{repositoryId}")
-    public ResponseEntity<ApiResponse<RepositoryResult>> updateRepository(@PathVariable Long repositoryId,
-                                                                          @org.springframework.web.bind.annotation.RequestBody UpdateRepositoryRequest request) {
-        UpdateRepositoryCommand command = createRepositoryMapper.toUpdateCommand(request);
-        RepositoryResult response = updateRepositoryUseCase.updateRepository(repositoryId, command);
-        return ResponseEntity.ok(ApiResponse.success(response));
-    }
+//    @Operation(summary = "Update Repository Metadata")
+//    @PutMapping("/{repositoryId}")
+//    public ResponseEntity<ApiResponse<RepositoryResult>> updateRepository(@PathVariable Long repositoryId,
+//                                                                          @org.springframework.web.bind.annotation.RequestBody UpdateRepositoryRequest request) {
+//        UpdateRepositoryCommand command = createRepositoryMapper.toUpdateCommand(request);
+//        RepositoryResult response = updateRepositoryUseCase.updateRepository(repositoryId, command);
+//        return ResponseEntity.ok(ApiResponse.success(response));
+//    }
 
     @Operation(summary = "Delete Repository")
     @DeleteMapping("/{repositoryId}")
     public ResponseEntity<ApiResponse<Void>> deleteRepository(@PathVariable Long repositoryId) {
-        deleteRepositoryUseCase.deleteRepository(repositoryId);
+        repositoryDeletionUseCase.deleteRepository(repositoryId);
         return ResponseEntity.ok(ApiResponse.success());
     }
 
@@ -103,7 +100,7 @@ public class RepositoryManagementController {
             @RequestPart("file") MultipartFile file,
             @RequestPart("request") FileUploadInfo request
     ) throws IOException {
-        uploadFileUseCase.uploadFileToRepository(taskCd, repoName, branch, file, request);
+        fileUploadUseCase.uploadFileToRepository(taskCd, repoName, branch, file, request);
         return ResponseEntity.ok(ApiResponse.success("File uploaded and committed."));
     }
 

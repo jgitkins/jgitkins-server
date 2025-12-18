@@ -5,7 +5,7 @@ import io.jgitkins.server.application.dto.MergeResult;
 
 import java.io.IOException;
 
-public interface PerformMergeUseCase {
+public interface MergeUseCase {
     MergeResult performMerge(String taskCd, String repoName, MergeRequest request) throws IOException;
 }
 

@@ -1,5 +1,6 @@
 package io.jgitkins.server.domain.aggregate;
 
+import io.jgitkins.server.domain.event.RunnerActivatedEvent;
 import io.jgitkins.server.domain.exception.RunnerAlreadyActiveException;
 import io.jgitkins.server.domain.exception.RunnerTokenMismatchException;
 import io.jgitkins.server.domain.exception.RunnerTokenMissingException;
@@ -17,7 +18,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Runner implements AggregateRoot<Long> {
+public class Runner extends AbstractAggregateRoot<Long> {
 
     private final Long id;
     private final String token;
@@ -60,53 +61,62 @@ public class Runner implements AggregateRoot<Long> {
     }
 
     public Runner withId(Long id) {
-        return new Runner(id,
-                          token,
-                          description,
-                          status,
-                          scopeType,
-                          scopeTargetId,
-                          ipAddress,
-                          lastHeartbeatAt,
-                          createdAt);
+        Runner identified = new Runner(id,
+                                       token,
+                                       description,
+                                       status,
+                                       scopeType,
+                                       scopeTargetId,
+                                       ipAddress,
+                                       lastHeartbeatAt,
+                                       createdAt);
+        identified.copyDomainEventsFrom(this);
+        return identified;
     }
 
     public Runner withStatus(RunnerStatus newStatus) {
-        return new Runner(id,
-                          token,
-                          description,
-                          newStatus,
-                          scopeType,
-                          scopeTargetId,
-                          ipAddress,
-                          lastHeartbeatAt,
-                          createdAt);
+        Runner updated = new Runner(id,
+                                    token,
+                                    description,
+                                    newStatus,
+                                    scopeType,
+                                    scopeTargetId,
+                                    ipAddress,
+                                    lastHeartbeatAt,
+                                    createdAt);
+        updated.copyDomainEventsFrom(this);
+        return updated;
     }
 
     public Runner withLastHeartbeatAt(LocalDateTime heartbeatAt) {
-        return new Runner(id,
-                          token,
-                          description,
-                          status,
-                          scopeType,
-                          scopeTargetId,
-                          ipAddress,
-                          heartbeatAt,
-                          createdAt);
+        Runner heartbeatUpdated = new Runner(id,
+                                             token,
+                                             description,
+                                             status,
+                                             scopeType,
+                                             scopeTargetId,
+                                             ipAddress,
+                                             heartbeatAt,
+                                             createdAt);
+        heartbeatUpdated.copyDomainEventsFrom(this);
+        return heartbeatUpdated;
     }
 
     public Runner activate(String providedToken, String remoteIp) {
         validateToken(providedToken);
         validateActivationState();
-        return new Runner(id,
-                          token,
-                          description,
-                          RunnerStatus.ONLINE,
-                          scopeType,
-                          scopeTargetId,
-                          normalizeIp(remoteIp),
-                          LocalDateTime.now(),
-                          createdAt);
+        Runner activated = new Runner(id,
+                                      token,
+                                      description,
+                                      RunnerStatus.ONLINE,
+                                      scopeType,
+                                      scopeTargetId,
+                                      normalizeIp(remoteIp),
+                                      LocalDateTime.now(),
+                                      createdAt);
+        activated.copyDomainEventsFrom(this);
+        activated.registerEvent(RunnerActivatedEvent.from(activated));
+        return activated;
     }
 
     public static Runner restore(Long id,
