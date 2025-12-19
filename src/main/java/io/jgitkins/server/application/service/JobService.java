@@ -1,7 +1,7 @@
 package io.jgitkins.server.application.service;
 
 import io.jgitkins.server.application.dto.JobCreateCommand;
-import io.jgitkins.server.application.port.in.JobCreateUseCase;
+import io.jgitkins.server.application.port.in.JobCreationUseCase;
 import io.jgitkins.server.application.port.out.CheckFileExistencePort;
 import io.jgitkins.server.application.port.out.JobCommandPort;
 import io.jgitkins.server.domain.aggregate.Job;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class JobService implements JobCreateUseCase {
+public class JobService implements JobCreationUseCase {
 
     private final CheckFileExistencePort checkFileExistencePort;
     private final JobCommandPort jobCommandPort;

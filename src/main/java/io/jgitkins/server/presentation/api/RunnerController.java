@@ -5,8 +5,8 @@ import io.jgitkins.server.application.dto.RunnerDetailResult;
 import io.jgitkins.server.application.dto.RunnerRegisterCommand;
 import io.jgitkins.server.application.dto.RunnerRegistrationResult;
 import io.jgitkins.server.application.port.in.RunnerActivateUseCase;
-import io.jgitkins.server.application.port.in.RunnerDeleteUseCase;
-import io.jgitkins.server.application.port.in.RunnerQueryUseCase;
+import io.jgitkins.server.application.port.in.RunnerDeletionUseCase;
+import io.jgitkins.server.application.port.in.RunnerLoadUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
 import io.jgitkins.server.presentation.common.ApiResponse;
 import io.jgitkins.server.presentation.common.ResponseFactory;
@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.*;
 public class RunnerController {
 
     private final RunnerRegisterUseCase runnerRegisterUseCase;
-    private final RunnerQueryUseCase runnerQueryUseCase;
-    private final RunnerDeleteUseCase runnerDeleteUseCase;
+    private final RunnerLoadUseCase runnerLoadUseCase;
+    private final RunnerDeletionUseCase runnerDeletionUseCase;
     private final RunnerActivateUseCase runnerActivateUseCase;
 
     private final RunnerRequestMapper runnerRequestMapper;
@@ -49,21 +49,21 @@ public class RunnerController {
     @Operation(summary = "List Runners", description = "Retrieve all registered runners")
     @GetMapping
     public ResponseEntity<List<RunnerResponse>> getRunners() {
-        List<RunnerDetailResult> results = runnerQueryUseCase.getRunners();
+        List<RunnerDetailResult> results = runnerLoadUseCase.getRunners();
         return ResponseEntity.ok(runnerResponseMapper.toResponses(results));
     }
 
     @Operation(summary = "Get Runner", description = "Retrieve a runner detail by id")
     @GetMapping("/{runnerId}")
     public ResponseEntity<RunnerResponse> getRunner(@PathVariable Long runnerId) {
-        RunnerDetailResult result = runnerQueryUseCase.getRunner(runnerId);
+        RunnerDetailResult result = runnerLoadUseCase.getRunner(runnerId);
         return ResponseEntity.ok(runnerResponseMapper.toResponse(result));
     }
 
     @Operation(summary = "Delete Runner", description = "Delete a runner by id")
     @DeleteMapping("/{runnerId}")
     public ResponseEntity<Void> deleteRunner(@PathVariable Long runnerId) {
-        runnerDeleteUseCase.deleteRunner(runnerId);
+        runnerDeletionUseCase.deleteRunner(runnerId);
         return ResponseEntity.noContent().build();
     }
 

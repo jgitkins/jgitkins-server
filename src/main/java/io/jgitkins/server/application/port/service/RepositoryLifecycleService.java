@@ -4,30 +4,16 @@ import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.event.DomainEventPublisher;
 import io.jgitkins.server.application.common.exception.ConflictException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
-import io.jgitkins.server.application.dto.CommitFile;
-import io.jgitkins.server.application.dto.CommitHistory;
 import io.jgitkins.server.application.dto.CreateRepositoryCommand;
-import io.jgitkins.server.application.dto.FileEntry;
-import io.jgitkins.server.application.dto.FileUploadInfo;
 import io.jgitkins.server.application.dto.RepositoryCreationContext;
 import io.jgitkins.server.application.dto.RepositoryResult;
 import io.jgitkins.server.application.mapper.RepositoryApplicationMapper;
-import io.jgitkins.server.application.port.in.CommitLoadUseCase;
-import io.jgitkins.server.application.port.in.FileLoadUseCase;
-import io.jgitkins.server.application.port.in.FileUploadUseCase;
-import io.jgitkins.server.application.port.in.LoadTreeUseCase;
 import io.jgitkins.server.application.port.in.RepositoryCreationUseCase;
 import io.jgitkins.server.application.port.in.RepositoryDeletionUseCase;
 import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
 import io.jgitkins.server.application.port.out.CreateRepositoryPort;
 import io.jgitkins.server.application.port.out.DeleteRepositoryPort;
-import io.jgitkins.server.application.port.out.LoadAllFilesPort;
-import io.jgitkins.server.application.port.out.LoadBranchCommitHistoriesPort;
-import io.jgitkins.server.application.port.out.LoadCommitDetailPort;
-import io.jgitkins.server.application.port.out.LoadTreePort;
 import io.jgitkins.server.application.port.out.OrganizePersistencePort;
-import io.jgitkins.server.application.port.out.RepositoryCommitPort;
-import io.jgitkins.server.application.port.out.RepositoryContentPort;
 import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.aggregate.Repository;
@@ -43,32 +29,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RepositoryManagementService implements RepositoryCreationUseCase,
+public class RepositoryLifecycleService implements RepositoryCreationUseCase,
         RepositoryLoadUseCase,
-//        UpdateRepositoryUseCase,
-        RepositoryDeletionUseCase,
-        FileUploadUseCase,
-        LoadTreeUseCase,
-        FileLoadUseCase,
-        CommitLoadUseCase {
+        RepositoryDeletionUseCase {
 
     private final CreateRepositoryPort createRepositoryPort;
-    private final LoadTreePort getTreePort;
-    private final LoadAllFilesPort getAllFilesPort;
-    private final LoadCommitDetailPort getCommitDetailPort;
-    private final LoadBranchCommitHistoriesPort getBranchCommitHistoriesPort;
-
     private final DeleteRepositoryPort deleteRepositoryPort;
-    private final RepositoryCommitPort repositoryCommitPort;
-    private final RepositoryContentPort repositoryContentPort;
     private final RepositoryPersistencePort repositoryPersistencePort;
     private final OrganizePersistencePort organizePersistencePort;
     private final RepositoryApplicationMapper repositoryApplicationMapper;
@@ -167,38 +137,6 @@ public class RepositoryManagementService implements RepositoryCreationUseCase,
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND, "Repository not found: " + repositoryId));
         deleteRepositoryDirectory(repository);
         repositoryPersistencePort.delete(id);
-    }
-
-    @Override
-    public void uploadFileToRepository(String taskCd, String repoName, String branch, MultipartFile file, FileUploadInfo request) throws IOException {
-        List<CommitFile> files = repositoryContentPort.prepareUploadFiles(file, request);
-        repositoryCommitPort.commit(taskCd,
-                                    repoName,
-                                    branch,
-                                    request.getCommitMessage(),
-                                    request.getAuthorName(),
-                                    request.getAuthorEmail(),
-                                    files);
-    }
-
-    @Override
-    public List<FileEntry> getTree(String taskCd, String repoName, String branch, String directory) throws IOException {
-        return getTreePort.getTree(taskCd, repoName, branch, directory);
-    }
-
-    @Override
-    public List<FileEntry> getAllFiles(String taskCd, String repoName, String reference) {
-        return getAllFilesPort.getAllFiles(taskCd, repoName, reference);
-    }
-
-    @Override
-    public CommitHistory getCommit(String taskCd, String repoName, String commitHash) throws IOException {
-        return getCommitDetailPort.getCommitDetail(taskCd, repoName, commitHash);
-    }
-
-    @Override
-    public List<CommitHistory> getCommits(String taskCd, String repoName, String branch) throws IOException {
-        return getBranchCommitHistoriesPort.getCommitHistories(taskCd, repoName, branch);
     }
 
     private void ensureRepositoryNameUnique(OrganizeId organizeId,

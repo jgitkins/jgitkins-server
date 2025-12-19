@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.config.git;
 
-import io.jgitkins.server.application.port.in.HandlePushEventUseCase;
+import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.jgit.lib.Repository;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PushEventReceivePackFactory implements ReceivePackFactory<HttpServletRequest> {
 
-    private final HandlePushEventUseCase handlePushEventUseCase;
+    private final PushEventHandleUseCase pushEventHandleUseCase;
 
     // @Override
     // public UploadPack create(HttpServletRequest req, Repository db) {
@@ -42,7 +42,7 @@ public class PushEventReceivePackFactory implements ReceivePackFactory<HttpServl
         ReceivePack rp = new ReceivePack(db);
 
         // 브랜치 신규 생성 Listener (브랜치 관리 가능)
-        rp.setPostReceiveHook(new PushHook(req, handlePushEventUseCase));
+        rp.setPostReceiveHook(new PushHook(req, pushEventHandleUseCase));
 
         return rp;
 

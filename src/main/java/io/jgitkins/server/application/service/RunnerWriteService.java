@@ -9,7 +9,7 @@ import io.jgitkins.server.application.dto.*;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
 import io.jgitkins.server.application.service.support.RunnerRuntimeConfigProvider;
 import io.jgitkins.server.application.port.in.RunnerActivateUseCase;
-import io.jgitkins.server.application.port.in.RunnerDeleteUseCase;
+import io.jgitkins.server.application.port.in.RunnerDeletionUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
 import io.jgitkins.server.application.port.out.RunnerCommandPort;
 import io.jgitkins.server.application.port.out.RunnerQueryPort;
@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeleteUseCase, RunnerActivateUseCase {
+public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeletionUseCase, RunnerActivateUseCase {
 
     private final RunnerCommandPort runnerCommandPort;
     private final RunnerQueryPort runnerQueryPort;

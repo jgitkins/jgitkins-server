@@ -1,11 +1,10 @@
 package io.jgitkins.server.application.port.service;
 
-import lombok.RequiredArgsConstructor;
 import io.jgitkins.server.application.dto.BranchCreateCommand;
 import io.jgitkins.server.application.dto.BranchInfo;
-import io.jgitkins.server.application.port.in.CreateBranchUseCase;
-import io.jgitkins.server.application.port.in.DeleteBranchUseCase;
-import io.jgitkins.server.application.port.in.LoadBranchUseCase;
+import io.jgitkins.server.application.port.in.BranchCreationUseCase;
+import io.jgitkins.server.application.port.in.BranchDeletetionUseCase;
+import io.jgitkins.server.application.port.in.BranchLoadUseCase;
 import io.jgitkins.server.application.port.out.BranchPersistencePort;
 import io.jgitkins.server.application.port.out.CreateBranchPort;
 import io.jgitkins.server.application.port.out.DeleteBranchPort;
@@ -17,14 +16,14 @@ import java.util.List;
 
 @Service
 //@RequiredArgsConstructor
-public class BranchService implements LoadBranchUseCase, CreateBranchUseCase, DeleteBranchUseCase {
+public class BranchLoadDeletetionCreationService implements BranchLoadUseCase, BranchCreationUseCase, BranchDeletetionUseCase {
 
     private final BranchLoadPort branchLoadPort;
     private final CreateBranchPort createBranchPort;
     private final DeleteBranchPort deleteBranchPort;
     private final BranchPersistencePort branchPersistencePort;
 
-    public BranchService(BranchLoadPort branchLoadPort, CreateBranchPort createBranchPort, DeleteBranchPort deleteBranchPort, BranchPersistencePort branchPersistencePort) {
+    public BranchLoadDeletetionCreationService(BranchLoadPort branchLoadPort, CreateBranchPort createBranchPort, DeleteBranchPort deleteBranchPort, BranchPersistencePort branchPersistencePort) {
         this.branchLoadPort = branchLoadPort;
         this.createBranchPort = createBranchPort;
         this.deleteBranchPort = deleteBranchPort;

@@ -4,7 +4,7 @@ import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
 import io.jgitkins.server.application.dto.RunnerDetailResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
-import io.jgitkins.server.application.port.in.RunnerQueryUseCase;
+import io.jgitkins.server.application.port.in.RunnerLoadUseCase;
 import io.jgitkins.server.application.port.out.RunnerQueryPort;
 import io.jgitkins.server.domain.aggregate.Runner;
 import java.util.List;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class RunnerReadService implements RunnerQueryUseCase {
+public class RunnerReadService implements RunnerLoadUseCase {
 
     private final RunnerQueryPort runnerQueryPort;
     private final RunnerApplicationMapper runnerApplicationMapper;

@@ -2,8 +2,8 @@ package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.dto.JobCreateCommand;
 import io.jgitkins.server.application.dto.PushEventCommand;
-import io.jgitkins.server.application.port.in.HandlePushEventUseCase;
-import io.jgitkins.server.application.port.in.JobCreateUseCase;
+import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
+import io.jgitkins.server.application.port.in.JobCreationUseCase;
 import io.jgitkins.server.application.port.out.BranchPersistencePort;
 import io.jgitkins.server.application.port.out.RepositoryLoadPort;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +16,11 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PushEventService implements HandlePushEventUseCase {
+public class PushEventHandleService implements PushEventHandleUseCase {
 
     private final RepositoryLoadPort repositoryLoadPort;
     private final BranchPersistencePort branchPersistencePort;
-    private final JobCreateUseCase jobCreateUseCase;
+    private final JobCreationUseCase jobCreationUseCase;
 
     @Override
     @Transactional
@@ -59,6 +59,6 @@ public class PushEventService implements HandlePushEventUseCase {
                 .triggeredBy(command.getTriggeredBy())
                 .build();
 
-        jobCreateUseCase.create(jobCommand);
+        jobCreationUseCase.create(jobCommand);
     }
 }

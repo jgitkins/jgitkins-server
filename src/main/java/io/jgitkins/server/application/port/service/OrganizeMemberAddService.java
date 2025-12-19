@@ -1,7 +1,7 @@
 package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.dto.AddOrganizeMemberCommand;
-import io.jgitkins.server.application.port.in.AddOrganizeMemberUseCase;
+import io.jgitkins.server.application.port.in.OrganizeMemberAddUseCase;
 import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
 import io.jgitkins.server.domain.model.OrganizeMember;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class OrganizeMemberService implements AddOrganizeMemberUseCase {
+public class OrganizeMemberAddService implements OrganizeMemberAddUseCase {
 
     private final OrganizeMemberPersistencePort organizeMemberPersistencePort;
 

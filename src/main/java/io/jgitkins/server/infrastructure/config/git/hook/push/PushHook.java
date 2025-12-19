@@ -1,7 +1,7 @@
 package io.jgitkins.server.infrastructure.config.git.hook.push;
 
 import io.jgitkins.server.application.dto.PushEventCommand;
-import io.jgitkins.server.application.port.in.HandlePushEventUseCase;
+import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import java.util.Optional;
 public class PushHook implements PostReceiveHook {
 
     private final HttpServletRequest request;
-    private final HandlePushEventUseCase handlePushEventUseCase;
+    private final PushEventHandleUseCase pushEventHandleUseCase;
 
     // Adapter 일부
     @Override
@@ -67,7 +67,7 @@ public class PushHook implements PostReceiveHook {
                 .triggeredBy(requesterId)
                 .build();
 
-        handlePushEventUseCase.handle(pushEventCommand);
+        pushEventHandleUseCase.handle(pushEventCommand);
     }
 
     private Optional<RepositoryContext> resolveRepositoryContext(Repository repository) {

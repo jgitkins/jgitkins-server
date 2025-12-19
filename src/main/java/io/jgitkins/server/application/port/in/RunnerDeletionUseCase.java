@@ -1,5 +1,5 @@
 package io.jgitkins.server.application.port.in;
 
-public interface RunnerDeleteUseCase {
+public interface RunnerDeletionUseCase {
     void deleteRunner(Long runnerId);
 }

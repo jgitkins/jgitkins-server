@@ -5,6 +5,6 @@ import java.util.List;
 
 import io.jgitkins.server.application.dto.BranchInfo;
 
-public interface LoadBranchUseCase {
+public interface BranchLoadUseCase {
     List<BranchInfo> getBranches(String taskCd, String repoName) throws IOException;
 }

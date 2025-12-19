@@ -2,7 +2,7 @@ package io.jgitkins.server.application.port.in;
 
 import io.jgitkins.server.application.dto.JobCreateCommand;
 
-public interface JobCreateUseCase {
+public interface JobCreationUseCase {
     /**
      * Job 생성 요청 처리
      * 
