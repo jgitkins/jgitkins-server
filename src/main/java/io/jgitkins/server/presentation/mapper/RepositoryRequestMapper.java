@@ -1,9 +1,9 @@
 package io.jgitkins.server.presentation.mapper;
 
-import io.jgitkins.server.application.dto.CreateRepositoryCommand;
-import io.jgitkins.server.application.dto.UpdateRepositoryCommand;
-import io.jgitkins.server.presentation.dto.CreateRepositoryRequest;
-import io.jgitkins.server.presentation.dto.UpdateRepositoryRequest;
+import io.jgitkins.server.application.dto.command.CreateRepositoryCommand;
+import io.jgitkins.server.application.dto.command.UpdateRepositoryCommand;
+import io.jgitkins.server.presentation.dto.RepositoryCreateRequest;
+import io.jgitkins.server.presentation.dto.RepositoryUpdateRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -12,7 +12,7 @@ public interface RepositoryRequestMapper {
 
     @Mapping(source = "username", target = "authorName")
     @Mapping(source = "email", target = "authorEmail")
-    CreateRepositoryCommand toCommand(CreateRepositoryRequest request);
+    CreateRepositoryCommand toCommand(RepositoryCreateRequest request);
 
-    UpdateRepositoryCommand toUpdateCommand(UpdateRepositoryRequest request);
+    UpdateRepositoryCommand toUpdateCommand(RepositoryUpdateRequest request);
 }

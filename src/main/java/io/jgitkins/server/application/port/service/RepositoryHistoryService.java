@@ -3,7 +3,7 @@ package io.jgitkins.server.application.port.service;
 import io.jgitkins.server.application.dto.CommitHistory;
 import io.jgitkins.server.application.port.in.CommitLoadUseCase;
 import io.jgitkins.server.application.port.out.LoadBranchCommitHistoriesPort;
-import io.jgitkins.server.application.port.out.LoadCommitDetailPort;
+import io.jgitkins.server.application.port.out.CommitGitLoadPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ import java.util.List;
 public class RepositoryHistoryService implements CommitLoadUseCase {
 
 
-    private final LoadCommitDetailPort loadCommitDetailPort;
+    private final CommitGitLoadPort commitGitLoadPort;
     private final LoadBranchCommitHistoriesPort loadBranchCommitHistoriesPort;
 
     @Override
@@ -24,7 +24,7 @@ public class RepositoryHistoryService implements CommitLoadUseCase {
     public CommitHistory getCommit(String taskCd,
                                    String repoName,
                                    String commitHash) throws IOException {
-        return loadCommitDetailPort.getCommitDetail(taskCd, repoName, commitHash);
+        return commitGitLoadPort.getCommitDetail(taskCd, repoName, commitHash);
     }
 
     @Override

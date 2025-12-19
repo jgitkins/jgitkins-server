@@ -1,7 +1,7 @@
 package io.jgitkins.server.presentation.mapper;
 
-import io.jgitkins.server.application.dto.RunnerRegisterCommand;
-import io.jgitkins.server.presentation.dto.RunnerRegistrationRequest;
+import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
+import io.jgitkins.server.presentation.dto.RunnerCreateRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -12,7 +12,7 @@ public interface RunnerRequestMapper {
     @Mapping(target = "scopeType", source = "request.scopeType")
     @Mapping(target = "targetId", source = "request.targetId")
 //    @Mapping(target = "ipAddress", source = "resolvedIpAddress")
-    RunnerRegisterCommand toCommand(RunnerRegistrationRequest request);
+    RunnerRegisterCommand toCommand(RunnerCreateRequest request);
 
 //    RunnerRegistrationResponse toResponse(RunnerRegistrationResult result);
 }

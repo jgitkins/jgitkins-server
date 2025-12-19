@@ -4,15 +4,14 @@ import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.event.DomainEventPublisher;
 import io.jgitkins.server.application.common.exception.ConflictException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
-import io.jgitkins.server.application.dto.CreateRepositoryCommand;
+import io.jgitkins.server.application.dto.command.CreateRepositoryCommand;
 import io.jgitkins.server.application.dto.RepositoryCreationContext;
-import io.jgitkins.server.application.dto.RepositoryResult;
+import io.jgitkins.server.application.dto.result.RepositoryResult;
 import io.jgitkins.server.application.mapper.RepositoryApplicationMapper;
 import io.jgitkins.server.application.port.in.RepositoryCreationUseCase;
 import io.jgitkins.server.application.port.in.RepositoryDeletionUseCase;
 import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
-import io.jgitkins.server.application.port.out.CreateRepositoryPort;
-import io.jgitkins.server.application.port.out.DeleteRepositoryPort;
+import io.jgitkins.server.application.port.out.RepositoryFileAdminPort;
 import io.jgitkins.server.application.port.out.OrganizePersistencePort;
 import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
 import io.jgitkins.server.domain.aggregate.Organize;
@@ -37,8 +36,7 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
         RepositoryLoadUseCase,
         RepositoryDeletionUseCase {
 
-    private final CreateRepositoryPort createRepositoryPort;
-    private final DeleteRepositoryPort deleteRepositoryPort;
+    private final RepositoryFileAdminPort repositoryFileAdminPort;
     private final RepositoryPersistencePort repositoryPersistencePort;
     private final OrganizePersistencePort organizePersistencePort;
     private final RepositoryApplicationMapper repositoryApplicationMapper;
@@ -68,7 +66,7 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
 
         Repository savedRepository = repositoryPersistencePort.save(repository);
 
-        createRepositoryPort.create(context.organizeSlug(), context.repositoryName().getValue());
+        repositoryFileAdminPort.create(context.organizeSlug(), context.repositoryName().getValue());
         log.info("repository has created successful");
 
         publishDomainEvents(savedRepository);
@@ -153,7 +151,7 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
 
     private void deleteRepositoryDirectory(Repository repository) {
         Organize organize = loadOrganize(repository.getOrganizeId());
-        deleteRepositoryPort.delete(organize.getName().getValue(), repository.getName().getValue());
+        repositoryFileAdminPort.delete(organize.getName().getValue(), repository.getName().getValue());
     }
 
     private Organize loadOrganize(OrganizeId organizeId) {

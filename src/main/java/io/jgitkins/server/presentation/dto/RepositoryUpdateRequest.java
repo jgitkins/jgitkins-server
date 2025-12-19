@@ -1,0 +1,17 @@
+package io.jgitkins.server.presentation.dto;
+
+import lombok.Getter;
+
+import java.time.LocalDateTime;
+
+@Getter
+public class RepositoryUpdateRequest {
+    private String name;
+    private String path;
+    private String defaultBranch;
+    private String visibility;
+    private Long ownerId;
+    private String description;
+    private String credentialId;
+    private LocalDateTime lastSyncedAt;
+}

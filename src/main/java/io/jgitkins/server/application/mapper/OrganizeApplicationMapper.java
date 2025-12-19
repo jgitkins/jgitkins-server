@@ -1,6 +1,6 @@
 package io.jgitkins.server.application.mapper;
 
-import io.jgitkins.server.application.dto.OrganizeCreationResult;
+import io.jgitkins.server.application.dto.result.OrganizeCreationResult;
 import io.jgitkins.server.domain.aggregate.Organize;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

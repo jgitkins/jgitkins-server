@@ -4,7 +4,7 @@ import io.jgitkins.server.application.common.CloneUrlBuilder;
 import io.jgitkins.server.application.dto.JobDispatchMessage;
 import io.jgitkins.server.application.dto.PendingJob;
 import io.jgitkins.server.application.dto.RunnerAssignmentCandidate;
-import io.jgitkins.server.application.dto.RunnerJobFetchRequest;
+import io.jgitkins.server.presentation.dto.RunnerJobFetchRequest;
 import io.jgitkins.server.application.port.in.JobDispatchUseCase;
 import io.jgitkins.server.application.port.out.JobDispatchEventPort;
 import io.jgitkins.server.application.port.out.JobQueuePort;

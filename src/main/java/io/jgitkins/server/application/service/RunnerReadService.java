@@ -2,7 +2,7 @@ package io.jgitkins.server.application.service;
 
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
-import io.jgitkins.server.application.dto.RunnerDetailResult;
+import io.jgitkins.server.application.dto.result.RunnerDetailResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
 import io.jgitkins.server.application.port.in.RunnerLoadUseCase;
 import io.jgitkins.server.application.port.out.RunnerQueryPort;

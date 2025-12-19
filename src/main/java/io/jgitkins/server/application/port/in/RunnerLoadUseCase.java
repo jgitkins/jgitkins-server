@@ -1,6 +1,6 @@
 package io.jgitkins.server.application.port.in;
 
-import io.jgitkins.server.application.dto.RunnerDetailResult;
+import io.jgitkins.server.application.dto.result.RunnerDetailResult;
 import java.util.List;
 
 public interface RunnerLoadUseCase {

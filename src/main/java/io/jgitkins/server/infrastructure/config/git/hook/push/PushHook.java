@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.config.git.hook.push;
 
-import io.jgitkins.server.application.dto.PushEventCommand;
+import io.jgitkins.server.application.dto.command.PushEventCommand;
 import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

@@ -5,8 +5,8 @@
 //import static org.mockito.Mockito.verify;
 //import static org.mockito.Mockito.when;
 //
-//import io.jgitkins.server.application.dto.RunnerRegisterCommand;
-//import io.jgitkins.server.application.dto.RunnerRegistrationResult;
+//import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
+//import io.jgitkins.server.application.dto.result.RunnerRegistrationResult;
 //import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
 //import io.jgitkins.server.application.port.out.RunnerCommandPort;
 //import io.jgitkins.server.domain.aggregate.Runner;

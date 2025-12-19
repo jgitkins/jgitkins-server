@@ -1,6 +1,6 @@
 package io.jgitkins.server.application.service;
 
-import io.jgitkins.server.application.dto.JobResultReportCommand;
+import io.jgitkins.server.application.dto.command.JobResultReportCommand;
 import io.jgitkins.server.application.dto.JobResultStatus;
 import io.jgitkins.server.application.port.in.JobResultReportUseCase;
 import io.jgitkins.server.application.port.out.JobQueuePort;

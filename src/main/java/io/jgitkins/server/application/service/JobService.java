@@ -1,6 +1,6 @@
 package io.jgitkins.server.application.service;
 
-import io.jgitkins.server.application.dto.JobCreateCommand;
+import io.jgitkins.server.application.dto.command.JobCreateCommand;
 import io.jgitkins.server.application.port.in.JobCreationUseCase;
 import io.jgitkins.server.application.port.out.CheckFileExistencePort;
 import io.jgitkins.server.application.port.out.JobCommandPort;

@@ -1,10 +1,10 @@
 package io.jgitkins.server.application.port.service;
 
-import io.jgitkins.server.application.dto.JobCreateCommand;
-import io.jgitkins.server.application.dto.PushEventCommand;
+import io.jgitkins.server.application.dto.command.JobCreateCommand;
+import io.jgitkins.server.application.dto.command.PushEventCommand;
 import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
 import io.jgitkins.server.application.port.in.JobCreationUseCase;
-import io.jgitkins.server.application.port.out.BranchPersistencePort;
+import io.jgitkins.server.application.port.out.BranchPersistenceCommandPort;
 import io.jgitkins.server.application.port.out.RepositoryLoadPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import java.util.Optional;
 public class PushEventHandleService implements PushEventHandleUseCase {
 
     private final RepositoryLoadPort repositoryLoadPort;
-    private final BranchPersistencePort branchPersistencePort;
+    private final BranchPersistenceCommandPort branchPersistenceCommandPort;
     private final JobCreationUseCase jobCreationUseCase;
 
     @Override
@@ -35,7 +35,7 @@ public class PushEventHandleService implements PushEventHandleUseCase {
         Long repositoryId = repositoryIdOptional.get();
 
         if (command.isBranchCreated()) {
-            branchPersistencePort.create(repositoryId, command.getBranchName());
+            branchPersistenceCommandPort.create(repositoryId, command.getBranchName());
         }
 
         if (command.getCommitHash() == null || command.getCommitHash().isBlank()) {

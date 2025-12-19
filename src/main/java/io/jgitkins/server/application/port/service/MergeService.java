@@ -3,7 +3,7 @@ package io.jgitkins.server.application.port.service;
 import java.io.IOException;
 
 import io.jgitkins.server.application.dto.MergeRequest;
-import io.jgitkins.server.application.dto.MergeResult;
+import io.jgitkins.server.application.dto.result.MergeResult;
 import io.jgitkins.server.application.port.in.MergeabilityCheckUseCase;
 import io.jgitkins.server.application.port.in.MergeUseCase;
 import io.jgitkins.server.application.port.out.CheckMergeabilityPort;

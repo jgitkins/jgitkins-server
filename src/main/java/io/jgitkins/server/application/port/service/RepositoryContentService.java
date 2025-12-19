@@ -6,8 +6,7 @@ import io.jgitkins.server.application.dto.FileUploadInfo;
 import io.jgitkins.server.application.port.in.FileLoadUseCase;
 import io.jgitkins.server.application.port.in.FileUploadUseCase;
 import io.jgitkins.server.application.port.in.FileTreeLoadUseCase;
-import io.jgitkins.server.application.port.out.LoadAllFilesPort;
-import io.jgitkins.server.application.port.out.LoadTreePort;
+import io.jgitkins.server.application.port.out.FileTreeGitLoadPort;
 import io.jgitkins.server.application.port.out.RepositoryCommitPort;
 import io.jgitkins.server.application.port.out.RepositoryContentPort;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +21,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RepositoryContentService implements FileUploadUseCase,
         FileTreeLoadUseCase,
-                                                 FileLoadUseCase {
+        FileLoadUseCase {
 
     private final RepositoryCommitPort repositoryCommitPort;
     private final RepositoryContentPort repositoryContentPort;
-    private final LoadTreePort loadTreePort;
-    private final LoadAllFilesPort loadAllFilesPort;
+    private final FileTreeGitLoadPort fileTreeGitLoadPort;
 
     @Override
     @Transactional
@@ -54,7 +52,7 @@ public class RepositoryContentService implements FileUploadUseCase,
                                    String repoName,
                                    String branch,
                                    String directory) throws IOException {
-        return loadTreePort.getTree(taskCd, repoName, branch, directory);
+        return fileTreeGitLoadPort.getTree(taskCd, repoName, branch, directory);
     }
 
     @Override
@@ -62,6 +60,6 @@ public class RepositoryContentService implements FileUploadUseCase,
     public List<FileEntry> getAllFiles(String taskCd,
                                        String repoName,
                                        String reference) {
-        return loadAllFilesPort.getAllFiles(taskCd, repoName, reference);
+        return fileTreeGitLoadPort.getAllFiles(taskCd, repoName, reference);
     }
 }

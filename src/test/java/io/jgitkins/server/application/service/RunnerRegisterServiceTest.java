@@ -1,7 +1,7 @@
 //package io.jgitkins.server.application.service;
 //
-//import io.jgitkins.server.application.dto.RunnerRegisterCommand;
-//import io.jgitkins.server.application.dto.RunnerRegistrationResult;
+//import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
+//import io.jgitkins.server.application.dto.result.RunnerRegistrationResult;
 //import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
 //import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
 //import io.jgitkins.server.application.port.out.RunnerCommandPort;

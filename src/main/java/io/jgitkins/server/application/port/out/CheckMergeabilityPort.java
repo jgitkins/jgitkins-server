@@ -1,6 +1,6 @@
 package io.jgitkins.server.application.port.out;
 
-import io.jgitkins.server.application.dto.MergeResult;
+import io.jgitkins.server.application.dto.result.MergeResult;
 
 import java.io.IOException;
 
