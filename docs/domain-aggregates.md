@@ -2,23 +2,21 @@
 
 ## Organize Aggregate
 - **루트:** `Organize` (`src/main/java/io/jgitkins/server/domain/aggregate/Organize.java`).
-- **의도:** 테넌트 경계를 정의하고 조직 이름·경로·소유자를 일관성 있게 관리한다.
-- **구성요소:** `OrganizeId`, `OrganizeName`, `OrganizePath`, `UserId`, 설명 문자열, `OrganizeMember`(별도 엔터티지만 같은 트랜잭션에서 다룸).
+- **의도:** 테넌트 경계를 정의하고 조직 슬러그(`OrganizeName`)와 소유자를 일관성 있게 관리한다. `OrganizeName`은 디렉터리 prefix로 사용되므로 슬래시/공백/특수문자를 금지하고 알파벳·숫자·하이픈·언더스코어만 허용한다.
+- **구성요소:** `OrganizeId`, `OrganizeName`, `UserId`, 설명 문자열, `OrganizeMember`(별도 엔터티지만 같은 트랜잭션에서 다룸).
 - **주요 동작 및 불변 조건:**
-  - `create`가 생성 시점 타임스탬프를 강제하고 경로/설명을 정규화한다.
-  - `updateMetadata`는 부분 업데이트를 허용하되, 경로·이름의 전역 유일성, 유효한 소유자 여부는 애플리케이션 서비스가 검증해야 한다.
+  - `create`가 생성 시점 타임스탬프를 강제하고 이름/설명을 정규화하며, 이름 중복 여부는 애플리케이션 서비스에서 검증한다.
   - 조직 생성자는 OWNER 멤버로 자동 등록돼야 하며, OWNER 이상만 조직 설정을 갱신할 수 있다.
 - **최근 변경:** `OrganizeService#createOrganize` 단계에서 `AddOrganizeMemberUseCase`를 호출해 OWNER 멤버십을 자동 생성하며, UseCase 내부에서 중복 여부를 검증한다.
-- **설계 메모:** 경로 변경 시 하위 저장소 URL 변경 영향이 커서, 변경 사전 검증/이벤트가 필요하다.
+- **설계 메모:** 추후 조직 이름이 곧 디렉터리 prefix가 되므로, 이름 변경 시 하위 리소스 경로가 변경되는 영향 범위를 명확히 정의해야 한다.
 
 ## Repository Aggregate
 - **루트:** `Repository` (`src/main/java/io/jgitkins/server/domain/aggregate/Repository.java`).
 - **의도:** 저장소 메타데이터(이름, 경로, 기본 브랜치, 가시성)와 배포/동기화 속성을 캡슐화한다.
-- **구성요소:** `RepositoryId`, `OrganizeId`, `RepositoryName`, `RepositoryPath`, `BranchName`, `RepositoryVisibility`, `UserId`(소유자), `repositoryType`, `credentialId`, `clonePath`, `requiresInitialContent` 등.
+- **구성요소:** `RepositoryId`, `OrganizeId`, `RepositoryName`, `RepositoryPath`, `BranchName`, `RepositoryVisibility`, `UserId`(소유자), `credentialId`, `clonePath`, `requiresInitialContent` 등.
 - **주요 동작 및 불변 조건:**
-  - `create/register`는 브랜치·경로·가시성을 정규화하고 조직/소유자 존재를 요구한다.
-  - `updateMetadata`는 불변 필드(생성 시점) 보호, 기본 브랜치 변경 시 실제 브랜치 존재를 전제로 한다.
-  - `markSynced`는 초기 콘텐츠 요구 플래그를 해제하고 마지막 동기화 시간을 기록한다.
+  - `create`는 VO 인자를 통해 브랜치·경로·가시성을 정규화하고 조직/소유자 존재를 요구한다.
+  - `markSynced`는 초기 콘텐츠 요구 플래그를 해제하고 마지막 동기화 시간을 기록하며, `RepositorySynchronizedEvent`를 발생시킨다.
 - **설계 메모:** 저장소 경로는 조직 내 유일해야 하며, 자격 증명은 외부 비밀 저장소 키를 참조하도록 `credentialId`만 저장한다.
 
 ## Branch Aggregate
@@ -59,8 +57,8 @@
 ## 도메인 이벤트 인프라
 - `AbstractAggregateRoot`(`src/main/java/io/jgitkins/server/domain/aggregate/AbstractAggregateRoot.java`)를 추가하여 애그리게이트가 발생시킨 이벤트를 in-memory로 적재하고, 애플리케이션 서비스에서 트랜잭션 커밋 이후 발행할 수 있게 했다.
 - 이벤트 정의(`src/main/java/io/jgitkins/server/domain/event/*.java`)
-  - `OrganizeCreatedEvent`: `Organize.create()` 호출 시 발생. 조직 경로/소유자 정보가 외부 시스템(예: 감사 로거, notification)에 전달될 수 있다.
+- `OrganizeCreatedEvent`: `Organize.create()` 호출 시 발생. 조직 이름/소유자 정보가 외부 시스템(예: 감사 로거, notification)에 전달될 수 있다.
   - `RepositoryProvisionedEvent`: `Repository.register()` 단계에서 발생. 저장소 슬러그, 가시성, 타입 정보를 기준으로 초기 Git/CI 리소스를 준비하는 후속 파이프라인을 트리거한다.
   - `RunnerActivatedEvent`: `Runner.activate()` 성공 시 발생. Runner가 ONLINE 상태가 되었음을 알려 heartbeat 모니터와 디스패처 구성이 즉시 반영되도록 한다.
   - `JobQueuedEvent`: `Job.publish()`에서 Runner에 매핑됐을 때 발생. 커밋/브랜치/Runner 정보를 포함하므로 큐 모니터링이나 Slack 알림 등을 붙이기 쉽다.
-- 각 애그리게이트의 `withIdentity`, `updateMetadata` 등 불변 객체를 반환하는 메서드는 `copyDomainEventsFrom`을 통해 기존에 기록된 이벤트를 유지한다. 이렇게 하면 persistence adapter가 새로운 도메인 객체를 반환하더라도 이벤트가 사라지지 않는다.
+- 각 애그리게이트의 `withIdentity` 등 불변 객체를 반환하는 메서드는 `copyDomainEventsFrom`을 통해 기존에 기록된 이벤트를 유지한다. 이렇게 하면 persistence adapter가 새로운 도메인 객체를 반환하더라도 이벤트가 사라지지 않는다.

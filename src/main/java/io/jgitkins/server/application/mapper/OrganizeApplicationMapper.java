@@ -10,7 +10,6 @@ public interface OrganizeApplicationMapper {
 
     @Mapping(target = "id", expression = "java(organize.getId() != null ? organize.getId().getValue() : null)")
     @Mapping(target = "name", expression = "java(organize.getName().getValue())")
-    @Mapping(target = "path", expression = "java(organize.getPath().getValue())")
     @Mapping(target = "ownerId", expression = "java(organize.getOwnerId() != null ? organize.getOwnerId().getValue() : null)")
     OrganizeCreationResult toDto(Organize organize);
 }

@@ -15,7 +15,6 @@ public class RepositoryResult {
     private final String defaultBranch;
     private final String visibility;
     private final String description;
-    private final String repositoryType;
     private final Long ownerId;
     private final String credentialId;
     private final String clonePath;

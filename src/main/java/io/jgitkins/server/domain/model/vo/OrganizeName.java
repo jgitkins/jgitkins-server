@@ -3,12 +3,16 @@ package io.jgitkins.server.domain.model.vo;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.util.regex.Pattern;
+
 /**
  * Organize 표시 이름 VO
  */
 @Getter
 @EqualsAndHashCode
 public class OrganizeName {
+
+    private static final Pattern ALLOWED = Pattern.compile("^[A-Za-z0-9_-]+$");
 
     private final String value;
 
@@ -19,6 +23,9 @@ public class OrganizeName {
         String trimmed = value.trim();
         if (trimmed.isEmpty()) {
             throw new IllegalArgumentException("Organize name must not be blank");
+        }
+        if (!ALLOWED.matcher(trimmed).matches()) {
+            throw new IllegalArgumentException("Organize name allows only alphanumeric characters, hyphen, or underscore");
         }
         this.value = trimmed;
     }

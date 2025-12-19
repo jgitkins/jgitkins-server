@@ -1,18 +1,44 @@
 package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.common.ErrorCode;
+import io.jgitkins.server.application.common.event.DomainEventPublisher;
 import io.jgitkins.server.application.common.exception.ConflictException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
-import io.jgitkins.server.application.dto.*;
+import io.jgitkins.server.application.dto.CommitFile;
+import io.jgitkins.server.application.dto.CommitHistory;
+import io.jgitkins.server.application.dto.CreateRepositoryCommand;
+import io.jgitkins.server.application.dto.FileEntry;
+import io.jgitkins.server.application.dto.FileUploadInfo;
+import io.jgitkins.server.application.dto.RepositoryCreationContext;
+import io.jgitkins.server.application.dto.RepositoryResult;
 import io.jgitkins.server.application.mapper.RepositoryApplicationMapper;
-import io.jgitkins.server.application.port.in.*;
-import io.jgitkins.server.application.port.out.*;
+import io.jgitkins.server.application.port.in.CommitLoadUseCase;
+import io.jgitkins.server.application.port.in.FileLoadUseCase;
+import io.jgitkins.server.application.port.in.FileUploadUseCase;
+import io.jgitkins.server.application.port.in.LoadTreeUseCase;
+import io.jgitkins.server.application.port.in.RepositoryCreationUseCase;
+import io.jgitkins.server.application.port.in.RepositoryDeletionUseCase;
+import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
+import io.jgitkins.server.application.port.out.CreateRepositoryPort;
+import io.jgitkins.server.application.port.out.DeleteRepositoryPort;
+import io.jgitkins.server.application.port.out.LoadAllFilesPort;
+import io.jgitkins.server.application.port.out.LoadBranchCommitHistoriesPort;
+import io.jgitkins.server.application.port.out.LoadCommitDetailPort;
+import io.jgitkins.server.application.port.out.LoadTreePort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryCommitPort;
+import io.jgitkins.server.application.port.out.RepositoryContentPort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.aggregate.Repository;
+import io.jgitkins.server.domain.model.vo.BranchName;
+import io.jgitkins.server.domain.model.vo.InitialCommitOptions;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.RepositoryPath;
+import io.jgitkins.server.domain.model.vo.RepositoryVisibility;
+import io.jgitkins.server.domain.model.vo.UserId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,13 +46,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RepositoryDeletionLoadCreationService implements RepositoryCreationUseCase,
+public class RepositoryManagementService implements RepositoryCreationUseCase,
         RepositoryLoadUseCase,
 //        UpdateRepositoryUseCase,
         RepositoryDeletionUseCase,
@@ -41,61 +66,46 @@ public class RepositoryDeletionLoadCreationService implements RepositoryCreation
     private final LoadCommitDetailPort getCommitDetailPort;
     private final LoadBranchCommitHistoriesPort getBranchCommitHistoriesPort;
 
-    private final UpdateHeadReferencePort updateHeadReferencePort;
     private final DeleteRepositoryPort deleteRepositoryPort;
     private final RepositoryCommitPort repositoryCommitPort;
     private final RepositoryContentPort repositoryContentPort;
     private final RepositoryPersistencePort repositoryPersistencePort;
     private final OrganizePersistencePort organizePersistencePort;
     private final RepositoryApplicationMapper repositoryApplicationMapper;
+    private final DomainEventPublisher domainEventPublisher;
 
     @Override
     @Transactional
     public RepositoryResult create(CreateRepositoryCommand command) {
 
-        OrganizeId organizeId = OrganizeId.of(command.getOrganizeId());
-        RepositoryName repositoryName = RepositoryName.from(command.getRepoName());
-        ensureRepositoryNameUnique(organizeId, repositoryName, null);
-        Organize organize = loadOrganize(organizeId);
-        String taskCd = organize.getName().getValue();
-//        String organizeSlug = organize.getPath().getValue();
-        RepositoryPath repositoryPath = resolveRepositoryPath(command.getPath(), command.getRepoName());
-        String clonePath = buildClonePath(taskCd, repositoryPath.getValue());
+        InitialCommitOptions initialCommitOptions = InitialCommitOptions.of(command.isReadme(),
+                                                                            command.getMessage(),
+                                                                            command.getAuthorName(),
+                                                                            command.getAuthorEmail());
 
-        Repository repository = Repository.create(command.getOrganizeId(),
-                                                  command.getRepoName(),
-                                                  repositoryPath.getValue(),
-                                                  command.getMainBranch(),
-                                                  command.getVisibility(),
-                                                  command.getRepositoryType(),
-                                                  command.getOwnerId(),
+        RepositoryCreationContext context = prepareCreationContext(command);
+
+        Repository repository = Repository.create(context.organizeId(),
+                                                  context.repositoryName(),
+                                                  context.repositoryPath(),
+                                                  context.defaultBranch(),
+                                                  context.visibility(),
+                                                  context.owner(),
                                                   command.getDescription(),
-                                                  clonePath,
+                                                  context.clonePath(),
                                                   command.getCredentialId(),
-                                                  command.isReadme(),
-                                                  command.getMessage());
-        
+                                                  initialCommitOptions);
+
         Repository savedRepository = repositoryPersistencePort.save(repository);
-        createRepositoryPort.create(taskCd, command.getRepoName());
 
-        if (!savedRepository.isRequiresInitialContent()) {
-            updateHeadReferencePort.updateHeadReference(taskCd, command.getRepoName(), command.getMainBranch());
-            Repository initialized = repositoryPersistencePort.update(savedRepository.markSynced(LocalDateTime.now()));
-            return repositoryApplicationMapper.toDto(initialized);
-        }
+        createRepositoryPort.create(context.organizeSlug(), context.repositoryName().getValue());
+        log.info("repository has created successful");
 
-        List<CommitFile> files = repositoryContentPort.prepareInitialFiles(command.getRepoName());
-        repositoryCommitPort.commit(taskCd,
-                                    command.getRepoName(),
-                                    command.getMainBranch(),
-                                    command.getMessage(),
-                                    command.getAuthorName(),
-                                    command.getAuthorEmail(),
-                                    files);
-        updateHeadReferencePort.updateHeadReference(taskCd, command.getRepoName(), command.getMainBranch());
+        publishDomainEvents(savedRepository);
 
-        Repository initialized = repositoryPersistencePort.update(savedRepository.markSynced(LocalDateTime.now()));
-        return repositoryApplicationMapper.toDto(initialized);
+        Repository refreshed = repositoryPersistencePort.findById(savedRepository.getId())
+                .orElse(savedRepository);
+        return repositoryApplicationMapper.toDto(refreshed);
     }
 
     @Override
@@ -214,11 +224,6 @@ public class RepositoryDeletionLoadCreationService implements RepositoryCreation
                         "Organize not found: " + organizeId.getValue()));
     }
 
-    private RepositoryPath resolveRepositoryPath(String requestedPath, String repoName) {
-        String candidate = (requestedPath == null || requestedPath.isBlank()) ? repoName : requestedPath;
-        return RepositoryPath.from(candidate);
-    }
-
     private String buildClonePath(String organizeSlug, String repoPath) {
         String orgSegment = trimSlashes(organizeSlug);
         String repoSegment = trimSlashes(repoPath);
@@ -233,5 +238,39 @@ public class RepositoryDeletionLoadCreationService implements RepositoryCreation
             return "";
         }
         return value.replaceAll("^/+", "").replaceAll("/+$", "");
+    }
+
+    private RepositoryPath resolveRepositoryPath(String requestedPath, String repoName) {
+        String candidate = (requestedPath == null || requestedPath.isBlank()) ? repoName : requestedPath;
+        return RepositoryPath.from(candidate);
+    }
+
+    private RepositoryCreationContext prepareCreationContext(CreateRepositoryCommand command) {
+        OrganizeId organizeId = OrganizeId.of(command.getOrganizeId());
+        RepositoryName repositoryName = RepositoryName.from(command.getRepoName());
+        ensureRepositoryNameUnique(organizeId, repositoryName, null);
+        Organize organize = loadOrganize(organizeId);
+
+        RepositoryPath repositoryPath = resolveRepositoryPath(command.getPath(), command.getRepoName());
+        BranchName defaultBranch = BranchName.of(command.getMainBranch());
+        RepositoryVisibility visibility = command.getVisibility() != null
+                ? RepositoryVisibility.from(command.getVisibility())
+                : RepositoryVisibility.PRIVATE;
+        UserId owner = command.getOwnerId() != null ? UserId.of(command.getOwnerId()) : null;
+        String clonePath = buildClonePath(organize.getName().getValue(), repositoryPath.getValue());
+
+        return new RepositoryCreationContext(organizeId,
+                                             repositoryName,
+                                             repositoryPath,
+                                             defaultBranch,
+                                             visibility,
+                                             owner,
+                                             clonePath,
+                                             organize.getName().getValue());
+    }
+
+    private void publishDomainEvents(Repository repository) {
+        domainEventPublisher.publish(repository.getDomainEvents());
+        repository.clearDomainEvents();
     }
 }

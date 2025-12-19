@@ -5,7 +5,6 @@ import lombok.Getter;
 @Getter
 public class OrganizeCreationRequest {
     private String name;
-    private String path;
     private Long ownerId;
     private String description;
 }

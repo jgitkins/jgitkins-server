@@ -7,7 +7,6 @@ import lombok.Getter;
 @Builder
 public class UpdateOrganizeCommand {
     private final String name;
-    private final String path;
     private final Long ownerId;
     private final String description;
 }

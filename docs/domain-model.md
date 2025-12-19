@@ -13,7 +13,6 @@ classDiagram
     class Organize {
         +Long id
         +String name
-        +String path
         +String description
         +Long ownerId
         +Instant createdAt
@@ -114,7 +113,8 @@ classDiagram
 
 ## 도메인 모델 개요
 - 상기 클래스 다이어그램은 `data/ERD.md`에 명시된 관계를 그대로 가져오되, 애플리케이션 서비스에서 실제로 다루는 Aggregate 경계를 드러내기 위해 필드와 협력 관계를 도메인 용어로 재정의했다.
-- 조직(`Organize`)과 저장소(`Repository`)는 각각 회원 테이블을 통해 사용자와 연결되며, 저장소 단위의 멤버십이 조직 멤버십보다 더 세밀한 권한 모델을 제공한다.
+- 조직(`Organize`)은 `OrganizeName` 하나만으로 슬러그를 표현하며, 디렉터리 prefix 제약(공백/슬래시/특수문자 금지, 하이픈·언더스코어 허용)을 갖는다.
+- 조직과 저장소(`Repository`)는 각각 회원 테이블을 통해 사용자와 연결되며, 저장소 단위의 멤버십이 조직 멤버십보다 더 세밀한 권한 모델을 제공한다.
 - 러너(`Runner`)는 독립 엔터티로 존재하며 `RunnerAssignment`를 통해 글로벌, 조직, 저장소 레벨의 작업 실행 범위를 결정한다.
 - 잡(`Job`)은 저장소와 커밋 정보를 기준으로 생성되는 불변 요청이고, `JobHistory`는 개별 실행 시도에 대한 상태 추적 및 러너 매핑을 담당한다.
 

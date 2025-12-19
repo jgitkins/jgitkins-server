@@ -12,7 +12,7 @@ import io.jgitkins.server.application.port.in.OrganizeLoadUseCase;
 import io.jgitkins.server.application.port.out.OrganizePersistencePort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
-import io.jgitkins.server.domain.model.vo.OrganizePath;
+import io.jgitkins.server.domain.model.vo.OrganizeName;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class OrganizeDeletionUpdateLoadingCreationService implements OrganizeCreationUseCase,
-                                                       OrganizeLoadUseCase,
+public class OrganizeService implements OrganizeCreationUseCase,
+                                        OrganizeLoadUseCase,
 //                                                       OrganizeUpdateUseCase,
-        OrganizeDeletionUseCase {
+                                        OrganizeDeletionUseCase {
 
     private final OrganizePersistencePort organizePersistencePort;
     private final OrganizeApplicationMapper organizeApplicationMapper;
@@ -34,15 +34,14 @@ public class OrganizeDeletionUpdateLoadingCreationService implements OrganizeCre
     @Transactional
     public OrganizeCreationResult createOrganize(OrganizeCreationCommand command) {
 
-        OrganizePath path = OrganizePath.from(command.getPath());
+        OrganizeName organizeName = OrganizeName.from(command.getName());
 
-        organizePersistencePort.findByPath(path)
+        organizePersistencePort.findByName(organizeName)
                 .ifPresent(existing -> {
-                    throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS, "Organize path already exists: " + path.getValue());
+                    throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS, "Organize name already exists: " + organizeName.getValue());
                 });
 
         Organize organize = Organize.create(command.getName(),
-                                            command.getPath(),
                                             command.getOwnerId(),
                                             command.getDescription());
 
@@ -76,21 +75,20 @@ public class OrganizeDeletionUpdateLoadingCreationService implements OrganizeCre
 //                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
 //                        "Organize not found: " + organizeId));
 //
-//        if (command.getPath() != null) {
-//            OrganizePath newPath = OrganizePath.from(command.getPath());
-//            boolean pathChanged = !organize.getPath().getValue().equals(newPath.getValue());
-//            if (pathChanged) {
-//                organizePersistencePort.findByPath(newPath)
+//        if (command.getName() != null) {
+//            OrganizeName newName = OrganizeName.from(command.getName());
+//            boolean changed = !organize.getName().equals(newName);
+//            if (changed) {
+//                organizePersistencePort.findByName(newName)
 //                        .ifPresent(existing -> {
 //                            throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS,
-//                                    "Organize path already exists: " + newPath.getValue());
+//                                    "Organize name already exists: " + newName.getValue());
 //                        });
 //            }
 //        }
 //
 //        Organize updated = organize.updateMetadata(
 //                command.getName(),
-//                command.getPath(),
 //                command.getOwnerId(),
 //                command.getDescription()
 //        );

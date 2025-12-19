@@ -38,30 +38,43 @@ PUT {{url}}/api/organizes/1
 ### Repository ########################################
 #######################################################
 
-### 저장소 등록
+### 저장소 등록 within init commit
 POST {{url}}/api/repositories
 
 {
-    "repoName": "ccc",
+    "repoName": "ggg",
     "mainBranch": "main",
-    "readme": true,
     "username": "heykia3",
     "email": "heykia3@protonmail.com",
-    "message": "Initial Commit",
     "organizeId": 5,
-    "path": "ccc",
+    "path": "ggg",
     "visibility": "PUBLIC",
-    "repositoryType": "GIT"
+
+    "readme": true,
+    "message": "Initial Commit"
+}
+
+### 저장소 등록 without init commit
+POST {{url}}/api/repositories
+
+{
+   "repoName": "fff",
+    "mainBranch": "main",
+    "username": "heykia3",
+    "email": "heykia3@protonmail.com",
+    "organizeId": 5,
+    "path": "fff",
+    "visibility": "PUBLIC"
 }
 
 ### 저장소목록 조회
 ### GET {{url}}/api/repositories
 
 ### 저장소 상세 조회
-GET {{url}}/api/repositories/7
+GET {{url}}/api/repositories/9
 
 ### 저장소 삭제
-DELETE {{url}}/api/repositories/4
+DELETE {{url}}/api/repositories/13
 
 
 #######################################################

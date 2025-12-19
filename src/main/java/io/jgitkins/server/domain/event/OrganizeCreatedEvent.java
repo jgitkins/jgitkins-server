@@ -3,7 +3,6 @@ package io.jgitkins.server.domain.event;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
-import io.jgitkins.server.domain.model.vo.OrganizePath;
 import io.jgitkins.server.domain.model.vo.UserId;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,7 +16,6 @@ public final class OrganizeCreatedEvent implements DomainEvent {
 
     private final OrganizeId organizeId;
     private final OrganizeName name;
-    private final OrganizePath path;
     private final UserId ownerId;
     private final Instant occurredAt;
 
@@ -25,7 +23,6 @@ public final class OrganizeCreatedEvent implements DomainEvent {
         return new OrganizeCreatedEvent(
                 organize.getId(),
                 organize.getName(),
-                organize.getPath(),
                 organize.getOwnerId(),
                 Instant.now()
         );

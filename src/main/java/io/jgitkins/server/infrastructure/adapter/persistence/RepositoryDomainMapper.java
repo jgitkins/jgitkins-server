@@ -11,8 +11,9 @@ import io.jgitkins.server.domain.model.vo.UserId;
 import io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface RepositoryDomainMapper {
 
     @Mapping(target = "id", expression = "java(repository.getId() != null ? repository.getId().getValue() : null)")
@@ -24,6 +25,11 @@ public interface RepositoryDomainMapper {
     @Mapping(target = "ownerId", expression = "java(repository.getOwnerId() != null ? repository.getOwnerId().getValue() : null)")
     @Mapping(target = "status", expression = "java(repository.getLastSyncedAt() != null ? \"ACTIVE\" : \"REGISTERED\")")
     @Mapping(target = "clonePath", expression = "java(repository.getClonePath())")
+    @Mapping(target = "credentialId", expression = "java(repository.getCredentialId())")
+    @Mapping(target = "description", expression = "java(repository.getDescription())")
+    @Mapping(target = "lastSyncedAt", expression = "java(repository.getLastSyncedAt())")
+    @Mapping(target = "createdAt", expression = "java(repository.getCreatedAt())")
+    @Mapping(target = "updatedAt", expression = "java(repository.getUpdatedAt())")
     RepositoryEntity toEntity(Repository repository);
 
     default Repository toDomain(RepositoryEntity entity) {
@@ -34,7 +40,6 @@ public interface RepositoryDomainMapper {
                 RepositoryPath.from(entity.getPath()),
                 BranchName.of(entity.getDefaultBranch()),
                 RepositoryVisibility.from(entity.getVisibility()),
-                entity.getRepositoryType(),
                 entity.getOwnerId() != null ? UserId.of(entity.getOwnerId()) : null,
                 entity.getDescription(),
                 entity.getClonePath(),

@@ -19,7 +19,6 @@ public abstract class RepositoryApplicationMapper {
     @Mapping(target = "path", expression = "java(repository.getPath().getValue())")
     @Mapping(target = "defaultBranch", expression = "java(repository.getDefaultBranch().getValue())")
     @Mapping(target = "visibility", expression = "java(repository.getVisibility().name())")
-    @Mapping(target = "repositoryType", expression = "java(repository.getRepositoryType())")
     @Mapping(target = "ownerId", expression = "java(repository.getOwnerId() != null ? repository.getOwnerId().getValue() : null)")
     @Mapping(target = "cloneUrl", expression = "java(cloneUrlBuilder.build(repository.getClonePath()))")
     public abstract RepositoryResult toDto(Repository repository);

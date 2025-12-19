@@ -260,14 +260,15 @@
         "description": "Implement a scheduler-driven service that detects pending pipeline jobs, ensures a compatible runnable runner exists, updates job history, and enqueues the job for execution.",
         "details": "1. Add a Spring `@Scheduled` component (e.g., `JobSchedulePoller` under `src/main/java/io/jgitkins/server/application/scheduling/`) that invokes the existing `JobDispatchService.publishPendingJobs()` from Task 3 at configurable intervals (default 30s via `application.yml`).\n2. Within `JobDispatchService`, implement logic to query `PipelineJobPersistencePort` for pending jobs, ask `RunnerHeartbeatPort` for runners whose heartbeats fall within the freshness window and match required labels/arch, and pick the best runner via `RunnerAssignment` metadata.\n3. When a runner is selected, update the job’s domain aggregate: append a history entry (new `JobHistoryEvent`/value object) capturing transition `PENDING→QUEUED`, runner id, timestamp, and any queue reference.\n4. Persist the updated job via `PipelineJobPersistencePort` using optimistic locking to prevent duplicate dispatch, then call `JobQueuePort.enqueue()` with a DTO mirroring Task 2’s payload specification.\n5. Emit structured logs/metrics (Micrometer counter for dispatched jobs, gauge for backlog) to aid observability and ensure the scheduler is idempotent (skip processing when no runners qualify).",
         "testStrategy": "- Add `JobDispatchServiceTest` cases: (a) verifies pending job transitions to queued when a fresh runner is available—assert history entry and enqueue call; (b) ensures no enqueue when no runner passes freshness/label filters; (c) concurrency test mocking persistence lock failure to confirm retry/skip behavior.\n- Create `JobSchedulePollerTest` (Spring slice) to assert the scheduler delegates to `JobDispatchService` and honors configuration (use `@ExtendWith(SpringExtension.class)` plus `@Import(JobSchedulePoller.class)` with mocked service).\n- Optional integration test wiring in-memory implementations of ports to ensure full flow updates job records and publishes to queue.",
-        "status": "pending",
+        "status": "cancelled",
         "dependencies": [
           "1",
           "2",
           "3"
         ],
         "priority": "medium",
-        "subtasks": []
+        "subtasks": [],
+        "updatedAt": "2025-12-18T02:06:32.861Z"
       },
       {
         "id": "6",
@@ -438,12 +439,89 @@
         "priority": "medium",
         "subtasks": [],
         "updatedAt": "2025-12-12T10:37:14.459Z"
+      },
+      {
+        "id": "9",
+        "title": "Domain Modeling Refinement and Test Case Addition",
+        "description": "Refine the existing Repository and Organize domain models to improve their robustness and extensibility, and expand the associated unit and integration test coverage to ensure correctness.",
+        "details": "Based on the existing codebase, specifically drawing from the implementation patterns of Task 1's `Job.java` and the `Repository` and `Organize` aggregates from Tasks 6 and 7:\n\n1. Review `Repository` Domain Model:\n   * Examine `src/main/java/io/jgitkins/server/application/domain/model/Repository.java` (or similar path if implemented as a record).\n   * Identify potential areas for refinement:\n     * Value Objects: Consider if any existing properties (e.g., `url`, `branch`) would benefit from being encapsulated as dedicated Value Objects (e.g., `RepositoryUrl`, `BranchName`) to enforce invariants and improve type safety, aligning with established DDD patterns.\n     * Behavior: Add any missing domain-specific behaviors or methods directly to the `Repository` aggregate to ensure business logic resides with the domain model rather than leaking into services. For example, introduce `updateStatus(RepositoryStatus newStatus)` or `assignCredential(CredentialId id)`.\n     * Immutability: Ensure the aggregate remains immutable where appropriate, utilizing `with` methods or constructor-based updates for state changes, consistent with Java record patterns.\n2. Review `Organize` Domain Model:\n   * Perform a similar review for `src/main/java/io/jgitkins/server/application/domain/model/Organize.java`, ensuring consistency with the `Repository` and `Job` models where applicable.\n3. Refine Domain Event Handling (if applicable):\n   * If `Repository` or `Organize` state changes emit domain events, ensure these events are well-defined and carry sufficient context. Add new events if domain changes introduce new significant state transitions, referencing existing patterns for domain event publishing.\n4. Update `RepositoryService` and `OrganizeService`:\n   * Adjust `src/main/java/io/jgitkins/server/application/port/service/RepositoryService.java` and `OrganizeService.java` to accommodate any structural or behavioral changes in their respective domain models. Ensure any new Value Objects are correctly handled when interacting with persistence ports or external APIs.",
+        "testStrategy": "1. Expanded Domain Unit Tests:\n   * Repository Tests: Enhance `src/test/java/io/jgitkins/server/application/domain/model/RepositoryTest.java` (established in Task 6).\n     * Add new test cases for any new Value Objects introduced (e.g., `RepositoryUrlTest` to verify URL format, immutability, and invariants).\n     * Add tests for newly introduced domain behaviors and methods on the `Repository` aggregate.\n     * Ensure all invariants are thoroughly tested, including edge cases and invalid state transitions.\n   * Organize Tests: Create or enhance `src/test/java/io/jgitkins/server/application/domain/model/OrganizeTest.java` (following the pattern from Task 7).\n     * Apply similar comprehensive testing principles as for `Repository` tests, covering Value Objects, behaviors, and invariants.\n2. Service Layer Integration Tests:\n   * RepositoryService Tests: Extend `src/test/java/io/jgitkins/server/application/port/service/RepositoryServiceTest.java` (from Task 6).\n     * Verify that `RepositoryService` correctly interacts with the refined `Repository` domain model, particularly concerning new behaviors or Value Objects.\n     * Use mocks for persistence and other external ports to isolate service logic and ensure robust testing of business operations.\n   * OrganizeService Tests: Create or extend `src/test/java/io/jgitkins/server/application/port/service/OrganizeServiceTest.java` (from Task 7).\n     * Ensure similar test coverage for `OrganizeService` interactions with its refined domain model.\n3. gRPC Adapter Tests (Conditional):\n   * If domain model changes necessitate modifications in the gRPC `.proto` definitions or the `GrpcRepositoryService`/`GrpcOrganizeService` implementations (from Task 8), update or add test cases in `src/test/java/.../adapter/in/grpc/GrpcRepositoryServiceTest` and `GrpcOrganizeServiceTest`. These tests should verify proper serialization/deserialization and correct mapping between gRPC messages and the refined domain objects, including handling of any new Value Objects.",
+        "status": "in-progress",
+        "dependencies": [
+          "6",
+          "7"
+        ],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Introduce Value Objects for Repository URL and Branch",
+            "description": "Create dedicated Value Objects for 'url' and 'branch' within the Repository domain model to enforce invariants and improve type safety, following the pattern of Task 1's Job.java and its related value objects.",
+            "dependencies": [],
+            "details": "Implement `RepositoryUrl` and `BranchName` as Java records or immutable classes in `src/main/java/io/jgitkins/server/application/domain/model/`. Each should encapsulate the respective string value, provide factory methods for validation (e.g., URL format, branch naming conventions), and override `equals()`, `hashCode()`, and `toString()`. Update `Repository.java` to use these new Value Objects for its `url` and `branch` properties.",
+            "status": "done",
+            "testStrategy": "Create `RepositoryUrlTest.java` and `BranchNameTest.java` under `src/test/java/io/jgitkins/server/application/domain/model/` to unit test their constructors, validation rules, immutability, and equality logic. Ensure edge cases like invalid URLs or branch names are handled correctly.",
+            "updatedAt": "2025-12-19T09:08:23.599Z",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Refine Repository Domain Model with New Behavior and Immutability",
+            "description": "Enhance the `Repository` aggregate by adding domain-specific behaviors and ensuring its immutability and consistency with DDD patterns, leveraging the new Value Objects.",
+            "dependencies": [
+              1
+            ],
+            "details": "Modify `src/main/java/io/jgitkins/server/application/domain/model/Repository.java`. Introduce methods like `updateStatus(RepositoryStatus newStatus)` and `assignCredential(CredentialId id)` to encapsulate domain logic directly within the aggregate. Ensure the `Repository` record remains immutable, using 'with' methods (e.g., `withStatus(RepositoryStatus newStatus)`) for state changes, consistent with Java record patterns. Adjust constructors and existing methods to utilize `RepositoryUrl` and `BranchName`.",
+            "status": "done",
+            "testStrategy": "Update `src/test/java/io/jgitkins/server/application/domain/model/RepositoryTest.java`. Add new unit tests for the newly introduced domain behaviors (e.g., `updateStatus`, `assignCredential`) to verify correct state transitions and business rule enforcement. Verify that the 'with' methods correctly return new instances with updated states while preserving immutability.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-19T09:08:17.588Z"
+          },
+          {
+            "id": 3,
+            "title": "Refine Organize Domain Model and Consider Value Objects",
+            "description": "Review and refine the `Organize` domain model, introducing specific behaviors, ensuring immutability, and evaluating potential value objects or nested structures similar to the Repository and Job models.",
+            "dependencies": [],
+            "details": "Examine `src/main/java/io/jgitkins/server/application/domain/model/Organize.java`. Identify if any properties within `Organize` (e.g., specific identifiers or configuration settings) could benefit from encapsulation as Value Objects. Introduce domain-specific methods to the `Organize` aggregate (e.g., `addRepository(RepositoryId id)`, `updateConfiguration(...)`). Ensure the aggregate maintains immutability using 'with' methods if state changes are required, aligning with the pattern used for `Job.java`.",
+            "status": "pending",
+            "testStrategy": "Create `src/test/java/io/jgitkins/server/application/domain/model/OrganizeTest.java` if it doesn't exist, or update it. Add unit tests for any new value objects or nested structures within `Organize`. Implement comprehensive tests for the new domain behaviors to ensure they correctly modify the `Organize` state and enforce any relevant business rules.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "Update Services and Refine Domain Event Handling",
+            "description": "Adjust `RepositoryService` and `OrganizeService` to align with the refined domain models and implement or refine domain event publishing for significant state changes.",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Modify `src/main/java/io/jgitkins/server/application/port/service/RepositoryService.java` and `OrganizeService.java`. Update method signatures and implementations to correctly handle the new Value Objects and utilize the new domain behaviors of the `Repository` and `Organize` aggregates. If applicable, introduce or refine domain event publishing mechanisms within these services when a `Repository` or `Organize` aggregate state changes significantly (e.g., `RepositoryStatusUpdatedEvent`, `OrganizeConfigurationChangedEvent`), following existing patterns for event publication.",
+            "status": "pending",
+            "testStrategy": "Update `RepositoryServiceTest.java` and `OrganizeServiceTest.java`. Add integration-style tests using mocks to verify that services correctly interact with the refined domain models, handle new Value Objects, and, if implemented, publish domain events with correct payloads upon relevant state transitions. Ensure existing functionality remains intact.",
+            "parentId": "undefined"
+          },
+          {
+            "id": 5,
+            "title": "Expand Comprehensive Unit and Integration Test Coverage",
+            "description": "Expand unit and integration test coverage across the refined `Repository` and `Organize` domain models, their Value Objects, and their respective services to ensure correctness and robustness.",
+            "dependencies": [
+              2,
+              3,
+              4
+            ],
+            "details": "Review and enhance existing test files: `src/test/java/io/jgitkins/server/application/domain/model/RepositoryTest.java`, `RepositoryUrlTest.java`, `BranchNameTest.java`, `OrganizeTest.java`, `RepositoryServiceTest.java`, and `OrganizeServiceTest.java`. Add test cases to cover all new methods, edge cases, invariants, and ensure proper interaction between components after the domain model and service refinements. Focus on thorough validation, state changes, and event emission where applicable.",
+            "status": "pending",
+            "testStrategy": "Execute all updated and new unit tests to confirm the correctness of the refined domain models and their Value Objects. Run integration tests for the services to verify their interaction with the updated domain and any new event handling logic. Aim for high code coverage for the modified domain and service layers.",
+            "parentId": "undefined"
+          }
+        ],
+        "updatedAt": "2025-12-19T09:08:23.599Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-17T11:35:46.874Z",
-      "taskCount": 8,
+      "lastModified": "2025-12-19T09:08:23.601Z",
+      "taskCount": 9,
       "completedCount": 4,
       "tags": [
         "master"

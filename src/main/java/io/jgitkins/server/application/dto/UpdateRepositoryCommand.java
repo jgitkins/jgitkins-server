@@ -18,7 +18,6 @@ public class UpdateRepositoryCommand {
     private String path;
     private String defaultBranch;
     private String visibility;
-    private String repositoryType;
     private Long ownerId;
     private String description;
     private String credentialId;

@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 public class OrganizeCreationResult {
     private final Long id;
     private final String name;
-    private final String path;
     private final String description;
     private final Long ownerId;
     private final LocalDateTime createdAt;

@@ -1,15 +1,15 @@
 package io.jgitkins.server.domain.aggregate;
 
 import io.jgitkins.server.domain.event.RepositoryProvisionedEvent;
+import io.jgitkins.server.domain.event.RepositorySynchronizedEvent;
 import io.jgitkins.server.domain.model.vo.BranchName;
+import io.jgitkins.server.domain.model.vo.InitialCommitOptions;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.RepositoryPath;
 import io.jgitkins.server.domain.model.vo.RepositoryVisibility;
 import io.jgitkins.server.domain.model.vo.UserId;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
  * Repository Aggregate Root
  */
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Repository extends AbstractAggregateRoot<RepositoryId> {
 
     private final RepositoryId id;
@@ -30,61 +29,55 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
     private final String description;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
-    private final String repositoryType;
     private final UserId ownerId;
     private final String credentialId;
     private final String clonePath;
     private final LocalDateTime lastSyncedAt;
     private final boolean requiresInitialContent;
 
-    public static Repository create(Long organizeId,
-                                    String repoName,
-                                    String path,
-                                    String branch,
-                                    String visibility,
-                                    String repositoryType,
-                                    Long ownerId,
+    private Repository(RepositoryId id,
+                       OrganizeId organizeId,
+                       RepositoryName name,
+                       RepositoryPath path,
+                       BranchName defaultBranch,
+                       RepositoryVisibility visibility,
+                       String description,
+                       LocalDateTime createdAt,
+                       LocalDateTime updatedAt,
+                       UserId ownerId,
+                       String credentialId,
+                       String clonePath,
+                       LocalDateTime lastSyncedAt,
+                       boolean requiresInitialContent) {
+        this.id = id;
+        this.organizeId = organizeId;
+        this.name = name;
+        this.path = path;
+        this.defaultBranch = defaultBranch;
+        this.visibility = visibility;
+        this.description = description != null ? description.trim() : null;
+        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
+        this.updatedAt = updatedAt != null ? updatedAt : this.createdAt;
+        this.ownerId = ownerId;
+        this.credentialId = credentialId;
+        this.clonePath = clonePath;
+        this.lastSyncedAt = lastSyncedAt;
+        this.requiresInitialContent = requiresInitialContent;
+    }
+
+    public static Repository create(OrganizeId organizeId,
+                                    RepositoryName name,
+                                    RepositoryPath path,
+                                    BranchName defaultBranch,
+                                    RepositoryVisibility visibility,
+                                    UserId ownerId,
                                     String description,
                                     String clonePath,
                                     String credentialId,
-                                    boolean initializeWithReadme,
-                                    String initialCommitMessage) {
-
-        validateCreateArgs(organizeId, repoName, initializeWithReadme, branch, initialCommitMessage);
-
-        String normalizedBranch = normalizeBranch(branch, repoName);
-        String normalizedPath = normalizePath(path, repoName);
-        RepositoryVisibility resolvedVisibility = normalizeVisibility(visibility);
-        String resolvedType = normalizeType(repositoryType);
-        UserId owner = normalizeOwner(ownerId);
-
-        return register(OrganizeId.of(organizeId),
-                        RepositoryName.from(repoName),
-                        RepositoryPath.from(normalizedPath),
-                        BranchName.of(normalizedBranch),
-                        resolvedVisibility,
-                        resolvedType,
-                        owner,
-                        description,
-                        clonePath,
-                        credentialId,
-                        initializeWithReadme);
-    }
-
-    /**
-     * Repository 생성 팩토리
-     */
-    public static Repository register(OrganizeId organizeId,
-                                      RepositoryName name,
-                                      RepositoryPath path,
-                                      BranchName defaultBranch,
-                                      RepositoryVisibility visibility,
-                                      String repositoryType,
-                                      UserId ownerId,
-                                      String description,
-                                      String clonePath,
-                                      String credentialId,
-                                      boolean requiresInitialContent) {
+                                    InitialCommitOptions initialCommitOptions) {
+        if (initialCommitOptions == null) {
+            throw new IllegalArgumentException("InitialCommitOptions must not be null");
+        }
         LocalDateTime now = LocalDateTime.now();
         Repository repository = new Repository(
                 null,
@@ -96,14 +89,13 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                 description,
                 now,
                 now,
-                repositoryType,
                 ownerId,
                 credentialId,
                 clonePath,
                 null,
-                requiresInitialContent
+                initialCommitOptions.requiresInitialContent()
         );
-        repository.registerEvent(RepositoryProvisionedEvent.from(repository));
+        repository.registerEvent(RepositoryProvisionedEvent.from(repository, initialCommitOptions));
         return repository;
     }
 
@@ -119,7 +111,6 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                                                description,
                                                createdAt,
                                                updatedAt,
-                                               repositoryType,
                                                ownerId,
                                                credentialId,
                                                clonePath,
@@ -129,8 +120,9 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
         return identified;
     }
 
-    public Repository markSynced(LocalDateTime syncedAt) {
-        Repository synced = new Repository(id,
+    public Repository markInit(LocalDateTime syncedAt) {
+        LocalDateTime effectiveSyncedAt = syncedAt != null ? syncedAt : LocalDateTime.now();
+        Repository marked = new Repository(id,
                                            organizeId,
                                            name,
                                            path,
@@ -138,53 +130,25 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                                            visibility,
                                            description,
                                            createdAt,
-                                           updatedAt,
-                                           repositoryType,
+                                           effectiveSyncedAt,
                                            ownerId,
                                            credentialId,
                                            clonePath,
-                                           syncedAt,
+                                           effectiveSyncedAt,
                                            false
         );
-        synced.copyDomainEventsFrom(this);
-        return synced;
+        marked.copyDomainEventsFrom(this);
+        marked.registerEvent(RepositorySynchronizedEvent.from(marked));
+        return marked;
     }
 
-    public Repository updateMetadata(RepositoryName newName,
-                                     RepositoryPath newPath,
-                                     BranchName newDefaultBranch,
-                                     RepositoryVisibility newVisibility,
-                                     String newRepositoryType,
-                                     UserId newOwner,
-                                     String newDescription,
-                                     String newClonePath,
-                                     String newCredentialId) {
-        Repository updated = new Repository(id,
-                                            organizeId,
-                                            newName != null ? newName : name,
-                                            newPath != null ? newPath : path,
-                                            newDefaultBranch != null ? newDefaultBranch : defaultBranch,
-                                            newVisibility != null ? newVisibility : visibility,
-                                            newDescription != null ? newDescription : description,
-                                            createdAt,
-                                            updatedAt,
-                                            newRepositoryType != null ? newRepositoryType : repositoryType,
-                                            newOwner != null ? newOwner : ownerId,
-                                            newCredentialId != null ? newCredentialId : credentialId,
-                                            newClonePath != null ? newClonePath : clonePath,
-                                            lastSyncedAt,
-                                            requiresInitialContent);
-        updated.copyDomainEventsFrom(this);
-        return updated;
-    }
-
+    // internal factory method (entity to domain)
     public static Repository rehydrate(RepositoryId repositoryId,
                                        OrganizeId organizeId,
                                        RepositoryName name,
                                        RepositoryPath path,
                                        BranchName defaultBranch,
                                        RepositoryVisibility visibility,
-                                       String repositoryType,
                                        UserId ownerId,
                                        String description,
                                        String clonePath,
@@ -201,58 +165,10 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                               description,
                               createdAt,
                               updatedAt,
-                              repositoryType,
                               ownerId,
                               credentialId,
                               clonePath,
                               lastSyncedAt,
                               lastSyncedAt == null);
-    }
-
-    private static void validateCreateArgs(Long organizeId,
-                                           String repoName,
-                                           boolean initializeWithReadme,
-                                           String branch,
-                                           String initialCommitMessage) {
-        if (organizeId == null) {
-            throw new IllegalArgumentException("organizeId must be provided");
-        }
-        if (repoName == null || repoName.isBlank()) {
-            throw new IllegalArgumentException("repoName must not be blank");
-        }
-        if (branch == null || branch.isBlank()) {
-            throw new IllegalArgumentException("mainBranch must be provided");
-        }
-
-        if (!initializeWithReadme) {
-            return;
-        }
-        if (initialCommitMessage == null || initialCommitMessage.isBlank()) {
-            throw new IllegalArgumentException("message is required when initializing with README");
-        }
-    }
-
-    private static String normalizeBranch(String branch, String repoNameFallback) {
-        return (branch == null || branch.isBlank()) ? defaultBranchName(repoNameFallback) : branch.trim();
-    }
-
-    private static String normalizePath(String path, String repoNameFallback) {
-        return (path == null || path.isBlank()) ? repoNameFallback : path.trim();
-    }
-
-    private static RepositoryVisibility normalizeVisibility(String visibility) {
-        return visibility != null ? RepositoryVisibility.from(visibility) : RepositoryVisibility.PRIVATE;
-    }
-
-    private static String normalizeType(String repositoryType) {
-        return repositoryType != null ? repositoryType.trim().toUpperCase() : "GIT";
-    }
-
-    private static UserId normalizeOwner(Long ownerId) {
-        return ownerId != null ? UserId.of(ownerId) : null;
-    }
-
-    private static String defaultBranchName(String repoNameFallback) {
-        return "main";
     }
 }

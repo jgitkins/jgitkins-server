@@ -14,7 +14,6 @@ public class CreateRepositoryRequest {
     private Long organizeId;
     private String path;
     private String visibility;
-    private String repositoryType;
     private Long ownerId;
     private String description;
     private String credentialId;

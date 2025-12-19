@@ -3,7 +3,7 @@ package io.jgitkins.server.infrastructure.adapter.persistence;
 import io.jgitkins.server.application.port.out.OrganizePersistencePort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
-import io.jgitkins.server.domain.model.vo.OrganizePath;
+import io.jgitkins.server.domain.model.vo.OrganizeName;
 import io.jgitkins.server.infrastructure.persistence.mapper.OrganizeEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity;
 import io.jgitkins.server.infrastructure.persistence.model.OrganizeEntityCondition;
@@ -44,9 +44,9 @@ public class OrganizePersistenceAdapter implements OrganizePersistencePort {
     }
 
     @Override
-    public Optional<Organize> findByPath(OrganizePath path) {
+    public Optional<Organize> findByName(OrganizeName name) {
         OrganizeEntityCondition condition = new OrganizeEntityCondition();
-        condition.createCriteria().andPathEqualTo(path.getValue());
+        condition.createCriteria().andNameEqualTo(name.getValue());
         List<OrganizeEntity> entities = organizeEntityMbgMapper.selectByCondition(condition);
         return entities.stream().findFirst().map(organizeDomainMapper::toDomain);
     }
