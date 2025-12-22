@@ -2,7 +2,6 @@ package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.dto.CommitHistory;
 import io.jgitkins.server.application.port.in.CommitLoadUseCase;
-import io.jgitkins.server.application.port.out.LoadBranchCommitHistoriesPort;
 import io.jgitkins.server.application.port.out.CommitGitLoadPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,14 +16,14 @@ public class RepositoryHistoryService implements CommitLoadUseCase {
 
 
     private final CommitGitLoadPort commitGitLoadPort;
-    private final LoadBranchCommitHistoriesPort loadBranchCommitHistoriesPort;
+//    private final LoadBranchCommitHistoriesPort loadBranchCommitHistoriesPort;
 
     @Override
     @Transactional(readOnly = true)
     public CommitHistory getCommit(String taskCd,
                                    String repoName,
                                    String commitHash) throws IOException {
-        return commitGitLoadPort.getCommitDetail(taskCd, repoName, commitHash);
+        return commitGitLoadPort.getCommitHistory(taskCd, repoName, commitHash);
     }
 
     @Override
@@ -32,6 +31,6 @@ public class RepositoryHistoryService implements CommitLoadUseCase {
     public List<CommitHistory> getCommits(String taskCd,
                                           String repoName,
                                           String branch) throws IOException {
-        return loadBranchCommitHistoriesPort.getCommitHistories(taskCd, repoName, branch);
+        return commitGitLoadPort.getCommitHistories(taskCd, repoName, branch);
     }
 }

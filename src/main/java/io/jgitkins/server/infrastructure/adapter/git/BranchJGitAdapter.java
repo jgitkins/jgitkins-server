@@ -4,10 +4,10 @@ import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.GitConstants;
 import io.jgitkins.server.application.common.exception.InternalServerErrorException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
-import io.jgitkins.server.application.dto.command.BranchCreateCommand;
+import io.jgitkins.server.application.dto.command.BranchCreationContext;
 import io.jgitkins.server.application.dto.BranchInfo;
-import io.jgitkins.server.application.port.out.CreateBranchPort;
-import io.jgitkins.server.application.port.out.DeleteBranchPort;
+import io.jgitkins.server.application.port.out.BranchGitCreatePort;
+import io.jgitkins.server.application.port.out.BranchGitDeletePort;
 import io.jgitkins.server.application.port.out.UpdateHeadReferencePort;
 import io.jgitkins.server.application.port.out.BranchGitLoadPort;
 import io.jgitkins.server.infrastructure.support.RepositoryResolver;
@@ -24,38 +24,9 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class BranchJGitAdapter implements UpdateHeadReferencePort, BranchGitLoadPort, CreateBranchPort, DeleteBranchPort {
+public class BranchJGitAdapter implements UpdateHeadReferencePort, BranchGitLoadPort, BranchGitCreatePort, BranchGitDeletePort {
 
     private final RepositoryResolver repositoryResolver;
-
-    private ObjectId resolveRef(Repository repo, String branch) throws IOException {
-        ObjectId oid = repo.resolve(branch);
-        if (oid == null) {
-            oid = repo.resolve(GitConstants.REFS_HEADS_PREFIX + branch);
-        }
-        return oid;
-    }
-
-    private String stripBranchName(String refName) {
-        if (refName.startsWith(GitConstants.REFS_HEADS_PREFIX)) {
-            return refName.substring(GitConstants.REFS_HEADS_PREFIX.length());
-        }
-        return refName;
-    }
-
-    private String resolveCommitId(Ref ref) {
-        ObjectId objectId = ref.getObjectId();
-        return objectId != null ? objectId.name() : null;
-    }
-
-
-
-
-
-
-
-
-
 
     @Override
     public void updateHeadReference(String taskCd, String repoName, String branch) {
@@ -63,15 +34,15 @@ public class BranchJGitAdapter implements UpdateHeadReferencePort, BranchGitLoad
         try (Repository repo = repositoryResolver.openBareRepository(taskCd, repoName)) {
             String mainRef = GitConstants.REFS_HEADS_PREFIX + branch;
             repo.updateRef(Constants.HEAD, true)
-                .link(mainRef);
+                    .link(mainRef);
         } catch (IOException e) {
             throw new InternalServerErrorException(ErrorCode.HEAD_POINT_FAILED, String.format("Failed to link HEAD for repo %s/%s", taskCd, repoName), e);
-//            throw new HeadLinkException(String.format("Failed to link HEAD for repo %s/%s", taskCd, repoName), e);
         }
     }
 
     @Override
-    public List<BranchInfo> getBranches(String taskCd, String repoName) {
+    public List<BranchInfo> getBranches(String repoName) {
+        String taskCd = "TMP";
         try (Repository repo = repositoryResolver.openBareRepository(taskCd, repoName)) {
             return repo.getRefDatabase()
                     .getRefsByPrefix(GitConstants.REFS_HEADS_PREFIX)
@@ -83,7 +54,6 @@ public class BranchJGitAdapter implements UpdateHeadReferencePort, BranchGitLoad
                             .build())
                     .collect(Collectors.toList());
         } catch (IOException e) {
-//            throw new BranchLoadException(String.format("Failed to load branches for repo %s/%s", taskCd, repoName), e);
             throw new InternalServerErrorException(ErrorCode.BRANCH_LOAD_FAILED, String.format("Failed to load branches for repo %s/%s", taskCd, repoName), e);
         }
     }
@@ -118,34 +88,31 @@ public class BranchJGitAdapter implements UpdateHeadReferencePort, BranchGitLoad
     }
 
     @Override
-    public void createBranch(BranchCreateCommand command) {
-        try (Repository repo = repositoryResolver.openBareRepository(command.getTaskCd(), command.getRepoName())) {
-            ObjectId sourceId = resolveRef(repo, command.getSourceBranch());
+    public void createBranch(BranchCreationContext context) {
+        try (Repository repo = repositoryResolver.openBareRepository(context.getTaskCd(), context.getRepositoryName())) {
+            ObjectId sourceId = resolveRef(repo, context.getSourceBranch());
             if (sourceId == null) {
-                throw new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND, "Source branch not found: " + command.getSourceBranch());
-//                throw new BranchCreateException("Source branch not found: " + command.getSourceBranch());
+                throw new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND, "Source branch not found: " + context.getSourceBranch());
             }
 
-            String newRef = GitConstants.REFS_HEADS_PREFIX + command.getBranchName();
+            String newRef = GitConstants.REFS_HEADS_PREFIX + context.getBranchName();
             if (repo.exactRef(newRef) != null) {
 //                throw new BranchCreateException("Branch already exists: " + command.getBranchName());
-                throw new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND, "Source branch not found: " + command.getSourceBranch());
+                throw new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND,
+                        "Source branch not found: " + context.getSourceBranch());
             }
 
             RefUpdate update = repo.updateRef(newRef);
             update.setNewObjectId(sourceId);
             update.setExpectedOldObjectId(ObjectId.zeroId());
-            update.setRefLogMessage(String.format("branch: Created %s from %s", command.getBranchName(), command.getSourceBranch()), false);
+            update.setRefLogMessage(String.format("branch: Created %s from %s", context.getBranchName(), context.getSourceBranch()), false);
 
             RefUpdate.Result result = update.update();
             if (result != RefUpdate.Result.NEW) {
-                throw new InternalServerErrorException(ErrorCode.BRANCH_CREATE_FAILED, String.format("Failed to create branch [%s]", command.getSourceBranch()));
-//                throw new BranchCreateException("Failed to create branch: " + result);
+                throw new InternalServerErrorException(ErrorCode.BRANCH_CREATE_FAILED, String.format("Failed to create branch [%s]", context.getSourceBranch()));
             }
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.BRANCH_CREATE_FAILED, String.format("Failed to create branch [%s]", command.getSourceBranch()), e);
-//            throw new BranchCreateException(String.format("Failed to create branch %s for repo %s/%s",
-//                    command.getBranchName(), command.getTaskCd(), command.getRepoName()), e);
+            throw new InternalServerErrorException(ErrorCode.BRANCH_CREATE_FAILED, String.format("Failed to create branch [%s]", context.getSourceBranch()), e);
         }
     }
 
@@ -172,6 +139,27 @@ public class BranchJGitAdapter implements UpdateHeadReferencePort, BranchGitLoad
 //            throw new BranchDeleteException(String.format("Failed to delete branch %s for repo %s/%s",
 //                    branchName, taskCd, repoName), e);
         }
+    }
+
+
+    private ObjectId resolveRef(Repository repo, String branch) throws IOException {
+        ObjectId oid = repo.resolve(branch);
+        if (oid == null) {
+            oid = repo.resolve(GitConstants.REFS_HEADS_PREFIX + branch);
+        }
+        return oid;
+    }
+
+    private String stripBranchName(String refName) {
+        if (refName.startsWith(GitConstants.REFS_HEADS_PREFIX)) {
+            return refName.substring(GitConstants.REFS_HEADS_PREFIX.length());
+        }
+        return refName;
+    }
+
+    private String resolveCommitId(Ref ref) {
+        ObjectId objectId = ref.getObjectId();
+        return objectId != null ? objectId.name() : null;
     }
 
 }

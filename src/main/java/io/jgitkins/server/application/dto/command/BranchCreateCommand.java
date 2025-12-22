@@ -7,8 +7,7 @@ import lombok.Getter;
 @Getter
 public class BranchCreateCommand {
 
-    private final String taskCd;
-    private final String repoName;
+    private final Long repositoryId;
     private final String branchName;
     private final String sourceBranch;
     private final boolean physicalCreationRequired;

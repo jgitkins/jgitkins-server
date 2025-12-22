@@ -2,18 +2,20 @@ package io.jgitkins.server.infrastructure.support;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RepositoryResolver {
 
-    private final String rootPath;
+    private String rootPath;
 
-    public RepositoryResolver() {
-        this.rootPath = String.format("%s/%s", System.getProperty("user.home"), "tmptmp/bare");
+    public RepositoryResolver(@Value("${jgitkins.server.runtime.volumn:${user.home}}") String runtimeVolume) {
+        this.rootPath = Path.of(runtimeVolume, "tmptmp", "bare").toString();
     }
 
     public Repository openBareRepository(String taskCd, String repoName) throws IOException {

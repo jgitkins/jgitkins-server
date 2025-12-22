@@ -61,6 +61,15 @@ public class RepositoryPersistenceAdapter implements RepositoryPersistencePort {
     }
 
     @Override
+    public List<Repository> findAll() {
+        return repositoryMapper.selectByConditionWithBLOBs(new RepositoryEntityCondition())
+                .stream()
+                .map(repositoryDomainMapper::toDomain)
+                .toList();
+//        return repositoryMapper.selectByConditionWithBLOBs(new RepositoryEntityCondition());
+    }
+
+    @Override
     public Optional<Repository> findByOrganizeAndPath(OrganizeId organizeId, RepositoryPath path) {
         RepositoryEntityCondition condition = new RepositoryEntityCondition();
         condition.createCriteria()

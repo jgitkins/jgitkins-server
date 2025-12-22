@@ -99,7 +99,7 @@ public class RepositoryJGitContentAdapter implements RepositoryCommitPort,
     }
 
     @Override
-    public CommitHistory getCommitDetail(String taskCd, String repoName, String commitHash) {
+    public CommitHistory getCommitHistory(String taskCd, String repoName, String commitHash) {
         File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
         try (Repository repo = repositoryResolver.openBareRepository(gitDir)) {
             ObjectId commitId = repo.resolve(commitHash);

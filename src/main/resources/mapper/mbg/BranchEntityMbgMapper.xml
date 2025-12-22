@@ -2,14 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.jgitkins.server.infrastructure.persistence.mapper.BranchEntityMbgMapper">
   <resultMap id="BaseResultMap" type="io.jgitkins.server.infrastructure.persistence.model.BranchEntity">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="repository_id" jdbcType="BIGINT" property="repositoryId" />
-    <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="is_locked" jdbcType="BOOLEAN" property="isLocked" />
-    <result column="locked_by" jdbcType="BIGINT" property="lockedBy" />
-    <result column="locked_at" jdbcType="TIMESTAMP" property="lockedAt" />
-    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
-    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="REPOSITORY_ID" jdbcType="BIGINT" property="repositoryId" />
+    <result column="NAME" jdbcType="VARCHAR" property="name" />
+    <result column="IS_LOCKED" jdbcType="BOOLEAN" property="isLocked" />
+    <result column="IS_CI" jdbcType="BOOLEAN" property="isCi" />
+    <result column="LOCKED_BY" jdbcType="BIGINT" property="lockedBy" />
+    <result column="LOCKED_AT" jdbcType="TIMESTAMP" property="lockedAt" />
+    <result column="CREATED_AT" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="UPDATED_AT" jdbcType="TIMESTAMP" property="updatedAt" />
   </resultMap>
   <sql id="Condition_Where_Clause">
     <where>
@@ -70,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, repository_id, name, is_locked, locked_by, locked_at, created_at, updated_at
+    ID, REPOSITORY_ID, NAME, IS_LOCKED, IS_CI, LOCKED_BY, LOCKED_AT, CREATED_AT, UPDATED_AT
   </sql>
   <select id="selectByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntityCondition" resultMap="BaseResultMap">
     select
@@ -90,11 +91,11 @@
     select 
     <include refid="Base_Column_List" />
     from branch
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from branch
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntityCondition">
     delete from branch
@@ -102,37 +103,40 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity" useGeneratedKeys="true">
-    insert into branch (repository_id, name, is_locked, 
-      locked_by, locked_at, created_at, 
-      updated_at)
+  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity" useGeneratedKeys="true">
+    insert into branch (REPOSITORY_ID, NAME, IS_LOCKED, 
+      IS_CI, LOCKED_BY, LOCKED_AT, 
+      CREATED_AT, UPDATED_AT)
     values (#{repositoryId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{isLocked,jdbcType=BOOLEAN}, 
-      #{lockedBy,jdbcType=BIGINT}, #{lockedAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=TIMESTAMP}, 
-      #{updatedAt,jdbcType=TIMESTAMP})
+      #{isCi,jdbcType=BOOLEAN}, #{lockedBy,jdbcType=BIGINT}, #{lockedAt,jdbcType=TIMESTAMP}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity" useGeneratedKeys="true">
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity" useGeneratedKeys="true">
     insert into branch
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="repositoryId != null">
-        repository_id,
+        REPOSITORY_ID,
       </if>
       <if test="name != null">
-        name,
+        NAME,
       </if>
       <if test="isLocked != null">
-        is_locked,
+        IS_LOCKED,
+      </if>
+      <if test="isCi != null">
+        IS_CI,
       </if>
       <if test="lockedBy != null">
-        locked_by,
+        LOCKED_BY,
       </if>
       <if test="lockedAt != null">
-        locked_at,
+        LOCKED_AT,
       </if>
       <if test="createdAt != null">
-        created_at,
+        CREATED_AT,
       </if>
       <if test="updatedAt != null">
-        updated_at,
+        UPDATED_AT,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -144,6 +148,9 @@
       </if>
       <if test="isLocked != null">
         #{isLocked,jdbcType=BOOLEAN},
+      </if>
+      <if test="isCi != null">
+        #{isCi,jdbcType=BOOLEAN},
       </if>
       <if test="lockedBy != null">
         #{lockedBy,jdbcType=BIGINT},
@@ -169,28 +176,31 @@
     update branch
     <set>
       <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
+        ID = #{row.id,jdbcType=BIGINT},
       </if>
       <if test="row.repositoryId != null">
-        repository_id = #{row.repositoryId,jdbcType=BIGINT},
+        REPOSITORY_ID = #{row.repositoryId,jdbcType=BIGINT},
       </if>
       <if test="row.name != null">
-        name = #{row.name,jdbcType=VARCHAR},
+        NAME = #{row.name,jdbcType=VARCHAR},
       </if>
       <if test="row.isLocked != null">
-        is_locked = #{row.isLocked,jdbcType=BOOLEAN},
+        IS_LOCKED = #{row.isLocked,jdbcType=BOOLEAN},
+      </if>
+      <if test="row.isCi != null">
+        IS_CI = #{row.isCi,jdbcType=BOOLEAN},
       </if>
       <if test="row.lockedBy != null">
-        locked_by = #{row.lockedBy,jdbcType=BIGINT},
+        LOCKED_BY = #{row.lockedBy,jdbcType=BIGINT},
       </if>
       <if test="row.lockedAt != null">
-        locked_at = #{row.lockedAt,jdbcType=TIMESTAMP},
+        LOCKED_AT = #{row.lockedAt,jdbcType=TIMESTAMP},
       </if>
       <if test="row.createdAt != null">
-        created_at = #{row.createdAt,jdbcType=TIMESTAMP},
+        CREATED_AT = #{row.createdAt,jdbcType=TIMESTAMP},
       </if>
       <if test="row.updatedAt != null">
-        updated_at = #{row.updatedAt,jdbcType=TIMESTAMP},
+        UPDATED_AT = #{row.updatedAt,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="example != null">
@@ -199,14 +209,15 @@
   </update>
   <update id="updateByCondition" parameterType="map">
     update branch
-    set id = #{row.id,jdbcType=BIGINT},
-      repository_id = #{row.repositoryId,jdbcType=BIGINT},
-      name = #{row.name,jdbcType=VARCHAR},
-      is_locked = #{row.isLocked,jdbcType=BOOLEAN},
-      locked_by = #{row.lockedBy,jdbcType=BIGINT},
-      locked_at = #{row.lockedAt,jdbcType=TIMESTAMP},
-      created_at = #{row.createdAt,jdbcType=TIMESTAMP},
-      updated_at = #{row.updatedAt,jdbcType=TIMESTAMP}
+    set ID = #{row.id,jdbcType=BIGINT},
+      REPOSITORY_ID = #{row.repositoryId,jdbcType=BIGINT},
+      NAME = #{row.name,jdbcType=VARCHAR},
+      IS_LOCKED = #{row.isLocked,jdbcType=BOOLEAN},
+      IS_CI = #{row.isCi,jdbcType=BOOLEAN},
+      LOCKED_BY = #{row.lockedBy,jdbcType=BIGINT},
+      LOCKED_AT = #{row.lockedAt,jdbcType=TIMESTAMP},
+      CREATED_AT = #{row.createdAt,jdbcType=TIMESTAMP},
+      UPDATED_AT = #{row.updatedAt,jdbcType=TIMESTAMP}
     <if test="example != null">
       <include refid="Update_By_Condition_Where_Clause" />
     </if>
@@ -215,38 +226,42 @@
     update branch
     <set>
       <if test="repositoryId != null">
-        repository_id = #{repositoryId,jdbcType=BIGINT},
+        REPOSITORY_ID = #{repositoryId,jdbcType=BIGINT},
       </if>
       <if test="name != null">
-        name = #{name,jdbcType=VARCHAR},
+        NAME = #{name,jdbcType=VARCHAR},
       </if>
       <if test="isLocked != null">
-        is_locked = #{isLocked,jdbcType=BOOLEAN},
+        IS_LOCKED = #{isLocked,jdbcType=BOOLEAN},
+      </if>
+      <if test="isCi != null">
+        IS_CI = #{isCi,jdbcType=BOOLEAN},
       </if>
       <if test="lockedBy != null">
-        locked_by = #{lockedBy,jdbcType=BIGINT},
+        LOCKED_BY = #{lockedBy,jdbcType=BIGINT},
       </if>
       <if test="lockedAt != null">
-        locked_at = #{lockedAt,jdbcType=TIMESTAMP},
+        LOCKED_AT = #{lockedAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createdAt != null">
-        created_at = #{createdAt,jdbcType=TIMESTAMP},
+        CREATED_AT = #{createdAt,jdbcType=TIMESTAMP},
       </if>
       <if test="updatedAt != null">
-        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+        UPDATED_AT = #{updatedAt,jdbcType=TIMESTAMP},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity">
     update branch
-    set repository_id = #{repositoryId,jdbcType=BIGINT},
-      name = #{name,jdbcType=VARCHAR},
-      is_locked = #{isLocked,jdbcType=BOOLEAN},
-      locked_by = #{lockedBy,jdbcType=BIGINT},
-      locked_at = #{lockedAt,jdbcType=TIMESTAMP},
-      created_at = #{createdAt,jdbcType=TIMESTAMP},
-      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=BIGINT}
+    set REPOSITORY_ID = #{repositoryId,jdbcType=BIGINT},
+      NAME = #{name,jdbcType=VARCHAR},
+      IS_LOCKED = #{isLocked,jdbcType=BOOLEAN},
+      IS_CI = #{isCi,jdbcType=BOOLEAN},
+      LOCKED_BY = #{lockedBy,jdbcType=BIGINT},
+      LOCKED_AT = #{lockedAt,jdbcType=TIMESTAMP},
+      CREATED_AT = #{createdAt,jdbcType=TIMESTAMP},
+      UPDATED_AT = #{updatedAt,jdbcType=TIMESTAMP}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

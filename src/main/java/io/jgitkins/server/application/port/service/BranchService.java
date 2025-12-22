@@ -1,57 +1,89 @@
 package io.jgitkins.server.application.port.service;
 
+import io.jgitkins.server.application.common.ErrorCode;
+import io.jgitkins.server.application.common.exception.ConflictException;
+import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
-import io.jgitkins.server.application.dto.BranchInfo;
+import io.jgitkins.server.application.dto.command.BranchCreationContext;
+import io.jgitkins.server.application.dto.result.BranchSearchResult;
 import io.jgitkins.server.application.port.in.BranchCreationUseCase;
 import io.jgitkins.server.application.port.in.BranchDeletetionUseCase;
 import io.jgitkins.server.application.port.in.BranchLoadUseCase;
-import io.jgitkins.server.application.port.out.BranchPersistenceCommandPort;
-import io.jgitkins.server.application.port.out.CreateBranchPort;
-import io.jgitkins.server.application.port.out.DeleteBranchPort;
-import io.jgitkins.server.application.port.out.BranchGitLoadPort;
+import io.jgitkins.server.application.mapper.BranchApplicationMapper;
+import io.jgitkins.server.application.port.out.*;
+import io.jgitkins.server.domain.Branch;
+import io.jgitkins.server.domain.aggregate.Organize;
+import io.jgitkins.server.domain.aggregate.Repository;
+import io.jgitkins.server.domain.model.vo.RepositoryId;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class BranchService implements BranchLoadUseCase, BranchCreationUseCase, BranchDeletetionUseCase {
 
-    private final BranchGitLoadPort branchGitLoadPort;
-    private final CreateBranchPort createBranchPort;
-    private final DeleteBranchPort deleteBranchPort;
-    private final BranchPersistenceCommandPort branchPersistenceCommandPort;
+    private final BranchGitCreatePort branchGitCreatePort;
+    private final BranchGitDeletePort branchGitDeletePort;
 
-    public BranchService(BranchGitLoadPort branchGitLoadPort, CreateBranchPort createBranchPort, DeleteBranchPort deleteBranchPort, BranchPersistenceCommandPort branchPersistenceCommandPort) {
-        this.branchGitLoadPort = branchGitLoadPort;
-        this.createBranchPort = createBranchPort;
-        this.deleteBranchPort = deleteBranchPort;
-        this.branchPersistenceCommandPort = branchPersistenceCommandPort;
+    private final BranchPersistenceCommandPort branchPersistenceCommandPort;
+    private final BranchPersistenceLoadPort branchPersistenceLoadPort;
+    private final RepositoryPersistencePort repositoryPersistencePort;
+    private final OrganizePersistencePort organizePersistencePort;
+    private final BranchApplicationMapper branchApplicationMapper;
+
+
+    @Override
+    public List<BranchSearchResult> getBranches(Long repositoryId) {
+        return branchPersistenceLoadPort.getBranches(repositoryId)
+                .stream()
+                .map(branchApplicationMapper::toSearchResult)
+                .toList();
     }
 
     @Override
-    public List<BranchInfo> getBranches(String taskCd, String repoName) throws IOException {
-        return branchGitLoadPort.getBranches(taskCd, repoName);
+    public BranchSearchResult getBranch(Long repositoryId, String branchName) throws IOException {
+        return branchPersistenceLoadPort.getBranch(repositoryId, branchName)
+                .map(branchApplicationMapper::toSearchResult)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND,
+                        "Branch not found: " + branchName));
     }
 
     @Override
     public void createBranch(BranchCreateCommand command) throws IOException {
-        boolean branchExists = branchGitLoadPort.getBranch(command.getTaskCd(), command.getRepoName(), command.getBranchName()).isPresent();
+        // 1) check duplicate
+        Optional<Branch> branch = branchPersistenceLoadPort.getBranch(command.getRepositoryId(), command.getBranchName());
+        if (branch.isPresent()) {
+            throw new ConflictException(ErrorCode.BRANCH_ALREADY_EXISTS);
+        }
 
-//        if (command.isPhysicalCreationRequired()) {
-//            if (branchExists) {
-//                throw new ConflictException(ErrorCode.BRANCH_ALREADY_EXISTS, "Branch Already Exist");
-//            }
-//            createBranchPort.createBranch(command);
-//        }
-//
-//        branchPersistencePort.create(command.getTaskCd(), command.getRepoName(), command.getBranchName());
+        // 2) loading contexts repository, organize info
+        Repository repository = repositoryPersistencePort.findById(RepositoryId.of(command.getRepositoryId()))
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
+                        "Repository not found: " + command.getRepositoryId()));
+        Organize organize = organizePersistencePort.findById(repository.getOrganizeId())
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
+                        "Organize not found: " + repository.getOrganizeId().getValue()));
+
+        // 3) create new branch
+        Branch newBranch = Branch.create(command.getRepositoryId(), command.getBranchName());
+
+        // 4) create branch creation context
+        BranchCreationContext context = BranchCreationContext.of(command, organize, repository);
+
+        // 5) create branch from file system
+        branchGitCreatePort.createBranch(context);
+
+        // 6) create branch from persistence
+        branchPersistenceCommandPort.create(newBranch);
     }
 
     @Override
     public void deleteBranch(String taskCd, String repoName, String branchName) throws IOException {
-        deleteBranchPort.deleteBranch(taskCd, repoName, branchName);
+        branchGitDeletePort.deleteBranch(taskCd, repoName, branchName);
 //        branchPersistencePort.deleteBranch(taskCd, repoName, branchName);
     }
 }

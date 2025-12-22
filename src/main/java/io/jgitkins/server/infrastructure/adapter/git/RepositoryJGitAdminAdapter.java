@@ -3,6 +3,7 @@ package io.jgitkins.server.infrastructure.adapter.git;
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.exception.InternalServerErrorException;
 import io.jgitkins.server.application.port.out.RepositoryFileAdminPort;
+import io.jgitkins.server.infrastructure.support.RepositoryFileSystemHelper;
 import io.jgitkins.server.infrastructure.support.RepositoryResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +24,9 @@ public class RepositoryJGitAdminAdapter implements RepositoryFileAdminPort {
     public void create(String taskCd, String repoName) {
         File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
         try {
-            RepositoryLocalHelper.createRepositoryDir(gitDir);
+            RepositoryFileSystemHelper.createRepositoryDir(gitDir);
             try (Repository repo = repositoryResolver.openBareRepository(gitDir)) {
-                RepositoryLocalHelper.initializeBareRepository(repo);
+                RepositoryFileSystemHelper.initializeBareRepository(repo);
                 log.info("Bare repository initialized. repo=[{}], task=[{}]", gitDir.getName(), taskCd);
             }
         } catch (IOException e) {
@@ -42,7 +43,7 @@ public class RepositoryJGitAdminAdapter implements RepositoryFileAdminPort {
             return;
         }
         try {
-            RepositoryLocalHelper.deleteRecursively(gitDir);
+            RepositoryFileSystemHelper.deleteRecursively(gitDir);
             File parent = gitDir.getParentFile();
             if (parent != null && parent.isDirectory()) {
                 File[] siblings = parent.listFiles();

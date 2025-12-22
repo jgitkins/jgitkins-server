@@ -4,6 +4,7 @@ import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
 import io.jgitkins.server.application.dto.CommitFile;
 import io.jgitkins.server.application.port.out.*;
+import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.event.RepositoryProvisionedEvent;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
@@ -29,6 +30,7 @@ public class RepositoryProvisionedEventListener {
     private final RepositoryCommitPort repositoryCommitPort;
     private final UpdateHeadReferencePort updateHeadReferencePort;
     private final RepositoryPersistencePort repositoryPersistencePort;
+    private final BranchPersistenceCommandPort branchPersistenceCommandPort;
 
 
     // post progressing
@@ -39,6 +41,17 @@ public class RepositoryProvisionedEventListener {
         String repoNameValue = repositoryName.getValue();
         String branchName = event.getDefaultBranch().getValue();
         String organizeSlug = loadOrganizeSlug(event);
+
+        Repository repository = repositoryPersistencePort.findByOrganizeAndName(event.getOrganizeId(), repositoryName)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
+                        "Repository not found for event: " + repoNameValue));
+
+        // 기본 브랜치 엔트리를 미리 생성해 애플리케이션 상태를 일관되게 유지한다.
+        Branch defaultBranch = Branch.create(repository.getId().getValue(),
+                                             branchName,
+                                             false,
+                                             true);
+        branchPersistenceCommandPort.create(defaultBranch);
 
         if (event.getInitialCommitOptions() != null && event.getInitialCommitOptions().requiresInitialContent()) {
             List<CommitFile> files = repositoryContentPort.prepareInitialFiles(repoNameValue);
@@ -51,10 +64,6 @@ public class RepositoryProvisionedEventListener {
                                         files);
             updateHeadReferencePort.updateHeadReference(organizeSlug, repoNameValue, branchName);
             log.info("repository has initialized with readme");
-
-            Repository repository = repositoryPersistencePort.findByOrganizeAndName(event.getOrganizeId(), repositoryName)
-                    .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
-                            "Repository not found for event: " + repoNameValue));
 
             repositoryPersistencePort.update(repository.markInit(LocalDateTime.now()));
         }

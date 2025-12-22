@@ -42,7 +42,7 @@ erDiagram
         string BranchId
         string BranchName
         bool Locked
-        string LockedBy
+        bool CiEnabled
     }
 ```
 

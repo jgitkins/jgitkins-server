@@ -34,3 +34,4 @@ jgitkins:
       grpc-port: ${grpc.server.port:9090}
       poll-interval-ms: 5000
       busy-wait-interval-ms: 1000
+      volumn: ${user.home}

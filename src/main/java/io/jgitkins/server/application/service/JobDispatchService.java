@@ -4,15 +4,14 @@ import io.jgitkins.server.application.common.CloneUrlBuilder;
 import io.jgitkins.server.application.dto.JobDispatchMessage;
 import io.jgitkins.server.application.dto.PendingJob;
 import io.jgitkins.server.application.dto.RunnerAssignmentCandidate;
-import io.jgitkins.server.presentation.dto.RunnerJobFetchRequest;
 import io.jgitkins.server.application.port.in.JobDispatchUseCase;
-import io.jgitkins.server.application.port.out.JobDispatchEventPort;
 import io.jgitkins.server.application.port.out.JobQueuePort;
 import io.jgitkins.server.application.port.out.RunnerQueryPort;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.JobHistory;
 import io.jgitkins.server.domain.model.vo.RunnerId;
+import io.jgitkins.server.presentation.dto.RunnerJobFetchRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ import java.util.Optional;
 public class JobDispatchService implements JobDispatchUseCase {
 
     private final JobQueuePort jobQueuePort;
-    private final JobDispatchEventPort jobDispatchEventPort;
+//    private final JobDispatchEventPort jobDispatchEventPort;
     private final RunnerQueryPort runnerQueryPort;
     private final CloneUrlBuilder cloneUrlBuilder;
 

@@ -1,4 +1,4 @@
-package io.jgitkins.server.infrastructure.adapter.git;
+package io.jgitkins.server.infrastructure.support;
 
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.exception.ConflictException;
@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 @UtilityClass
-public class RepositoryLocalHelper {
+public class RepositoryFileSystemHelper {
 
     public void createRepositoryDir(File gitDir) {
         if (gitDir.exists()) {

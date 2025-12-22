@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Repository Management", description = "저장소 관리")
@@ -45,6 +47,12 @@ public class RepositoryManagementController {
     @GetMapping("/{repositoryId}")
     public ResponseEntity<ApiResponse<RepositoryResult>> getRepository(@PathVariable Long repositoryId) {
         return ResponseEntity.ok(ApiResponse.success(repositoryLoadUseCase.getRepository(repositoryId)));
+    }
+
+    @Operation(summary = "Get Repositories")
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<RepositoryResult>>> getRepositories() {
+        return ResponseEntity.ok(ApiResponse.success(repositoryLoadUseCase.getRepositories()));
     }
 
 //    @Operation(summary = "Update Repository Metadata")

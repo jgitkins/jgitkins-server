@@ -6,6 +6,7 @@ import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.RepositoryPath;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface RepositoryPersistencePort {
@@ -17,6 +18,8 @@ public interface RepositoryPersistencePort {
     void delete(RepositoryId id);
 
     Optional<Repository> findById(RepositoryId id);
+
+    List<Repository> findAll();
 
     Optional<Repository> findByOrganizeAndPath(OrganizeId organizeId, RepositoryPath path);
 

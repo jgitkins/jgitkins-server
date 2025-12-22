@@ -29,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -84,6 +86,15 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
                         "Repository not found: " + repositoryId));
         return repositoryApplicationMapper.toDto(repository);
     }
+    @Override
+    @Transactional(readOnly = true)
+    public List<RepositoryResult> getRepositories() {
+        return repositoryPersistencePort.findAll()
+                .stream()
+                .map(repository -> repositoryApplicationMapper.toDto(repository))
+                .toList();
+    }
+
 
 //    @Override
 //    @Transactional

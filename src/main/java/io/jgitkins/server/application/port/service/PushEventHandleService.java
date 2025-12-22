@@ -6,6 +6,7 @@ import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
 import io.jgitkins.server.application.port.in.JobCreationUseCase;
 import io.jgitkins.server.application.port.out.BranchPersistenceCommandPort;
 import io.jgitkins.server.application.port.out.RepositoryLoadPort;
+import io.jgitkins.server.domain.Branch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,7 +36,7 @@ public class PushEventHandleService implements PushEventHandleUseCase {
         Long repositoryId = repositoryIdOptional.get();
 
         if (command.isBranchCreated()) {
-            branchPersistenceCommandPort.create(repositoryId, command.getBranchName());
+            branchPersistenceCommandPort.create(Branch.create(repositoryId, command.getBranchName()));
         }
 
         if (command.getCommitHash() == null || command.getCommitHash().isBlank()) {
