@@ -50,6 +50,8 @@ public class GlobalExceptionHandler {
                  ORGANIZE_ALREADY_EXISTS,
                  RUNNER_ALREADY_ACTIVE -> HttpStatus.CONFLICT;
 
+            case REPOSITORY_DOES_NOT_INITIALIZED -> HttpStatus.UNPROCESSABLE_ENTITY;
+
             case INTERNAL_SERVER_ERROR,
                  REPOSITORY_CREATE_FAILED,
                  BRANCH_CREATE_FAILED,

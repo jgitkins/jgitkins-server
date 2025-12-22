@@ -2,11 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.jgitkins.server.infrastructure.persistence.mapper.OrganizeMemberEntityMbgMapper">
   <resultMap id="BaseResultMap" type="io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntity">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="organize_id" jdbcType="BIGINT" property="organizeId" />
-    <result column="user_id" jdbcType="BIGINT" property="userId" />
-    <result column="role" jdbcType="VARCHAR" property="role" />
-    <result column="joined_at" jdbcType="TIMESTAMP" property="joinedAt" />
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="ORGANIZE_ID" jdbcType="BIGINT" property="organizeId" />
+    <result column="USER_ID" jdbcType="BIGINT" property="userId" />
+    <result column="ROLE" jdbcType="VARCHAR" property="role" />
+    <result column="JOINED_AT" jdbcType="TIMESTAMP" property="joinedAt" />
   </resultMap>
   <sql id="Condition_Where_Clause">
     <where>
@@ -67,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, organize_id, user_id, role, joined_at
+    ID, ORGANIZE_ID, USER_ID, ROLE, JOINED_AT
   </sql>
   <select id="selectByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntityCondition" resultMap="BaseResultMap">
     select
@@ -87,11 +87,11 @@
     select 
     <include refid="Base_Column_List" />
     from ORGANIZE_MEMBER
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from ORGANIZE_MEMBER
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntityCondition">
     delete from ORGANIZE_MEMBER
@@ -99,26 +99,26 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntity" useGeneratedKeys="true">
-    insert into ORGANIZE_MEMBER (organize_id, user_id, role, 
-      joined_at)
+  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntity" useGeneratedKeys="true">
+    insert into ORGANIZE_MEMBER (ORGANIZE_ID, USER_ID, ROLE, 
+      JOINED_AT)
     values (#{organizeId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{role,jdbcType=VARCHAR}, 
       #{joinedAt,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntity" useGeneratedKeys="true">
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntity" useGeneratedKeys="true">
     insert into ORGANIZE_MEMBER
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="organizeId != null">
-        organize_id,
+        ORGANIZE_ID,
       </if>
       <if test="userId != null">
-        user_id,
+        USER_ID,
       </if>
       <if test="role != null">
-        role,
+        ROLE,
       </if>
       <if test="joinedAt != null">
-        joined_at,
+        JOINED_AT,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -146,19 +146,19 @@
     update ORGANIZE_MEMBER
     <set>
       <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
+        ID = #{row.id,jdbcType=BIGINT},
       </if>
       <if test="row.organizeId != null">
-        organize_id = #{row.organizeId,jdbcType=BIGINT},
+        ORGANIZE_ID = #{row.organizeId,jdbcType=BIGINT},
       </if>
       <if test="row.userId != null">
-        user_id = #{row.userId,jdbcType=BIGINT},
+        USER_ID = #{row.userId,jdbcType=BIGINT},
       </if>
       <if test="row.role != null">
-        role = #{row.role,jdbcType=VARCHAR},
+        ROLE = #{row.role,jdbcType=VARCHAR},
       </if>
       <if test="row.joinedAt != null">
-        joined_at = #{row.joinedAt,jdbcType=TIMESTAMP},
+        JOINED_AT = #{row.joinedAt,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="example != null">
@@ -167,11 +167,11 @@
   </update>
   <update id="updateByCondition" parameterType="map">
     update ORGANIZE_MEMBER
-    set id = #{row.id,jdbcType=BIGINT},
-      organize_id = #{row.organizeId,jdbcType=BIGINT},
-      user_id = #{row.userId,jdbcType=BIGINT},
-      role = #{row.role,jdbcType=VARCHAR},
-      joined_at = #{row.joinedAt,jdbcType=TIMESTAMP}
+    set ID = #{row.id,jdbcType=BIGINT},
+      ORGANIZE_ID = #{row.organizeId,jdbcType=BIGINT},
+      USER_ID = #{row.userId,jdbcType=BIGINT},
+      ROLE = #{row.role,jdbcType=VARCHAR},
+      JOINED_AT = #{row.joinedAt,jdbcType=TIMESTAMP}
     <if test="example != null">
       <include refid="Update_By_Condition_Where_Clause" />
     </if>
@@ -180,26 +180,26 @@
     update ORGANIZE_MEMBER
     <set>
       <if test="organizeId != null">
-        organize_id = #{organizeId,jdbcType=BIGINT},
+        ORGANIZE_ID = #{organizeId,jdbcType=BIGINT},
       </if>
       <if test="userId != null">
-        user_id = #{userId,jdbcType=BIGINT},
+        USER_ID = #{userId,jdbcType=BIGINT},
       </if>
       <if test="role != null">
-        role = #{role,jdbcType=VARCHAR},
+        ROLE = #{role,jdbcType=VARCHAR},
       </if>
       <if test="joinedAt != null">
-        joined_at = #{joinedAt,jdbcType=TIMESTAMP},
+        JOINED_AT = #{joinedAt,jdbcType=TIMESTAMP},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntity">
     update ORGANIZE_MEMBER
-    set organize_id = #{organizeId,jdbcType=BIGINT},
-      user_id = #{userId,jdbcType=BIGINT},
-      role = #{role,jdbcType=VARCHAR},
-      joined_at = #{joinedAt,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=BIGINT}
+    set ORGANIZE_ID = #{organizeId,jdbcType=BIGINT},
+      USER_ID = #{userId,jdbcType=BIGINT},
+      ROLE = #{role,jdbcType=VARCHAR},
+      JOINED_AT = #{joinedAt,jdbcType=TIMESTAMP}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

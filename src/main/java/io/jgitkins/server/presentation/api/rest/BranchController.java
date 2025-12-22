@@ -56,11 +56,10 @@ public class BranchController {
 
     @Operation(summary = "Delete branch")
     @DeleteMapping("/{branchName}")
-    public ResponseEntity<Void> deleteBranch(@PathVariable String organizeId,
-                                             @PathVariable String repositoryId,
+    public ResponseEntity<Void> deleteBranch(@PathVariable Long repositoryId,
                                              @PathVariable String branchName) throws IOException {
 
-        branchDeletetionUseCase.deleteBranch(organizeId, repositoryId, branchName);
+        branchDeletetionUseCase.deleteBranch(repositoryId, branchName);
         return ResponseEntity.noContent().build();
     }
 }

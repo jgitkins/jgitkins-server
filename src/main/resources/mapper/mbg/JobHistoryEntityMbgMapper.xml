@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.jgitkins.server.infrastructure.persistence.mapper.JobHistoryEntityMbgMapper">
   <resultMap id="BaseResultMap" type="io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntity">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="job_id" jdbcType="BIGINT" property="jobId" />
-    <result column="runner_id" jdbcType="BIGINT" property="runnerId" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="log_path" jdbcType="VARCHAR" property="logPath" />
-    <result column="started_at" jdbcType="TIMESTAMP" property="startedAt" />
-    <result column="finished_at" jdbcType="TIMESTAMP" property="finishedAt" />
-    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="JOB_ID" jdbcType="BIGINT" property="jobId" />
+    <result column="RUNNER_ID" jdbcType="BIGINT" property="runnerId" />
+    <result column="STATUS" jdbcType="VARCHAR" property="status" />
+    <result column="LOG_PATH" jdbcType="VARCHAR" property="logPath" />
+    <result column="STARTED_AT" jdbcType="TIMESTAMP" property="startedAt" />
+    <result column="FINISHED_AT" jdbcType="TIMESTAMP" property="finishedAt" />
+    <result column="CREATED_AT" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
   <sql id="Condition_Where_Clause">
     <where>
@@ -70,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, job_id, runner_id, status, log_path, started_at, finished_at, created_at
+    ID, JOB_ID, RUNNER_ID, STATUS, LOG_PATH, STARTED_AT, FINISHED_AT, CREATED_AT
   </sql>
   <select id="selectByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntityCondition" resultMap="BaseResultMap">
     select
@@ -90,11 +90,11 @@
     select 
     <include refid="Base_Column_List" />
     from JOB_HISTORY
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from JOB_HISTORY
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntityCondition">
     delete from JOB_HISTORY
@@ -102,37 +102,37 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntity" useGeneratedKeys="true">
-    insert into JOB_HISTORY (job_id, runner_id, status, 
-      log_path, started_at, finished_at, 
-      created_at)
+  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntity" useGeneratedKeys="true">
+    insert into JOB_HISTORY (JOB_ID, RUNNER_ID, STATUS, 
+      LOG_PATH, STARTED_AT, FINISHED_AT, 
+      CREATED_AT)
     values (#{jobId,jdbcType=BIGINT}, #{runnerId,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
       #{logPath,jdbcType=VARCHAR}, #{startedAt,jdbcType=TIMESTAMP}, #{finishedAt,jdbcType=TIMESTAMP}, 
       #{createdAt,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntity" useGeneratedKeys="true">
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntity" useGeneratedKeys="true">
     insert into JOB_HISTORY
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="jobId != null">
-        job_id,
+        JOB_ID,
       </if>
       <if test="runnerId != null">
-        runner_id,
+        RUNNER_ID,
       </if>
       <if test="status != null">
-        status,
+        STATUS,
       </if>
       <if test="logPath != null">
-        log_path,
+        LOG_PATH,
       </if>
       <if test="startedAt != null">
-        started_at,
+        STARTED_AT,
       </if>
       <if test="finishedAt != null">
-        finished_at,
+        FINISHED_AT,
       </if>
       <if test="createdAt != null">
-        created_at,
+        CREATED_AT,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -169,28 +169,28 @@
     update JOB_HISTORY
     <set>
       <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
+        ID = #{row.id,jdbcType=BIGINT},
       </if>
       <if test="row.jobId != null">
-        job_id = #{row.jobId,jdbcType=BIGINT},
+        JOB_ID = #{row.jobId,jdbcType=BIGINT},
       </if>
       <if test="row.runnerId != null">
-        runner_id = #{row.runnerId,jdbcType=BIGINT},
+        RUNNER_ID = #{row.runnerId,jdbcType=BIGINT},
       </if>
       <if test="row.status != null">
-        status = #{row.status,jdbcType=VARCHAR},
+        STATUS = #{row.status,jdbcType=VARCHAR},
       </if>
       <if test="row.logPath != null">
-        log_path = #{row.logPath,jdbcType=VARCHAR},
+        LOG_PATH = #{row.logPath,jdbcType=VARCHAR},
       </if>
       <if test="row.startedAt != null">
-        started_at = #{row.startedAt,jdbcType=TIMESTAMP},
+        STARTED_AT = #{row.startedAt,jdbcType=TIMESTAMP},
       </if>
       <if test="row.finishedAt != null">
-        finished_at = #{row.finishedAt,jdbcType=TIMESTAMP},
+        FINISHED_AT = #{row.finishedAt,jdbcType=TIMESTAMP},
       </if>
       <if test="row.createdAt != null">
-        created_at = #{row.createdAt,jdbcType=TIMESTAMP},
+        CREATED_AT = #{row.createdAt,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="example != null">
@@ -199,14 +199,14 @@
   </update>
   <update id="updateByCondition" parameterType="map">
     update JOB_HISTORY
-    set id = #{row.id,jdbcType=BIGINT},
-      job_id = #{row.jobId,jdbcType=BIGINT},
-      runner_id = #{row.runnerId,jdbcType=BIGINT},
-      status = #{row.status,jdbcType=VARCHAR},
-      log_path = #{row.logPath,jdbcType=VARCHAR},
-      started_at = #{row.startedAt,jdbcType=TIMESTAMP},
-      finished_at = #{row.finishedAt,jdbcType=TIMESTAMP},
-      created_at = #{row.createdAt,jdbcType=TIMESTAMP}
+    set ID = #{row.id,jdbcType=BIGINT},
+      JOB_ID = #{row.jobId,jdbcType=BIGINT},
+      RUNNER_ID = #{row.runnerId,jdbcType=BIGINT},
+      STATUS = #{row.status,jdbcType=VARCHAR},
+      LOG_PATH = #{row.logPath,jdbcType=VARCHAR},
+      STARTED_AT = #{row.startedAt,jdbcType=TIMESTAMP},
+      FINISHED_AT = #{row.finishedAt,jdbcType=TIMESTAMP},
+      CREATED_AT = #{row.createdAt,jdbcType=TIMESTAMP}
     <if test="example != null">
       <include refid="Update_By_Condition_Where_Clause" />
     </if>
@@ -215,38 +215,38 @@
     update JOB_HISTORY
     <set>
       <if test="jobId != null">
-        job_id = #{jobId,jdbcType=BIGINT},
+        JOB_ID = #{jobId,jdbcType=BIGINT},
       </if>
       <if test="runnerId != null">
-        runner_id = #{runnerId,jdbcType=BIGINT},
+        RUNNER_ID = #{runnerId,jdbcType=BIGINT},
       </if>
       <if test="status != null">
-        status = #{status,jdbcType=VARCHAR},
+        STATUS = #{status,jdbcType=VARCHAR},
       </if>
       <if test="logPath != null">
-        log_path = #{logPath,jdbcType=VARCHAR},
+        LOG_PATH = #{logPath,jdbcType=VARCHAR},
       </if>
       <if test="startedAt != null">
-        started_at = #{startedAt,jdbcType=TIMESTAMP},
+        STARTED_AT = #{startedAt,jdbcType=TIMESTAMP},
       </if>
       <if test="finishedAt != null">
-        finished_at = #{finishedAt,jdbcType=TIMESTAMP},
+        FINISHED_AT = #{finishedAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createdAt != null">
-        created_at = #{createdAt,jdbcType=TIMESTAMP},
+        CREATED_AT = #{createdAt,jdbcType=TIMESTAMP},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntity">
     update JOB_HISTORY
-    set job_id = #{jobId,jdbcType=BIGINT},
-      runner_id = #{runnerId,jdbcType=BIGINT},
-      status = #{status,jdbcType=VARCHAR},
-      log_path = #{logPath,jdbcType=VARCHAR},
-      started_at = #{startedAt,jdbcType=TIMESTAMP},
-      finished_at = #{finishedAt,jdbcType=TIMESTAMP},
-      created_at = #{createdAt,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=BIGINT}
+    set JOB_ID = #{jobId,jdbcType=BIGINT},
+      RUNNER_ID = #{runnerId,jdbcType=BIGINT},
+      STATUS = #{status,jdbcType=VARCHAR},
+      LOG_PATH = #{logPath,jdbcType=VARCHAR},
+      STARTED_AT = #{startedAt,jdbcType=TIMESTAMP},
+      FINISHED_AT = #{finishedAt,jdbcType=TIMESTAMP},
+      CREATED_AT = #{createdAt,jdbcType=TIMESTAMP}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

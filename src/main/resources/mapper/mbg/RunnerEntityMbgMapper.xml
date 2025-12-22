@@ -2,13 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.jgitkins.server.infrastructure.persistence.mapper.RunnerEntityMbgMapper">
   <resultMap id="BaseResultMap" type="io.jgitkins.server.infrastructure.persistence.model.RunnerEntity">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="token" jdbcType="VARCHAR" property="token" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="ip_address" jdbcType="VARCHAR" property="ipAddress" />
-    <result column="last_heartbeat_at" jdbcType="TIMESTAMP" property="lastHeartbeatAt" />
-    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="TOKEN" jdbcType="VARCHAR" property="token" />
+    <result column="DESCRIPTION" jdbcType="VARCHAR" property="description" />
+    <result column="STATUS" jdbcType="VARCHAR" property="status" />
+    <result column="IP_ADDRESS" jdbcType="VARCHAR" property="ipAddress" />
+    <result column="LAST_HEARTBEAT_AT" jdbcType="TIMESTAMP" property="lastHeartbeatAt" />
+    <result column="CREATED_AT" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
   <sql id="Condition_Where_Clause">
     <where>
@@ -69,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, token, description, status, ip_address, last_heartbeat_at, created_at
+    ID, TOKEN, DESCRIPTION, STATUS, IP_ADDRESS, LAST_HEARTBEAT_AT, CREATED_AT
   </sql>
   <select id="selectByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntityCondition" resultMap="BaseResultMap">
     select
@@ -89,11 +89,11 @@
     select 
     <include refid="Base_Column_List" />
     from runner
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from runner
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntityCondition">
     delete from runner
@@ -101,34 +101,34 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntity" useGeneratedKeys="true">
-    insert into runner (token, description, status, 
-      ip_address, last_heartbeat_at, created_at
+  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntity" useGeneratedKeys="true">
+    insert into runner (TOKEN, DESCRIPTION, STATUS, 
+      IP_ADDRESS, LAST_HEARTBEAT_AT, CREATED_AT
       )
     values (#{token,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{ipAddress,jdbcType=VARCHAR}, #{lastHeartbeatAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=TIMESTAMP}
       )
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntity" useGeneratedKeys="true">
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntity" useGeneratedKeys="true">
     insert into runner
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="token != null">
-        token,
+        TOKEN,
       </if>
       <if test="description != null">
-        description,
+        DESCRIPTION,
       </if>
       <if test="status != null">
-        status,
+        STATUS,
       </if>
       <if test="ipAddress != null">
-        ip_address,
+        IP_ADDRESS,
       </if>
       <if test="lastHeartbeatAt != null">
-        last_heartbeat_at,
+        LAST_HEARTBEAT_AT,
       </if>
       <if test="createdAt != null">
-        created_at,
+        CREATED_AT,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -162,25 +162,25 @@
     update runner
     <set>
       <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
+        ID = #{row.id,jdbcType=BIGINT},
       </if>
       <if test="row.token != null">
-        token = #{row.token,jdbcType=VARCHAR},
+        TOKEN = #{row.token,jdbcType=VARCHAR},
       </if>
       <if test="row.description != null">
-        description = #{row.description,jdbcType=VARCHAR},
+        DESCRIPTION = #{row.description,jdbcType=VARCHAR},
       </if>
       <if test="row.status != null">
-        status = #{row.status,jdbcType=VARCHAR},
+        STATUS = #{row.status,jdbcType=VARCHAR},
       </if>
       <if test="row.ipAddress != null">
-        ip_address = #{row.ipAddress,jdbcType=VARCHAR},
+        IP_ADDRESS = #{row.ipAddress,jdbcType=VARCHAR},
       </if>
       <if test="row.lastHeartbeatAt != null">
-        last_heartbeat_at = #{row.lastHeartbeatAt,jdbcType=TIMESTAMP},
+        LAST_HEARTBEAT_AT = #{row.lastHeartbeatAt,jdbcType=TIMESTAMP},
       </if>
       <if test="row.createdAt != null">
-        created_at = #{row.createdAt,jdbcType=TIMESTAMP},
+        CREATED_AT = #{row.createdAt,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="example != null">
@@ -189,13 +189,13 @@
   </update>
   <update id="updateByCondition" parameterType="map">
     update runner
-    set id = #{row.id,jdbcType=BIGINT},
-      token = #{row.token,jdbcType=VARCHAR},
-      description = #{row.description,jdbcType=VARCHAR},
-      status = #{row.status,jdbcType=VARCHAR},
-      ip_address = #{row.ipAddress,jdbcType=VARCHAR},
-      last_heartbeat_at = #{row.lastHeartbeatAt,jdbcType=TIMESTAMP},
-      created_at = #{row.createdAt,jdbcType=TIMESTAMP}
+    set ID = #{row.id,jdbcType=BIGINT},
+      TOKEN = #{row.token,jdbcType=VARCHAR},
+      DESCRIPTION = #{row.description,jdbcType=VARCHAR},
+      STATUS = #{row.status,jdbcType=VARCHAR},
+      IP_ADDRESS = #{row.ipAddress,jdbcType=VARCHAR},
+      LAST_HEARTBEAT_AT = #{row.lastHeartbeatAt,jdbcType=TIMESTAMP},
+      CREATED_AT = #{row.createdAt,jdbcType=TIMESTAMP}
     <if test="example != null">
       <include refid="Update_By_Condition_Where_Clause" />
     </if>
@@ -204,34 +204,34 @@
     update runner
     <set>
       <if test="token != null">
-        token = #{token,jdbcType=VARCHAR},
+        TOKEN = #{token,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
+        DESCRIPTION = #{description,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
-        status = #{status,jdbcType=VARCHAR},
+        STATUS = #{status,jdbcType=VARCHAR},
       </if>
       <if test="ipAddress != null">
-        ip_address = #{ipAddress,jdbcType=VARCHAR},
+        IP_ADDRESS = #{ipAddress,jdbcType=VARCHAR},
       </if>
       <if test="lastHeartbeatAt != null">
-        last_heartbeat_at = #{lastHeartbeatAt,jdbcType=TIMESTAMP},
+        LAST_HEARTBEAT_AT = #{lastHeartbeatAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createdAt != null">
-        created_at = #{createdAt,jdbcType=TIMESTAMP},
+        CREATED_AT = #{createdAt,jdbcType=TIMESTAMP},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntity">
     update runner
-    set token = #{token,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
-      status = #{status,jdbcType=VARCHAR},
-      ip_address = #{ipAddress,jdbcType=VARCHAR},
-      last_heartbeat_at = #{lastHeartbeatAt,jdbcType=TIMESTAMP},
-      created_at = #{createdAt,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=BIGINT}
+    set TOKEN = #{token,jdbcType=VARCHAR},
+      DESCRIPTION = #{description,jdbcType=VARCHAR},
+      STATUS = #{status,jdbcType=VARCHAR},
+      IP_ADDRESS = #{ipAddress,jdbcType=VARCHAR},
+      LAST_HEARTBEAT_AT = #{lastHeartbeatAt,jdbcType=TIMESTAMP},
+      CREATED_AT = #{createdAt,jdbcType=TIMESTAMP}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

@@ -13,6 +13,8 @@ public class BranchEntity {
 
     private Boolean isCi;
 
+    private Boolean isDefault;
+
     private Long lockedBy;
 
     private LocalDateTime lockedAt;
@@ -84,6 +86,19 @@ public class BranchEntity {
 
     public void setIsCi(Boolean isCi) {
         this.isCi = isCi;
+    }
+
+    public Boolean getIsDefault() {
+        return isDefault;
+    }
+
+    public BranchEntity withIsDefault(Boolean isDefault) {
+        this.setIsDefault(isDefault);
+        return this;
+    }
+
+    public void setIsDefault(Boolean isDefault) {
+        this.isDefault = isDefault;
     }
 
     public Long getLockedBy() {

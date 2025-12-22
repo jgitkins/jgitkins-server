@@ -19,4 +19,5 @@ public class BranchSearchResult {
     private String name;
     private boolean locked;
     private boolean ciEnabled;
+    private boolean defaultBranch;
 }

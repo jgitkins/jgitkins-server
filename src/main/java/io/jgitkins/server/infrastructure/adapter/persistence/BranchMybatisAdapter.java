@@ -27,8 +27,12 @@ public class BranchMybatisAdapter implements BranchPersistenceCommandPort, Branc
     }
 
     @Override
-    public void delete(Long id) {
-        branchEntityMbgMapper.deleteByPrimaryKey(id);
+    public void delete(Long repositoryId, String branchName) {
+        BranchEntityCondition condition = new BranchEntityCondition();
+        condition.createCriteria()
+                .andRepositoryIdEqualTo(repositoryId)
+                .andNameEqualTo(branchName);
+        branchEntityMbgMapper.deleteByCondition(condition);
     }
 
 

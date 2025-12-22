@@ -106,312 +106,312 @@ public class OrganizeMemberEntityCondition {
         }
 
         public Criteria andIdIsNull() {
-            addCriterion("id is null");
+            addCriterion("ID is null");
             return (Criteria) this;
         }
 
         public Criteria andIdIsNotNull() {
-            addCriterion("id is not null");
+            addCriterion("ID is not null");
             return (Criteria) this;
         }
 
         public Criteria andIdEqualTo(Long value) {
-            addCriterion("id =", value, "id");
+            addCriterion("ID =", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotEqualTo(Long value) {
-            addCriterion("id <>", value, "id");
+            addCriterion("ID <>", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdGreaterThan(Long value) {
-            addCriterion("id >", value, "id");
+            addCriterion("ID >", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdGreaterThanOrEqualTo(Long value) {
-            addCriterion("id >=", value, "id");
+            addCriterion("ID >=", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdLessThan(Long value) {
-            addCriterion("id <", value, "id");
+            addCriterion("ID <", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdLessThanOrEqualTo(Long value) {
-            addCriterion("id <=", value, "id");
+            addCriterion("ID <=", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdIn(List<Long> values) {
-            addCriterion("id in", values, "id");
+            addCriterion("ID in", values, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotIn(List<Long> values) {
-            addCriterion("id not in", values, "id");
+            addCriterion("ID not in", values, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdBetween(Long value1, Long value2) {
-            addCriterion("id between", value1, value2, "id");
+            addCriterion("ID between", value1, value2, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotBetween(Long value1, Long value2) {
-            addCriterion("id not between", value1, value2, "id");
+            addCriterion("ID not between", value1, value2, "id");
             return (Criteria) this;
         }
 
         public Criteria andOrganizeIdIsNull() {
-            addCriterion("organize_id is null");
+            addCriterion("ORGANIZE_ID is null");
             return (Criteria) this;
         }
 
         public Criteria andOrganizeIdIsNotNull() {
-            addCriterion("organize_id is not null");
+            addCriterion("ORGANIZE_ID is not null");
             return (Criteria) this;
         }
 
         public Criteria andOrganizeIdEqualTo(Long value) {
-            addCriterion("organize_id =", value, "organizeId");
+            addCriterion("ORGANIZE_ID =", value, "organizeId");
             return (Criteria) this;
         }
 
         public Criteria andOrganizeIdNotEqualTo(Long value) {
-            addCriterion("organize_id <>", value, "organizeId");
+            addCriterion("ORGANIZE_ID <>", value, "organizeId");
             return (Criteria) this;
         }
 
         public Criteria andOrganizeIdGreaterThan(Long value) {
-            addCriterion("organize_id >", value, "organizeId");
+            addCriterion("ORGANIZE_ID >", value, "organizeId");
             return (Criteria) this;
         }
 
         public Criteria andOrganizeIdGreaterThanOrEqualTo(Long value) {
-            addCriterion("organize_id >=", value, "organizeId");
+            addCriterion("ORGANIZE_ID >=", value, "organizeId");
             return (Criteria) this;
         }
 
         public Criteria andOrganizeIdLessThan(Long value) {
-            addCriterion("organize_id <", value, "organizeId");
+            addCriterion("ORGANIZE_ID <", value, "organizeId");
             return (Criteria) this;
         }
 
         public Criteria andOrganizeIdLessThanOrEqualTo(Long value) {
-            addCriterion("organize_id <=", value, "organizeId");
+            addCriterion("ORGANIZE_ID <=", value, "organizeId");
             return (Criteria) this;
         }
 
         public Criteria andOrganizeIdIn(List<Long> values) {
-            addCriterion("organize_id in", values, "organizeId");
+            addCriterion("ORGANIZE_ID in", values, "organizeId");
             return (Criteria) this;
         }
 
         public Criteria andOrganizeIdNotIn(List<Long> values) {
-            addCriterion("organize_id not in", values, "organizeId");
+            addCriterion("ORGANIZE_ID not in", values, "organizeId");
             return (Criteria) this;
         }
 
         public Criteria andOrganizeIdBetween(Long value1, Long value2) {
-            addCriterion("organize_id between", value1, value2, "organizeId");
+            addCriterion("ORGANIZE_ID between", value1, value2, "organizeId");
             return (Criteria) this;
         }
 
         public Criteria andOrganizeIdNotBetween(Long value1, Long value2) {
-            addCriterion("organize_id not between", value1, value2, "organizeId");
+            addCriterion("ORGANIZE_ID not between", value1, value2, "organizeId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIsNull() {
-            addCriterion("user_id is null");
+            addCriterion("USER_ID is null");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIsNotNull() {
-            addCriterion("user_id is not null");
+            addCriterion("USER_ID is not null");
             return (Criteria) this;
         }
 
         public Criteria andUserIdEqualTo(Long value) {
-            addCriterion("user_id =", value, "userId");
+            addCriterion("USER_ID =", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotEqualTo(Long value) {
-            addCriterion("user_id <>", value, "userId");
+            addCriterion("USER_ID <>", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdGreaterThan(Long value) {
-            addCriterion("user_id >", value, "userId");
+            addCriterion("USER_ID >", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdGreaterThanOrEqualTo(Long value) {
-            addCriterion("user_id >=", value, "userId");
+            addCriterion("USER_ID >=", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLessThan(Long value) {
-            addCriterion("user_id <", value, "userId");
+            addCriterion("USER_ID <", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLessThanOrEqualTo(Long value) {
-            addCriterion("user_id <=", value, "userId");
+            addCriterion("USER_ID <=", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIn(List<Long> values) {
-            addCriterion("user_id in", values, "userId");
+            addCriterion("USER_ID in", values, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotIn(List<Long> values) {
-            addCriterion("user_id not in", values, "userId");
+            addCriterion("USER_ID not in", values, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdBetween(Long value1, Long value2) {
-            addCriterion("user_id between", value1, value2, "userId");
+            addCriterion("USER_ID between", value1, value2, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotBetween(Long value1, Long value2) {
-            addCriterion("user_id not between", value1, value2, "userId");
+            addCriterion("USER_ID not between", value1, value2, "userId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIsNull() {
-            addCriterion("role is null");
+            addCriterion("ROLE is null");
             return (Criteria) this;
         }
 
         public Criteria andRoleIsNotNull() {
-            addCriterion("role is not null");
+            addCriterion("ROLE is not null");
             return (Criteria) this;
         }
 
         public Criteria andRoleEqualTo(String value) {
-            addCriterion("role =", value, "role");
+            addCriterion("ROLE =", value, "role");
             return (Criteria) this;
         }
 
         public Criteria andRoleNotEqualTo(String value) {
-            addCriterion("role <>", value, "role");
+            addCriterion("ROLE <>", value, "role");
             return (Criteria) this;
         }
 
         public Criteria andRoleGreaterThan(String value) {
-            addCriterion("role >", value, "role");
+            addCriterion("ROLE >", value, "role");
             return (Criteria) this;
         }
 
         public Criteria andRoleGreaterThanOrEqualTo(String value) {
-            addCriterion("role >=", value, "role");
+            addCriterion("ROLE >=", value, "role");
             return (Criteria) this;
         }
 
         public Criteria andRoleLessThan(String value) {
-            addCriterion("role <", value, "role");
+            addCriterion("ROLE <", value, "role");
             return (Criteria) this;
         }
 
         public Criteria andRoleLessThanOrEqualTo(String value) {
-            addCriterion("role <=", value, "role");
+            addCriterion("ROLE <=", value, "role");
             return (Criteria) this;
         }
 
         public Criteria andRoleLike(String value) {
-            addCriterion("role like", value, "role");
+            addCriterion("ROLE like", value, "role");
             return (Criteria) this;
         }
 
         public Criteria andRoleNotLike(String value) {
-            addCriterion("role not like", value, "role");
+            addCriterion("ROLE not like", value, "role");
             return (Criteria) this;
         }
 
         public Criteria andRoleIn(List<String> values) {
-            addCriterion("role in", values, "role");
+            addCriterion("ROLE in", values, "role");
             return (Criteria) this;
         }
 
         public Criteria andRoleNotIn(List<String> values) {
-            addCriterion("role not in", values, "role");
+            addCriterion("ROLE not in", values, "role");
             return (Criteria) this;
         }
 
         public Criteria andRoleBetween(String value1, String value2) {
-            addCriterion("role between", value1, value2, "role");
+            addCriterion("ROLE between", value1, value2, "role");
             return (Criteria) this;
         }
 
         public Criteria andRoleNotBetween(String value1, String value2) {
-            addCriterion("role not between", value1, value2, "role");
+            addCriterion("ROLE not between", value1, value2, "role");
             return (Criteria) this;
         }
 
         public Criteria andJoinedAtIsNull() {
-            addCriterion("joined_at is null");
+            addCriterion("JOINED_AT is null");
             return (Criteria) this;
         }
 
         public Criteria andJoinedAtIsNotNull() {
-            addCriterion("joined_at is not null");
+            addCriterion("JOINED_AT is not null");
             return (Criteria) this;
         }
 
         public Criteria andJoinedAtEqualTo(LocalDateTime value) {
-            addCriterion("joined_at =", value, "joinedAt");
+            addCriterion("JOINED_AT =", value, "joinedAt");
             return (Criteria) this;
         }
 
         public Criteria andJoinedAtNotEqualTo(LocalDateTime value) {
-            addCriterion("joined_at <>", value, "joinedAt");
+            addCriterion("JOINED_AT <>", value, "joinedAt");
             return (Criteria) this;
         }
 
         public Criteria andJoinedAtGreaterThan(LocalDateTime value) {
-            addCriterion("joined_at >", value, "joinedAt");
+            addCriterion("JOINED_AT >", value, "joinedAt");
             return (Criteria) this;
         }
 
         public Criteria andJoinedAtGreaterThanOrEqualTo(LocalDateTime value) {
-            addCriterion("joined_at >=", value, "joinedAt");
+            addCriterion("JOINED_AT >=", value, "joinedAt");
             return (Criteria) this;
         }
 
         public Criteria andJoinedAtLessThan(LocalDateTime value) {
-            addCriterion("joined_at <", value, "joinedAt");
+            addCriterion("JOINED_AT <", value, "joinedAt");
             return (Criteria) this;
         }
 
         public Criteria andJoinedAtLessThanOrEqualTo(LocalDateTime value) {
-            addCriterion("joined_at <=", value, "joinedAt");
+            addCriterion("JOINED_AT <=", value, "joinedAt");
             return (Criteria) this;
         }
 
         public Criteria andJoinedAtIn(List<LocalDateTime> values) {
-            addCriterion("joined_at in", values, "joinedAt");
+            addCriterion("JOINED_AT in", values, "joinedAt");
             return (Criteria) this;
         }
 
         public Criteria andJoinedAtNotIn(List<LocalDateTime> values) {
-            addCriterion("joined_at not in", values, "joinedAt");
+            addCriterion("JOINED_AT not in", values, "joinedAt");
             return (Criteria) this;
         }
 
         public Criteria andJoinedAtBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("joined_at between", value1, value2, "joinedAt");
+            addCriterion("JOINED_AT between", value1, value2, "joinedAt");
             return (Criteria) this;
         }
 
         public Criteria andJoinedAtNotBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("joined_at not between", value1, value2, "joinedAt");
+            addCriterion("JOINED_AT not between", value1, value2, "joinedAt");
             return (Criteria) this;
         }
     }

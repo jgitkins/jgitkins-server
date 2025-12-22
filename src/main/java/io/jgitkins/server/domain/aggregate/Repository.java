@@ -34,6 +34,7 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
     private final String clonePath;
     private final LocalDateTime lastSyncedAt;
     private final boolean requiresInitialContent;
+    private final boolean initialized;
 
     private Repository(RepositoryId id,
                        OrganizeId organizeId,
@@ -48,7 +49,8 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                        String credentialId,
                        String clonePath,
                        LocalDateTime lastSyncedAt,
-                       boolean requiresInitialContent) {
+                       boolean requiresInitialContent,
+                       boolean initialized) {
         this.id = id;
         this.organizeId = organizeId;
         this.name = name;
@@ -63,6 +65,7 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
         this.clonePath = clonePath;
         this.lastSyncedAt = lastSyncedAt;
         this.requiresInitialContent = requiresInitialContent;
+        this.initialized = initialized;
     }
 
     public static Repository create(OrganizeId organizeId,
@@ -93,7 +96,8 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                 credentialId,
                 clonePath,
                 null,
-                initialCommitOptions.requiresInitialContent()
+                initialCommitOptions.requiresInitialContent(),
+                false
         );
         repository.registerEvent(RepositoryProvisionedEvent.from(repository, initialCommitOptions));
         return repository;
@@ -115,7 +119,8 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                                                credentialId,
                                                clonePath,
                                                lastSyncedAt,
-                                               requiresInitialContent);
+                                               requiresInitialContent,
+                                               initialized);
         identified.copyDomainEventsFrom(this);
         return identified;
     }
@@ -135,7 +140,8 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                                            credentialId,
                                            clonePath,
                                            effectiveSyncedAt,
-                                           false
+                                           false,
+                                           true
         );
         marked.copyDomainEventsFrom(this);
         marked.registerEvent(RepositorySynchronizedEvent.from(marked));
@@ -169,6 +175,7 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                               credentialId,
                               clonePath,
                               lastSyncedAt,
-                              lastSyncedAt == null);
+                              lastSyncedAt == null,
+                              lastSyncedAt != null);
     }
 }

@@ -7,6 +7,7 @@
     <result column="NAME" jdbcType="VARCHAR" property="name" />
     <result column="IS_LOCKED" jdbcType="BOOLEAN" property="isLocked" />
     <result column="IS_CI" jdbcType="BOOLEAN" property="isCi" />
+    <result column="IS_DEFAULT" jdbcType="BOOLEAN" property="isDefault" />
     <result column="LOCKED_BY" jdbcType="BIGINT" property="lockedBy" />
     <result column="LOCKED_AT" jdbcType="TIMESTAMP" property="lockedAt" />
     <result column="CREATED_AT" jdbcType="TIMESTAMP" property="createdAt" />
@@ -71,7 +72,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    ID, REPOSITORY_ID, NAME, IS_LOCKED, IS_CI, LOCKED_BY, LOCKED_AT, CREATED_AT, UPDATED_AT
+    ID, REPOSITORY_ID, NAME, IS_LOCKED, IS_CI, IS_DEFAULT, LOCKED_BY, LOCKED_AT, CREATED_AT, 
+    UPDATED_AT
   </sql>
   <select id="selectByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntityCondition" resultMap="BaseResultMap">
     select
@@ -105,11 +107,13 @@
   </delete>
   <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity" useGeneratedKeys="true">
     insert into branch (REPOSITORY_ID, NAME, IS_LOCKED, 
-      IS_CI, LOCKED_BY, LOCKED_AT, 
-      CREATED_AT, UPDATED_AT)
+      IS_CI, IS_DEFAULT, LOCKED_BY, 
+      LOCKED_AT, CREATED_AT, UPDATED_AT
+      )
     values (#{repositoryId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{isLocked,jdbcType=BOOLEAN}, 
-      #{isCi,jdbcType=BOOLEAN}, #{lockedBy,jdbcType=BIGINT}, #{lockedAt,jdbcType=TIMESTAMP}, 
-      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
+      #{isCi,jdbcType=BOOLEAN}, #{isDefault,jdbcType=BOOLEAN}, #{lockedBy,jdbcType=BIGINT}, 
+      #{lockedAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}
+      )
   </insert>
   <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity" useGeneratedKeys="true">
     insert into branch
@@ -125,6 +129,9 @@
       </if>
       <if test="isCi != null">
         IS_CI,
+      </if>
+      <if test="isDefault != null">
+        IS_DEFAULT,
       </if>
       <if test="lockedBy != null">
         LOCKED_BY,
@@ -151,6 +158,9 @@
       </if>
       <if test="isCi != null">
         #{isCi,jdbcType=BOOLEAN},
+      </if>
+      <if test="isDefault != null">
+        #{isDefault,jdbcType=BOOLEAN},
       </if>
       <if test="lockedBy != null">
         #{lockedBy,jdbcType=BIGINT},
@@ -190,6 +200,9 @@
       <if test="row.isCi != null">
         IS_CI = #{row.isCi,jdbcType=BOOLEAN},
       </if>
+      <if test="row.isDefault != null">
+        IS_DEFAULT = #{row.isDefault,jdbcType=BOOLEAN},
+      </if>
       <if test="row.lockedBy != null">
         LOCKED_BY = #{row.lockedBy,jdbcType=BIGINT},
       </if>
@@ -214,6 +227,7 @@
       NAME = #{row.name,jdbcType=VARCHAR},
       IS_LOCKED = #{row.isLocked,jdbcType=BOOLEAN},
       IS_CI = #{row.isCi,jdbcType=BOOLEAN},
+      IS_DEFAULT = #{row.isDefault,jdbcType=BOOLEAN},
       LOCKED_BY = #{row.lockedBy,jdbcType=BIGINT},
       LOCKED_AT = #{row.lockedAt,jdbcType=TIMESTAMP},
       CREATED_AT = #{row.createdAt,jdbcType=TIMESTAMP},
@@ -237,6 +251,9 @@
       <if test="isCi != null">
         IS_CI = #{isCi,jdbcType=BOOLEAN},
       </if>
+      <if test="isDefault != null">
+        IS_DEFAULT = #{isDefault,jdbcType=BOOLEAN},
+      </if>
       <if test="lockedBy != null">
         LOCKED_BY = #{lockedBy,jdbcType=BIGINT},
       </if>
@@ -258,6 +275,7 @@
       NAME = #{name,jdbcType=VARCHAR},
       IS_LOCKED = #{isLocked,jdbcType=BOOLEAN},
       IS_CI = #{isCi,jdbcType=BOOLEAN},
+      IS_DEFAULT = #{isDefault,jdbcType=BOOLEAN},
       LOCKED_BY = #{lockedBy,jdbcType=BIGINT},
       LOCKED_AT = #{lockedAt,jdbcType=TIMESTAMP},
       CREATED_AT = #{createdAt,jdbcType=TIMESTAMP},

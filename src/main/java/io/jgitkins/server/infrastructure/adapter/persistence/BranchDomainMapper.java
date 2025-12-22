@@ -14,6 +14,7 @@ public interface BranchDomainMapper {
     // 도메인 모델 -> 영속성 모델 변환
     @Mapping(target = "isLocked", source = "locked")
     @Mapping(target = "isCi", source = "ciEnabled")
+    @Mapping(target = "isDefault", source = "defaultBranch")
     BranchEntity toEntity(Branch branch);
 
     // 영속성 모델 -> 도메인 모델 변환
@@ -25,7 +26,8 @@ public interface BranchDomainMapper {
                 branchEntity.getRepositoryId(),
                 branchEntity.getName(),
                 Boolean.TRUE.equals(branchEntity.getIsLocked()),
-                Boolean.TRUE.equals(branchEntity.getIsCi())
+                Boolean.TRUE.equals(branchEntity.getIsCi()),
+                Boolean.TRUE.equals(branchEntity.getIsDefault())
         );
     }
 }

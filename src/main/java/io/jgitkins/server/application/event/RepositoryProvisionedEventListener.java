@@ -50,6 +50,7 @@ public class RepositoryProvisionedEventListener {
         Branch defaultBranch = Branch.create(repository.getId().getValue(),
                                              branchName,
                                              false,
+                                             true,
                                              true);
         branchPersistenceCommandPort.create(defaultBranch);
 

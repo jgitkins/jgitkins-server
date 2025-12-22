@@ -2,11 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.jgitkins.server.infrastructure.persistence.mapper.RepositoryMemberEntityMbgMapper">
   <resultMap id="BaseResultMap" type="io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntity">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="repository_id" jdbcType="BIGINT" property="repositoryId" />
-    <result column="user_id" jdbcType="BIGINT" property="userId" />
-    <result column="role" jdbcType="VARCHAR" property="role" />
-    <result column="added_at" jdbcType="TIMESTAMP" property="addedAt" />
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="REPOSITORY_ID" jdbcType="BIGINT" property="repositoryId" />
+    <result column="USER_ID" jdbcType="BIGINT" property="userId" />
+    <result column="ROLE" jdbcType="VARCHAR" property="role" />
+    <result column="ADDED_AT" jdbcType="TIMESTAMP" property="addedAt" />
   </resultMap>
   <sql id="Condition_Where_Clause">
     <where>
@@ -67,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, repository_id, user_id, role, added_at
+    ID, REPOSITORY_ID, USER_ID, ROLE, ADDED_AT
   </sql>
   <select id="selectByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntityCondition" resultMap="BaseResultMap">
     select
@@ -87,11 +87,11 @@
     select 
     <include refid="Base_Column_List" />
     from REPOSITORY_MEMBER
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from REPOSITORY_MEMBER
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntityCondition">
     delete from REPOSITORY_MEMBER
@@ -99,26 +99,26 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntity" useGeneratedKeys="true">
-    insert into REPOSITORY_MEMBER (repository_id, user_id, role, 
-      added_at)
+  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntity" useGeneratedKeys="true">
+    insert into REPOSITORY_MEMBER (REPOSITORY_ID, USER_ID, ROLE, 
+      ADDED_AT)
     values (#{repositoryId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{role,jdbcType=VARCHAR}, 
       #{addedAt,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntity" useGeneratedKeys="true">
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntity" useGeneratedKeys="true">
     insert into REPOSITORY_MEMBER
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="repositoryId != null">
-        repository_id,
+        REPOSITORY_ID,
       </if>
       <if test="userId != null">
-        user_id,
+        USER_ID,
       </if>
       <if test="role != null">
-        role,
+        ROLE,
       </if>
       <if test="addedAt != null">
-        added_at,
+        ADDED_AT,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -146,19 +146,19 @@
     update REPOSITORY_MEMBER
     <set>
       <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
+        ID = #{row.id,jdbcType=BIGINT},
       </if>
       <if test="row.repositoryId != null">
-        repository_id = #{row.repositoryId,jdbcType=BIGINT},
+        REPOSITORY_ID = #{row.repositoryId,jdbcType=BIGINT},
       </if>
       <if test="row.userId != null">
-        user_id = #{row.userId,jdbcType=BIGINT},
+        USER_ID = #{row.userId,jdbcType=BIGINT},
       </if>
       <if test="row.role != null">
-        role = #{row.role,jdbcType=VARCHAR},
+        ROLE = #{row.role,jdbcType=VARCHAR},
       </if>
       <if test="row.addedAt != null">
-        added_at = #{row.addedAt,jdbcType=TIMESTAMP},
+        ADDED_AT = #{row.addedAt,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="example != null">
@@ -167,11 +167,11 @@
   </update>
   <update id="updateByCondition" parameterType="map">
     update REPOSITORY_MEMBER
-    set id = #{row.id,jdbcType=BIGINT},
-      repository_id = #{row.repositoryId,jdbcType=BIGINT},
-      user_id = #{row.userId,jdbcType=BIGINT},
-      role = #{row.role,jdbcType=VARCHAR},
-      added_at = #{row.addedAt,jdbcType=TIMESTAMP}
+    set ID = #{row.id,jdbcType=BIGINT},
+      REPOSITORY_ID = #{row.repositoryId,jdbcType=BIGINT},
+      USER_ID = #{row.userId,jdbcType=BIGINT},
+      ROLE = #{row.role,jdbcType=VARCHAR},
+      ADDED_AT = #{row.addedAt,jdbcType=TIMESTAMP}
     <if test="example != null">
       <include refid="Update_By_Condition_Where_Clause" />
     </if>
@@ -180,26 +180,26 @@
     update REPOSITORY_MEMBER
     <set>
       <if test="repositoryId != null">
-        repository_id = #{repositoryId,jdbcType=BIGINT},
+        REPOSITORY_ID = #{repositoryId,jdbcType=BIGINT},
       </if>
       <if test="userId != null">
-        user_id = #{userId,jdbcType=BIGINT},
+        USER_ID = #{userId,jdbcType=BIGINT},
       </if>
       <if test="role != null">
-        role = #{role,jdbcType=VARCHAR},
+        ROLE = #{role,jdbcType=VARCHAR},
       </if>
       <if test="addedAt != null">
-        added_at = #{addedAt,jdbcType=TIMESTAMP},
+        ADDED_AT = #{addedAt,jdbcType=TIMESTAMP},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntity">
     update REPOSITORY_MEMBER
-    set repository_id = #{repositoryId,jdbcType=BIGINT},
-      user_id = #{userId,jdbcType=BIGINT},
-      role = #{role,jdbcType=VARCHAR},
-      added_at = #{addedAt,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=BIGINT}
+    set REPOSITORY_ID = #{repositoryId,jdbcType=BIGINT},
+      USER_ID = #{userId,jdbcType=BIGINT},
+      ROLE = #{role,jdbcType=VARCHAR},
+      ADDED_AT = #{addedAt,jdbcType=TIMESTAMP}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

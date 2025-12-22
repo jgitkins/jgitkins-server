@@ -2,12 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.jgitkins.server.infrastructure.persistence.mapper.JobEntityMbgMapper">
   <resultMap id="BaseResultMap" type="io.jgitkins.server.infrastructure.persistence.model.JobEntity">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="repository_id" jdbcType="BIGINT" property="repositoryId" />
-    <result column="commit_hash" jdbcType="VARCHAR" property="commitHash" />
-    <result column="branch_name" jdbcType="VARCHAR" property="branchName" />
-    <result column="triggered_by" jdbcType="BIGINT" property="triggeredBy" />
-    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="REPOSITORY_ID" jdbcType="BIGINT" property="repositoryId" />
+    <result column="COMMIT_HASH" jdbcType="VARCHAR" property="commitHash" />
+    <result column="BRANCH_NAME" jdbcType="VARCHAR" property="branchName" />
+    <result column="TRIGGERED_BY" jdbcType="BIGINT" property="triggeredBy" />
+    <result column="CREATED_AT" jdbcType="TIMESTAMP" property="createdAt" />
   </resultMap>
   <sql id="Condition_Where_Clause">
     <where>
@@ -68,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, repository_id, commit_hash, branch_name, triggered_by, created_at
+    ID, REPOSITORY_ID, COMMIT_HASH, BRANCH_NAME, TRIGGERED_BY, CREATED_AT
   </sql>
   <select id="selectByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntityCondition" resultMap="BaseResultMap">
     select
@@ -88,11 +88,11 @@
     select 
     <include refid="Base_Column_List" />
     from job
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from job
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntityCondition">
     delete from job
@@ -100,29 +100,29 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity" useGeneratedKeys="true">
-    insert into job (repository_id, commit_hash, branch_name, 
-      triggered_by, created_at)
+  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity" useGeneratedKeys="true">
+    insert into job (REPOSITORY_ID, COMMIT_HASH, BRANCH_NAME, 
+      TRIGGERED_BY, CREATED_AT)
     values (#{repositoryId,jdbcType=BIGINT}, #{commitHash,jdbcType=VARCHAR}, #{branchName,jdbcType=VARCHAR}, 
       #{triggeredBy,jdbcType=BIGINT}, #{createdAt,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity" useGeneratedKeys="true">
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity" useGeneratedKeys="true">
     insert into job
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="repositoryId != null">
-        repository_id,
+        REPOSITORY_ID,
       </if>
       <if test="commitHash != null">
-        commit_hash,
+        COMMIT_HASH,
       </if>
       <if test="branchName != null">
-        branch_name,
+        BRANCH_NAME,
       </if>
       <if test="triggeredBy != null">
-        triggered_by,
+        TRIGGERED_BY,
       </if>
       <if test="createdAt != null">
-        created_at,
+        CREATED_AT,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -153,22 +153,22 @@
     update job
     <set>
       <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
+        ID = #{row.id,jdbcType=BIGINT},
       </if>
       <if test="row.repositoryId != null">
-        repository_id = #{row.repositoryId,jdbcType=BIGINT},
+        REPOSITORY_ID = #{row.repositoryId,jdbcType=BIGINT},
       </if>
       <if test="row.commitHash != null">
-        commit_hash = #{row.commitHash,jdbcType=VARCHAR},
+        COMMIT_HASH = #{row.commitHash,jdbcType=VARCHAR},
       </if>
       <if test="row.branchName != null">
-        branch_name = #{row.branchName,jdbcType=VARCHAR},
+        BRANCH_NAME = #{row.branchName,jdbcType=VARCHAR},
       </if>
       <if test="row.triggeredBy != null">
-        triggered_by = #{row.triggeredBy,jdbcType=BIGINT},
+        TRIGGERED_BY = #{row.triggeredBy,jdbcType=BIGINT},
       </if>
       <if test="row.createdAt != null">
-        created_at = #{row.createdAt,jdbcType=TIMESTAMP},
+        CREATED_AT = #{row.createdAt,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="example != null">
@@ -177,12 +177,12 @@
   </update>
   <update id="updateByCondition" parameterType="map">
     update job
-    set id = #{row.id,jdbcType=BIGINT},
-      repository_id = #{row.repositoryId,jdbcType=BIGINT},
-      commit_hash = #{row.commitHash,jdbcType=VARCHAR},
-      branch_name = #{row.branchName,jdbcType=VARCHAR},
-      triggered_by = #{row.triggeredBy,jdbcType=BIGINT},
-      created_at = #{row.createdAt,jdbcType=TIMESTAMP}
+    set ID = #{row.id,jdbcType=BIGINT},
+      REPOSITORY_ID = #{row.repositoryId,jdbcType=BIGINT},
+      COMMIT_HASH = #{row.commitHash,jdbcType=VARCHAR},
+      BRANCH_NAME = #{row.branchName,jdbcType=VARCHAR},
+      TRIGGERED_BY = #{row.triggeredBy,jdbcType=BIGINT},
+      CREATED_AT = #{row.createdAt,jdbcType=TIMESTAMP}
     <if test="example != null">
       <include refid="Update_By_Condition_Where_Clause" />
     </if>
@@ -191,30 +191,30 @@
     update job
     <set>
       <if test="repositoryId != null">
-        repository_id = #{repositoryId,jdbcType=BIGINT},
+        REPOSITORY_ID = #{repositoryId,jdbcType=BIGINT},
       </if>
       <if test="commitHash != null">
-        commit_hash = #{commitHash,jdbcType=VARCHAR},
+        COMMIT_HASH = #{commitHash,jdbcType=VARCHAR},
       </if>
       <if test="branchName != null">
-        branch_name = #{branchName,jdbcType=VARCHAR},
+        BRANCH_NAME = #{branchName,jdbcType=VARCHAR},
       </if>
       <if test="triggeredBy != null">
-        triggered_by = #{triggeredBy,jdbcType=BIGINT},
+        TRIGGERED_BY = #{triggeredBy,jdbcType=BIGINT},
       </if>
       <if test="createdAt != null">
-        created_at = #{createdAt,jdbcType=TIMESTAMP},
+        CREATED_AT = #{createdAt,jdbcType=TIMESTAMP},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity">
     update job
-    set repository_id = #{repositoryId,jdbcType=BIGINT},
-      commit_hash = #{commitHash,jdbcType=VARCHAR},
-      branch_name = #{branchName,jdbcType=VARCHAR},
-      triggered_by = #{triggeredBy,jdbcType=BIGINT},
-      created_at = #{createdAt,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=BIGINT}
+    set REPOSITORY_ID = #{repositoryId,jdbcType=BIGINT},
+      COMMIT_HASH = #{commitHash,jdbcType=VARCHAR},
+      BRANCH_NAME = #{branchName,jdbcType=VARCHAR},
+      TRIGGERED_BY = #{triggeredBy,jdbcType=BIGINT},
+      CREATED_AT = #{createdAt,jdbcType=TIMESTAMP}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

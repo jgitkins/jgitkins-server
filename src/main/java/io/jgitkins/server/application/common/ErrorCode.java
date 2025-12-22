@@ -9,32 +9,43 @@ public enum ErrorCode {
      */
 
     BAD_REQUEST("BAD_REQUEST", "BAD_REQUEST")
-    ,  REPOSITORY_NOT_FOUND("REPOSITORY_NOT_FOUND", "Source Repository Not Found")
-    , REPOSITORY_CREATE_FAILED("REPOSITORY_CREATE_FAILED", "Repository Create Failed")
-    , REPOSITORY_ALREADY_EXISTS("REPOSITORY_ALREADY_EXISTS", "Repository Already Exists")
+
+    // 400
+    , RUNNER_INVALID_TOKEN("RUNNER_INVALID_TOKEN", "Runner token is invalid")
+
+    // 404
+    , ORGANIZE_NOT_FOUND("ORGANIZE_NOT_FOUND", "Organize Not Found")
+    , REPOSITORY_NOT_FOUND("REPOSITORY_NOT_FOUND", "Source Repository Not Found")
+    , BRANCH_NOT_FOUND("BRANCH_NOT_FOUND", "Branch Not Found")
+    , COMMIT_NOT_FOUND("COMMIT_NOT_FOUND", "Commit Not Found")
     , SOURCE_BRANCH_NOT_FOUND("SOURCE_BRANCH_NOT_FOUND", "Source Branch Not Found")
+    , COMMIT_TREE_NOT_FOUND("COMMIT_TREE_NOT_FOUND", "Commit Tree Not Found")
+    , RUNNER_NOT_FOUND("RUNNER_NOT_FOUND", "Runner Not Found")
+
+    // 409
+    , REPOSITORY_ALREADY_EXISTS("REPOSITORY_ALREADY_EXISTS", "Repository Already Exists")
     , BRANCH_ALREADY_EXISTS("BRANCH_ALREADY_EXISTS", "Branch Already Exists")
+    , RUNNER_ALREADY_ACTIVE("RUNNER_ALREADY_ACTIVE", "Runner Already Active")
+    , ORGANIZE_ALREADY_EXISTS("ORGANIZE_ALREADY_EXISTS", "Organize Already Exists")
+
+    // 422
+    , REPOSITORY_DOES_NOT_INITIALIZED("REPOSITORY_DOES_NOT_INITIALIZED", "Repository Does Not Initialized")
+
+    // 500
+    , REPOSITORY_CREATE_FAILED("REPOSITORY_CREATE_FAILED", "Repository Create Failed")
     , BRANCH_CREATE_FAILED("BRANCH_CREATE_FAILED", "Branch Create Failed")
     , BRANCH_DELETE_FAILED("BRANCH_DELETE_FAILED", "Branch Delete Failed")
-    , BRANCH_NOT_FOUND("BRANCH_NOT_FOUND", "Branch Not Found")
     , BRANCH_LOAD_FAILED("BRANCH_LOAD_FAILED", "Branch Load Failed")
     , HEAD_POINT_FAILED("HEAD_POINT_FAILED", "Head Point Failed")
-    , COMMIT_NOT_FOUND("COMMIT_NOT_FOUND", "Commit Not Found")
     , COMMIT_LOAD_FAILED("COMMIT_LOAD_FAILED", "Commit Load Failed")
     , COMMIT_CREATE_FAILED("COMMIT_CREATE_FAILED", "Commit Create Found")
-    , COMMIT_TREE_NOT_FOUND("COMMIT_TREE_NOT_FOUND", "Commit Tree Not Found")
     , COMMIT_TREE_LOAD_FAILED("COMMIT_TREE_LOAD_FAILED", "Commit Tree Load Failed")
     , FILE_LOAD_FAILED("FILE_LOAD_FAILED", "File Load Failed")
-    , INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "Server Error Occur")
-
-    , RUNNER_NOT_FOUND("RUNNER_NOT_FOUND", "Runner Not Found")
     , RUNNER_DELETE_FAILED("RUNNER_DELETE_FAILED", "Runner Delete Failed")
     , RUNNER_ACTIVATION_FAILED("RUNNER_ACTIVATION_FAILED", "Runner Activation Failed")
-    , RUNNER_ALREADY_ACTIVE("RUNNER_ALREADY_ACTIVE", "Runner Already Active")
-    , RUNNER_INVALID_TOKEN("RUNNER_INVALID_TOKEN", "Runner token is invalid")
-    , ORGANIZE_NOT_FOUND("ORGANIZE_NOT_FOUND", "Organize Not Found")
-    , ORGANIZE_ALREADY_EXISTS("ORGANIZE_ALREADY_EXISTS", "Organize Already Exists")
     , REPOSITORY_DELETE_FAILED("REPOSITORY_DELETE_FAILED", "Repository Delete Failed")
+
+    , INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "Server Error Occur")
     ;
 
     private final String code;

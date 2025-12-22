@@ -2,11 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.jgitkins.server.infrastructure.persistence.mapper.RunnerAssignmentEntityMbgMapper">
   <resultMap id="BaseResultMap" type="io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntity">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="runner_id" jdbcType="BIGINT" property="runnerId" />
-    <result column="target_type" jdbcType="VARCHAR" property="targetType" />
-    <result column="target_id" jdbcType="BIGINT" property="targetId" />
-    <result column="assigned_at" jdbcType="TIMESTAMP" property="assignedAt" />
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="RUNNER_ID" jdbcType="BIGINT" property="runnerId" />
+    <result column="TARGET_TYPE" jdbcType="VARCHAR" property="targetType" />
+    <result column="TARGET_ID" jdbcType="BIGINT" property="targetId" />
+    <result column="ASSIGNED_AT" jdbcType="TIMESTAMP" property="assignedAt" />
   </resultMap>
   <sql id="Condition_Where_Clause">
     <where>
@@ -67,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, runner_id, target_type, target_id, assigned_at
+    ID, RUNNER_ID, TARGET_TYPE, TARGET_ID, ASSIGNED_AT
   </sql>
   <select id="selectByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntityCondition" resultMap="BaseResultMap">
     select
@@ -87,11 +87,11 @@
     select 
     <include refid="Base_Column_List" />
     from RUNNER_ASSIGNMENT
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from RUNNER_ASSIGNMENT
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntityCondition">
     delete from RUNNER_ASSIGNMENT
@@ -99,26 +99,26 @@
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntity" useGeneratedKeys="true">
-    insert into RUNNER_ASSIGNMENT (runner_id, target_type, target_id, 
-      assigned_at)
+  <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntity" useGeneratedKeys="true">
+    insert into RUNNER_ASSIGNMENT (RUNNER_ID, TARGET_TYPE, TARGET_ID, 
+      ASSIGNED_AT)
     values (#{runnerId,jdbcType=BIGINT}, #{targetType,jdbcType=VARCHAR}, #{targetId,jdbcType=BIGINT}, 
       #{assignedAt,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntity" useGeneratedKeys="true">
+  <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntity" useGeneratedKeys="true">
     insert into RUNNER_ASSIGNMENT
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="runnerId != null">
-        runner_id,
+        RUNNER_ID,
       </if>
       <if test="targetType != null">
-        target_type,
+        TARGET_TYPE,
       </if>
       <if test="targetId != null">
-        target_id,
+        TARGET_ID,
       </if>
       <if test="assignedAt != null">
-        assigned_at,
+        ASSIGNED_AT,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -146,19 +146,19 @@
     update RUNNER_ASSIGNMENT
     <set>
       <if test="row.id != null">
-        id = #{row.id,jdbcType=BIGINT},
+        ID = #{row.id,jdbcType=BIGINT},
       </if>
       <if test="row.runnerId != null">
-        runner_id = #{row.runnerId,jdbcType=BIGINT},
+        RUNNER_ID = #{row.runnerId,jdbcType=BIGINT},
       </if>
       <if test="row.targetType != null">
-        target_type = #{row.targetType,jdbcType=VARCHAR},
+        TARGET_TYPE = #{row.targetType,jdbcType=VARCHAR},
       </if>
       <if test="row.targetId != null">
-        target_id = #{row.targetId,jdbcType=BIGINT},
+        TARGET_ID = #{row.targetId,jdbcType=BIGINT},
       </if>
       <if test="row.assignedAt != null">
-        assigned_at = #{row.assignedAt,jdbcType=TIMESTAMP},
+        ASSIGNED_AT = #{row.assignedAt,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="example != null">
@@ -167,11 +167,11 @@
   </update>
   <update id="updateByCondition" parameterType="map">
     update RUNNER_ASSIGNMENT
-    set id = #{row.id,jdbcType=BIGINT},
-      runner_id = #{row.runnerId,jdbcType=BIGINT},
-      target_type = #{row.targetType,jdbcType=VARCHAR},
-      target_id = #{row.targetId,jdbcType=BIGINT},
-      assigned_at = #{row.assignedAt,jdbcType=TIMESTAMP}
+    set ID = #{row.id,jdbcType=BIGINT},
+      RUNNER_ID = #{row.runnerId,jdbcType=BIGINT},
+      TARGET_TYPE = #{row.targetType,jdbcType=VARCHAR},
+      TARGET_ID = #{row.targetId,jdbcType=BIGINT},
+      ASSIGNED_AT = #{row.assignedAt,jdbcType=TIMESTAMP}
     <if test="example != null">
       <include refid="Update_By_Condition_Where_Clause" />
     </if>
@@ -180,26 +180,26 @@
     update RUNNER_ASSIGNMENT
     <set>
       <if test="runnerId != null">
-        runner_id = #{runnerId,jdbcType=BIGINT},
+        RUNNER_ID = #{runnerId,jdbcType=BIGINT},
       </if>
       <if test="targetType != null">
-        target_type = #{targetType,jdbcType=VARCHAR},
+        TARGET_TYPE = #{targetType,jdbcType=VARCHAR},
       </if>
       <if test="targetId != null">
-        target_id = #{targetId,jdbcType=BIGINT},
+        TARGET_ID = #{targetId,jdbcType=BIGINT},
       </if>
       <if test="assignedAt != null">
-        assigned_at = #{assignedAt,jdbcType=TIMESTAMP},
+        ASSIGNED_AT = #{assignedAt,jdbcType=TIMESTAMP},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntity">
     update RUNNER_ASSIGNMENT
-    set runner_id = #{runnerId,jdbcType=BIGINT},
-      target_type = #{targetType,jdbcType=VARCHAR},
-      target_id = #{targetId,jdbcType=BIGINT},
-      assigned_at = #{assignedAt,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=BIGINT}
+    set RUNNER_ID = #{runnerId,jdbcType=BIGINT},
+      TARGET_TYPE = #{targetType,jdbcType=VARCHAR},
+      TARGET_ID = #{targetId,jdbcType=BIGINT},
+      ASSIGNED_AT = #{assignedAt,jdbcType=TIMESTAMP}
+    where ID = #{id,jdbcType=BIGINT}
   </update>
 </mapper>
