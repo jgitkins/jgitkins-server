@@ -73,6 +73,7 @@ _No tasks found._
 | 11 | Implement Admin User Management API | done | medium | 0 |
 | 12 | Add Member Management API | done | medium | 0 |
 | 13 | Implement Credential Management API | done | medium | 0 |
+| 14 | Implement Runner Health Check (Heartbeat) | pending | medium | 0 |
 
 <!-- TASKS-TABLE:END -->
 
