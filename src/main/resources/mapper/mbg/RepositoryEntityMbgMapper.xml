@@ -93,7 +93,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from repository
+    from REPOSITORY
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
@@ -107,7 +107,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from repository
+    from REPOSITORY
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
@@ -120,21 +120,21 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from repository
+    from REPOSITORY
     where ID = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from repository
+    delete from REPOSITORY
     where ID = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntityCondition">
-    delete from repository
+    delete from REPOSITORY
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity" useGeneratedKeys="true">
-    insert into repository (ORGANIZE_ID, NAME, PATH, 
+    insert into REPOSITORY (ORGANIZE_ID, NAME, PATH, 
       REPOSITORY_TYPE, OWNER_ID, CREDENTIAL_ID, 
       CLONE_PATH, DEFAULT_BRANCH, VISIBILITY, 
       STATUS, LAST_SYNCED_AT, CREATED_AT, 
@@ -146,7 +146,7 @@
       #{updatedAt,jdbcType=TIMESTAMP}, #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity" useGeneratedKeys="true">
-    insert into repository
+    insert into REPOSITORY
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="organizeId != null">
         ORGANIZE_ID,
@@ -237,13 +237,13 @@
     </trim>
   </insert>
   <select id="countByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntityCondition" resultType="java.lang.Long">
-    select count(*) from repository
+    select count(*) from REPOSITORY
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
   </select>
   <update id="updateByConditionSelective" parameterType="map">
-    update repository
+    update REPOSITORY
     <set>
       <if test="row.id != null">
         ID = #{row.id,jdbcType=BIGINT},
@@ -296,7 +296,7 @@
     </if>
   </update>
   <update id="updateByConditionWithBLOBs" parameterType="map">
-    update repository
+    update REPOSITORY
     set ID = #{row.id,jdbcType=BIGINT},
       ORGANIZE_ID = #{row.organizeId,jdbcType=BIGINT},
       NAME = #{row.name,jdbcType=VARCHAR},
@@ -317,7 +317,7 @@
     </if>
   </update>
   <update id="updateByCondition" parameterType="map">
-    update repository
+    update REPOSITORY
     set ID = #{row.id,jdbcType=BIGINT},
       ORGANIZE_ID = #{row.organizeId,jdbcType=BIGINT},
       NAME = #{row.name,jdbcType=VARCHAR},
@@ -337,7 +337,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity">
-    update repository
+    update REPOSITORY
     <set>
       <if test="organizeId != null">
         ORGANIZE_ID = #{organizeId,jdbcType=BIGINT},
@@ -385,7 +385,7 @@
     where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity">
-    update repository
+    update REPOSITORY
     set ORGANIZE_ID = #{organizeId,jdbcType=BIGINT},
       NAME = #{name,jdbcType=VARCHAR},
       PATH = #{path,jdbcType=VARCHAR},
@@ -403,7 +403,7 @@
     where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity">
-    update repository
+    update REPOSITORY
     set ORGANIZE_ID = #{organizeId,jdbcType=BIGINT},
       NAME = #{name,jdbcType=VARCHAR},
       PATH = #{path,jdbcType=VARCHAR},

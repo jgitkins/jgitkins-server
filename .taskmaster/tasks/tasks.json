@@ -535,7 +535,7 @@
         "description": "  1. Client Initiation: User hits your app (SPA or backend). App redirects to auth gateway/Identity Provider (IdP) with OAuth2/OIDC (authorization code flow).\n  2. IdP Authentication: User signs in at IdP (Google). On success, IdP redirects back with an auth code.\n  3. Token Exchange: Your backend (or auth service) exchanges the code for tokens from IdP. Typically receives an ID Token (JWT) plus Access/Refresh tokens.\n  4. Local User Link: Backend extracts sub/provider info from ID Token. It creates or updates a local user record (USERS table) tied to that provider ID, ensuring domain logic references a stable internal user ID.\n  5. App Token Issuance: Backend issues its own short-lived JWT (or session) containing local user ID, roles, and any scoped claims. Refresh tokens (or re-auth via IdP) handle renewal.\n  6. API Access: Clients call your APIs with the app JWT. Each service validates signature/expiry, then uses the local user ID to enforce domain rules. No service directly depends on Google IDs.\n  7. Logout/Revocation: Invalidate refresh tokens or server sessions; optionally call IdP revoke endpoints. Centralize audit logs for sign-ins and token lifecycle events.\n",
         "details": "",
         "testStrategy": "",
-        "status": "pending",
+        "status": "done",
         "dependencies": [],
         "priority": "medium",
         "subtasks": [
@@ -545,7 +545,7 @@
             "description": "Set up the necessary Spring Security OAuth2 client configurations for an Identity Provider (e.g., Google) to initiate the authorization code flow. This includes defining client ID, client secret, redirect URIs, and scopes within the application's configuration.",
             "dependencies": [],
             "details": "1. Add `spring-boot-starter-oauth2-client` dependency to the `pom.xml`.\n2. Configure `application.yml` or `application.properties` with the OAuth2 client registration details: client ID, client secret, authorization URI, token URI, user info URI, and redirect URI for the chosen IdP (e.g., Google).\n3. Define a Spring Security configuration class (e.g., `SecurityConfig.java`) to enable OAuth2 login.\n4. Ensure the application correctly handles the initial `/oauth2/authorization/<idp-name>` redirect to the IdP.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Manually test the initiation of the OAuth2 flow by navigating to the login endpoint, verifying redirection to the IdP's authentication page, and confirming that the IdP redirects back to the application with an authorization code."
           },
           {
@@ -556,7 +556,7 @@
               1
             ],
             "details": "1. Implement an endpoint (e.g., `/login/oauth2/code/<idp-name>`) that receives the authorization code as a callback from the IdP.\n2. Utilize Spring Security's `OAuth2AuthorizedClientService` or `WebClient` to programmatically make a POST request to the IdP's token endpoint, sending the authorization code, client ID, client secret, and redirect URI.\n3. Parse the JSON response from the IdP to extract the `id_token` (JWT), `access_token`, and `refresh_token`.\n4. Validate the `id_token`'s signature and expiration, and then parse its claims (e.g., `sub`, `email`, `name`, `picture`).",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit test the token exchange logic using mock IdP responses to verify correct request construction and token parsing. Integration test by simulating a successful OAuth2 callback (e.g., using `MockMvc` or a test client) and asserting that all expected tokens are received and parsed."
           },
           {
@@ -567,7 +567,7 @@
               2
             ],
             "details": "1. Define a `User` entity (e.g., `io.jgitkins.server.application.domain.model.User.java`) with fields such as `id` (internal primary key), `providerId` (IdP's 'sub' claim), `providerName` (e.g., 'google'), `email`, and `name`.\n2. Create a `UserRepository` interface (e.g., `io.jgitkins.server.application.port.out.persistence.UserRepository.java`) for persistence operations, potentially using Spring Data JPA.\n3. Develop a `UserService` (e.g., `io.jgitkins.server.application.port.service.UserService.java`) method, such as `findOrCreateUser(String providerName, String providerId, String email, String name)`, which:\n    a. Queries the `UserRepository` to find an existing user by `providerId` and `providerName`.\n    b. If the user does not exist, creates a new `User` entity and persists it.\n    c. If the user exists, updates relevant user details (e.g., name, email) if they have changed.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit tests for `UserService` using mock `UserRepository` to verify the `findOrCreateUser` logic for both new user creation and existing user updates. Integration tests using an in-memory database (e.g., H2) to confirm persistence operations on the `User` entity."
           },
           {
@@ -578,7 +578,7 @@
               3
             ],
             "details": "1. Implement a `JwtService` (e.g., `io.jgitkins.server.security.JwtService.java`) responsible for generating and validating internal JWTs.\n2. Use a Java JWT library (e.g., `jjwt` or `Auth0 JWT`) to create digitally signed JWTs.\n3. Configure a robust, securely stored secret key for signing the internal JWTs.\n4. Include essential claims in the JWT payload: `sub` (local internal user ID), `roles` (list of assigned roles), `exp` (expiration timestamp), and `iat` (issued at timestamp).\n5. Integrate the `JwtService` into the authentication flow after local user record management (Subtask 3) to return the newly generated internal JWT to the client (e.g., in the response body or as a cookie).\n6. Consider a simple refresh token strategy, possibly by requiring re-authentication via the IdP for session renewal or implementing a server-side refresh token management system for the internal JWTs.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Unit tests for the `JwtService` to verify correct token generation, including the presence of all required claims, accurate expiration times, and valid signature generation. Test the validation method to ensure it correctly identifies valid, expired, and invalid tokens. No actual token exchange with IdP is part of this subtask testing."
           },
           {
@@ -589,7 +589,7 @@
               4
             ],
             "details": "1. For REST APIs: Implement a `JwtAuthenticationFilter` that extends `OncePerRequestFilter`. This filter will:\n    a. Extract the JWT from the `Authorization` header (e.g., 'Bearer <token>').\n    b. Validate the JWT's signature and expiration using the `JwtService` developed in Subtask 4.\n    c. Extract the local `userId` and `roles` from the validated JWT.\n    d. Load user details (e.g., `UserDetails`) based on the `userId`.\n    e. Set the authenticated user in `SecurityContextHolder.getContext().setAuthentication(authentication)`.\n2. For gRPC APIs (considering Task 8: 'Migrate Service Communication with gRPC'): Implement a `ServerInterceptor` (e.g., `JwtGrpcServerInterceptor`) that performs similar JWT validation logic for gRPC requests and sets the authenticated user within the gRPC `Context`.\n3. Configure the filter/interceptor to be applied to all protected API endpoints in `SecurityConfig.java`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Integration tests to confirm that protected REST and gRPC API endpoints correctly require a valid internal JWT and reject requests with missing, invalid, or expired tokens. End-to-end tests involving a client sending a valid internal JWT to access a protected resource. Unit tests for the filter/interceptor logic, mocking the `JwtService` and `SecurityContextHolder` interactions."
           },
           {
@@ -597,11 +597,60 @@
             "title": "OAuth 계정 연동을 위한 사용자 스키마 확장, 도메인 모델/매퍼 반영",
             "description": "ReOrganize Branch Domain",
             "details": "",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 10
           }
         ]
+      },
+      {
+        "id": 11,
+        "title": "Implement Admin User Management API",
+        "description": "Develop a comprehensive API for administrative user management, enabling CRUD operations on user accounts, role assignment, and permission management within the JGitkins Server.",
+        "details": "1. User Domain Model: Define a `User` aggregate (e.g., `io.jgitkins.server.application.domain.model.User`) following patterns established in Task 6's `Repository.java` and Task 1's `Job.java`. It should encapsulate properties such as `id` (UUID), `username`, `email`, `hashedPassword` (for local accounts, though OAuth is primary), `roles` (list of `Role` enum or aggregate IDs), `providerId` (from OAuth, see Task 10 for details on local user records), `createdAt`, `updatedAt`, and `status` (e.g., 'ACTIVE', 'INACTIVE').2. Role/Permission Domain Model: Introduce `Role` (e.g., an enum for predefined roles like `ADMIN`, `DEVELOPER`, `GUEST`) and `Permission` domain concepts to manage access levels. Permissions should be granular (e.g., `READ_REPOSITORY`, `WRITE_REPOSITORY`, `MANAGE_USERS`).3. Database Schema: Extend the database schema to support the defined `User` properties and `User-Role` mappings. This will likely involve new `ROLES` and `USER_ROLES` tables, building upon the `USERS` table mentioned in Task 10's description.4. Application Service Layer: Implement a `UserService` (e.g., `io.jgitkins.server.application.port.service.UserService`) to encapsulate business logic for user creation, updates, deletion, role assignment, and querying. This service should interact with the `User` domain model and a `UserRepository` (persistence adapter).5. gRPC API Adapter: Following Task 8's migration to gRPC, define new `.proto` files (e.g., `user_management_service.proto` under `src/main/proto`) for the Admin User Management API. This API should expose gRPC endpoints for operations such as `CreateUser(UserRequest)`, `GetUser(GetUserRequest)`, `UpdateUser(UpdateUserRequest)`, `DeleteUser(DeleteUserRequest)`, `AssignRoles(AssignRolesRequest)`, and `ListUsers(ListUsersRequest)`. Implement the gRPC service adapter (e.g., `io.jgitkins.server.adapter.in.grpc.UserManagementServiceGrpc`) to translate gRPC requests into calls to the `UserService`.6. Security Integration: Integrate with the authentication and authorization mechanisms established in Task 10. Ensure that only authenticated users with appropriate `ADMIN` roles can access and perform sensitive operations via this API, enforcing security at the gRPC service layer.7. Error Handling: Implement robust error handling for invalid inputs, unauthorized access, and domain rule violations, returning appropriate gRPC status codes (e.g., `INVALID_ARGUMENT`, `PERMISSION_DENIED`, `NOT_FOUND`).",
+        "testStrategy": "1. Domain Unit Tests: Create `UserTest.java` and `RoleTest.java` under `src/test/java/.../domain/model/` to verify the constructor, invariants, and state transitions of the `User` and `Role` aggregates. Ensure proper validation logic is tested.2. Service Layer Tests: Develop `UserServiceTest.java` under `src/test/java/.../application/port/service/` using mock objects for `UserRepository` to test business logic related to user creation, update, deletion, role assignment, and querying. Verify that access control checks are correctly applied.3. gRPC API Integration Tests: Create `UserManagementServiceGrpcTest.java` under `src/test/java/.../adapter/in/grpc/` to test the gRPC adapter's interaction with the `UserService`. This should involve making actual gRPC calls to a test server running the service and verifying requests are correctly mapped, responses are valid, and gRPC status codes reflect expected outcomes (e.g., successful operations, validation failures, authentication/authorization denials). Specifically, test attempts to perform admin operations with non-admin tokens, ensuring they fail with a `PERMISSION_DENIED` status.",
+        "status": "done",
+        "dependencies": [
+          1,
+          6,
+          8,
+          10
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Add Member Management API",
+        "description": "Develop an API for managing members within organizations or repositories, including roles, permissions, and membership lifecycle, building upon the existing user management and authentication infrastructure.",
+        "details": "1.  **Domain Model Definition**: Define a new `Member` aggregate (e.g., `io.jgitkins.server.application.domain.model.Member.java`) in `src/main/java/.../domain/model/`. This model should link a `User` (as defined in Task 11) to an `Organization` or `Repository` (following patterns from Task 6 and 7). Include properties such as `id` (UUID), `userId` (linking to the `User` entity), `targetId` (UUID for `Organization` or `Repository`), `targetType` (enum for `ORGANIZATION`, `REPOSITORY`), `role` (enum like `OWNER`, `MAINTAINER`, `CONTRIBUTOR`, `VIEWER`), `status`, `createdAt`, `updatedAt`.\n2.  **Service Layer Implementation**: Create a `MemberService` (e.g., `io.jgitkins.server.application.service.MemberService.java`) in `src/main/java/.../application/service/` that encapsulates business logic for member management. This service will orchestrate interactions with the `UserService` (from Task 11) and `RepositoryService` (from Task 6/8) or `OrganizeService` (from Task 7/8) to perform CRUD operations on members. Implement methods for:\n    *   `addMember(targetType, targetId, userId, role)`: Add a user as a member to a specific organization or repository.\n    *   `updateMemberRole(targetType, targetId, userId, newRole)`: Change a member's role.\n    *   `removeMember(targetType, targetId, userId)`: Remove a member.\n    *   `listMembers(targetType, targetId)`: Retrieve all members for a given organization or repository.\n    *   Ensure robust validation and authorization checks are performed within this service, leveraging the security context provided by Task 10.\n3.  **gRPC API Definition**: Following the approach of Task 8, define a new `.proto` file (e.g., `member_service.proto`) in `src/main/proto` to specify the gRPC service for member management. This will include messages for requests (e.g., `AddMemberRequest`, `UpdateMemberRoleRequest`) and responses (e.g., `MemberResponse`, `ListMembersResponse`). The gRPC service methods should correspond to the `MemberService` operations.\n4.  **gRPC Adapter Implementation**: Implement the gRPC service adapter (e.g., `io.jgitkins.server.adapter.in.grpc.GrpcMemberService.java`) that translates gRPC requests into calls to the `MemberService` and converts service results back into gRPC responses. This adapter will reside in `src/main/java/.../adapter/in/grpc/`.",
+        "testStrategy": "1.  **Domain Unit Tests**: Create `MemberTest.java` under `src/test/java/.../domain/model/` to thoroughly test the `Member` aggregate. Verify its constructor, immutability, role assignment logic, and any invariants. Test edge cases for different `targetType` and `role` combinations.\n2.  **Service Layer Tests**: Develop `MemberServiceTest.java` under `src/test/java/.../application/service/`. Use mock objects for the `UserRepository` (or `UserService`), `RepositoryService`, `OrganizeService`, and `MemberRepository`. Test the business logic for adding, updating, and removing members, ensuring that role-based permissions are enforced and that the correct interactions with dependent services occur. Verify error handling for invalid inputs, unauthorized actions, and non-existent entities.\n3.  **gRPC Integration Tests**: Implement integration tests for the `GrpcMemberService` in `src/test/java/.../adapter/in/grpc/`. These tests should use a gRPC test client to invoke the actual gRPC service endpoints. Mock the underlying `MemberService` to verify that requests are correctly deserialized, forwarded to the service layer, and responses are correctly serialized. Crucially, test the integration with the authentication mechanism from Task 10, ensuring that only authenticated and authorized users can perform member management operations. This includes testing various user roles (e.g., admin, organization owner, repository owner) and their respective permissions.",
+        "status": "done",
+        "dependencies": [
+          1,
+          6,
+          8,
+          10,
+          11
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Implement Credential Management API",
+        "description": "Develop a comprehensive API for securely managing various types of credentials (e.g., SSH keys, API tokens) associated with users, organizations, or repositories within the JGitkins Server, ensuring secure storage and controlled access.",
+        "details": "1.  **Domain Model Definition**: Define a new `Credential` aggregate (e.g., `io.jgitkins.server.application.domain.model.Credential.java`) following patterns established in Task 1 (`Job.java`), Task 6 (`Repository.java`), and Task 11 (`User.java`). The model should include properties such as `id` (UUID), `name` (for identification), `type` (e.g., `SSH_KEY`, `API_TOKEN`, as an enum or value object), `value` (encrypted string), `ownerId` (UUID, linking to `User`, `Organization`, or `Repository`), `ownerType` (enum for `USER`, `ORGANIZATION`, `REPOSITORY`), `createdAt`, `updatedAt`. Ensure the `value` is always stored encrypted.\n2.  **Encryption Mechanism**: Implement a robust encryption and decryption service for `Credential` values. This service should utilize existing security practices or introduce a new, secure standard (e.g., AES-256) and manage encryption keys securely, possibly integrating with a Key Management System if one is defined in the architecture, or a secure configuration property.\n3.  **Service Layer**: Create a `CredentialService` (e.g., `io.jgitkins.server.application.domain.service.CredentialService.java`) to handle business logic for credential operations. This service will be responsible for creating, reading, updating, deleting credentials, and ensuring that the requesting user (from Task 10 and 11 context) has appropriate permissions to perform actions on the target `ownerId`.\n4.  **Persistence Layer**: Implement a `CredentialRepository` (e.g., using Spring Data JPA) for managing `Credential` entities in the database. Ensure that the `value` field is correctly mapped to a securely stored (e.g., BLOB or encrypted VARCHAR) column.\n5.  **gRPC API Definition**: Following the patterns from Task 8, define a new `credential_service.proto` file under `src/main/proto/` for managing credentials. This protobuf definition should include messages for `CreateCredentialRequest`, `GetCredentialRequest`, `UpdateCredentialRequest`, `DeleteCredentialRequest`, `ListCredentialsRequest`, and `CredentialResponse` (containing public credential details, not the encrypted value directly).\n6.  **gRPC Adapter Implementation**: Create a gRPC service adapter (e.g., `io.jgitkins.server.application.adapter.in.grpc.GrpcCredentialService.java`) that implements the generated gRPC interface. This adapter will translate gRPC requests into calls to the `CredentialService` and vice versa, handling input validation and response mapping.\n7.  **Security and Authorization**: Integrate with the existing authentication context from Task 10 (OAuth + JWT) and user management from Task 11 (Admin User Management API) to enforce fine-grained access control. Users should only be able to access or modify credentials they own, or for organizations/repositories where they have appropriate permissions (building on Task 12 principles, if completed for membership checking).",
+        "testStrategy": "1.  **Domain Unit Tests**: Create `CredentialTest.java` under `src/test/java/.../domain/model/` to thoroughly test the `Credential` aggregate. Verify its constructor, immutability, owner type relationships, and value object encapsulation for the encrypted value. Test edge cases for different credential types and owner types.\n2.  **Encryption Service Tests**: Develop unit tests for the encryption/decryption service to ensure correct and secure data transformation. Verify that encrypted values are non-deterministic (if applicable), and that decryption yields the original plaintext.\n3.  **Service Layer Tests**: Create `CredentialServiceTest.java` to test the business logic of credential management. Use mock objects for `CredentialRepository` and security contexts (e.g., for user authentication from Task 10 and 11) to verify CRUD operations, permission checks, and data validation.\n4.  **gRPC Integration Tests**: Develop tests for the `GrpcCredentialService` adapter within `src/test/java/.../adapter/in/grpc/`. Use an in-memory gRPC server to simulate client-server interaction. Verify that gRPC requests are correctly parsed, translated to `CredentialService` calls, and responses are correctly formed. Ensure error handling and status codes are accurate.\n5.  **Security & Authorization Tests**: Implement integration tests that verify access control. For example, ensure a user cannot retrieve another user's private credential, or create a credential for an organization they are not a member of (if Task 12 is integrated for role checks). This will involve simulating authenticated user contexts from Task 10/11.",
+        "status": "done",
+        "dependencies": [
+          1,
+          8,
+          10,
+          11
+        ],
+        "priority": "medium",
+        "subtasks": []
       }
     ],
     "metadata": {
@@ -614,7 +663,7 @@
       ],
       "created": "2025-12-22T09:45:18.258Z",
       "description": "Tasks for master context",
-      "updated": "2025-12-22T09:45:18.262Z"
+      "updated": "2025-12-23T13:22:57.554Z"
     }
   }
 }

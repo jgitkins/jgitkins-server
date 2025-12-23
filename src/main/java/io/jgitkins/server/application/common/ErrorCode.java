@@ -13,6 +13,10 @@ public enum ErrorCode {
     // 400
     , RUNNER_INVALID_TOKEN("RUNNER_INVALID_TOKEN", "Runner token is invalid")
 
+    // 401/403
+    , UNAUTHORIZED("UNAUTHORIZED", "Unauthorized")
+    , FORBIDDEN("FORBIDDEN", "Forbidden")
+
     // 404
     , ORGANIZE_NOT_FOUND("ORGANIZE_NOT_FOUND", "Organize Not Found")
     , REPOSITORY_NOT_FOUND("REPOSITORY_NOT_FOUND", "Source Repository Not Found")

@@ -81,7 +81,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from branch
+    from BRANCH
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
@@ -92,21 +92,21 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from branch
+    from BRANCH
     where ID = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from branch
+    delete from BRANCH
     where ID = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntityCondition">
-    delete from branch
+    delete from BRANCH
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity" useGeneratedKeys="true">
-    insert into branch (REPOSITORY_ID, NAME, IS_LOCKED, 
+    insert into BRANCH (REPOSITORY_ID, NAME, IS_LOCKED, 
       IS_CI, IS_DEFAULT, LOCKED_BY, 
       LOCKED_AT, CREATED_AT, UPDATED_AT
       )
@@ -116,7 +116,7 @@
       )
   </insert>
   <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity" useGeneratedKeys="true">
-    insert into branch
+    insert into BRANCH
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="repositoryId != null">
         REPOSITORY_ID,
@@ -177,13 +177,13 @@
     </trim>
   </insert>
   <select id="countByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntityCondition" resultType="java.lang.Long">
-    select count(*) from branch
+    select count(*) from BRANCH
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
   </select>
   <update id="updateByConditionSelective" parameterType="map">
-    update branch
+    update BRANCH
     <set>
       <if test="row.id != null">
         ID = #{row.id,jdbcType=BIGINT},
@@ -221,7 +221,7 @@
     </if>
   </update>
   <update id="updateByCondition" parameterType="map">
-    update branch
+    update BRANCH
     set ID = #{row.id,jdbcType=BIGINT},
       REPOSITORY_ID = #{row.repositoryId,jdbcType=BIGINT},
       NAME = #{row.name,jdbcType=VARCHAR},
@@ -237,7 +237,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity">
-    update branch
+    update BRANCH
     <set>
       <if test="repositoryId != null">
         REPOSITORY_ID = #{repositoryId,jdbcType=BIGINT},
@@ -270,7 +270,7 @@
     where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.BranchEntity">
-    update branch
+    update BRANCH
     set REPOSITORY_ID = #{repositoryId,jdbcType=BIGINT},
       NAME = #{name,jdbcType=VARCHAR},
       IS_LOCKED = #{isLocked,jdbcType=BOOLEAN},

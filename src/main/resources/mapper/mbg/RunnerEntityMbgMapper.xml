@@ -77,7 +77,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from runner
+    from RUNNER
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
@@ -88,21 +88,21 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from runner
+    from RUNNER
     where ID = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from runner
+    delete from RUNNER
     where ID = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntityCondition">
-    delete from runner
+    delete from RUNNER
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntity" useGeneratedKeys="true">
-    insert into runner (TOKEN, DESCRIPTION, STATUS, 
+    insert into RUNNER (TOKEN, DESCRIPTION, STATUS, 
       IP_ADDRESS, LAST_HEARTBEAT_AT, CREATED_AT
       )
     values (#{token,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
@@ -110,7 +110,7 @@
       )
   </insert>
   <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntity" useGeneratedKeys="true">
-    insert into runner
+    insert into RUNNER
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="token != null">
         TOKEN,
@@ -153,13 +153,13 @@
     </trim>
   </insert>
   <select id="countByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntityCondition" resultType="java.lang.Long">
-    select count(*) from runner
+    select count(*) from RUNNER
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
   </select>
   <update id="updateByConditionSelective" parameterType="map">
-    update runner
+    update RUNNER
     <set>
       <if test="row.id != null">
         ID = #{row.id,jdbcType=BIGINT},
@@ -188,7 +188,7 @@
     </if>
   </update>
   <update id="updateByCondition" parameterType="map">
-    update runner
+    update RUNNER
     set ID = #{row.id,jdbcType=BIGINT},
       TOKEN = #{row.token,jdbcType=VARCHAR},
       DESCRIPTION = #{row.description,jdbcType=VARCHAR},
@@ -201,7 +201,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntity">
-    update runner
+    update RUNNER
     <set>
       <if test="token != null">
         TOKEN = #{token,jdbcType=VARCHAR},
@@ -225,7 +225,7 @@
     where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.RunnerEntity">
-    update runner
+    update RUNNER
     set TOKEN = #{token,jdbcType=VARCHAR},
       DESCRIPTION = #{description,jdbcType=VARCHAR},
       STATUS = #{status,jdbcType=VARCHAR},

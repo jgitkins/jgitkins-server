@@ -12,13 +12,21 @@ public interface UserEntityMbgMapper {
 
     int deleteByCondition(UserEntityCondition example);
 
+    int deleteByPrimaryKey(Long id);
+
     int insert(UserEntity row);
 
     int insertSelective(UserEntity row);
 
     List<UserEntity> selectByCondition(UserEntityCondition example);
 
+    UserEntity selectByPrimaryKey(Long id);
+
     int updateByConditionSelective(@Param("row") UserEntity row, @Param("example") UserEntityCondition example);
 
     int updateByCondition(@Param("row") UserEntity row, @Param("example") UserEntityCondition example);
+
+    int updateByPrimaryKeySelective(UserEntity row);
+
+    int updateByPrimaryKey(UserEntity row);
 }

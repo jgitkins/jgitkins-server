@@ -9,4 +9,8 @@ public interface OrganizeMemberPersistencePort {
     OrganizeMember save(OrganizeMember member);
 
     boolean existsByOrganizeAndUser(OrganizeId organizeId, UserId userId);
+
+    void deleteByOrganizeAndUser(OrganizeId organizeId, UserId userId);
+
+    java.util.List<OrganizeMember> findAllByOrganize(OrganizeId organizeId);
 }

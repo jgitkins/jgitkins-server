@@ -52,6 +52,9 @@ public class GlobalExceptionHandler {
 
             case REPOSITORY_DOES_NOT_INITIALIZED -> HttpStatus.UNPROCESSABLE_ENTITY;
 
+            case UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
+            case FORBIDDEN -> HttpStatus.FORBIDDEN;
+
             case INTERNAL_SERVER_ERROR,
                  REPOSITORY_CREATE_FAILED,
                  BRANCH_CREATE_FAILED,

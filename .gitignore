@@ -18,6 +18,8 @@ dev-debug.log
 node_modules/
 # Environment variables
 # .env
+src/main/resources/auth.properties
+
 # Editor directories and files
 .vscode
 *.suo

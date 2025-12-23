@@ -80,6 +80,34 @@ erDiagram
     }
 ```
 
+## User Aggregate
+```mermaid
+erDiagram
+    User ||--o{ UserIdentity : links
+    User ||--o{ UserCredential : secures
+    User {
+        string UserId
+        string Username
+        string Email
+        string DisplayName
+        string Status
+        datetime LastLoginAt
+    }
+    UserIdentity {
+        string IdentityId
+        string ProviderName
+        string ProviderSub
+        string Email
+        bool EmailVerified
+        string Name
+    }
+    UserCredential {
+        string CredentialId
+        string Provider
+        string PasswordHash
+    }
+```
+
 ## Cross-Aggregate Interactions
 ```mermaid
 sequenceDiagram

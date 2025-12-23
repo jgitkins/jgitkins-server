@@ -69,7 +69,10 @@ _No tasks found._
 | 7 | Define Organize Domain and Refine Repository Management API | done | medium | 5 |
 | 8 | Migrate Service Communication with gRPC | done | medium | 0 |
 | 9 | Domain Modeling Refinement and Test Case Addition | done | medium | 6 |
-| 10 | OAuth + JWT Flow (Architectural View) | pending | medium | 6 |
+| 10 | OAuth + JWT Flow (Architectural View) | done | medium | 6 |
+| 11 | Implement Admin User Management API | done | medium | 0 |
+| 12 | Add Member Management API | done | medium | 0 |
+| 13 | Implement Credential Management API | done | medium | 0 |
 
 <!-- TASKS-TABLE:END -->
 

@@ -67,7 +67,15 @@
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
-        <table tableName="USERS" domainObjectName="UserEntity">
+        <table tableName="USER" domainObjectName="UserEntity">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+        <table tableName="USER_IDENTITIES" domainObjectName="UserIdentitiesEntity">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+        <table tableName="USER_CREDENTIALS" domainObjectName="UserCredentialsEntity">
             <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
 

@@ -1,46 +1,99 @@
-// TODO: Have To Customization
-//package io.jgitkins.server.infrastructure.config.security;
-//
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.web.SecurityFilterChain;
-//
-//@Configuration
-//@RequiredArgsConstructor
-//public class SecurityConfig {
-//
-//    private final CustermAuthenticationProvider authProvider;
-//
-//    @Bean
-//    SecurityFilterChain gitChain(HttpSecurity http) throws Exception {
-//        // Git Smart HTTP uses POST
-//        http.csrf(csrf -> csrf.disable());
-//        http.authorizeHttpRequests(auth -> auth
-//                .requestMatchers("/git/**").permitAll()
-//                .anyRequest().permitAll()
-//        );
-//
-//        http.httpBasic(b -> b.realmName("Git"));
-//        http.authenticationProvider(authProvider);
-//        return http.build();
-//    }
-//
-//    @Bean
-//    SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
-//        http.csrf(csrf -> csrf.disable());
-//        http.securityMatcher("/api/**");
-//
-//        http.authorizeHttpRequests(auth -> auth
-//                .requestMatchers("/git/**").authenticated()
-//                .anyRequest().permitAll()
-//        );
-//
-//        http.httpBasic(b -> b.realmName("Git"));
-//        http.authenticationProvider(authProvider);
-//
-//        return http.build();
-//    }
-//
-//}
+package io.jgitkins.server.infrastructure.config.security;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jgitkins.server.application.service.OAuthLoginService;
+import io.jgitkins.server.infrastructure.config.security.handler.ApiAccessDeniedHandler;
+import io.jgitkins.server.infrastructure.config.security.handler.ApiAnauthorizeHandler;
+import io.jgitkins.server.infrastructure.config.security.handler.OAuth2LoginSuccessHandler;
+import io.jgitkins.server.security.JwtService;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+@Configuration
+public class SecurityConfig {
+
+    /***
+     *  for to use git smart http (fetch, push) with pat
+     *  users should issue a pat first
+     */
+    @Bean
+    @Order(1)
+    SecurityFilterChain gitSecurityFilterChain(HttpSecurity http,
+                                               PatAuthenticationProvider patAuthenticationProvider) throws Exception {
+        http.securityMatcher(new AntPathRequestMatcher("/git/**"));
+        http.csrf(csrf -> csrf.disable());
+        http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
+        http.httpBasic(Customizer.withDefaults());
+        http.authenticationProvider(patAuthenticationProvider);
+        return http.build();
+    }
+
+    /***
+     * 1. authorize OAuth with google
+     * 2. issue jwt token
+     */
+    @Bean
+    @Order(2)
+    SecurityFilterChain apiSecurityFilterChain(HttpSecurity http,
+                                               OAuth2LoginSuccessHandler successHandler,
+                                               JwtAuthenticationFilter jwtAuthenticationFilter,
+                                               ApiAnauthorizeHandler apiAnauthorizeHandler,
+                                               ApiAccessDeniedHandler apiAccessDeniedHandler) throws Exception {
+        http.csrf(csrf -> csrf.disable());
+
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers("/oauth2/**",
+                                 "/login/**",
+                                 "/swagger-ui/**",
+                                 "/v3/api-docs/**")
+                .permitAll()
+//                .requestMatchers("/api/**").authenticated()
+                .anyRequest().permitAll()
+        );
+
+        http.oauth2Login(oauth2 -> oauth2.successHandler(successHandler));
+        http.oauth2Client(Customizer.withDefaults());
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint(apiAnauthorizeHandler)
+                .accessDeniedHandler(apiAccessDeniedHandler)
+        );
+
+        return http.build();
+    }
+
+    @Bean
+    OAuth2LoginSuccessHandler oauth2LoginSuccessHandler(ObjectMapper objectMapper,
+                                                        OAuthLoginService oauthLoginService) {
+        return new OAuth2LoginSuccessHandler(objectMapper, oauthLoginService);
+    }
+
+    @Bean
+    JwtAuthenticationFilter jwtAuthenticationFilter(JwtService jwtService,
+                                                    ApiAnauthorizeHandler apiAnauthorizeHandler) {
+        return new JwtAuthenticationFilter(jwtService, apiAnauthorizeHandler);
+    }
+
+    @Bean
+    ApiAnauthorizeHandler anauthorizeHandler(ObjectMapper objectMapper) {
+        return new ApiAnauthorizeHandler(objectMapper);
+    }
+
+    @Bean
+    ApiAccessDeniedHandler accessDeniedHandler(ObjectMapper objectMapper) {
+        return new ApiAccessDeniedHandler(objectMapper);
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}

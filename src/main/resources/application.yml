@@ -22,6 +22,11 @@ springdoc:
     operations-sorter: method
     display-request-duration: true
     persist-authorization: true
+---
+# import
+spring:
+  config:
+    import: optional:classpath:auth.properties
 
 ---
 jgitkins:
@@ -35,3 +40,25 @@ jgitkins:
       poll-interval-ms: 5000
       busy-wait-interval-ms: 1000
       volumn: ${user.home}
+  security:
+    jwt:
+      secret: ${JGITKINS_JWT_SECRET}
+      ttl-seconds: ${JGITKINS_JWT_TTL:900}
+
+---
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${OAUTH_GOOGLE_CLIENT_ID:}
+            client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET:}
+            scope:
+              - openid
+              - profile
+              - email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com

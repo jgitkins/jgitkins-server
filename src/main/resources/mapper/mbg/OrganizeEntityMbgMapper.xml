@@ -84,7 +84,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from organize
+    from ORGANIZE
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
@@ -98,7 +98,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from organize
+    from ORGANIZE
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
@@ -111,21 +111,21 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from organize
+    from ORGANIZE
     where ID = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from organize
+    delete from ORGANIZE
     where ID = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeEntityCondition">
-    delete from organize
+    delete from ORGANIZE
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity" useGeneratedKeys="true">
-    insert into organize (NAME, PATH, OWNER_ID, 
+    insert into ORGANIZE (NAME, PATH, OWNER_ID, 
       CREATED_AT, UPDATED_AT, DESCRIPTION
       )
     values (#{name,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{ownerId,jdbcType=BIGINT}, 
@@ -133,7 +133,7 @@
       )
   </insert>
   <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity" useGeneratedKeys="true">
-    insert into organize
+    insert into ORGANIZE
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="name != null">
         NAME,
@@ -176,13 +176,13 @@
     </trim>
   </insert>
   <select id="countByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeEntityCondition" resultType="java.lang.Long">
-    select count(*) from organize
+    select count(*) from ORGANIZE
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
   </select>
   <update id="updateByConditionSelective" parameterType="map">
-    update organize
+    update ORGANIZE
     <set>
       <if test="row.id != null">
         ID = #{row.id,jdbcType=BIGINT},
@@ -211,7 +211,7 @@
     </if>
   </update>
   <update id="updateByConditionWithBLOBs" parameterType="map">
-    update organize
+    update ORGANIZE
     set ID = #{row.id,jdbcType=BIGINT},
       NAME = #{row.name,jdbcType=VARCHAR},
       PATH = #{row.path,jdbcType=VARCHAR},
@@ -224,7 +224,7 @@
     </if>
   </update>
   <update id="updateByCondition" parameterType="map">
-    update organize
+    update ORGANIZE
     set ID = #{row.id,jdbcType=BIGINT},
       NAME = #{row.name,jdbcType=VARCHAR},
       PATH = #{row.path,jdbcType=VARCHAR},
@@ -236,7 +236,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity">
-    update organize
+    update ORGANIZE
     <set>
       <if test="name != null">
         NAME = #{name,jdbcType=VARCHAR},
@@ -260,7 +260,7 @@
     where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity">
-    update organize
+    update ORGANIZE
     set NAME = #{name,jdbcType=VARCHAR},
       PATH = #{path,jdbcType=VARCHAR},
       OWNER_ID = #{ownerId,jdbcType=BIGINT},
@@ -270,7 +270,7 @@
     where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity">
-    update organize
+    update ORGANIZE
     set NAME = #{name,jdbcType=VARCHAR},
       PATH = #{path,jdbcType=VARCHAR},
       OWNER_ID = #{ownerId,jdbcType=BIGINT},

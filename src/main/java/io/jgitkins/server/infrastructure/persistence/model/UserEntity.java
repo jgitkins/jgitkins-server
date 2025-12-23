@@ -1,48 +1,140 @@
 package io.jgitkins.server.infrastructure.persistence.model;
 
+import java.time.LocalDateTime;
+
 public class UserEntity {
-    private String user;
+    private Long id;
 
-    private Long currentConnections;
+    private String username;
 
-    private Long totalConnections;
+    private String email;
 
-    public String getUser() {
-        return user;
+    private String displayName;
+
+    private String avatarUrl;
+
+    private String status;
+
+    private LocalDateTime lastLoginAt;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+    public Long getId() {
+        return id;
     }
 
-    public UserEntity withUser(String user) {
-        this.setUser(user);
+    public UserEntity withId(Long id) {
+        this.setId(id);
         return this;
     }
 
-    public void setUser(String user) {
-        this.user = user == null ? null : user.trim();
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public Long getCurrentConnections() {
-        return currentConnections;
+    public String getUsername() {
+        return username;
     }
 
-    public UserEntity withCurrentConnections(Long currentConnections) {
-        this.setCurrentConnections(currentConnections);
+    public UserEntity withUsername(String username) {
+        this.setUsername(username);
         return this;
     }
 
-    public void setCurrentConnections(Long currentConnections) {
-        this.currentConnections = currentConnections;
+    public void setUsername(String username) {
+        this.username = username == null ? null : username.trim();
     }
 
-    public Long getTotalConnections() {
-        return totalConnections;
+    public String getEmail() {
+        return email;
     }
 
-    public UserEntity withTotalConnections(Long totalConnections) {
-        this.setTotalConnections(totalConnections);
+    public UserEntity withEmail(String email) {
+        this.setEmail(email);
         return this;
     }
 
-    public void setTotalConnections(Long totalConnections) {
-        this.totalConnections = totalConnections;
+    public void setEmail(String email) {
+        this.email = email == null ? null : email.trim();
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public UserEntity withDisplayName(String displayName) {
+        this.setDisplayName(displayName);
+        return this;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName == null ? null : displayName.trim();
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public UserEntity withAvatarUrl(String avatarUrl) {
+        this.setAvatarUrl(avatarUrl);
+        return this;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl == null ? null : avatarUrl.trim();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public UserEntity withStatus(String status) {
+        this.setStatus(status);
+        return this;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
+    }
+
+    public LocalDateTime getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public UserEntity withLastLoginAt(LocalDateTime lastLoginAt) {
+        this.setLastLoginAt(lastLoginAt);
+        return this;
+    }
+
+    public void setLastLoginAt(LocalDateTime lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public UserEntity withCreatedAt(LocalDateTime createdAt) {
+        this.setCreatedAt(createdAt);
+        return this;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public UserEntity withUpdatedAt(LocalDateTime updatedAt) {
+        this.setUpdatedAt(updatedAt);
+        return this;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

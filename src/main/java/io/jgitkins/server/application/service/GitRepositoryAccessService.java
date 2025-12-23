@@ -1,0 +1,65 @@
+package io.jgitkins.server.application.service;
+
+import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryMemberAccessPort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
+import io.jgitkins.server.domain.aggregate.Organize;
+import io.jgitkins.server.domain.aggregate.Repository;
+import io.jgitkins.server.domain.model.vo.OrganizeId;
+import io.jgitkins.server.domain.model.vo.OrganizeName;
+import io.jgitkins.server.domain.model.vo.RepositoryPath;
+import io.jgitkins.server.domain.model.vo.UserId;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class GitRepositoryAccessService {
+
+    private final OrganizePersistencePort organizePersistencePort;
+    private final RepositoryPersistencePort repositoryPersistencePort;
+    private final OrganizeMemberPersistencePort organizeMemberPersistencePort;
+    private final RepositoryMemberAccessPort repositoryMemberAccessPort;
+
+    public boolean canRead(String organizeSlug, String repositoryPath, Long userId) {
+        return canAccess(organizeSlug, repositoryPath, userId);
+    }
+
+    public boolean canWrite(String organizeSlug, String repositoryPath, Long userId) {
+        return canAccess(organizeSlug, repositoryPath, userId);
+    }
+
+    private boolean canAccess(String organizeSlug, String repositoryPath, Long userId) {
+        if (userId == null) {
+            return false;
+        }
+        Optional<Repository> repository = resolveRepository(organizeSlug, repositoryPath);
+        if (repository.isEmpty()) {
+            return false;
+        }
+        Repository repo = repository.get();
+        UserId uid = UserId.of(userId);
+        if (repo.getOwnerId() != null && repo.getOwnerId().equals(uid)) {
+            return true;
+        }
+        if (repositoryMemberAccessPort.existsByRepositoryAndUser(repo.getId(), uid)) {
+            return true;
+        }
+        return organizeMemberPersistencePort.existsByOrganizeAndUser(repo.getOrganizeId(), uid);
+    }
+
+    private Optional<Repository> resolveRepository(String organizeSlug, String repositoryPath) {
+        if (organizeSlug == null || organizeSlug.isBlank() || repositoryPath == null || repositoryPath.isBlank()) {
+            return Optional.empty();
+        }
+        Optional<Organize> organize = organizePersistencePort.findByName(OrganizeName.from(organizeSlug));
+        if (organize.isEmpty()) {
+            return Optional.empty();
+        }
+        OrganizeId organizeId = organize.get().getId();
+        return repositoryPersistencePort.findByOrganizeAndPath(organizeId, RepositoryPath.from(repositoryPath));
+    }
+}

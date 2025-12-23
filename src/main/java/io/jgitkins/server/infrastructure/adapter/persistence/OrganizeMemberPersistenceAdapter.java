@@ -32,4 +32,24 @@ public class OrganizeMemberPersistenceAdapter implements OrganizeMemberPersisten
                 .andUserIdEqualTo(userId.getValue());
         return organizeMemberMapper.countByCondition(condition) > 0;
     }
+
+    @Override
+    public void deleteByOrganizeAndUser(OrganizeId organizeId, UserId userId) {
+        OrganizeMemberEntityCondition condition = new OrganizeMemberEntityCondition();
+        condition.createCriteria()
+                .andOrganizeIdEqualTo(organizeId.getValue())
+                .andUserIdEqualTo(userId.getValue());
+        organizeMemberMapper.deleteByCondition(condition);
+    }
+
+    @Override
+    public java.util.List<OrganizeMember> findAllByOrganize(OrganizeId organizeId) {
+        OrganizeMemberEntityCondition condition = new OrganizeMemberEntityCondition();
+        condition.createCriteria().andOrganizeIdEqualTo(organizeId.getValue());
+        condition.setOrderByClause("joined_at desc");
+        return organizeMemberMapper.selectByCondition(condition)
+                .stream()
+                .map(organizeMemberDomainMapper::toDomain)
+                .toList();
+    }
 }

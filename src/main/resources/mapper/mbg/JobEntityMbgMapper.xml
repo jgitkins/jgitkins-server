@@ -76,7 +76,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from job
+    from JOB
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
@@ -87,27 +87,27 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from job
+    from JOB
     where ID = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from job
+    delete from JOB
     where ID = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntityCondition">
-    delete from job
+    delete from JOB
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
   </delete>
   <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity" useGeneratedKeys="true">
-    insert into job (REPOSITORY_ID, COMMIT_HASH, BRANCH_NAME, 
+    insert into JOB (REPOSITORY_ID, COMMIT_HASH, BRANCH_NAME, 
       TRIGGERED_BY, CREATED_AT)
     values (#{repositoryId,jdbcType=BIGINT}, #{commitHash,jdbcType=VARCHAR}, #{branchName,jdbcType=VARCHAR}, 
       #{triggeredBy,jdbcType=BIGINT}, #{createdAt,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity" useGeneratedKeys="true">
-    insert into job
+    insert into JOB
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="repositoryId != null">
         REPOSITORY_ID,
@@ -144,13 +144,13 @@
     </trim>
   </insert>
   <select id="countByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntityCondition" resultType="java.lang.Long">
-    select count(*) from job
+    select count(*) from JOB
     <if test="_parameter != null">
       <include refid="Condition_Where_Clause" />
     </if>
   </select>
   <update id="updateByConditionSelective" parameterType="map">
-    update job
+    update JOB
     <set>
       <if test="row.id != null">
         ID = #{row.id,jdbcType=BIGINT},
@@ -176,7 +176,7 @@
     </if>
   </update>
   <update id="updateByCondition" parameterType="map">
-    update job
+    update JOB
     set ID = #{row.id,jdbcType=BIGINT},
       REPOSITORY_ID = #{row.repositoryId,jdbcType=BIGINT},
       COMMIT_HASH = #{row.commitHash,jdbcType=VARCHAR},
@@ -188,7 +188,7 @@
     </if>
   </update>
   <update id="updateByPrimaryKeySelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity">
-    update job
+    update JOB
     <set>
       <if test="repositoryId != null">
         REPOSITORY_ID = #{repositoryId,jdbcType=BIGINT},
@@ -209,7 +209,7 @@
     where ID = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.JobEntity">
-    update job
+    update JOB
     set REPOSITORY_ID = #{repositoryId,jdbcType=BIGINT},
       COMMIT_HASH = #{commitHash,jdbcType=VARCHAR},
       BRANCH_NAME = #{branchName,jdbcType=VARCHAR},
