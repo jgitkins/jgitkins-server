@@ -3,6 +3,7 @@ package io.jgitkins.server.application.event;
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
 import io.jgitkins.server.application.dto.CommitFile;
+import io.jgitkins.server.application.factory.CommitFileFactory;
 import io.jgitkins.server.application.port.out.*;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
@@ -25,12 +26,14 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 @Slf4j
 public class RepositoryProvisionedEventListener {
 
-    private final OrganizePersistencePort organizePersistencePort;
-    private final RepositoryContentPort repositoryContentPort;
-    private final RepositoryCommitPort repositoryCommitPort;
-    private final UpdateHeadReferencePort updateHeadReferencePort;
-    private final RepositoryPersistencePort repositoryPersistencePort;
-    private final BranchPersistenceCommandPort branchPersistenceCommandPort;
+    private final CommitFileFactory commitFileFactory;
+
+    private final OrganizePort organizePort;
+    private final RepositoryPort repositoryPort;
+    private final BranchPort branchPort;
+
+    private final CommitGitPort commitGitPort;
+    private final RepositoryGitPort repositoryGitPort;
 
 
     // post progressing
@@ -42,7 +45,7 @@ public class RepositoryProvisionedEventListener {
         String branchName = event.getDefaultBranch().getValue();
         String organizeSlug = loadOrganizeSlug(event);
 
-        Repository repository = repositoryPersistencePort.findByOrganizeAndName(event.getOrganizeId(), repositoryName)
+        Repository repository = repositoryPort.findByOrganizeAndName(event.getOrganizeId(), repositoryName)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
                         "Repository not found for event: " + repoNameValue));
 
@@ -52,26 +55,26 @@ public class RepositoryProvisionedEventListener {
                                              false,
                                              true,
                                              true);
-        branchPersistenceCommandPort.create(defaultBranch);
+        branchPort.create(defaultBranch);
 
         if (event.getInitialCommitOptions() != null && event.getInitialCommitOptions().requiresInitialContent()) {
-            List<CommitFile> files = repositoryContentPort.prepareInitialFiles(repoNameValue);
-            repositoryCommitPort.commit(organizeSlug,
+            List<CommitFile> files = commitFileFactory.prepareInitialFile(repoNameValue);
+            commitGitPort.commit(organizeSlug,
                                         repoNameValue,
                                         branchName,
                                         event.getInitialCommitOptions().commitMessage(),
                                         event.getInitialCommitOptions().authorName(),
                                         event.getInitialCommitOptions().authorEmail(),
                                         files);
-            updateHeadReferencePort.updateHeadReference(organizeSlug, repoNameValue, branchName);
+            repositoryGitPort.updateHeadReference(organizeSlug, repoNameValue, branchName);
             log.info("repository has initialized with readme");
 
-            repositoryPersistencePort.update(repository.markInit(LocalDateTime.now()));
+            repositoryPort.update(repository.markInit(LocalDateTime.now()));
         }
     }
 
     private String loadOrganizeSlug(RepositoryProvisionedEvent event) {
-        return organizePersistencePort.findById(event.getOrganizeId())
+        return organizePort.findById(event.getOrganizeId())
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
                         "Organize not found: " + event.getOrganizeId().getValue()))
                 .getName()

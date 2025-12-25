@@ -1,11 +1,14 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.RunnerCommandPort;
+import io.jgitkins.server.application.port.out.RunnerPort;
 import io.jgitkins.server.domain.aggregate.Runner;
 import org.springframework.context.annotation.Profile;
 
+import java.util.List;
+import java.util.Optional;
+
 @Profile("test")
-public class FakeRunnerMybatisAdapter implements RunnerCommandPort {
+public class FakeRunnerMybatisAdapter implements RunnerPort {
 
     @Override
     public Runner save(Runner runner) {
@@ -20,5 +23,20 @@ public class FakeRunnerMybatisAdapter implements RunnerCommandPort {
     @Override
     public Runner update(Runner runner) {
         return null;
+    }
+
+    @Override
+    public Optional<Runner> findById(Long runnerId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Runner> findByToken(String token) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Runner> findAll() {
+        return List.of();
     }
 }

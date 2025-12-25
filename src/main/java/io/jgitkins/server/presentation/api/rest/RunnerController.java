@@ -5,7 +5,7 @@ import io.jgitkins.server.application.dto.result.RunnerDetailResult;
 import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
 import io.jgitkins.server.application.dto.result.RunnerRegistrationResult;
 import io.jgitkins.server.application.port.in.RunnerActivateUseCase;
-import io.jgitkins.server.application.port.in.RunnerDeletionUseCase;
+import io.jgitkins.server.application.port.in.RunnerDeleteUseCase;
 import io.jgitkins.server.application.port.in.RunnerLoadUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
 import io.jgitkins.server.presentation.common.ApiResponse;
@@ -32,7 +32,7 @@ public class RunnerController {
 
     private final RunnerRegisterUseCase runnerRegisterUseCase;
     private final RunnerLoadUseCase runnerLoadUseCase;
-    private final RunnerDeletionUseCase runnerDeletionUseCase;
+    private final RunnerDeleteUseCase runnerDeleteUseCase;
     private final RunnerActivateUseCase runnerActivateUseCase;
 
     private final RunnerRequestMapper runnerRequestMapper;
@@ -63,7 +63,7 @@ public class RunnerController {
     @Operation(summary = "Delete Runner", description = "Delete a runner by id")
     @DeleteMapping("/{runnerId}")
     public ResponseEntity<Void> deleteRunner(@PathVariable Long runnerId) {
-        runnerDeletionUseCase.deleteRunner(runnerId);
+        runnerDeleteUseCase.deleteRunner(runnerId);
         return ResponseEntity.noContent().build();
     }
 

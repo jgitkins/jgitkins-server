@@ -7,7 +7,23 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface UserDomainMapper {
 
-    UserEntity toEntity(User user);
+    default UserEntity toEntity(User user) {
+        if (user == null) {
+            return null;
+        }
+        UserEntity entity = new UserEntity();
+        entity.setId(user.getId());
+        entity.setUsername(user.getUsername());
+        entity.setEmail(user.getEmail());
+        entity.setDisplayName(user.getDisplayName());
+        entity.setAvatarUrl(user.getAvatarUrl());
+        entity.setAuthority(user.getAuthority() != null ? user.getAuthority().name() : null);
+        entity.setStatus(user.getStatus());
+        entity.setLastLoginAt(user.getLastLoginAt());
+        entity.setCreatedAt(user.getCreatedAt());
+        entity.setUpdatedAt(user.getUpdatedAt());
+        return entity;
+    }
 
     default User toDomain(UserEntity entity) {
         if (entity == null) {
@@ -19,6 +35,7 @@ public interface UserDomainMapper {
                 entity.getEmail(),
                 entity.getDisplayName(),
                 entity.getAvatarUrl(),
+                entity.getAuthority() != null ? io.jgitkins.server.domain.model.UserAuthority.valueOf(entity.getAuthority()) : io.jgitkins.server.domain.model.UserAuthority.USER,
                 entity.getStatus(),
                 entity.getLastLoginAt(),
                 entity.getCreatedAt(),

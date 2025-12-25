@@ -13,6 +13,8 @@ public class UserEntity {
 
     private String avatarUrl;
 
+    private String authority;
+
     private String status;
 
     private LocalDateTime lastLoginAt;
@@ -84,6 +86,19 @@ public class UserEntity {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl == null ? null : avatarUrl.trim();
+    }
+
+    public String getAuthority() {
+        return authority;
+    }
+
+    public UserEntity withAuthority(String authority) {
+        this.setAuthority(authority);
+        return this;
+    }
+
+    public void setAuthority(String authority) {
+        this.authority = authority == null ? null : authority.trim();
     }
 
     public String getStatus() {

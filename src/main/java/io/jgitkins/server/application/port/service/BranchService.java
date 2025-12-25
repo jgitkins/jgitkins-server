@@ -5,8 +5,8 @@ import io.jgitkins.server.application.common.exception.ResourceNotFoundException
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
 import io.jgitkins.server.application.dto.command.BranchCreationContext;
 import io.jgitkins.server.application.dto.result.BranchSearchResult;
-import io.jgitkins.server.application.port.in.BranchCreationUseCase;
-import io.jgitkins.server.application.port.in.BranchDeletetionUseCase;
+import io.jgitkins.server.application.port.in.BranchCreateUseCase;
+import io.jgitkins.server.application.port.in.BranchDeleteUseCase;
 import io.jgitkins.server.application.port.in.BranchLoadUseCase;
 import io.jgitkins.server.application.mapper.BranchApplicationMapper;
 import io.jgitkins.server.application.service.BranchCreationValidator;
@@ -23,22 +23,20 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BranchService implements BranchLoadUseCase, BranchCreationUseCase, BranchDeletetionUseCase {
+public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, BranchDeleteUseCase {
 
-    private final BranchGitCreatePort branchGitCreatePort;
-    private final BranchGitDeletePort branchGitDeletePort;
-
-    private final BranchPersistenceCommandPort branchPersistenceCommandPort;
-    private final BranchPersistenceLoadPort branchPersistenceLoadPort;
-    private final RepositoryPersistencePort repositoryPersistencePort;
-    private final OrganizePersistencePort organizePersistencePort;
     private final BranchApplicationMapper branchApplicationMapper;
     private final BranchCreationValidator branchCreationValidator;
+
+    private final BranchGitPort branchGitPort;
+    private final BranchPort branchPort;
+    private final RepositoryPort repositoryPort;
+    private final OrganizePort organizePort;
 
 
     @Override
     public List<BranchSearchResult> getBranches(Long repositoryId) {
-        return branchPersistenceLoadPort.getBranches(repositoryId)
+        return branchPort.getBranches(repositoryId)
                 .stream()
                 .map(branchApplicationMapper::toSearchResult)
                 .toList();
@@ -46,7 +44,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreationUseCase, 
 
     @Override
     public BranchSearchResult getBranch(Long repositoryId, String branchName) throws IOException {
-        return branchPersistenceLoadPort.getBranch(repositoryId, branchName)
+        return branchPort.getBranch(repositoryId, branchName)
                 .map(branchApplicationMapper::toSearchResult)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND,
                         "Branch not found: " + branchName));
@@ -55,10 +53,10 @@ public class BranchService implements BranchLoadUseCase, BranchCreationUseCase, 
     @Override
     public void createBranch(BranchCreateCommand command) throws IOException {
         // 1) load repository & organize context
-        Repository repository = repositoryPersistencePort.findById(RepositoryId.of(command.getRepositoryId()))
+        Repository repository = repositoryPort.findById(RepositoryId.of(command.getRepositoryId()))
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
                         "Repository not found: " + command.getRepositoryId()));
-        Organize organize = organizePersistencePort.findById(repository.getOrganizeId())
+        Organize organize = organizePort.findById(repository.getOrganizeId())
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
                         "Organize not found: " + repository.getOrganizeId().getValue()));
 
@@ -72,31 +70,31 @@ public class BranchService implements BranchLoadUseCase, BranchCreationUseCase, 
         BranchCreationContext context = BranchCreationContext.of(command, organize, repository, resolvedSourceBranch);
 
         // 4) create branch from file system
-        branchGitCreatePort.createBranch(context);
+        branchGitPort.createBranch(context);
 
         // 5) create branch from persistence
-        branchPersistenceCommandPort.create(newBranch);
+        branchPort.create(newBranch);
     }
 
     @Override
     public void deleteBranch(Long repositoryId, String branchName) throws IOException {
-        Repository repository = repositoryPersistencePort.findById(RepositoryId.of(repositoryId))
+        Repository repository = repositoryPort.findById(RepositoryId.of(repositoryId))
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
                         "Repository not found: " + repositoryId));
-        Organize organize = organizePersistencePort.findById(repository.getOrganizeId())
+        Organize organize = organizePort.findById(repository.getOrganizeId())
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
                         "Organize not found: " + repository.getOrganizeId().getValue()));
 
-        Branch branch = branchPersistenceLoadPort.getBranch(repositoryId, branchName)
+        Branch branch = branchPort.getBranch(repositoryId, branchName)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND,
                         "Branch not found: " + branchName));
 
         branchCreationValidator.ensureNotDefaultBranch(repository, branch);
 
-        branchGitDeletePort.deleteBranch(organize.getName().getValue(),
+        branchGitPort.deleteBranch(organize.getName().getValue(),
                                          repository.getName().getValue(),
                                          branchName);
-        branchPersistenceCommandPort.delete(repositoryId, branchName);
+        branchPort.delete(repositoryId, branchName);
     }
 
 }

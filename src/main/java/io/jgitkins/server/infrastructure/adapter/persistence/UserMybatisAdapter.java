@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.UserPersistencePort;
+import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.infrastructure.persistence.mapper.UserEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.UserEntity;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UserMybatisAdapter implements UserPersistencePort {
+public class UserMybatisAdapter implements UserPort {
 
     private final UserEntityMbgMapper userEntityMbgMapper;
     private final UserDomainMapper userDomainMapper;
@@ -75,4 +75,19 @@ public class UserMybatisAdapter implements UserPersistencePort {
                 .map(userDomainMapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public Optional<Long> findUserIdByUsername(String username) {
+        if (username == null || username.isBlank()) {
+            return Optional.empty();
+        }
+        UserEntityCondition condition = new UserEntityCondition();
+        condition.createCriteria().andUsernameEqualTo(username);
+        condition.setOrderByClause("id desc limit 1");
+        return userEntityMbgMapper.selectByCondition(condition)
+                .stream()
+                .findFirst()
+                .map(entity -> entity.getId());
+    }
+
 }

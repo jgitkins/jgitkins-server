@@ -12,10 +12,9 @@ import io.jgitkins.server.application.dto.result.RunnerRegistrationResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
 import io.jgitkins.server.application.service.support.RunnerRuntimeConfigProvider;
 import io.jgitkins.server.application.port.in.RunnerActivateUseCase;
-import io.jgitkins.server.application.port.in.RunnerDeletionUseCase;
+import io.jgitkins.server.application.port.in.RunnerDeleteUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
-import io.jgitkins.server.application.port.out.RunnerCommandPort;
-import io.jgitkins.server.application.port.out.RunnerQueryPort;
+import io.jgitkins.server.application.port.out.RunnerPort;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.exception.RunnerAlreadyActiveException;
 import io.jgitkins.server.domain.exception.RunnerTokenMismatchException;
@@ -28,10 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeletionUseCase, RunnerActivateUseCase {
+public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeleteUseCase, RunnerActivateUseCase {
 
-    private final RunnerCommandPort runnerCommandPort;
-    private final RunnerQueryPort runnerQueryPort;
+    private final RunnerPort runnerPort;
     private final RunnerApplicationMapper runnerApplicationMapper;
     private final RunnerRuntimeConfigProvider runtimeConfigProvider;
 
@@ -42,7 +40,7 @@ public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeletion
                                       command.getScopeType(),
                                       command.getTargetId());
 
-        Runner savedRunner = runnerCommandPort.save(runner);
+        Runner savedRunner = runnerPort.save(runner);
 
         log.info("Runner registered. runnerId={}", savedRunner.getId());
         return runnerApplicationMapper.toRegistrationResult(savedRunner);
@@ -51,11 +49,11 @@ public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeletion
     @Override
     @Transactional
     public void deleteRunner(Long runnerId) {
-        runnerQueryPort.findById(runnerId)
+        runnerPort.findById(runnerId)
                        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RUNNER_NOT_FOUND));
 
         try {
-            runnerCommandPort.deleteById(runnerId);
+            runnerPort.deleteById(runnerId);
         } catch (RuntimeException ex) {
             log.error("Runner deletion failed. runnerId={}", runnerId, ex);
             throw new InternalServerErrorException(ErrorCode.RUNNER_DELETE_FAILED,
@@ -67,7 +65,7 @@ public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeletion
     @Override
     @Transactional
     public RunnerActivateResult activate(String token, String remoteIp) {
-        Runner runner = runnerQueryPort.findByToken(token)
+        Runner runner = runnerPort.findByToken(token)
                                        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RUNNER_NOT_FOUND));
 
         Runner activatedInfo;
@@ -81,7 +79,7 @@ public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeletion
 
         try {
 
-            Runner persisted = runnerCommandPort.save(activatedInfo);
+            Runner persisted = runnerPort.save(activatedInfo);
             log.info("Runner activated. runnerId={}", persisted.getId());
 
             return RunnerActivateResult.builder()

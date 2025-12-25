@@ -11,9 +11,9 @@ import io.jgitkins.server.application.mapper.RepositoryApplicationMapper;
 import io.jgitkins.server.application.port.in.RepositoryCreationUseCase;
 import io.jgitkins.server.application.port.in.RepositoryDeletionUseCase;
 import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
-import io.jgitkins.server.application.port.out.RepositoryFileAdminPort;
-import io.jgitkins.server.application.port.out.OrganizePersistencePort;
-import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryGitPort;
+import io.jgitkins.server.application.port.out.OrganizePort;
+import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.BranchName;
@@ -38,11 +38,12 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
         RepositoryLoadUseCase,
         RepositoryDeletionUseCase {
 
-    private final RepositoryFileAdminPort repositoryFileAdminPort;
-    private final RepositoryPersistencePort repositoryPersistencePort;
-    private final OrganizePersistencePort organizePersistencePort;
     private final RepositoryApplicationMapper repositoryApplicationMapper;
     private final DomainEventPublisher domainEventPublisher;
+
+    private final RepositoryGitPort repositoryGitPort;
+    private final RepositoryPort repositoryPort;
+    private final OrganizePort organizePort;
 
     @Override
     @Transactional
@@ -66,14 +67,14 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
                                                   command.getCredentialId(),
                                                   initialCommitOptions);
 
-        Repository savedRepository = repositoryPersistencePort.save(repository);
+        Repository savedRepository = repositoryPort.save(repository);
 
-        repositoryFileAdminPort.create(context.organizeSlug(), context.repositoryName().getValue());
+        repositoryGitPort.create(context.organizeSlug(), context.repositoryName().getValue());
         log.info("repository has created successful");
 
         publishDomainEvents(savedRepository);
 
-        Repository refreshed = repositoryPersistencePort.findById(savedRepository.getId())
+        Repository refreshed = repositoryPort.findById(savedRepository.getId())
                 .orElse(savedRepository);
         return repositoryApplicationMapper.toDto(refreshed);
     }
@@ -81,7 +82,7 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
     @Override
     @Transactional(readOnly = true)
     public RepositoryResult getRepository(Long repositoryId) {
-        Repository repository = repositoryPersistencePort.findById(RepositoryId.of(repositoryId))
+        Repository repository = repositoryPort.findById(RepositoryId.of(repositoryId))
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
                         "Repository not found: " + repositoryId));
         return repositoryApplicationMapper.toDto(repository);
@@ -89,7 +90,7 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
     @Override
     @Transactional(readOnly = true)
     public List<RepositoryResult> getRepositories() {
-        return repositoryPersistencePort.findAll()
+        return repositoryPort.findAll()
                 .stream()
                 .map(repository -> repositoryApplicationMapper.toDto(repository))
                 .toList();
@@ -142,16 +143,16 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
     @Transactional
     public void deleteRepository(Long repositoryId) {
         RepositoryId id = RepositoryId.of(repositoryId);
-        Repository repository = repositoryPersistencePort.findById(id)
+        Repository repository = repositoryPort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND, "Repository not found: " + repositoryId));
         deleteRepositoryDirectory(repository);
-        repositoryPersistencePort.delete(id);
+        repositoryPort.delete(id);
     }
 
     private void ensureRepositoryNameUnique(OrganizeId organizeId,
                                             RepositoryName name,
                                             RepositoryId currentRepositoryId) {
-        repositoryPersistencePort.findByOrganizeAndName(organizeId, name)
+        repositoryPort.findByOrganizeAndName(organizeId, name)
                 .ifPresent(existing -> {
                     if (currentRepositoryId == null || !existing.getId().equals(currentRepositoryId)) {
                         throw new ConflictException(ErrorCode.REPOSITORY_ALREADY_EXISTS,
@@ -162,11 +163,11 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
 
     private void deleteRepositoryDirectory(Repository repository) {
         Organize organize = loadOrganize(repository.getOrganizeId());
-        repositoryFileAdminPort.delete(organize.getName().getValue(), repository.getName().getValue());
+        repositoryGitPort.delete(organize.getName().getValue(), repository.getName().getValue());
     }
 
     private Organize loadOrganize(OrganizeId organizeId) {
-        return organizePersistencePort.findById(organizeId)
+        return organizePort.findById(organizeId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
                         "Organize not found: " + organizeId.getValue()));
     }

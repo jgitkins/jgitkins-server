@@ -6,7 +6,7 @@ import io.jgitkins.server.application.dto.result.UserCredentialSummary;
 import io.jgitkins.server.application.port.in.UserCredentialIssueUseCase;
 import io.jgitkins.server.application.port.in.UserCredentialQueryUseCase;
 import io.jgitkins.server.application.port.in.UserCredentialRevokeUseCase;
-import io.jgitkins.server.application.port.out.UserCredentialPersistencePort;
+import io.jgitkins.server.application.port.out.UserCredentialPort;
 import io.jgitkins.server.domain.model.UserCredential;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -24,7 +24,7 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final int TOKEN_BYTES = 32;
 
-    private final UserCredentialPersistencePort userCredentialPersistencePort;
+    private final UserCredentialPort userCredentialPort;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -32,13 +32,13 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
         String token = generateToken();
         String hash = passwordEncoder.encode(token);
         UserCredential credential = UserCredential.issuePat(command.getUserId(), hash);
-        UserCredential saved = userCredentialPersistencePort.save(credential);
+        UserCredential saved = userCredentialPort.save(credential);
         return new UserCredentialIssueResult(saved.getId(), token);
     }
 
     @Override
     public List<UserCredentialSummary> getPatList(Long userId) {
-        return userCredentialPersistencePort.findAllByUserIdAndProvider(userId, "PAT")
+        return userCredentialPort.findAllByUserIdAndProvider(userId, "PAT")
                 .stream()
                 .map(credential -> new UserCredentialSummary(
                         credential.getId(),
@@ -51,7 +51,7 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
 
     @Override
     public void revokePat(Long userId, Long credentialId) {
-        userCredentialPersistencePort.deleteByIdAndUserId(credentialId, userId);
+        userCredentialPort.deleteByIdAndUserId(credentialId, userId);
     }
 
     private String generateToken() {

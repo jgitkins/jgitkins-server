@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.UserIdentityPersistencePort;
+import io.jgitkins.server.application.port.out.UserIdentityPort;
 import io.jgitkins.server.domain.model.UserIdentity;
 import io.jgitkins.server.infrastructure.persistence.mapper.UserIdentitiesEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.UserIdentitiesEntity;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UserIdentityMybatisAdapter implements UserIdentityPersistencePort {
+public class UserIdentityMybatisAdapter implements UserIdentityPort {
 
     private final UserIdentitiesEntityMbgMapper userIdentitiesEntityMbgMapper;
     private final UserIdentityDomainMapper userIdentityDomainMapper;

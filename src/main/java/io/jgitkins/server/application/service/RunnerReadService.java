@@ -5,7 +5,7 @@ import io.jgitkins.server.application.common.exception.ResourceNotFoundException
 import io.jgitkins.server.application.dto.result.RunnerDetailResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
 import io.jgitkins.server.application.port.in.RunnerLoadUseCase;
-import io.jgitkins.server.application.port.out.RunnerQueryPort;
+import io.jgitkins.server.application.port.out.RunnerPort;
 import io.jgitkins.server.domain.aggregate.Runner;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RunnerReadService implements RunnerLoadUseCase {
 
-    private final RunnerQueryPort runnerQueryPort;
     private final RunnerApplicationMapper runnerApplicationMapper;
+
+    private final RunnerPort runnerPort;
 
     @Override
     @Transactional(readOnly = true)
     public RunnerDetailResult getRunner(Long runnerId) {
-        Runner runner = runnerQueryPort.findById(runnerId)
+        Runner runner = runnerPort.findById(runnerId)
                                        .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RUNNER_NOT_FOUND));
         return runnerApplicationMapper.toActivationResult(runner);
     }
@@ -30,7 +31,7 @@ public class RunnerReadService implements RunnerLoadUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<RunnerDetailResult> getRunners() {
-        List<Runner> runners = runnerQueryPort.findAll();
+        List<Runner> runners = runnerPort.findAll();
         return runners.stream()
                       .map(runnerApplicationMapper::toActivationResult)
                       .toList();

@@ -5,7 +5,7 @@ import io.jgitkins.server.application.dto.result.OrganizeMemberSummary;
 import io.jgitkins.server.application.port.in.OrganizeMemberAddUseCase;
 import io.jgitkins.server.application.port.in.OrganizeMemberQueryUseCase;
 import io.jgitkins.server.application.port.in.OrganizeMemberRemoveUseCase;
-import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPort;
 import io.jgitkins.server.domain.model.OrganizeMember;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeMemberRole;
@@ -20,7 +20,7 @@ public class OrganizeMemberService implements OrganizeMemberAddUseCase,
                                                OrganizeMemberRemoveUseCase,
                                                OrganizeMemberQueryUseCase {
 
-    private final OrganizeMemberPersistencePort organizeMemberPersistencePort;
+    private final OrganizeMemberPort organizeMemberPort;
 
     @Override
     @Transactional
@@ -28,12 +28,12 @@ public class OrganizeMemberService implements OrganizeMemberAddUseCase,
         validateCommand(command);
         OrganizeId organizeId = OrganizeId.of(command.getOrganizeId());
         UserId userId = UserId.of(command.getUserId());
-        if (organizeMemberPersistencePort.existsByOrganizeAndUser(organizeId, userId)) {
+        if (organizeMemberPort.existsByOrganizeAndUser(organizeId, userId)) {
             return;
         }
         OrganizeMemberRole role = command.getRole() != null ? command.getRole() : OrganizeMemberRole.MEMBER;
         OrganizeMember member = OrganizeMember.create(organizeId, userId, role, null);
-        organizeMemberPersistencePort.save(member);
+        organizeMemberPort.save(member);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class OrganizeMemberService implements OrganizeMemberAddUseCase,
         if (organizeId == null || userId == null) {
             throw new IllegalArgumentException("OrganizeId and UserId are required to remove an organize member");
         }
-        organizeMemberPersistencePort.deleteByOrganizeAndUser(OrganizeId.of(organizeId), UserId.of(userId));
+        organizeMemberPort.deleteByOrganizeAndUser(OrganizeId.of(organizeId), UserId.of(userId));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class OrganizeMemberService implements OrganizeMemberAddUseCase,
         if (organizeId == null) {
             throw new IllegalArgumentException("OrganizeId is required to load organize members");
         }
-        return organizeMemberPersistencePort.findAllByOrganize(OrganizeId.of(organizeId))
+        return organizeMemberPort.findAllByOrganize(OrganizeId.of(organizeId))
                 .stream()
                 .map(member -> new OrganizeMemberSummary(
                         member.getUserId().getValue(),

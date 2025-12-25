@@ -1,7 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.RunnerCommandPort;
-import io.jgitkins.server.application.port.out.RunnerQueryPort;
+import io.jgitkins.server.application.port.out.RunnerPort;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.vo.RunnerScopeType;
 import io.jgitkins.server.infrastructure.persistence.mapper.RunnerAssignmentEntityMbgMapper;
@@ -20,10 +19,11 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class RunnerMybatisAdapter implements RunnerCommandPort, RunnerQueryPort {
+public class RunnerMybatisAdapter implements RunnerPort {
 
     private final RunnerEntityMbgMapper runnerEntityMbgMapper;
     private final RunnerAssignmentEntityMbgMapper runnerAssignmentEntityMbgMapper;
+
     private final RunnerDomainMapper runnerDomainMapper;
     private final RunnerAssignmentMapper runnerAssignmentMapper;
 
@@ -44,6 +44,21 @@ public class RunnerMybatisAdapter implements RunnerCommandPort, RunnerQueryPort 
             RunnerEntity updated = runnerEntityMbgMapper.selectByPrimaryKey(runner.getId());
             return restoreRunner(updated);
         }
+    }
+
+
+    @Override
+    public void deleteById(Long runnerId) {
+        deleteAssignment(runnerId);
+        runnerEntityMbgMapper.deleteByPrimaryKey(runnerId);
+    }
+
+    @Override
+    public Runner update(Runner runner) {
+        RunnerEntity entity = runnerDomainMapper.toEntity(runner);
+        runnerEntityMbgMapper.updateByPrimaryKeySelective(entity);
+        RunnerEntity updated = runnerEntityMbgMapper.selectByPrimaryKey(runner.getId());
+        return restoreRunner(updated);
     }
 
     @Override
@@ -74,23 +89,10 @@ public class RunnerMybatisAdapter implements RunnerCommandPort, RunnerQueryPort 
     public List<Runner> findAll() {
         List<RunnerEntity> entities = runnerEntityMbgMapper.selectByCondition(new RunnerEntityCondition());
         return entities.stream()
-                       .map(this::restoreRunner)
-                       .collect(Collectors.toList());
+                .map(this::restoreRunner)
+                .collect(Collectors.toList());
     }
 
-    @Override
-    public void deleteById(Long runnerId) {
-        deleteAssignment(runnerId);
-        runnerEntityMbgMapper.deleteByPrimaryKey(runnerId);
-    }
-
-    @Override
-    public Runner update(Runner runner) {
-        RunnerEntity entity = runnerDomainMapper.toEntity(runner);
-        runnerEntityMbgMapper.updateByPrimaryKeySelective(entity);
-        RunnerEntity updated = runnerEntityMbgMapper.selectByPrimaryKey(runner.getId());
-        return restoreRunner(updated);
-    }
 
     private void persistAssignment(Runner runner) {
         RunnerAssignmentEntity assignment = runnerAssignmentMapper.toEntity(runner);

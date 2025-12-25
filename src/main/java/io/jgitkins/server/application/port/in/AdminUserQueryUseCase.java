@@ -6,6 +6,5 @@ import java.util.List;
 
 public interface AdminUserQueryUseCase {
     List<UserAdminSummary> getUsers();
-
     UserAdminDetail getUser(Long userId);
 }

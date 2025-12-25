@@ -7,6 +7,7 @@
     <result column="EMAIL" jdbcType="VARCHAR" property="email" />
     <result column="DISPLAY_NAME" jdbcType="VARCHAR" property="displayName" />
     <result column="AVATAR_URL" jdbcType="VARCHAR" property="avatarUrl" />
+    <result column="AUTHORITY" jdbcType="VARCHAR" property="authority" />
     <result column="STATUS" jdbcType="VARCHAR" property="status" />
     <result column="LAST_LOGIN_AT" jdbcType="TIMESTAMP" property="lastLoginAt" />
     <result column="CREATED_AT" jdbcType="TIMESTAMP" property="createdAt" />
@@ -71,8 +72,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    ID, USERNAME, EMAIL, DISPLAY_NAME, AVATAR_URL, STATUS, LAST_LOGIN_AT, CREATED_AT, 
-    UPDATED_AT
+    ID, USERNAME, EMAIL, DISPLAY_NAME, AVATAR_URL, AUTHORITY, STATUS, LAST_LOGIN_AT, 
+    CREATED_AT, UPDATED_AT
   </sql>
   <select id="selectByCondition" parameterType="io.jgitkins.server.infrastructure.persistence.model.UserEntityCondition" resultMap="BaseResultMap">
     select
@@ -106,11 +107,13 @@
   </delete>
   <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.UserEntity" useGeneratedKeys="true">
     insert into USER (USERNAME, EMAIL, DISPLAY_NAME, 
-      AVATAR_URL, STATUS, LAST_LOGIN_AT, 
-      CREATED_AT, UPDATED_AT)
+      AVATAR_URL, AUTHORITY, STATUS, 
+      LAST_LOGIN_AT, CREATED_AT, UPDATED_AT
+      )
     values (#{username,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{displayName,jdbcType=VARCHAR}, 
-      #{avatarUrl,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{lastLoginAt,jdbcType=TIMESTAMP}, 
-      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
+      #{avatarUrl,jdbcType=VARCHAR}, #{authority,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{lastLoginAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP}
+      )
   </insert>
   <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.UserEntity" useGeneratedKeys="true">
     insert into USER
@@ -126,6 +129,9 @@
       </if>
       <if test="avatarUrl != null">
         AVATAR_URL,
+      </if>
+      <if test="authority != null">
+        AUTHORITY,
       </if>
       <if test="status != null">
         STATUS,
@@ -152,6 +158,9 @@
       </if>
       <if test="avatarUrl != null">
         #{avatarUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="authority != null">
+        #{authority,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
@@ -191,6 +200,9 @@
       <if test="row.avatarUrl != null">
         AVATAR_URL = #{row.avatarUrl,jdbcType=VARCHAR},
       </if>
+      <if test="row.authority != null">
+        AUTHORITY = #{row.authority,jdbcType=VARCHAR},
+      </if>
       <if test="row.status != null">
         STATUS = #{row.status,jdbcType=VARCHAR},
       </if>
@@ -215,6 +227,7 @@
       EMAIL = #{row.email,jdbcType=VARCHAR},
       DISPLAY_NAME = #{row.displayName,jdbcType=VARCHAR},
       AVATAR_URL = #{row.avatarUrl,jdbcType=VARCHAR},
+      AUTHORITY = #{row.authority,jdbcType=VARCHAR},
       STATUS = #{row.status,jdbcType=VARCHAR},
       LAST_LOGIN_AT = #{row.lastLoginAt,jdbcType=TIMESTAMP},
       CREATED_AT = #{row.createdAt,jdbcType=TIMESTAMP},
@@ -238,6 +251,9 @@
       <if test="avatarUrl != null">
         AVATAR_URL = #{avatarUrl,jdbcType=VARCHAR},
       </if>
+      <if test="authority != null">
+        AUTHORITY = #{authority,jdbcType=VARCHAR},
+      </if>
       <if test="status != null">
         STATUS = #{status,jdbcType=VARCHAR},
       </if>
@@ -259,6 +275,7 @@
       EMAIL = #{email,jdbcType=VARCHAR},
       DISPLAY_NAME = #{displayName,jdbcType=VARCHAR},
       AVATAR_URL = #{avatarUrl,jdbcType=VARCHAR},
+      AUTHORITY = #{authority,jdbcType=VARCHAR},
       STATUS = #{status,jdbcType=VARCHAR},
       LAST_LOGIN_AT = #{lastLoginAt,jdbcType=TIMESTAMP},
       CREATED_AT = #{createdAt,jdbcType=TIMESTAMP},

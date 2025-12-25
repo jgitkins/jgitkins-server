@@ -445,6 +445,76 @@ public class UserEntityCondition {
             return (Criteria) this;
         }
 
+        public Criteria andAuthorityIsNull() {
+            addCriterion("AUTHORITY is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityIsNotNull() {
+            addCriterion("AUTHORITY is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityEqualTo(String value) {
+            addCriterion("AUTHORITY =", value, "authority");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityNotEqualTo(String value) {
+            addCriterion("AUTHORITY <>", value, "authority");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityGreaterThan(String value) {
+            addCriterion("AUTHORITY >", value, "authority");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityGreaterThanOrEqualTo(String value) {
+            addCriterion("AUTHORITY >=", value, "authority");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityLessThan(String value) {
+            addCriterion("AUTHORITY <", value, "authority");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityLessThanOrEqualTo(String value) {
+            addCriterion("AUTHORITY <=", value, "authority");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityLike(String value) {
+            addCriterion("AUTHORITY like", value, "authority");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityNotLike(String value) {
+            addCriterion("AUTHORITY not like", value, "authority");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityIn(List<String> values) {
+            addCriterion("AUTHORITY in", values, "authority");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityNotIn(List<String> values) {
+            addCriterion("AUTHORITY not in", values, "authority");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityBetween(String value1, String value2) {
+            addCriterion("AUTHORITY between", value1, value2, "authority");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuthorityNotBetween(String value1, String value2) {
+            addCriterion("AUTHORITY not between", value1, value2, "authority");
+            return (Criteria) this;
+        }
+
         public Criteria andStatusIsNull() {
             addCriterion("STATUS is null");
             return (Criteria) this;

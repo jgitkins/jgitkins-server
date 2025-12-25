@@ -5,7 +5,7 @@ import io.jgitkins.server.application.dto.result.RepositoryMemberSummary;
 import io.jgitkins.server.application.port.in.RepositoryMemberAddUseCase;
 import io.jgitkins.server.application.port.in.RepositoryMemberQueryUseCase;
 import io.jgitkins.server.application.port.in.RepositoryMemberRemoveUseCase;
-import io.jgitkins.server.application.port.out.RepositoryMemberPersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryMemberPort;
 import io.jgitkins.server.domain.model.RepositoryMember;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryMemberRole;
@@ -20,7 +20,7 @@ public class RepositoryMemberService implements RepositoryMemberAddUseCase,
                                                 RepositoryMemberRemoveUseCase,
                                                 RepositoryMemberQueryUseCase {
 
-    private final RepositoryMemberPersistencePort repositoryMemberPersistencePort;
+    private final RepositoryMemberPort repositoryMemberPort;
 
     @Override
     @Transactional
@@ -28,12 +28,12 @@ public class RepositoryMemberService implements RepositoryMemberAddUseCase,
         validateCommand(command);
         RepositoryId repositoryId = RepositoryId.of(command.getRepositoryId());
         UserId userId = UserId.of(command.getUserId());
-        if (repositoryMemberPersistencePort.existsByRepositoryAndUser(repositoryId, userId)) {
+        if (repositoryMemberPort.existsByRepositoryAndUser(repositoryId, userId)) {
             return;
         }
         RepositoryMemberRole role = command.getRole() != null ? command.getRole() : RepositoryMemberRole.READER;
         RepositoryMember member = RepositoryMember.create(repositoryId, userId, role, null);
-        repositoryMemberPersistencePort.save(member);
+        repositoryMemberPort.save(member);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class RepositoryMemberService implements RepositoryMemberAddUseCase,
         if (repositoryId == null || userId == null) {
             throw new IllegalArgumentException("RepositoryId and UserId are required to remove a repository member");
         }
-        repositoryMemberPersistencePort.deleteByRepositoryAndUser(RepositoryId.of(repositoryId), UserId.of(userId));
+        repositoryMemberPort.deleteByRepositoryAndUser(RepositoryId.of(repositoryId), UserId.of(userId));
     }
 
     @Override
@@ -51,7 +51,7 @@ public class RepositoryMemberService implements RepositoryMemberAddUseCase,
         if (repositoryId == null) {
             throw new IllegalArgumentException("RepositoryId is required to load repository members");
         }
-        return repositoryMemberPersistencePort.findAllByRepository(RepositoryId.of(repositoryId))
+        return repositoryMemberPort.findAllByRepository(RepositoryId.of(repositoryId))
                 .stream()
                 .map(member -> new RepositoryMemberSummary(
                         member.getUserId().getValue(),

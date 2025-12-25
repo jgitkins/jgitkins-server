@@ -5,87 +5,24 @@ import io.jgitkins.server.application.common.GitConstants;
 import io.jgitkins.server.application.common.exception.InternalServerErrorException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
 import io.jgitkins.server.application.dto.command.BranchCreationContext;
-import io.jgitkins.server.application.dto.BranchInfo;
-import io.jgitkins.server.application.port.out.BranchGitCreatePort;
-import io.jgitkins.server.application.port.out.BranchGitDeletePort;
-import io.jgitkins.server.application.port.out.UpdateHeadReferencePort;
-import io.jgitkins.server.application.port.out.BranchGitLoadPort;
+import io.jgitkins.server.application.port.out.BranchGitPort;
 import io.jgitkins.server.infrastructure.support.RepositoryResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.lib.*;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.RefUpdate;
+import org.eclipse.jgit.lib.Repository;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class BranchJGitAdapter implements UpdateHeadReferencePort, BranchGitLoadPort, BranchGitCreatePort, BranchGitDeletePort {
+public class BranchJGitAdapter implements BranchGitPort {
 
     private final RepositoryResolver repositoryResolver;
 
-    @Override
-    public void updateHeadReference(String taskCd, String repoName, String branch) {
-
-        try (Repository repo = repositoryResolver.openBareRepository(taskCd, repoName)) {
-            String mainRef = GitConstants.REFS_HEADS_PREFIX + branch;
-            repo.updateRef(Constants.HEAD, true)
-                    .link(mainRef);
-        } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.HEAD_POINT_FAILED, String.format("Failed to link HEAD for repo %s/%s", taskCd, repoName), e);
-        }
-    }
-
-    @Override
-    public List<BranchInfo> getBranches(String repoName) {
-        String taskCd = "TMP";
-        try (Repository repo = repositoryResolver.openBareRepository(taskCd, repoName)) {
-            return repo.getRefDatabase()
-                    .getRefsByPrefix(GitConstants.REFS_HEADS_PREFIX)
-                    .stream()
-                    .map(ref -> BranchInfo.builder()
-                            .name(stripBranchName(ref.getName()))
-                            .fullRef(ref.getName())
-                            .commitId(resolveCommitId(ref))
-                            .build())
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.BRANCH_LOAD_FAILED, String.format("Failed to load branches for repo %s/%s", taskCd, repoName), e);
-        }
-    }
-
-    @Override
-    public Optional<BranchInfo> getBranch(String taskCd, String repoName, String branchName) throws IOException {
-        String orgRef = branchName.startsWith(GitConstants.REFS_HEADS_PREFIX)
-                ? branchName
-                : GitConstants.REFS_HEADS_PREFIX + branchName;
-
-        try (Repository repo = repositoryResolver.openBareRepository(taskCd, repoName)) {
-
-            Ref ref = repo.findRef(orgRef);
-            if (ref == null){
-                return Optional.empty();
-            }
-
-            // 3. BranchInfo 로 매핑
-            BranchInfo branchInfo = BranchInfo.builder()
-                    .name(stripBranchName(ref.getName())) // 예: refs/heads/main -> main
-                    .fullRef(ref.getName())               // 예: refs/heads/main
-                    .commitId(resolveCommitId(ref))
-                    .build();
-
-            return Optional.of(branchInfo);
-
-        } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.BRANCH_LOAD_FAILED, String.format("Failed to load branch [%s] for repo %s/%s", branchName, taskCd, repoName), e);
-
-        }
-
-    }
 
     @Override
     public void createBranch(BranchCreationContext context) {
@@ -150,16 +87,5 @@ public class BranchJGitAdapter implements UpdateHeadReferencePort, BranchGitLoad
         return oid;
     }
 
-    private String stripBranchName(String refName) {
-        if (refName.startsWith(GitConstants.REFS_HEADS_PREFIX)) {
-            return refName.substring(GitConstants.REFS_HEADS_PREFIX.length());
-        }
-        return refName;
-    }
-
-    private String resolveCommitId(Ref ref) {
-        ObjectId objectId = ref.getObjectId();
-        return objectId != null ? objectId.name() : null;
-    }
 
 }

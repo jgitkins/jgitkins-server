@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.List;
 
 public interface BranchLoadUseCase {
-
     List<BranchSearchResult> getBranches(Long repositoryId);
     BranchSearchResult getBranch(Long repositoryId, String branchName) throws IOException;
 }

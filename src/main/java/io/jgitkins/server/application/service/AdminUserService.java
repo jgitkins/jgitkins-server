@@ -5,14 +5,15 @@ import io.jgitkins.server.application.dto.result.UserAdminSummary;
 import io.jgitkins.server.application.dto.result.UserIdentitySummary;
 import io.jgitkins.server.application.port.in.AdminUserQueryUseCase;
 import io.jgitkins.server.application.port.in.AdminUserUpdateUseCase;
-import io.jgitkins.server.application.port.out.UserIdentityPersistencePort;
-import io.jgitkins.server.application.port.out.UserPersistencePort;
+import io.jgitkins.server.application.port.out.UserIdentityPort;
+import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.model.User;
-import java.util.List;
-import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -20,13 +21,13 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
 
     private static final List<String> SUPPORTED_STATUSES = List.of("ACTIVE", "BLOCKED", "DELETED");
 
-    private final UserPersistencePort userPersistencePort;
-    private final UserIdentityPersistencePort userIdentityPersistencePort;
+    private final UserPort userPort;
+    private final UserIdentityPort userIdentityPort;
 
     @Override
     @Transactional(readOnly = true)
     public List<UserAdminSummary> getUsers() {
-        return userPersistencePort.findAll()
+        return userPort.findAll()
                 .stream()
                 .map(user -> new UserAdminSummary(
                         user.getId(),
@@ -42,9 +43,9 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
     @Override
     @Transactional(readOnly = true)
     public UserAdminDetail getUser(Long userId) {
-        User user = userPersistencePort.findById(userId)
+        User user = userPort.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        List<UserIdentitySummary> identities = userIdentityPersistencePort.findAllByUserId(userId)
+        List<UserIdentitySummary> identities = userIdentityPort.findAllByUserId(userId)
                 .stream()
                 .map(identity -> new UserIdentitySummary(
                         identity.getProviderName(),
@@ -79,7 +80,7 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
         if (!SUPPORTED_STATUSES.contains(normalized)) {
             throw new IllegalArgumentException("Unsupported status: " + status);
         }
-        User user = userPersistencePort.findById(userId)
+        User user = userPort.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         User updated = User.rehydrate(
                 user.getId(),
@@ -87,12 +88,13 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
                 user.getEmail(),
                 user.getDisplayName(),
                 user.getAvatarUrl(),
+                user.getAuthority(),
                 normalized,
                 user.getLastLoginAt(),
                 user.getCreatedAt(),
                 user.getUpdatedAt()
         );
-        userPersistencePort.save(updated);
+        userPort.save(updated);
     }
 
     private String normalizeStatus(String status) {

@@ -1,7 +1,7 @@
 package io.jgitkins.server.application.service;
 
-import io.jgitkins.server.application.port.out.UserIdentityPersistencePort;
-import io.jgitkins.server.application.port.out.UserPersistencePort;
+import io.jgitkins.server.application.port.out.UserIdentityPort;
+import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserIdentity;
 import java.time.LocalDateTime;
@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserPersistencePort userPersistencePort;
-    private final UserIdentityPersistencePort userIdentityPersistencePort;
+    private final UserPort userPort;
+    private final UserIdentityPort userIdentityPort;
 
     public User findOrCreateUser(String providerName,
                                  String providerSub,
@@ -24,7 +24,7 @@ public class UserService {
                                  String avatarUrl) {
         LocalDateTime loginAt = LocalDateTime.now();
         Optional<UserIdentity> existingIdentity =
-                userIdentityPersistencePort.findByProvider(providerName, providerSub);
+                userIdentityPort.findByProvider(providerName, providerSub);
         if (existingIdentity.isPresent()) {
             return handleExistingIdentity(existingIdentity.get(), email, emailVerified, name, avatarUrl, loginAt);
         }
@@ -39,15 +39,15 @@ public class UserService {
                                         String avatarUrl,
                                         LocalDateTime loginAt) {
 
-        User user = userPersistencePort.findById(identity.getUserId())
+        User user = userPort.findById(identity.getUserId())
                 .orElseThrow(() -> new IllegalStateException("User not found for identity"));
 
         User updatedUser = applyUserUpdates(user, email, name, avatarUrl, loginAt);
-        User persistedUser = userPersistencePort.save(updatedUser);
+        User persistedUser = userPort.save(updatedUser);
 
         UserIdentity updatedIdentity = maybeUpdateIdentity(identity, email, emailVerified, name, avatarUrl);
         if (updatedIdentity != identity) {
-            userIdentityPersistencePort.save(updatedIdentity);
+            userIdentityPort.save(updatedIdentity);
         }
 
         return persistedUser;
@@ -62,7 +62,7 @@ public class UserService {
                                    LocalDateTime loginAt) {
         User user = resolveUserForNewIdentity(email, name, avatarUrl, providerName, providerSub);
         User updatedUser = applyUserUpdates(user, email, name, avatarUrl, loginAt);
-        User persisted = userPersistencePort.save(updatedUser);
+        User persisted = userPort.save(updatedUser);
 
         UserIdentity identity = UserIdentity.create(
                 persisted.getId(),
@@ -73,7 +73,7 @@ public class UserService {
                 name,
                 avatarUrl
         );
-        userIdentityPersistencePort.save(identity);
+        userIdentityPort.save(identity);
 
         return persisted;
     }
@@ -84,7 +84,7 @@ public class UserService {
                                            String providerName,
                                            String providerSub) {
         if (email != null && !email.isBlank()) {
-            Optional<User> existingByEmail = userPersistencePort.findByEmail(email.trim());
+            Optional<User> existingByEmail = userPort.findByEmail(email.trim());
             if (existingByEmail.isPresent()) {
                 return existingByEmail.get();
             }
@@ -105,12 +105,12 @@ public class UserService {
     }
 
     private String ensureUniqueUsername(String baseUsername, String providerSub) {
-        if (userPersistencePort.findByUsername(baseUsername).isEmpty()) {
+        if (userPort.findByUsername(baseUsername).isEmpty()) {
             return baseUsername;
         }
         String suffix = providerSub == null ? "user" : providerSub.substring(Math.max(0, providerSub.length() - 6));
         String fallback = baseUsername + "-" + suffix.toLowerCase();
-        if (userPersistencePort.findByUsername(fallback).isEmpty()) {
+        if (userPort.findByUsername(fallback).isEmpty()) {
             return fallback;
         }
         return baseUsername + "-" + System.currentTimeMillis();

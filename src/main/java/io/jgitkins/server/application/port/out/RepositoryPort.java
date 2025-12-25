@@ -1,0 +1,30 @@
+package io.jgitkins.server.application.port.out;
+
+import io.jgitkins.server.domain.aggregate.Repository;
+import io.jgitkins.server.domain.model.vo.OrganizeId;
+import io.jgitkins.server.domain.model.vo.RepositoryId;
+import io.jgitkins.server.domain.model.vo.RepositoryName;
+import io.jgitkins.server.domain.model.vo.RepositoryPath;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface RepositoryPort {
+
+    Repository save(Repository repository);
+
+    Repository update(Repository repository);
+
+    void delete(RepositoryId id);
+
+    Optional<Repository> findById(RepositoryId id);
+
+    List<Repository> findAll();
+
+    Optional<Repository> findByOrganizeAndPath(OrganizeId organizeId, RepositoryPath path);
+
+    Optional<Repository> findByOrganizeAndName(OrganizeId organizeId, RepositoryName name);
+
+    Optional<Long> findRepositoryId(String taskCd, String repoName);
+
+}

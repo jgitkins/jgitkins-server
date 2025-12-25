@@ -3,9 +3,9 @@ package io.jgitkins.server.application.port.service;
 import io.jgitkins.server.application.dto.command.JobCreateCommand;
 import io.jgitkins.server.application.dto.command.PushEventCommand;
 import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
-import io.jgitkins.server.application.port.in.JobCreationUseCase;
-import io.jgitkins.server.application.port.out.BranchPersistenceCommandPort;
-import io.jgitkins.server.application.port.out.RepositoryLoadPort;
+import io.jgitkins.server.application.port.in.JobCreateUseCase;
+import io.jgitkins.server.application.port.out.BranchPort;
+import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.domain.Branch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +19,15 @@ import java.util.Optional;
 @Slf4j
 public class PushEventHandleService implements PushEventHandleUseCase {
 
-    private final RepositoryLoadPort repositoryLoadPort;
-    private final BranchPersistenceCommandPort branchPersistenceCommandPort;
-    private final JobCreationUseCase jobCreationUseCase;
+    private final JobCreateUseCase jobCreateUseCase;
+
+    private final RepositoryPort repositoryPort;
+    private final BranchPort branchPort;
 
     @Override
     @Transactional
     public void handle(PushEventCommand command) {
-        Optional<Long> repositoryIdOptional = repositoryLoadPort.findRepositoryId(command.getOrganizeCode(), command.getRepositoryName());
+        Optional<Long> repositoryIdOptional = repositoryPort.findRepositoryId(command.getOrganizeCode(), command.getRepositoryName());
 
         if (repositoryIdOptional.isEmpty()) {
             log.warn("push event skipped: repository not registered. taskCd={} repo={}", command.getOrganizeCode(), command.getRepositoryName());
@@ -36,7 +37,7 @@ public class PushEventHandleService implements PushEventHandleUseCase {
         Long repositoryId = repositoryIdOptional.get();
 
         if (command.isBranchCreated()) {
-            branchPersistenceCommandPort.create(Branch.create(repositoryId, command.getBranchName()));
+            branchPort.create(Branch.create(repositoryId, command.getBranchName()));
         }
 
         if (command.getCommitHash() == null || command.getCommitHash().isBlank()) {
@@ -60,6 +61,6 @@ public class PushEventHandleService implements PushEventHandleUseCase {
                 .triggeredBy(command.getTriggeredBy())
                 .build();
 
-        jobCreationUseCase.create(jobCommand);
+        jobCreateUseCase.create(jobCommand);
     }
 }

@@ -5,8 +5,8 @@ import io.jgitkins.server.application.dto.JobDispatchMessage;
 import io.jgitkins.server.application.dto.PendingJob;
 import io.jgitkins.server.application.dto.RunnerAssignmentCandidate;
 import io.jgitkins.server.application.port.in.JobDispatchUseCase;
-import io.jgitkins.server.application.port.out.JobQueuePort;
-import io.jgitkins.server.application.port.out.RunnerQueryPort;
+import io.jgitkins.server.application.port.out.JobPort;
+import io.jgitkins.server.application.port.out.RunnerPort;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.JobHistory;
@@ -25,9 +25,8 @@ import java.util.Optional;
 @Slf4j
 public class JobDispatchService implements JobDispatchUseCase {
 
-    private final JobQueuePort jobQueuePort;
-//    private final JobDispatchEventPort jobDispatchEventPort;
-    private final RunnerQueryPort runnerQueryPort;
+    private final JobPort jobPort;
+    private final RunnerPort runnerPort;
     private final CloneUrlBuilder cloneUrlBuilder;
 
     @Override
@@ -39,7 +38,7 @@ public class JobDispatchService implements JobDispatchUseCase {
         }
 
         RunnerAssignmentCandidate candidate = candidateOptional.get();
-        Optional<PendingJob> pendingJob = jobQueuePort.fetchPendingJobFor(candidate);
+        Optional<PendingJob> pendingJob = jobPort.fetchPendingJobFor(candidate);
         if (pendingJob.isEmpty()) {
             return Optional.empty();
         }
@@ -51,7 +50,7 @@ public class JobDispatchService implements JobDispatchUseCase {
             log.warn("Runner token is missing");
             return Optional.empty();
         }
-        Optional<Runner> runnerOptional = runnerQueryPort.findByToken(runnerToken);
+        Optional<Runner> runnerOptional = runnerPort.findByToken(runnerToken);
         if (runnerOptional.isEmpty()) {
             log.warn("Runner not found for token={}", runnerToken);
             return Optional.empty();
@@ -70,7 +69,7 @@ public class JobDispatchService implements JobDispatchUseCase {
         RunnerId runnerId = RunnerId.of(String.valueOf(candidate.getRunnerId()));
         job.publish(runnerId);
 
-        Optional<Long> historyId = jobQueuePort.persistHistory(job, previousHistory);
+        Optional<Long> historyId = jobPort.persistHistory(job, previousHistory);
         if (historyId.isEmpty()) {
             log.debug("Job {} was already processed by another dispatcher", job.getId().getValue());
             return Optional.empty();

@@ -5,7 +5,7 @@ import io.jgitkins.server.application.common.exception.ConflictException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
 import io.jgitkins.server.application.common.exception.UnprocessableException;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
-import io.jgitkins.server.application.port.out.BranchPersistenceLoadPort;
+import io.jgitkins.server.application.port.out.BranchPort;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +17,10 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class BranchCreationValidator {
 
-    private final BranchPersistenceLoadPort branchPersistenceLoadPort;
+    private final BranchPort branchPort;
 
     public void ensureBranchDoesNotExist(Long repositoryId, String branchName) throws IOException {
-        branchPersistenceLoadPort.getBranch(repositoryId, branchName)
+        branchPort.getBranch(repositoryId, branchName)
                 .ifPresent(existing -> {
                     throw new ConflictException(ErrorCode.BRANCH_ALREADY_EXISTS);
                 });
@@ -37,7 +37,7 @@ public class BranchCreationValidator {
                 ? repository.getDefaultBranch().getValue()
                 : command.getSourceBranch();
 
-        branchPersistenceLoadPort.getBranch(repository.getId().getValue(), sourceBranch)
+        branchPort.getBranch(repository.getId().getValue(), sourceBranch)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.SOURCE_BRANCH_NOT_FOUND,
                         "Source branch not found or not initialized: " + sourceBranch));
         return sourceBranch;

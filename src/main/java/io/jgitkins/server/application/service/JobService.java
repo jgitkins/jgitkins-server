@@ -1,9 +1,9 @@
 package io.jgitkins.server.application.service;
 
 import io.jgitkins.server.application.dto.command.JobCreateCommand;
-import io.jgitkins.server.application.port.in.JobCreationUseCase;
-import io.jgitkins.server.application.port.out.CheckFileExistencePort;
-import io.jgitkins.server.application.port.out.JobCommandPort;
+import io.jgitkins.server.application.port.in.JobCreateUseCase;
+import io.jgitkins.server.application.port.out.FileGitPort;
+import io.jgitkins.server.application.port.out.JobPort;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.model.vo.BranchName;
 import io.jgitkins.server.domain.model.vo.CommitHash;
@@ -17,10 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class JobService implements JobCreationUseCase {
+public class JobService implements JobCreateUseCase {
 
-    private final CheckFileExistencePort checkFileExistencePort;
-    private final JobCommandPort jobCommandPort;
+    private final JobPort jobPort;
+    private final FileGitPort fileGitPort;
 
     private static final String JENKINS_FILE_PATH = "Jenkinsfile";
 
@@ -28,7 +28,7 @@ public class JobService implements JobCreationUseCase {
     @Transactional
     public void create(JobCreateCommand command) {
         // 1. Jenkinsfile 존재 여부 확인
-        boolean hasJenkinsFile = checkFileExistencePort.exists(command.getTaskCd(),
+        boolean hasJenkinsFile = fileGitPort.exists(command.getTaskCd(),
                                                                command.getRepoName(),
                                                                command.getCommitHash(),
                                                                JENKINS_FILE_PATH);
@@ -46,7 +46,7 @@ public class JobService implements JobCreationUseCase {
                              BranchName.of(command.getBranchName()),
                              UserId.of(command.getTriggeredBy()));
 
-        jobCommandPort.create(job);
+        jobPort.create(job);
 
         log.info("Job created successfully. JobId: {}", job.getId());
 

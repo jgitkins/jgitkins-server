@@ -1,7 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.BranchPersistenceCommandPort;
-import io.jgitkins.server.application.port.out.BranchPersistenceLoadPort;
+import io.jgitkins.server.application.port.out.BranchPort;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.infrastructure.persistence.mapper.BranchEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.BranchEntity;
@@ -14,7 +13,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class BranchMybatisAdapter implements BranchPersistenceCommandPort, BranchPersistenceLoadPort {
+public class BranchMybatisAdapter implements BranchPort {
 
     private final BranchDomainMapper branchDomainMapper;
     private final BranchEntityMbgMapper branchEntityMbgMapper;

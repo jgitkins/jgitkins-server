@@ -14,6 +14,7 @@ public class User {
     private final String email;
     private final String displayName;
     private final String avatarUrl;
+    private final UserAuthority authority;
     private final String status;
     private final LocalDateTime lastLoginAt;
     private final LocalDateTime createdAt;
@@ -32,6 +33,7 @@ public class User {
                         normalize(email),
                         normalize(displayName),
                         normalize(avatarUrl),
+                        UserAuthority.USER,
                         "ACTIVE",
                         now,
                         now,
@@ -44,6 +46,7 @@ public class User {
                         email,
                         displayName,
                         avatarUrl,
+                        authority,
                         status,
                         lastLoginAt,
                         createdAt,
@@ -56,6 +59,7 @@ public class User {
                         normalize(email),
                         normalize(displayName),
                         normalize(avatarUrl),
+                        authority,
                         status,
                         lastLoginAt,
                         createdAt,
@@ -69,8 +73,31 @@ public class User {
                         email,
                         displayName,
                         avatarUrl,
+                        authority,
                         status,
                         when,
+                        createdAt,
+                        updatedAt);
+    }
+
+    public static User rehydrate(Long id,
+                                 String username,
+                                 String email,
+                                 String displayName,
+                                 String avatarUrl,
+                                 UserAuthority authority,
+                                 String status,
+                                 LocalDateTime lastLoginAt,
+                                 LocalDateTime createdAt,
+                                 LocalDateTime updatedAt) {
+        return new User(id,
+                        username,
+                        email,
+                        displayName,
+                        avatarUrl,
+                        authority,
+                        status,
+                        lastLoginAt,
                         createdAt,
                         updatedAt);
     }
@@ -89,6 +116,7 @@ public class User {
                         email,
                         displayName,
                         avatarUrl,
+                        UserAuthority.USER,
                         status,
                         lastLoginAt,
                         createdAt,

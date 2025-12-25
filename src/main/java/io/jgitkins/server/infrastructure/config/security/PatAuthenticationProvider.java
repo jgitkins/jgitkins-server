@@ -1,7 +1,7 @@
 package io.jgitkins.server.infrastructure.config.security;
 
-import io.jgitkins.server.application.port.out.UserCredentialPersistencePort;
-import io.jgitkins.server.application.port.out.UserLookupPort;
+import io.jgitkins.server.application.port.out.UserCredentialPort;
+import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.model.UserCredential;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +24,8 @@ public class PatAuthenticationProvider implements AuthenticationProvider {
 
     private static final String PAT_PREFIX = "jkpat_";
 
-    private final UserLookupPort userLookupPort;
-    private final UserCredentialPersistencePort userCredentialPersistencePort;
+    private final UserPort userPort;
+    private final UserCredentialPort userCredentialPort;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -39,10 +39,10 @@ public class PatAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Invalid token format");
         }
 
-        Long userId = userLookupPort.findUserIdByUsername(username)
+        Long userId = userPort.findUserIdByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        Optional<UserCredential> credential = userCredentialPersistencePort.findByUserIdAndProvider(userId, "PAT");
+        Optional<UserCredential> credential = userCredentialPort.findByUserIdAndProvider(userId, "PAT");
         if (credential.isEmpty()) {
             throw new BadCredentialsException("Token not registered");
         }

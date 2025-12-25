@@ -9,7 +9,7 @@ import io.jgitkins.server.application.mapper.OrganizeApplicationMapper;
 import io.jgitkins.server.application.port.in.OrganizeCreationUseCase;
 import io.jgitkins.server.application.port.in.OrganizeDeletionUseCase;
 import io.jgitkins.server.application.port.in.OrganizeLoadUseCase;
-import io.jgitkins.server.application.port.out.OrganizePersistencePort;
+import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
@@ -27,7 +27,8 @@ public class OrganizeService implements OrganizeCreationUseCase,
 //                                                       OrganizeUpdateUseCase,
                                         OrganizeDeletionUseCase {
 
-    private final OrganizePersistencePort organizePersistencePort;
+    private final OrganizePort organizePort;
+
     private final OrganizeApplicationMapper organizeApplicationMapper;
 
     @Override
@@ -36,7 +37,7 @@ public class OrganizeService implements OrganizeCreationUseCase,
 
         OrganizeName organizeName = OrganizeName.from(command.getName());
 
-        organizePersistencePort.findByName(organizeName)
+        organizePort.findByName(organizeName)
                 .ifPresent(existing -> {
                     throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS, "Organize name already exists: " + organizeName.getValue());
                 });
@@ -45,7 +46,7 @@ public class OrganizeService implements OrganizeCreationUseCase,
                                             command.getOwnerId(),
                                             command.getDescription());
 
-        Organize saved = organizePersistencePort.save(organize);
+        Organize saved = organizePort.save(organize);
 
         return organizeApplicationMapper.toDto(saved);
     }
@@ -53,7 +54,7 @@ public class OrganizeService implements OrganizeCreationUseCase,
     @Override
     @Transactional(readOnly = true)
     public OrganizeCreationResult getOrganize(Long organizeId) {
-        Organize organize = organizePersistencePort.findById(OrganizeId.of(organizeId))
+        Organize organize = organizePort.findById(OrganizeId.of(organizeId))
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
                         "Organize not found: " + organizeId));
         return organizeApplicationMapper.toDto(organize);
@@ -62,7 +63,7 @@ public class OrganizeService implements OrganizeCreationUseCase,
     @Override
     @Transactional(readOnly = true)
     public List<OrganizeCreationResult> getOrganizes() {
-        return organizePersistencePort.findAll()
+        return organizePort.findAll()
                 .stream()
                 .map(organizeApplicationMapper::toDto)
                 .collect(Collectors.toList());
@@ -100,9 +101,9 @@ public class OrganizeService implements OrganizeCreationUseCase,
     @Transactional
     public void deleteOrganize(Long organizeId) {
         OrganizeId id = OrganizeId.of(organizeId);
-        organizePersistencePort.findById(id)
+        organizePort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
                         "Organize not found: " + organizeId));
-        organizePersistencePort.delete(id);
+        organizePort.delete(id);
     }
 }

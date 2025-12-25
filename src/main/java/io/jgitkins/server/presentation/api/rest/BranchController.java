@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
 import io.jgitkins.server.application.dto.result.BranchSearchResult;
-import io.jgitkins.server.application.port.in.BranchCreationUseCase;
-import io.jgitkins.server.application.port.in.BranchDeletetionUseCase;
+import io.jgitkins.server.application.port.in.BranchCreateUseCase;
+import io.jgitkins.server.application.port.in.BranchDeleteUseCase;
 import io.jgitkins.server.application.port.in.BranchLoadUseCase;
 import io.jgitkins.server.presentation.dto.BranchCreateRequest;
 import io.jgitkins.server.presentation.mapper.BranchCreateMapper;
@@ -25,8 +25,8 @@ import java.util.List;
 public class BranchController {
 
     private final BranchLoadUseCase branchLoadUseCase;
-    private final BranchCreationUseCase branchCreationUseCase;
-    private final BranchDeletetionUseCase branchDeletetionUseCase;
+    private final BranchCreateUseCase branchCreateUseCase;
+    private final BranchDeleteUseCase branchDeleteUseCase;
     private final BranchCreateMapper branchCreateMapper;
 
     @Operation(summary = "Create branch")
@@ -35,7 +35,7 @@ public class BranchController {
                                        @RequestBody BranchCreateRequest request) throws IOException {
 
         BranchCreateCommand createCommand = branchCreateMapper.toCommand(repositoryId, request);
-        branchCreationUseCase.createBranch(createCommand);
+        branchCreateUseCase.createBranch(createCommand);
 
         URI location = LocationUriBuilder.create(request.getBranchName());
         return ResponseEntity.created(location).build();
@@ -59,7 +59,7 @@ public class BranchController {
     public ResponseEntity<Void> deleteBranch(@PathVariable Long repositoryId,
                                              @PathVariable String branchName) throws IOException {
 
-        branchDeletetionUseCase.deleteBranch(repositoryId, branchName);
+        branchDeleteUseCase.deleteBranch(repositoryId, branchName);
         return ResponseEntity.noContent().build();
     }
 }
