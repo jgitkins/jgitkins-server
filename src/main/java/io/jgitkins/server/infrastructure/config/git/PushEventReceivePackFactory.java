@@ -69,20 +69,21 @@ public class PushEventReceivePackFactory implements ReceivePackFactory<HttpServl
             throw new ServiceNotAuthorizedException("Unauthenticated");
         }
         boolean allowed = gitRepositoryAccessService.canWrite(
-                repoRequest.organizeSlug(),
-                repoRequest.repositoryPath(),
+                repoRequest.namespace(),
+                repoRequest.ownerSlug(),
+                repoRequest.repositoryName(),
                 userId
         );
         if (!allowed) {
             log.warn("git push denied: org=[{}] repo=[{}] userId=[{}]",
-                    repoRequest.organizeSlug(),
-                    repoRequest.repositoryPath(),
+                    repoRequest.namespace(),
+                    repoRequest.repositoryName(),
                     userId);
             throw new ServiceNotAuthorizedException("Access denied");
         }
         log.info("git push allowed: org=[{}] repo=[{}] userId=[{}]",
-                repoRequest.organizeSlug(),
-                repoRequest.repositoryPath(),
+                repoRequest.namespace(),
+                repoRequest.repositoryName(),
                 userId);
     }
 

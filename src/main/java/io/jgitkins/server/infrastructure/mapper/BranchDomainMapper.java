@@ -1,4 +1,4 @@
-package io.jgitkins.server.infrastructure.adapter.persistence;
+package io.jgitkins.server.infrastructure.mapper;
 
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.infrastructure.persistence.model.BranchEntity;

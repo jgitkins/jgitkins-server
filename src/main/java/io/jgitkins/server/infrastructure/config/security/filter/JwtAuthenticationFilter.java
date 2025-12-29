@@ -1,6 +1,6 @@
-package io.jgitkins.server.infrastructure.config.security;
+package io.jgitkins.server.infrastructure.config.security.filter;
 
-import io.jgitkins.server.security.JwtService;
+import io.jgitkins.server.infrastructure.config.security.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -48,29 +48,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
-            Claims claims = jwtService.parseClaims(token);
-            String subject = claims.getSubject();
-            if (subject == null || subject.isBlank()) {
-                log.warn("JWT subject is missing");
-                throw new BadCredentialsException("Token subject missing");
-            }
-
-            UsernamePasswordAuthenticationToken authentication = buildAuthentication(subject, claims);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            authenticateToken(request, token);
         } catch (JwtException | IllegalArgumentException ex) {
-            log.warn("JWT parsing failed: {} {}", request.getMethod(), request.getRequestURI());
-            SecurityContextHolder.clearContext();
-            authenticationEntryPoint.commence(request, response, new BadCredentialsException("Invalid token", ex));
+            handleAuthenticationFailure(request, response, new BadCredentialsException("Invalid token", ex));
             return;
         } catch (AuthenticationException ex) {
-            log.warn("JWT authentication failed: {} {}", request.getMethod(), request.getRequestURI());
-            SecurityContextHolder.clearContext();
-            authenticationEntryPoint.commence(request, response, ex);
+            handleAuthenticationFailure(request, response, ex);
             return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void authenticateToken(HttpServletRequest request, String token) {
+        Claims claims = jwtService.parseClaims(token);
+        String subject = claims.getSubject();
+        if (subject == null || subject.isBlank()) {
+            log.warn("JWT subject is missing");
+            throw new BadCredentialsException("Token subject missing");
+        }
+
+        UsernamePasswordAuthenticationToken authentication = buildAuthentication(subject, claims);
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    private void handleAuthenticationFailure(HttpServletRequest request,
+                                             HttpServletResponse response,
+                                             AuthenticationException exception) throws IOException, ServletException {
+        log.warn("JWT authentication failed: {} {}", request.getMethod(), request.getRequestURI());
+        SecurityContextHolder.clearContext();
+        authenticationEntryPoint.commence(request, response, exception);
     }
 
     private String resolveBearerToken(HttpServletRequest request) {
@@ -82,10 +90,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private UsernamePasswordAuthenticationToken buildAuthentication(String subject, Claims claims) {
-        List<String> roles = claims.get("roles", List.class);
-        List<SimpleGrantedAuthority> authorities = roles == null
-                ? Collections.emptyList()
-                : roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+        Object rolesClaim = claims.get("roles");
+        List<SimpleGrantedAuthority> authorities;
+        if (rolesClaim instanceof List<?> roles) {
+            authorities = roles.stream()
+                    .map(role -> new SimpleGrantedAuthority(String.valueOf(role)))
+                    .collect(Collectors.toList());
+        } else {
+            authorities = Collections.emptyList();
+        }
         return new UsernamePasswordAuthenticationToken(subject, null, authorities);
     }
 }

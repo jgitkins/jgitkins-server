@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import io.jgitkins.server.application.dto.FileEntry;
 import io.jgitkins.server.application.port.in.FileLoadUseCase;
+import io.jgitkins.server.presentation.common.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,11 +21,11 @@ public class RepositoryFileController {
 
     @Operation(summary = "List Repository Files", description = "지정한 참조(브랜치/커밋)의 전체 파일 목록 조회")
     @GetMapping
-    public ResponseEntity<List<FileEntry>> listFiles(@PathVariable String taskCd,
-                                                     @PathVariable String repoName,
-                                                     @RequestParam(name = "ref", required = false, defaultValue = "") String ref) {
+    public ResponseEntity<ApiResponse<List<FileEntry>>> listFiles(@PathVariable String taskCd,
+                                                                  @PathVariable String repoName,
+                                                                  @RequestParam(name = "ref", required = false, defaultValue = "") String ref) {
 
         List<FileEntry> files = fileLoadUseCase.getAllFiles(taskCd, repoName, ref);
-        return ResponseEntity.ok(files);
+        return ApiResponse.ok(files);
     }
 }

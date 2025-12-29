@@ -10,9 +10,11 @@ import io.jgitkins.server.application.port.in.BranchDeleteUseCase;
 import io.jgitkins.server.application.port.in.BranchLoadUseCase;
 import io.jgitkins.server.application.mapper.BranchApplicationMapper;
 import io.jgitkins.server.application.service.BranchCreationValidator;
-import io.jgitkins.server.application.port.out.*;
+import io.jgitkins.server.application.port.out.BranchGitPort;
+import io.jgitkins.server.application.port.out.BranchPort;
+import io.jgitkins.server.application.port.out.RepositoryPort;
+import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
 import io.jgitkins.server.domain.Branch;
-import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +27,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, BranchDeleteUseCase {
 
+    private final RepositoryNamespaceResolver repositoryNamespaceResolver;
     private final BranchApplicationMapper branchApplicationMapper;
     private final BranchCreationValidator branchCreationValidator;
 
     private final BranchGitPort branchGitPort;
     private final BranchPort branchPort;
     private final RepositoryPort repositoryPort;
-    private final OrganizePort organizePort;
 
 
     @Override
@@ -56,9 +58,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
         Repository repository = repositoryPort.findById(RepositoryId.of(command.getRepositoryId()))
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
                         "Repository not found: " + command.getRepositoryId()));
-        Organize organize = organizePort.findById(repository.getOrganizeId())
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
-                        "Organize not found: " + repository.getOrganizeId().getValue()));
+        String namespace = repositoryNamespaceResolver.resolve(repository);
 
         // 2) validate semantic rules
         branchCreationValidator.ensureRepositoryInitialized(repository);
@@ -67,7 +67,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
 
         // 3) create new branch aggregate
         Branch newBranch = Branch.create(command.getRepositoryId(), command.getBranchName());
-        BranchCreationContext context = BranchCreationContext.of(command, organize, repository, resolvedSourceBranch);
+        BranchCreationContext context = BranchCreationContext.of(command, namespace, repository, resolvedSourceBranch);
 
         // 4) create branch from file system
         branchGitPort.createBranch(context);
@@ -79,19 +79,16 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
     @Override
     public void deleteBranch(Long repositoryId, String branchName) throws IOException {
         Repository repository = repositoryPort.findById(RepositoryId.of(repositoryId))
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
-                        "Repository not found: " + repositoryId));
-        Organize organize = organizePort.findById(repository.getOrganizeId())
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
-                        "Organize not found: " + repository.getOrganizeId().getValue()));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND, "Repository not found: " + repositoryId));
+
+        String namespace = repositoryNamespaceResolver.resolve(repository);
 
         Branch branch = branchPort.getBranch(repositoryId, branchName)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND,
-                        "Branch not found: " + branchName));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND, "Branch not found: " + branchName));
 
         branchCreationValidator.ensureNotDefaultBranch(repository, branch);
 
-        branchGitPort.deleteBranch(organize.getName().getValue(),
+        branchGitPort.deleteBranch(namespace,
                                          repository.getName().getValue(),
                                          branchName);
         branchPort.delete(repositoryId, branchName);

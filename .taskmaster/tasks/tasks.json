@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
+        "id": "1",
         "title": "Feature Runner Management API",
         "description": "Create the core pipeline/job aggregates, DTOs, and storage ports that will back CI orchestration.",
         "status": "done",
@@ -56,7 +56,7 @@
         "updatedAt": "2025-12-08T07:31:21.514Z"
       },
       {
-        "id": 2,
+        "id": "2",
         "title": "Feature Integrate MQ",
         "description": "Introduce the Feature MQ message-bus so the CI coordinator can asynchronously push pipeline job definitions and runner heartbeat signals between the Spring Boot orchestrator and external JGitkins Runners, ensuring jobs created from parsed Jenkinsfiles are queued and acknowledged reliably.",
         "status": "cancelled",
@@ -152,7 +152,7 @@
         "updatedAt": "2025-12-12T10:32:23.594Z"
       },
       {
-        "id": 3,
+        "id": "3",
         "title": "Feature Batch Job Publisher",
         "description": "Create a scheduled dispatcher that scans stored pipeline jobs and enqueues them only when at least one runnable runner is currently reporting heartbeats.",
         "details": "1. Follow the service layout under `src/main/java/io/jgitkins/server/application/port/service/` (see `RepositoryService` as a reference) to add a `JobDispatchService` that consumes `PipelineJobPersistencePort`, `JobQueuePort`, and `RunnerHeartbeatPort` (from Tasks 1 & 2). The service should expose `publishPendingJobs()` that: a) loads pending `PipelineJob`s flagged as runnable, b) checks runner availability via heartbeat data (only runners with recent timestamps and matching labels/architectures should qualify), c) transitions the job status to `QUEUED` and persists it before enqueueing via `JobQueuePort`, and d) skips jobs when no runner fits.\n2. Implement a Spring `@Component` scheduler (e.g., `PipelineJobPublisherBatch` under `src/main/java/io/jgitkins/server/infrastructure/batch/`) using `@Scheduled(fixedDelay = …)` and enable scheduling in `JGitkinsServerApplication` if not already. The batch should call `JobDispatchService.publishPendingJobs()` and log outcomes with structured log messages (job id, runner id) using SLF4J, mirroring logging already present in adapters like `JGitRepositoryAdapter`.\n3. Add configuration knobs in `application.yml` (new `jgitkins.dispatcher.*` section) for delay interval, heartbeat freshness threshold, and per-runner concurrency guard. Bind them via a `@ConfigurationProperties` class under `infrastructure/config` similar to existing configs (e.g., `DataSourceConfig`). Inject these properties into the batch component.\n4. Extend the domain from Task 1 by documenting the new `QUEUED` transition and runner-selection constraints inside the `PipelineJob` aggregate (update its JavaDoc or KDoc comments once implemented) so later tasks understand invariants. Ensure the dispatch logic throws `ResourceLockedException` when concurrent updates race, matching existing exception types in `application/common/exception`.\n5. Prepare the infrastructure adapter for recording runner occupancy: add a lightweight `RunnerAssignmentTracker` (in-memory Map for now) under `infrastructure/adapter/mq/` that mirrors how other adapters (e.g., `JGitBranchAdapter`) encapsulate external resources, so future MQ-backed implementations can reuse the selection logic.",
@@ -167,7 +167,7 @@
         "updatedAt": "2025-12-15T07:40:55.588Z"
       },
       {
-        "id": 4,
+        "id": "4",
         "title": "Runner Management(Manage Plugin or Runner Configuration (Schedule cycle or.. dockerImage(Jenkinsfile Runner or Jenkinsfile Runner 에 사용되는 플러그인들을 서버에서 설정 ))",
         "description": "Centralized Runner runtime management on JGitkins Server. Maintain a catalog of Runner Docker images (including Jenkinsfile Runner) and plugin bundles, with versioning, approval, distribution (including offline mirroring), and per-runner configuration such as allowed images/plugins and execution settings.",
         "details": "",
@@ -255,7 +255,7 @@
         "updatedAt": "2025-12-17T11:35:46.873Z"
       },
       {
-        "id": 5,
+        "id": "5",
         "title": "Scheduled Job Publication Flow",
         "description": "Implement a scheduler-driven service that detects pending pipeline jobs, ensures a compatible runnable runner exists, updates job history, and enqueues the job for execution.",
         "details": "1. Add a Spring `@Scheduled` component (e.g., `JobSchedulePoller` under `src/main/java/io/jgitkins/server/application/scheduling/`) that invokes the existing `JobDispatchService.publishPendingJobs()` from Task 3 at configurable intervals (default 30s via `application.yml`).\n2. Within `JobDispatchService`, implement logic to query `PipelineJobPersistencePort` for pending jobs, ask `RunnerHeartbeatPort` for runners whose heartbeats fall within the freshness window and match required labels/arch, and pick the best runner via `RunnerAssignment` metadata.\n3. When a runner is selected, update the job’s domain aggregate: append a history entry (new `JobHistoryEvent`/value object) capturing transition `PENDING→QUEUED`, runner id, timestamp, and any queue reference.\n4. Persist the updated job via `PipelineJobPersistencePort` using optimistic locking to prevent duplicate dispatch, then call `JobQueuePort.enqueue()` with a DTO mirroring Task 2’s payload specification.\n5. Emit structured logs/metrics (Micrometer counter for dispatched jobs, gauge for backlog) to aid observability and ensure the scheduler is idempotent (skip processing when no runners qualify).",
@@ -271,7 +271,7 @@
         "updatedAt": "2025-12-18T02:06:32.861Z"
       },
       {
-        "id": 6,
+        "id": "6",
         "title": "Define Repository Domain and Refine Repository Management API",
         "description": "Establish a robust domain model for repositories and enhance the existing API for managing them, including CRUD operations and state tracking.",
         "details": "1. Define Repository Aggregate: Following the pattern established in `src/main/java/io/jgitkins/server/domain/model/Job.java` (from Task 1), introduce a `Repository` aggregate (e.g., as a Java record) within `src/main/java/io/jgitkins/server/application/domain/model/`. This aggregate should include properties such as `id` (UUID), `url` (e.g., Git URL), `name`, `branch`, `credentialId` (if applicable), `lastSyncedAt`, `status` (e.g., 'ACTIVE', 'INACTIVE', 'ERROR'), and `ownerId`. Consider `RepositoryType` (e.g., GITHUB, GITLAB) as a Value Object. 2. Refine RepositoryService: Update or extend `src/main/java/io/jgitkins/server/application/port/service/RepositoryService.java` to operate on the new `Repository` domain model. Implement use cases for creating, updating, retrieving, and deleting repositories. This service will act as the application-layer entry point for repository management. 3. Implement RepositoryPersistencePort: Define a `RepositoryPersistencePort` interface in `src/main/java/io/jgitkins/server/application/port/out/` alongside `RepositoryContentPort` (as per Task 2). Implement methods like `save(Repository repository)`, `findById(UUID id)`, `findByUrl(String url)`, and `delete(UUID id)`. 4. Create Persistence Adapter: Develop an in-memory adapter (`InMemoryRepositoryAdapter`) for `RepositoryPersistencePort` in `src/main/java/io/jgitkins/server/infrastructure/adapter/out/persistence/` for initial development and testing, mirroring the approach of other in-memory adapters. 5. Develop Repository DTOs: Create corresponding Data Transfer Objects (DTOs) in `src/main/java/io/jgitkins/server/application/dto/` for `CreateRepositoryCommand`, `UpdateRepositoryCommand`, and `RepositoryResponse` to facilitate API interactions. 6. Expose REST Endpoints: Implement or modify REST controllers (e.g., `RepositoryController` in `src/main/java/io/jgitkins/server/interfaces/rest/`) to expose endpoints for managing repositories (e.g., `POST /api/repositories`, `GET /api/repositories/{id}`, `PUT /api/repositories/{id}`, `DELETE /api/repositories/{id}`). These endpoints should use the newly defined DTOs and interact with `RepositoryService`. 7. Integrate with RepositoryContentPort: Ensure the refined `RepositoryService` can leverage or integrate with the existing `RepositoryContentPort` for operations requiring interaction with the actual repository content (e.g., fetching Jenkinsfile, although this specific part might be a follow-up task, ensure compatibility.",
@@ -348,7 +348,7 @@
         ]
       },
       {
-        "id": 7,
+        "id": "7",
         "title": "Define Organize Domain and Refine Repository Management API",
         "description": "Define Organize Domain and Refine Repository Management API",
         "details": "",
@@ -425,7 +425,7 @@
         ]
       },
       {
-        "id": 8,
+        "id": "8",
         "title": "Migrate Service Communication with gRPC",
         "description": "Implement gRPC services for existing application APIs, starting with Repository and Organize management, to enable efficient, high-performance inter-service communication.",
         "details": "1. Add gRPC Dependencies: Update the `pom.xml` to include `grpc-netty-shaded`, `grpc-protobuf`, `grpc-stub`, and `protobuf-maven-plugin` for code generation. Ensure the `protobuf-maven-plugin` is configured to generate Java sources from `.proto` files during the build lifecycle, targeting `target/generated-sources/protobuf`.\n2. Define Protocol Buffer Definitions: Create new `.proto` files (e.g., `repository_service.proto`, `organize_service.proto`) under a new `src/main/proto` directory. These files should define gRPC services and message types that mirror the domain models and DTOs used by the existing `RepositoryService` and `OrganizeService` (from Task 6 and Task 7). For instance, a `Repository` message in `repository_service.proto` should reflect `io.jgitkins.server.application.domain.model.Repository`.\n3. Implement gRPC Service Adapters: Create gRPC server implementations (e.g., `GrpcRepositoryService`, `GrpcOrganizeService`) under a new package `io.jgitkins.server.adapter.in.grpc`. These classes must extend the generated `*Grpc.ServiceImplBase` classes and delegate incoming gRPC requests to the corresponding application services (e.g., `RepositoryService`, `OrganizeService`) from `io.jgitkins.server.application.port.service`. Ensure meticulous mapping between gRPC proto messages and the application's domain/DTO objects.\n4. Configure gRPC Server: Integrate the gRPC server into the Spring Boot application. This can be achieved by using `grpc-spring-boot-starter` or by manually configuring and starting a `ServerBuilder` within a Spring `@Configuration` class. The server must register the implemented gRPC services.\n5. Implement Error Handling and Interceptors: Develop global gRPC error handling mechanisms, possibly using a `ServerInterceptor`, to catch exceptions thrown by application services and map them to appropriate gRPC `Status` codes (e.g., `Status.NOT_FOUND`, `Status.INVALID_ARGUMENT`, `Status.INTERNAL`).",
@@ -441,7 +441,7 @@
         "updatedAt": "2025-12-12T10:37:14.459Z"
       },
       {
-        "id": 9,
+        "id": "9",
         "title": "Domain Modeling Refinement and Test Case Addition",
         "description": "Refine the existing Repository and Organize domain models to improve their robustness and extensibility, and expand the associated unit and integration test coverage to ensure correctness.",
         "details": "Based on the existing codebase, specifically drawing from the implementation patterns of Task 1's `Job.java` and the `Repository` and `Organize` aggregates from Tasks 6 and 7:\n\n1. Review `Repository` Domain Model:\n   * Examine `src/main/java/io/jgitkins/server/application/domain/model/Repository.java` (or similar path if implemented as a record).\n   * Identify potential areas for refinement:\n     * Value Objects: Consider if any existing properties (e.g., `url`, `branch`) would benefit from being encapsulated as dedicated Value Objects (e.g., `RepositoryUrl`, `BranchName`) to enforce invariants and improve type safety, aligning with established DDD patterns.\n     * Behavior: Add any missing domain-specific behaviors or methods directly to the `Repository` aggregate to ensure business logic resides with the domain model rather than leaking into services. For example, introduce `updateStatus(RepositoryStatus newStatus)` or `assignCredential(CredentialId id)`.\n     * Immutability: Ensure the aggregate remains immutable where appropriate, utilizing `with` methods or constructor-based updates for state changes, consistent with Java record patterns.\n2. Review `Organize` Domain Model:\n   * Perform a similar review for `src/main/java/io/jgitkins/server/application/domain/model/Organize.java`, ensuring consistency with the `Repository` and `Job` models where applicable.\n3. Refine Domain Event Handling (if applicable):\n   * If `Repository` or `Organize` state changes emit domain events, ensure these events are well-defined and carry sufficient context. Add new events if domain changes introduce new significant state transitions, referencing existing patterns for domain event publishing.\n4. Update `RepositoryService` and `OrganizeService`:\n   * Adjust `src/main/java/io/jgitkins/server/application/port/service/RepositoryService.java` and `OrganizeService.java` to accommodate any structural or behavioral changes in their respective domain models. Ensure any new Value Objects are correctly handled when interacting with persistence ports or external APIs.",
@@ -530,7 +530,7 @@
         "updatedAt": "2025-12-22T09:43:37.152Z"
       },
       {
-        "id": 10,
+        "id": "10",
         "title": "OAuth + JWT Flow (Architectural View)",
         "description": "  1. Client Initiation: User hits your app (SPA or backend). App redirects to auth gateway/Identity Provider (IdP) with OAuth2/OIDC (authorization code flow).\n  2. IdP Authentication: User signs in at IdP (Google). On success, IdP redirects back with an auth code.\n  3. Token Exchange: Your backend (or auth service) exchanges the code for tokens from IdP. Typically receives an ID Token (JWT) plus Access/Refresh tokens.\n  4. Local User Link: Backend extracts sub/provider info from ID Token. It creates or updates a local user record (USERS table) tied to that provider ID, ensuring domain logic references a stable internal user ID.\n  5. App Token Issuance: Backend issues its own short-lived JWT (or session) containing local user ID, roles, and any scoped claims. Refresh tokens (or re-auth via IdP) handle renewal.\n  6. API Access: Clients call your APIs with the app JWT. Each service validates signature/expiry, then uses the local user ID to enforce domain rules. No service directly depends on Google IDs.\n  7. Logout/Revocation: Invalidate refresh tokens or server sessions; optionally call IdP revoke endpoints. Centralize audit logs for sign-ins and token lifecycle events.\n",
         "details": "",
@@ -546,7 +546,8 @@
             "dependencies": [],
             "details": "1. Add `spring-boot-starter-oauth2-client` dependency to the `pom.xml`.\n2. Configure `application.yml` or `application.properties` with the OAuth2 client registration details: client ID, client secret, authorization URI, token URI, user info URI, and redirect URI for the chosen IdP (e.g., Google).\n3. Define a Spring Security configuration class (e.g., `SecurityConfig.java`) to enable OAuth2 login.\n4. Ensure the application correctly handles the initial `/oauth2/authorization/<idp-name>` redirect to the IdP.",
             "status": "done",
-            "testStrategy": "Manually test the initiation of the OAuth2 flow by navigating to the login endpoint, verifying redirection to the IdP's authentication page, and confirming that the IdP redirects back to the application with an authorization code."
+            "testStrategy": "Manually test the initiation of the OAuth2 flow by navigating to the login endpoint, verifying redirection to the IdP's authentication page, and confirming that the IdP redirects back to the application with an authorization code.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -557,7 +558,8 @@
             ],
             "details": "1. Implement an endpoint (e.g., `/login/oauth2/code/<idp-name>`) that receives the authorization code as a callback from the IdP.\n2. Utilize Spring Security's `OAuth2AuthorizedClientService` or `WebClient` to programmatically make a POST request to the IdP's token endpoint, sending the authorization code, client ID, client secret, and redirect URI.\n3. Parse the JSON response from the IdP to extract the `id_token` (JWT), `access_token`, and `refresh_token`.\n4. Validate the `id_token`'s signature and expiration, and then parse its claims (e.g., `sub`, `email`, `name`, `picture`).",
             "status": "done",
-            "testStrategy": "Unit test the token exchange logic using mock IdP responses to verify correct request construction and token parsing. Integration test by simulating a successful OAuth2 callback (e.g., using `MockMvc` or a test client) and asserting that all expected tokens are received and parsed."
+            "testStrategy": "Unit test the token exchange logic using mock IdP responses to verify correct request construction and token parsing. Integration test by simulating a successful OAuth2 callback (e.g., using `MockMvc` or a test client) and asserting that all expected tokens are received and parsed.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -568,7 +570,8 @@
             ],
             "details": "1. Define a `User` entity (e.g., `io.jgitkins.server.application.domain.model.User.java`) with fields such as `id` (internal primary key), `providerId` (IdP's 'sub' claim), `providerName` (e.g., 'google'), `email`, and `name`.\n2. Create a `UserRepository` interface (e.g., `io.jgitkins.server.application.port.out.persistence.UserRepository.java`) for persistence operations, potentially using Spring Data JPA.\n3. Develop a `UserService` (e.g., `io.jgitkins.server.application.port.service.UserService.java`) method, such as `findOrCreateUser(String providerName, String providerId, String email, String name)`, which:\n    a. Queries the `UserRepository` to find an existing user by `providerId` and `providerName`.\n    b. If the user does not exist, creates a new `User` entity and persists it.\n    c. If the user exists, updates relevant user details (e.g., name, email) if they have changed.",
             "status": "done",
-            "testStrategy": "Unit tests for `UserService` using mock `UserRepository` to verify the `findOrCreateUser` logic for both new user creation and existing user updates. Integration tests using an in-memory database (e.g., H2) to confirm persistence operations on the `User` entity."
+            "testStrategy": "Unit tests for `UserService` using mock `UserRepository` to verify the `findOrCreateUser` logic for both new user creation and existing user updates. Integration tests using an in-memory database (e.g., H2) to confirm persistence operations on the `User` entity.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -579,7 +582,8 @@
             ],
             "details": "1. Implement a `JwtService` (e.g., `io.jgitkins.server.security.JwtService.java`) responsible for generating and validating internal JWTs.\n2. Use a Java JWT library (e.g., `jjwt` or `Auth0 JWT`) to create digitally signed JWTs.\n3. Configure a robust, securely stored secret key for signing the internal JWTs.\n4. Include essential claims in the JWT payload: `sub` (local internal user ID), `roles` (list of assigned roles), `exp` (expiration timestamp), and `iat` (issued at timestamp).\n5. Integrate the `JwtService` into the authentication flow after local user record management (Subtask 3) to return the newly generated internal JWT to the client (e.g., in the response body or as a cookie).\n6. Consider a simple refresh token strategy, possibly by requiring re-authentication via the IdP for session renewal or implementing a server-side refresh token management system for the internal JWTs.",
             "status": "done",
-            "testStrategy": "Unit tests for the `JwtService` to verify correct token generation, including the presence of all required claims, accurate expiration times, and valid signature generation. Test the validation method to ensure it correctly identifies valid, expired, and invalid tokens. No actual token exchange with IdP is part of this subtask testing."
+            "testStrategy": "Unit tests for the `JwtService` to verify correct token generation, including the presence of all required claims, accurate expiration times, and valid signature generation. Test the validation method to ensure it correctly identifies valid, expired, and invalid tokens. No actual token exchange with IdP is part of this subtask testing.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -590,7 +594,8 @@
             ],
             "details": "1. For REST APIs: Implement a `JwtAuthenticationFilter` that extends `OncePerRequestFilter`. This filter will:\n    a. Extract the JWT from the `Authorization` header (e.g., 'Bearer <token>').\n    b. Validate the JWT's signature and expiration using the `JwtService` developed in Subtask 4.\n    c. Extract the local `userId` and `roles` from the validated JWT.\n    d. Load user details (e.g., `UserDetails`) based on the `userId`.\n    e. Set the authenticated user in `SecurityContextHolder.getContext().setAuthentication(authentication)`.\n2. For gRPC APIs (considering Task 8: 'Migrate Service Communication with gRPC'): Implement a `ServerInterceptor` (e.g., `JwtGrpcServerInterceptor`) that performs similar JWT validation logic for gRPC requests and sets the authenticated user within the gRPC `Context`.\n3. Configure the filter/interceptor to be applied to all protected API endpoints in `SecurityConfig.java`.",
             "status": "done",
-            "testStrategy": "Integration tests to confirm that protected REST and gRPC API endpoints correctly require a valid internal JWT and reject requests with missing, invalid, or expired tokens. End-to-end tests involving a client sending a valid internal JWT to access a protected resource. Unit tests for the filter/interceptor logic, mocking the `JwtService` and `SecurityContextHolder` interactions."
+            "testStrategy": "Integration tests to confirm that protected REST and gRPC API endpoints correctly require a valid internal JWT and reject requests with missing, invalid, or expired tokens. End-to-end tests involving a client sending a valid internal JWT to access a protected resource. Unit tests for the filter/interceptor logic, mocking the `JwtService` and `SecurityContextHolder` interactions.",
+            "parentId": "undefined"
           },
           {
             "id": 6,
@@ -599,88 +604,174 @@
             "details": "",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 10
+            "parentTaskId": 10,
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 11,
+        "id": "11",
         "title": "Implement Admin User Management API",
         "description": "Develop a comprehensive API for administrative user management, enabling CRUD operations on user accounts, role assignment, and permission management within the JGitkins Server.",
         "details": "1. User Domain Model: Define a `User` aggregate (e.g., `io.jgitkins.server.application.domain.model.User`) following patterns established in Task 6's `Repository.java` and Task 1's `Job.java`. It should encapsulate properties such as `id` (UUID), `username`, `email`, `hashedPassword` (for local accounts, though OAuth is primary), `roles` (list of `Role` enum or aggregate IDs), `providerId` (from OAuth, see Task 10 for details on local user records), `createdAt`, `updatedAt`, and `status` (e.g., 'ACTIVE', 'INACTIVE').2. Role/Permission Domain Model: Introduce `Role` (e.g., an enum for predefined roles like `ADMIN`, `DEVELOPER`, `GUEST`) and `Permission` domain concepts to manage access levels. Permissions should be granular (e.g., `READ_REPOSITORY`, `WRITE_REPOSITORY`, `MANAGE_USERS`).3. Database Schema: Extend the database schema to support the defined `User` properties and `User-Role` mappings. This will likely involve new `ROLES` and `USER_ROLES` tables, building upon the `USERS` table mentioned in Task 10's description.4. Application Service Layer: Implement a `UserService` (e.g., `io.jgitkins.server.application.port.service.UserService`) to encapsulate business logic for user creation, updates, deletion, role assignment, and querying. This service should interact with the `User` domain model and a `UserRepository` (persistence adapter).5. gRPC API Adapter: Following Task 8's migration to gRPC, define new `.proto` files (e.g., `user_management_service.proto` under `src/main/proto`) for the Admin User Management API. This API should expose gRPC endpoints for operations such as `CreateUser(UserRequest)`, `GetUser(GetUserRequest)`, `UpdateUser(UpdateUserRequest)`, `DeleteUser(DeleteUserRequest)`, `AssignRoles(AssignRolesRequest)`, and `ListUsers(ListUsersRequest)`. Implement the gRPC service adapter (e.g., `io.jgitkins.server.adapter.in.grpc.UserManagementServiceGrpc`) to translate gRPC requests into calls to the `UserService`.6. Security Integration: Integrate with the authentication and authorization mechanisms established in Task 10. Ensure that only authenticated users with appropriate `ADMIN` roles can access and perform sensitive operations via this API, enforcing security at the gRPC service layer.7. Error Handling: Implement robust error handling for invalid inputs, unauthorized access, and domain rule violations, returning appropriate gRPC status codes (e.g., `INVALID_ARGUMENT`, `PERMISSION_DENIED`, `NOT_FOUND`).",
         "testStrategy": "1. Domain Unit Tests: Create `UserTest.java` and `RoleTest.java` under `src/test/java/.../domain/model/` to verify the constructor, invariants, and state transitions of the `User` and `Role` aggregates. Ensure proper validation logic is tested.2. Service Layer Tests: Develop `UserServiceTest.java` under `src/test/java/.../application/port/service/` using mock objects for `UserRepository` to test business logic related to user creation, update, deletion, role assignment, and querying. Verify that access control checks are correctly applied.3. gRPC API Integration Tests: Create `UserManagementServiceGrpcTest.java` under `src/test/java/.../adapter/in/grpc/` to test the gRPC adapter's interaction with the `UserService`. This should involve making actual gRPC calls to a test server running the service and verifying requests are correctly mapped, responses are valid, and gRPC status codes reflect expected outcomes (e.g., successful operations, validation failures, authentication/authorization denials). Specifically, test attempts to perform admin operations with non-admin tokens, ensuring they fail with a `PERMISSION_DENIED` status.",
         "status": "done",
         "dependencies": [
-          1,
-          6,
-          8,
-          10
+          "1",
+          "6",
+          "8",
+          "10"
         ],
         "priority": "medium",
         "subtasks": []
       },
       {
-        "id": 12,
+        "id": "12",
         "title": "Add Member Management API",
         "description": "Develop an API for managing members within organizations or repositories, including roles, permissions, and membership lifecycle, building upon the existing user management and authentication infrastructure.",
         "details": "1.  **Domain Model Definition**: Define a new `Member` aggregate (e.g., `io.jgitkins.server.application.domain.model.Member.java`) in `src/main/java/.../domain/model/`. This model should link a `User` (as defined in Task 11) to an `Organization` or `Repository` (following patterns from Task 6 and 7). Include properties such as `id` (UUID), `userId` (linking to the `User` entity), `targetId` (UUID for `Organization` or `Repository`), `targetType` (enum for `ORGANIZATION`, `REPOSITORY`), `role` (enum like `OWNER`, `MAINTAINER`, `CONTRIBUTOR`, `VIEWER`), `status`, `createdAt`, `updatedAt`.\n2.  **Service Layer Implementation**: Create a `MemberService` (e.g., `io.jgitkins.server.application.service.MemberService.java`) in `src/main/java/.../application/service/` that encapsulates business logic for member management. This service will orchestrate interactions with the `UserService` (from Task 11) and `RepositoryService` (from Task 6/8) or `OrganizeService` (from Task 7/8) to perform CRUD operations on members. Implement methods for:\n    *   `addMember(targetType, targetId, userId, role)`: Add a user as a member to a specific organization or repository.\n    *   `updateMemberRole(targetType, targetId, userId, newRole)`: Change a member's role.\n    *   `removeMember(targetType, targetId, userId)`: Remove a member.\n    *   `listMembers(targetType, targetId)`: Retrieve all members for a given organization or repository.\n    *   Ensure robust validation and authorization checks are performed within this service, leveraging the security context provided by Task 10.\n3.  **gRPC API Definition**: Following the approach of Task 8, define a new `.proto` file (e.g., `member_service.proto`) in `src/main/proto` to specify the gRPC service for member management. This will include messages for requests (e.g., `AddMemberRequest`, `UpdateMemberRoleRequest`) and responses (e.g., `MemberResponse`, `ListMembersResponse`). The gRPC service methods should correspond to the `MemberService` operations.\n4.  **gRPC Adapter Implementation**: Implement the gRPC service adapter (e.g., `io.jgitkins.server.adapter.in.grpc.GrpcMemberService.java`) that translates gRPC requests into calls to the `MemberService` and converts service results back into gRPC responses. This adapter will reside in `src/main/java/.../adapter/in/grpc/`.",
         "testStrategy": "1.  **Domain Unit Tests**: Create `MemberTest.java` under `src/test/java/.../domain/model/` to thoroughly test the `Member` aggregate. Verify its constructor, immutability, role assignment logic, and any invariants. Test edge cases for different `targetType` and `role` combinations.\n2.  **Service Layer Tests**: Develop `MemberServiceTest.java` under `src/test/java/.../application/service/`. Use mock objects for the `UserRepository` (or `UserService`), `RepositoryService`, `OrganizeService`, and `MemberRepository`. Test the business logic for adding, updating, and removing members, ensuring that role-based permissions are enforced and that the correct interactions with dependent services occur. Verify error handling for invalid inputs, unauthorized actions, and non-existent entities.\n3.  **gRPC Integration Tests**: Implement integration tests for the `GrpcMemberService` in `src/test/java/.../adapter/in/grpc/`. These tests should use a gRPC test client to invoke the actual gRPC service endpoints. Mock the underlying `MemberService` to verify that requests are correctly deserialized, forwarded to the service layer, and responses are correctly serialized. Crucially, test the integration with the authentication mechanism from Task 10, ensuring that only authenticated and authorized users can perform member management operations. This includes testing various user roles (e.g., admin, organization owner, repository owner) and their respective permissions.",
         "status": "done",
         "dependencies": [
-          1,
-          6,
-          8,
-          10,
-          11
+          "1",
+          "6",
+          "8",
+          "10",
+          "11"
         ],
         "priority": "medium",
         "subtasks": []
       },
       {
-        "id": 13,
+        "id": "13",
         "title": "Implement Credential Management API",
         "description": "Develop a comprehensive API for securely managing various types of credentials (e.g., SSH keys, API tokens) associated with users, organizations, or repositories within the JGitkins Server, ensuring secure storage and controlled access.",
         "details": "1.  **Domain Model Definition**: Define a new `Credential` aggregate (e.g., `io.jgitkins.server.application.domain.model.Credential.java`) following patterns established in Task 1 (`Job.java`), Task 6 (`Repository.java`), and Task 11 (`User.java`). The model should include properties such as `id` (UUID), `name` (for identification), `type` (e.g., `SSH_KEY`, `API_TOKEN`, as an enum or value object), `value` (encrypted string), `ownerId` (UUID, linking to `User`, `Organization`, or `Repository`), `ownerType` (enum for `USER`, `ORGANIZATION`, `REPOSITORY`), `createdAt`, `updatedAt`. Ensure the `value` is always stored encrypted.\n2.  **Encryption Mechanism**: Implement a robust encryption and decryption service for `Credential` values. This service should utilize existing security practices or introduce a new, secure standard (e.g., AES-256) and manage encryption keys securely, possibly integrating with a Key Management System if one is defined in the architecture, or a secure configuration property.\n3.  **Service Layer**: Create a `CredentialService` (e.g., `io.jgitkins.server.application.domain.service.CredentialService.java`) to handle business logic for credential operations. This service will be responsible for creating, reading, updating, deleting credentials, and ensuring that the requesting user (from Task 10 and 11 context) has appropriate permissions to perform actions on the target `ownerId`.\n4.  **Persistence Layer**: Implement a `CredentialRepository` (e.g., using Spring Data JPA) for managing `Credential` entities in the database. Ensure that the `value` field is correctly mapped to a securely stored (e.g., BLOB or encrypted VARCHAR) column.\n5.  **gRPC API Definition**: Following the patterns from Task 8, define a new `credential_service.proto` file under `src/main/proto/` for managing credentials. This protobuf definition should include messages for `CreateCredentialRequest`, `GetCredentialRequest`, `UpdateCredentialRequest`, `DeleteCredentialRequest`, `ListCredentialsRequest`, and `CredentialResponse` (containing public credential details, not the encrypted value directly).\n6.  **gRPC Adapter Implementation**: Create a gRPC service adapter (e.g., `io.jgitkins.server.application.adapter.in.grpc.GrpcCredentialService.java`) that implements the generated gRPC interface. This adapter will translate gRPC requests into calls to the `CredentialService` and vice versa, handling input validation and response mapping.\n7.  **Security and Authorization**: Integrate with the existing authentication context from Task 10 (OAuth + JWT) and user management from Task 11 (Admin User Management API) to enforce fine-grained access control. Users should only be able to access or modify credentials they own, or for organizations/repositories where they have appropriate permissions (building on Task 12 principles, if completed for membership checking).",
         "testStrategy": "1.  **Domain Unit Tests**: Create `CredentialTest.java` under `src/test/java/.../domain/model/` to thoroughly test the `Credential` aggregate. Verify its constructor, immutability, owner type relationships, and value object encapsulation for the encrypted value. Test edge cases for different credential types and owner types.\n2.  **Encryption Service Tests**: Develop unit tests for the encryption/decryption service to ensure correct and secure data transformation. Verify that encrypted values are non-deterministic (if applicable), and that decryption yields the original plaintext.\n3.  **Service Layer Tests**: Create `CredentialServiceTest.java` to test the business logic of credential management. Use mock objects for `CredentialRepository` and security contexts (e.g., for user authentication from Task 10 and 11) to verify CRUD operations, permission checks, and data validation.\n4.  **gRPC Integration Tests**: Develop tests for the `GrpcCredentialService` adapter within `src/test/java/.../adapter/in/grpc/`. Use an in-memory gRPC server to simulate client-server interaction. Verify that gRPC requests are correctly parsed, translated to `CredentialService` calls, and responses are correctly formed. Ensure error handling and status codes are accurate.\n5.  **Security & Authorization Tests**: Implement integration tests that verify access control. For example, ensure a user cannot retrieve another user's private credential, or create a credential for an organization they are not a member of (if Task 12 is integrated for role checks). This will involve simulating authenticated user contexts from Task 10/11.",
         "status": "done",
         "dependencies": [
-          1,
-          8,
-          10,
-          11
+          "1",
+          "8",
+          "10",
+          "11"
         ],
         "priority": "medium",
         "subtasks": []
       },
       {
-        "id": 14,
+        "id": "14",
         "title": "Implement Runner Health Check (Heartbeat)",
         "description": "Develop a system for JGitkins runners to send periodic heartbeat signals to the server, enabling the server to monitor runner health and availability.",
         "details": "1.  **Domain Model Definition**: Define a new `Runner` aggregate (e.g., `io.jgitkins.server.application.domain.model.Runner.java`) following patterns established in Task 1 (`Job.java`), Task 6 (`Repository.java`), and Task 11 (`User.java`). The model should include properties such as `id` (UUID), `name` (unique identifier for the runner), `status` (e.g., `ONLINE`, `OFFLINE`, `UNRESPONSIVE`), `lastHeartbeat` (Timestamp), `capabilities` (List<String>), `version` (String), and `registrationTokenId` (UUID, linking to a managed credential from Task 13, for secure identification).\n2.  **Persistence Layer**: Create a `RunnerRepository` interface (e.g., `io.jgitkins.server.application.port.out.RunnerRepository.java`) for CRUD operations on the `Runner` aggregate. Implement this repository using the existing data access patterns (e.g., Spring Data JPA).\n3.  **Service Layer**: Implement a `RunnerService` (e.g., `io.jgitkins.server.application.service.RunnerService.java`) to handle business logic:\n    *   `registerRunner(RunnerRegistrationCommand)`: Creates a new `Runner` entity, potentially generating a unique authentication token (handled by Task 13).\n    *   `processHeartbeat(UUID runnerId, HeartbeatPayload payload)`: Updates the `lastHeartbeat` timestamp and `status` of the specified runner. The `HeartbeatPayload` can include current status and resource utilization.\n    *   `getRunnerStatus(UUID runnerId)`: Retrieves the current status of a runner.\n4.  **API Endpoint**: Expose a REST endpoint (e.g., `POST /api/v1/runners/{runnerId}/heartbeat`) in `io.jgitkins.server.api.RunnerController.java` for runners to send heartbeat signals. This endpoint must be secured using JWT (from Task 10), requiring runners to authenticate using a pre-shared token or a runner-specific JWT issued during registration (potentially managed via Task 13's credentials).\n5.  **Scheduled Health Check Service**: Implement a background scheduled task (e.g., using `@Scheduled` in Spring) to periodically scan the `Runner` entities. For any runner where `lastHeartbeat` is older than a defined threshold (e.g., 5 minutes), update its `status` to `UNRESPONSIVE` or `OFFLINE`.\n6.  **Authentication for Runners**: Leverage Task 13 for secure runner identification. During runner registration, generate a unique API token (a type of credential) that the runner will use for subsequent heartbeat calls. The server will validate this token on each heartbeat.",
         "testStrategy": "1.  **Domain Unit Tests**: Create `RunnerTest.java` under `src/test/java/.../domain/model/` to thoroughly test the `Runner` aggregate's constructor, immutability, status transitions, and `lastHeartbeat` updates.\n2.  **Service Layer Tests**: Develop `RunnerServiceTest.java` to test:\n    *   Successful processing of heartbeat signals, verifying `lastHeartbeat` and `status` updates.\n    *   Runner registration and token generation.\n    *   Handling of non-existent runner IDs during heartbeat processing.\n3.  **API Integration Tests**: Implement `RunnerControllerIntegrationTest.java` to:\n    *   Verify the `/api/v1/runners/{runnerId}/heartbeat` endpoint's functionality.\n    *   Test successful heartbeat submission with valid authentication credentials (JWT/token).\n    *   Test rejection of heartbeat requests with invalid or missing authentication.\n    *   Ensure proper HTTP status codes are returned for various scenarios.\n4.  **Scheduled Task Tests**: Write tests for the background health check service to verify:\n    *   Runners whose `lastHeartbeat` exceeds the threshold are correctly marked as `UNRESPONSIVE` or `OFFLINE`.\n    *   Runners within the threshold remain `ONLINE`.\n5.  **Security Tests**: Validate that only authenticated runners can submit heartbeats, leveraging the JWT and credential management systems established in Tasks 10 and 13.",
         "status": "pending",
         "dependencies": [
-          1,
-          6,
-          10,
-          11,
-          13
+          "1",
+          "6",
+          "10",
+          "11",
+          "13"
         ],
         "priority": "medium",
         "subtasks": []
+      },
+      {
+        "id": "15",
+        "title": "Repository 소유자(owner) 추상화 및 ownerId 기반 경로 분기 도입",
+        "description": "organizeId 의존 제거, ownerType(USER|ORG) + ownerId 모델링, RepositoryCreateRequest 및 서비스 흐름에서 owner 해석, RepositoryPathResolver로 실제 경로 계산(예: /bare/users/{username}/{repo}.git, /bare/orgs/{orgSlug}/{repo}.git), 기존 organizeId 기반 생성 호환/마이그레이션 고려, 테스트 전략 포함",
+        "details": "",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define OwnerType Enum and Update Repository Domain/DTOs",
+            "description": "Introduce an OwnerType enum with USER and ORGANIZATION values. Add ownerType field to the Repository domain model and RepositoryCreateRequest DTO, preparing for owner-scoped path resolution. This also involves reviewing and removing organizeId if it is directly tied to the old structure in DTOs.",
+            "dependencies": [],
+            "details": "Create io.jgitkins.server.application.domain.model.OwnerType enum (e.g., in Java). Modify the Repository record (src/main/java/io/jgitkins/server/application/domain/model/Repository.java) to include OwnerType ownerType. Update RepositoryCreateRequest DTO (src/main/java/io/jgitkins/server/application/dto/RepositoryCreateRequest.java) to accept OwnerType ownerType and ensure ownerId is correctly used, decoupling from organizeId.",
+            "status": "done",
+            "testStrategy": "Add unit tests for OwnerType enum validation. Update RepositoryTest to cover the presence and handling of ownerType in the Repository aggregate.",
+            "updatedAt": "2025-12-27T05:39:45.352Z",
+            "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "Refactor Repository Service for Owner-Type Based Creation",
+            "description": "Adjust RepositoryService methods to utilize the new ownerType and ownerId fields when creating or updating repository entities. This step is crucial for transitioning the service layer's understanding of repository ownership from organizeId to the more abstract ownerType + ownerId model.",
+            "dependencies": [
+              1
+            ],
+            "details": "Modify io.jgitkins.server.application.port.service.RepositoryService (e.g., createRepository, updateRepository) to receive ownerType and ownerId directly from the DTO, mapping them to the Repository domain object. Remove any direct usage or parsing of organizeId for new repository creation flows within this service.",
+            "status": "done",
+            "testStrategy": "Create or update RepositoryServiceTest cases to verify that createRepository correctly persists repositories with the specified ownerType and ownerId. Ensure no organizeId related logic is inadvertently triggered for new creations.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-27T05:39:49.629Z"
+          },
+          {
+            "id": 3,
+            "title": "Implement RepositoryPathResolver for Dynamic Bare Repository Paths",
+            "description": "Develop a dedicated component, RepositoryPathResolver, responsible for constructing the canonical bare Git repository file path based on the provided ownerType, ownerId, and repository name. This centralizes path generation logic.",
+            "dependencies": [
+              1
+            ],
+            "details": "Create a new class io.jgitkins.server.application.util.RepositoryPathResolver with a public method String resolveBareRepositoryPath(OwnerType ownerType, String ownerId, String repoName). Implement logic to return paths like /bare/users/{ownerId}/{repoName}.git or /bare/orgs/{ownerId}/{repoName}.git based on ownerType. Ensure robustness for various input cases.",
+            "status": "done",
+            "testStrategy": "Add unit tests for RepositoryPathResolver covering both USER and ORGANIZATION owner types, various owner IDs, and repository names. Test edge cases like null/empty inputs if applicable.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-27T04:40:06.071Z"
+          },
+          {
+            "id": 4,
+            "title": "Integrate RepositoryPathResolver into Repository Operations",
+            "description": "Integrate the newly created RepositoryPathResolver into the RepositoryService and other relevant components that manage the physical Git repositories. This ensures that all repository creation, cloning, and access operations use the standardized owner-scoped paths.",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Modify RepositoryService methods (e.g., createRepository, getRepositoryUrl) to invoke RepositoryPathResolver.resolveBareRepositoryPath when determining the actual file system location for bare Git repositories. Update any RepositoryPersistencePort or infrastructure adapters that manage file system interactions to use the resolved path.",
+            "status": "done",
+            "testStrategy": "Update RepositoryServiceTest to verify that repository creation correctly uses the RepositoryPathResolver to determine the physical path and that the infrastructure layer (mocked or actual) receives the correct path. Integration tests should confirm actual repository creation at the new paths.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-27T04:40:18.973Z"
+          },
+          {
+            "id": 5,
+            "title": "Develop Backward Compatibility and Migration Strategy for organizeId",
+            "description": "Design and implement a strategy to ensure backward compatibility for repositories created with the legacy organizeId system. This includes defining how these existing repositories will be accessed and outlining a plan for their eventual migration to the new ownerType/ownerId model.",
+            "dependencies": [
+              4
+            ],
+            "details": "Within RepositoryService or RepositoryPersistencePort, implement logic to handle repositories where ownerType might be null or missing (legacy data). For such cases, infer ownerType (e.g., default to ORGANIZATION) and map organizeId to ownerId for path resolution. Propose a separate, explicit migration process (e.g., a one-time script or a background job) to populate ownerType for all existing Repository entries in the database, based on existing organizeId values. This ensures old repositories remain accessible and allows for a smooth transition.",
+            "status": "done",
+            "testStrategy": "Write integration tests that simulate loading and accessing legacy repositories (missing ownerType, relying on organizeId) to confirm they are still resolvable and functional. Test the fallback logic in RepositoryService or RepositoryPathResolver. Outline manual steps for verifying the migration script or logic.",
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T17:06:19.525Z"
+          },
+          {
+            "id": 6,
+            "title": "remove organize_id property from repository table",
+            "description": "",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 15,
+            "parentId": "undefined",
+            "updatedAt": "2025-12-28T12:54:10.396Z"
+          }
+        ],
+        "updatedAt": "2025-12-28T17:06:19.525Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-22T09:43:37.153Z",
-      "taskCount": 9,
-      "completedCount": 5,
+      "lastModified": "2025-12-28T17:06:19.527Z",
+      "taskCount": 15,
+      "completedCount": 10,
       "tags": [
         "master"
-      ],
-      "created": "2025-12-22T09:45:18.258Z",
-      "description": "Tasks for master context",
-      "updated": "2025-12-23T14:20:22.802Z"
+      ]
     }
   }
 }

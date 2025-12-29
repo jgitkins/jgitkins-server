@@ -12,9 +12,9 @@ public class OrganizeId {
     private final Long value;
 
     private OrganizeId(Long value) {
-        if (value == null || value <= 0) {
-            throw new IllegalArgumentException("OrganizeId must be a positive value");
-        }
+//        if (value <= 0) {
+//            throw new IllegalArgumentException("OrganizeId must be a positive value");
+//        }
         this.value = value;
     }
 

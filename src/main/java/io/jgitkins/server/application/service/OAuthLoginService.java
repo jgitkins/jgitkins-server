@@ -2,7 +2,7 @@ package io.jgitkins.server.application.service;
 
 import io.jgitkins.server.application.dto.result.OAuthLoginResult;
 import io.jgitkins.server.domain.model.User;
-import io.jgitkins.server.security.JwtService;
+import io.jgitkins.server.infrastructure.config.security.JwtService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;

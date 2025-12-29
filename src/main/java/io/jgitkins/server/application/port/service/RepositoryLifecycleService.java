@@ -4,26 +4,22 @@ import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.event.DomainEventPublisher;
 import io.jgitkins.server.application.common.exception.ConflictException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
-import io.jgitkins.server.application.dto.command.CreateRepositoryCommand;
+import io.jgitkins.server.application.common.exception.UnprocessableException;
 import io.jgitkins.server.application.dto.RepositoryCreationContext;
+import io.jgitkins.server.application.dto.command.RepositoryCreateCommand;
 import io.jgitkins.server.application.dto.result.RepositoryResult;
 import io.jgitkins.server.application.mapper.RepositoryApplicationMapper;
-import io.jgitkins.server.application.port.in.RepositoryCreationUseCase;
-import io.jgitkins.server.application.port.in.RepositoryDeletionUseCase;
+import io.jgitkins.server.application.port.in.RepositoryCreateUseCase;
+import io.jgitkins.server.application.port.in.RepositoryDeleteUseCase;
 import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
+import io.jgitkins.server.application.port.out.CurrentUserPort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPort;
 import io.jgitkins.server.application.port.out.RepositoryGitPort;
-import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
-import io.jgitkins.server.domain.aggregate.Organize;
+import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
 import io.jgitkins.server.domain.aggregate.Repository;
-import io.jgitkins.server.domain.model.vo.BranchName;
-import io.jgitkins.server.domain.model.vo.InitialCommitOptions;
-import io.jgitkins.server.domain.model.vo.OrganizeId;
-import io.jgitkins.server.domain.model.vo.RepositoryId;
-import io.jgitkins.server.domain.model.vo.RepositoryName;
-import io.jgitkins.server.domain.model.vo.RepositoryPath;
-import io.jgitkins.server.domain.model.vo.RepositoryVisibility;
-import io.jgitkins.server.domain.model.vo.UserId;
+import io.jgitkins.server.domain.model.vo.*;
+import io.jgitkins.server.infrastructure.support.RepositoryPathHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,34 +30,41 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RepositoryLifecycleService implements RepositoryCreationUseCase,
-        RepositoryLoadUseCase,
-        RepositoryDeletionUseCase {
+public class RepositoryLifecycleService implements RepositoryCreateUseCase,
+                                                   RepositoryLoadUseCase,
+                                                   RepositoryDeleteUseCase {
 
+    private final RepositoryNamespaceResolver repositoryNamespaceResolver;
     private final RepositoryApplicationMapper repositoryApplicationMapper;
     private final DomainEventPublisher domainEventPublisher;
 
     private final RepositoryGitPort repositoryGitPort;
     private final RepositoryPort repositoryPort;
-    private final OrganizePort organizePort;
+    private final OrganizeMemberPort organizeMemberPort;
+    private final CurrentUserPort currentUserPort;
 
     @Override
     @Transactional
-    public RepositoryResult create(CreateRepositoryCommand command) {
+    public RepositoryResult create(RepositoryCreateCommand command) {
+        long startedAt = System.nanoTime();
+        log.info("Repository create started. ownerType={}, organizeId={}, repoName={}",
+                command.getOwnerType(),
+                command.getOrganizeId(),
+                command.getRepoName());
 
         InitialCommitOptions initialCommitOptions = InitialCommitOptions.of(command.isReadme(),
                                                                             command.getMessage(),
                                                                             command.getAuthorName(),
                                                                             command.getAuthorEmail());
 
-        RepositoryCreationContext context = prepareCreationContext(command);
+        RepositoryCreationContext context = prepareCreateContext(command);
 
-        Repository repository = Repository.create(context.organizeId(),
+        Repository repository = Repository.create(context.ownerType(),
+                                                  context.ownerId(),
                                                   context.repositoryName(),
                                                   context.repositoryPath(),
                                                   context.defaultBranch(),
                                                   context.visibility(),
-                                                  context.owner(),
                                                   command.getDescription(),
                                                   context.clonePath(),
                                                   command.getCredentialId(),
@@ -69,13 +72,21 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
 
         Repository savedRepository = repositoryPort.save(repository);
 
-        repositoryGitPort.create(context.organizeSlug(), context.repositoryName().getValue());
+        repositoryGitPort.create(context.namespace(), context.repositoryName().getValue());
         log.info("repository has created successful");
 
         publishDomainEvents(savedRepository);
 
         Repository refreshed = repositoryPort.findById(savedRepository.getId())
-                .orElse(savedRepository);
+                                             .orElse(savedRepository);
+        long durationMs = (System.nanoTime() - startedAt) / 1_000_000;
+        log.info("Repository create completed. repositoryId={}, ownerType={}, ownerId={}, repoName={}, durationMs={}",
+                refreshed.getId() != null ? refreshed.getId().getValue() : null,
+                refreshed.getOwnerType(),
+                refreshed.getOwnerId() != null ? refreshed.getOwnerId().getValue() : null,
+                refreshed.getName() != null ? refreshed.getName().getValue() : null,
+                durationMs);
+
         return repositoryApplicationMapper.toDto(refreshed);
     }
 
@@ -87,6 +98,7 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
                         "Repository not found: " + repositoryId));
         return repositoryApplicationMapper.toDto(repository);
     }
+
     @Override
     @Transactional(readOnly = true)
     public List<RepositoryResult> getRepositories() {
@@ -96,129 +108,142 @@ public class RepositoryLifecycleService implements RepositoryCreationUseCase,
                 .toList();
     }
 
-
-//    @Override
-//    @Transactional
-//    public RepositoryResult updateRepository(Long repositoryId, UpdateRepositoryCommand command) {
-//        Repository repository = repositoryPersistencePort.findById(RepositoryId.of(repositoryId))
-//                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND, "Repository not found: " + repositoryId));
-//
-//        String normalizedType = command.getRepositoryType() != null
-//                ? command.getRepositoryType().trim().toUpperCase()
-//                : null;
-//
-//        if (command.getName() != null) {
-//            RepositoryName newName = RepositoryName.from(command.getName());
-//            if (!repository.getName().getValue().equalsIgnoreCase(newName.getValue())) {
-//                ensureRepositoryNameUnique(repository.getOrganizeId(), newName, repository.getId());
-//            }
-//        }
-//
-//        RepositoryPath newPath = command.getPath() != null ? RepositoryPath.from(command.getPath()) : null;
-//        String organizeSlug = loadOrganize(repository.getOrganizeId()).getPath().getValue();
-//        String effectiveRepoPath = newPath != null ? newPath.getValue() : repository.getPath().getValue();
-//        String clonePath = buildClonePath(organizeSlug, effectiveRepoPath);
-//
-//        Repository updated = repository.updateMetadata(
-//                command.getName() != null ? RepositoryName.from(command.getName()) : null,
-//                newPath,
-//                command.getDefaultBranch() != null ? BranchName.of(command.getDefaultBranch()) : null,
-//                command.getVisibility() != null ? RepositoryVisibility.from(command.getVisibility()) : null,
-//                normalizedType,
-//                command.getOwnerId() != null ? UserId.of(command.getOwnerId()) : null,
-//                command.getDescription(),
-//                clonePath,
-//                command.getCredentialId()
-//        );
-//
-//        if (command.getLastSyncedAt() != null) {
-//            updated = updated.markSynced(command.getLastSyncedAt());
-//        }
-//
-//        Repository persisted = repositoryPersistencePort.update(updated);
-//        return repositoryApplicationMapper.toDto(persisted);
-//    }
-
     @Override
     @Transactional
     public void deleteRepository(Long repositoryId) {
         RepositoryId id = RepositoryId.of(repositoryId);
+
         Repository repository = repositoryPort.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND, "Repository not found: " + repositoryId));
+
+        enforceDeletionPermission(repository);
+
         deleteRepositoryDirectory(repository);
+
         repositoryPort.delete(id);
     }
 
-    private void ensureRepositoryNameUnique(OrganizeId organizeId,
-                                            RepositoryName name,
-                                            RepositoryId currentRepositoryId) {
-        repositoryPort.findByOrganizeAndName(organizeId, name)
+
+
+
+
+
+
+
+    private void ensureRepositoryNameUnique(OwnerType ownerType, OwnerId ownerId, RepositoryName name) {
+        repositoryPort.findByOwnerAndName(ownerType, ownerId, name)
                 .ifPresent(existing -> {
-                    if (currentRepositoryId == null || !existing.getId().equals(currentRepositoryId)) {
-                        throw new ConflictException(ErrorCode.REPOSITORY_ALREADY_EXISTS,
-                                "Repository name already exists in organize: " + name.getValue());
-                    }
+                    throw new ConflictException(ErrorCode.REPOSITORY_ALREADY_EXISTS,
+                            "Repository name already exists for owner: " + name.getValue());
                 });
     }
 
     private void deleteRepositoryDirectory(Repository repository) {
-        Organize organize = loadOrganize(repository.getOrganizeId());
-        repositoryGitPort.delete(organize.getName().getValue(), repository.getName().getValue());
+        String namespace = repositoryNamespaceResolver.resolve(repository);
+        repositoryGitPort.delete(namespace, repository.getName().getValue());
     }
 
-    private Organize loadOrganize(OrganizeId organizeId) {
-        return organizePort.findById(organizeId)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
-                        "Organize not found: " + organizeId.getValue()));
-    }
+    private RepositoryCreationContext prepareCreateContext(RepositoryCreateCommand command) {
 
-    private String buildClonePath(String organizeSlug, String repoPath) {
-        String orgSegment = trimSlashes(organizeSlug);
-        String repoSegment = trimSlashes(repoPath);
-        if (!repoSegment.endsWith(".git")) {
-            repoSegment = repoSegment + ".git";
-        }
-        return "/" + orgSegment + "/" + repoSegment;
-    }
+        OwnerType ownerType = requireOwnerType(command);
+        validateOwnership(command, ownerType);
 
-    private String trimSlashes(String value) {
-        if (value == null) {
-            return "";
-        }
-        return value.replaceAll("^/+", "").replaceAll("/+$", "");
-    }
-
-    private RepositoryPath resolveRepositoryPath(String requestedPath, String repoName) {
-        String candidate = (requestedPath == null || requestedPath.isBlank()) ? repoName : requestedPath;
-        return RepositoryPath.from(candidate);
-    }
-
-    private RepositoryCreationContext prepareCreationContext(CreateRepositoryCommand command) {
-        OrganizeId organizeId = OrganizeId.of(command.getOrganizeId());
+        RepositoryPath repositoryPath = RepositoryPath.from(command.getRepoName());
         RepositoryName repositoryName = RepositoryName.from(command.getRepoName());
-        ensureRepositoryNameUnique(organizeId, repositoryName, null);
-        Organize organize = loadOrganize(organizeId);
-
-        RepositoryPath repositoryPath = resolveRepositoryPath(command.getPath(), command.getRepoName());
         BranchName defaultBranch = BranchName.of(command.getMainBranch());
-        RepositoryVisibility visibility = command.getVisibility() != null
-                ? RepositoryVisibility.from(command.getVisibility())
-                : RepositoryVisibility.PRIVATE;
-        UserId owner = command.getOwnerId() != null ? UserId.of(command.getOwnerId()) : null;
-        String clonePath = buildClonePath(organize.getName().getValue(), repositoryPath.getValue());
+        RepositoryVisibility visibility = resolveVisibility(command.getVisibility());
 
-        return new RepositoryCreationContext(organizeId,
+        OwnerContext ownerContext = resolveOwnerContext(command, ownerType, repositoryName);
+        String clonePath = RepositoryPathHelper.buildClonePath(ownerContext.namespace(), repositoryPath.getValue());
+
+        return new RepositoryCreationContext(ownerContext.ownerType(),
+                                             ownerContext.ownerId(),
                                              repositoryName,
                                              repositoryPath,
                                              defaultBranch,
                                              visibility,
-                                             owner,
                                              clonePath,
-                                             organize.getName().getValue());
+                                             ownerContext.namespace());
     }
 
     private void publishDomainEvents(Repository repository) {
         domainEventPublisher.publish(repository.getDomainEvents());
         repository.clearDomainEvents();
     }
+
+    private OwnerType requireOwnerType(RepositoryCreateCommand command) {
+        OwnerType ownerType = OwnerType.from(command.getOwnerType());
+        if (ownerType == null) {
+            throw new UnprocessableException(ErrorCode.BAD_REQUEST, "ownerType is required.");
+        }
+        return ownerType;
+    }
+
+    private void validateOwnership(RepositoryCreateCommand command, OwnerType ownerType) {
+        // USER
+        if (ownerType == OwnerType.USER) {
+            if (command.getOrganizeId() != null) {
+                throw new UnprocessableException(ErrorCode.BAD_REQUEST,
+                        "organizeId must be null when ownerType is USER.");
+            }
+            requireCurrentUserId();
+            return;
+        }
+
+        // ORGANIZE
+        if (command.getOrganizeId() == null) {
+            throw new UnprocessableException(ErrorCode.BAD_REQUEST,
+                    "organizeId is required when ownerType is ORGANIZATION.");
+        }
+        assertOrganizeMembership(command.getOrganizeId());
+    }
+
+    private void enforceDeletionPermission(Repository repository) {
+        if (repository.getOwnerType() != OwnerType.USER
+                || repository.getOwnerId() == null
+                || repository.getOwnerId().getValue() == null) {
+            return;
+        }
+        Long requesterId = currentUserPort.currentUserId()
+                .orElseThrow(() -> new UnprocessableException(ErrorCode.UNAUTHORIZED, "Unauthenticated"));
+        if (!repository.getOwnerId().getValue().equals(requesterId)) {
+            throw new UnprocessableException(ErrorCode.FORBIDDEN, "Cannot delete another user's repository");
+        }
+    }
+
+    private RepositoryVisibility resolveVisibility(String value) {
+        return value != null ? RepositoryVisibility.from(value) : RepositoryVisibility.PRIVATE;
+    }
+
+    private Long requireCurrentUserId() {
+        return currentUserPort.currentUserId()
+                .orElseThrow(() -> new UnprocessableException(ErrorCode.UNAUTHORIZED, "Unauthenticated"));
+    }
+
+    private void assertOrganizeMembership(Long organizeId) {
+        Long requesterId = requireCurrentUserId();
+        boolean isMember = organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(organizeId),
+                                                                      UserId.of(requesterId));
+        if (!isMember) {
+            throw new UnprocessableException(ErrorCode.FORBIDDEN, "User is not a member of the organization.");
+        }
+    }
+
+    private OwnerContext resolveOwnerContext(RepositoryCreateCommand command,
+                                             OwnerType ownerType,
+                                             RepositoryName repositoryName) {
+        if (ownerType == OwnerType.ORGANIZATION) {
+            OwnerId ownerId = OwnerId.of(command.getOrganizeId());
+            ensureRepositoryNameUnique(ownerType, ownerId, repositoryName);
+            String namespace = repositoryNamespaceResolver.resolve(ownerType, ownerId);
+            return new OwnerContext(ownerType, ownerId, namespace);
+        }
+        Long currentUserId = requireCurrentUserId();
+        OwnerId ownerId = OwnerId.of(currentUserId);
+        ensureRepositoryNameUnique(OwnerType.USER, ownerId, repositoryName);
+        String namespace = repositoryNamespaceResolver.resolve(ownerType, ownerId);
+        return new OwnerContext(OwnerType.USER, ownerId, namespace);
+    }
+
+    private record OwnerContext(OwnerType ownerType, OwnerId ownerId, String namespace) {}
 }

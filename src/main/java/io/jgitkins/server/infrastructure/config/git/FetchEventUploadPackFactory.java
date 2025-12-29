@@ -58,20 +58,21 @@ public class FetchEventUploadPackFactory implements UploadPackFactory<HttpServle
             throw new ServiceNotAuthorizedException("Unauthenticated");
         }
         boolean allowed = gitRepositoryAccessService.canRead(
-                repoRequest.organizeSlug(),
-                repoRequest.repositoryPath(),
+                repoRequest.namespace(),
+                repoRequest.ownerSlug(),
+                repoRequest.repositoryName(),
                 userId
         );
         if (!allowed) {
             log.warn("git fetch denied: org=[{}] repo=[{}] userId=[{}]",
-                    repoRequest.organizeSlug(),
-                    repoRequest.repositoryPath(),
+                    repoRequest.namespace(),
+                    repoRequest.repositoryName(),
                     userId);
             throw new ServiceNotAuthorizedException("Access denied");
         }
         log.info("git fetch allowed: org=[{}] repo=[{}] userId=[{}]",
-                repoRequest.organizeSlug(),
-                repoRequest.repositoryPath(),
+                repoRequest.namespace(),
+                repoRequest.repositoryName(),
                 userId);
     }
 

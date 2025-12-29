@@ -4,6 +4,7 @@ import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
+import io.jgitkins.server.infrastructure.mapper.OrganizeDomainMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.OrganizeEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity;
 import io.jgitkins.server.infrastructure.persistence.model.OrganizeEntityCondition;
@@ -15,7 +16,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class OrganizeAdapter implements OrganizePort {
+public class OrganizeMybatisAdapter implements OrganizePort {
 
     private final OrganizeEntityMbgMapper organizeEntityMbgMapper;
 

@@ -1,11 +1,11 @@
 ### Variable 
 @url = localhost:8084
 @oauth_provider = google
-@app_token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImlhdCI6MTc2NjQ2ODgxNywiZXhwIjoxNzY2NTU1MjE3fQ.na5q9KyvRIFe3PV0LDLYgad2K3wQ9hM00NRFSaJ4BSk
+@app_token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImlhdCI6MTc2NjgxMDc5MywiZXhwIjoxNzY2ODk3MTkzfQ.jnq6PEDStnnnElVK5xP571CxuvP71Kek1m__vZqGc3M
 @pat = jkpat_qe8Li1TAoDu7_klf7xSFEIfp4wiLgU9VMsTQeBD1uBY
 
 
-@app_token2 = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImlhdCI6MTc2NjQ5NDk2MywiZXhwIjoxNzY2NTgxMzYzfQ.CPoOecbD1aHhaY752hUr_CvYVfGYVpG3nDAsezoqb6A
+@app_token2 = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImlhdCI6MTc2NjY3ODMwOSwiZXhwIjoxNzY2NzY0NzA5fQ.lZgX4nZREAZ0-zMIMsqru989kwA5bcsP-2Lmm_2WPPA
 @pat2 = jkpat_sETx-7RkoSDiaGkkdz0JozyEYTMlfYe_ZzJ4Tn53d-k
 
 #######################################################
@@ -91,16 +91,31 @@ Authorization: Bearer {{app_token}}
 ### Repository ########################################
 #######################################################
 
-### 저장소 등록 within init commit
+### 저장소 등록 조직 within init commit
 POST {{url}}/api/repositories
 Authorization: Bearer {{app_token}}
 
 {
-    "repoName": "aaa",
+    "repoName": "aaa2",
     "mainBranch": "main",
     "username": "heykia3",
     "email": "heykia3@protonmail.com",
     "organizeId": 1,
+    "visibility": "PUBLIC",
+    "readme": true,
+    "message": "Initial Commit"
+}
+
+### 저장소 등록 개인 within init commit
+POST {{url}}/api/repositories
+Authorization: Bearer {{app_token}}
+
+{
+    "repoName": "aaa3",
+    "mainBranch": "main",
+    "username": "heykia3",
+    "email": "heykia3@protonmail.com",
+    "ownerType": "USER",
     "visibility": "PUBLIC",
     "readme": true,
     "message": "Initial Commit"
@@ -128,8 +143,8 @@ GET {{url}}/api/repositories/10
 Authorization: Bearer {{app_token}}
 
 ### 저장소 삭제
-DELETE {{url}}/api/repositories/9
-Authorization: Bearer {{app_token}}
+DELETE {{url}}/api/repositories/6
+Authorization: Bearer {{app_token2}}
 
 #######################################################
 ### Branch ############################################

@@ -74,6 +74,7 @@ _No tasks found._
 | 12 | Add Member Management API | done | medium | 0 |
 | 13 | Implement Credential Management API | done | medium | 0 |
 | 14 | Implement Runner Health Check (Heartbeat) | pending | medium | 0 |
+| 15 | Repository 소유자(owner) 추상화 및 ownerId 기반 경로 분기 도입 | done | medium | 6 |
 
 <!-- TASKS-TABLE:END -->
 

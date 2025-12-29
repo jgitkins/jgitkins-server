@@ -9,7 +9,6 @@ import io.jgitkins.server.application.port.in.RunnerDeleteUseCase;
 import io.jgitkins.server.application.port.in.RunnerLoadUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
 import io.jgitkins.server.presentation.common.ApiResponse;
-import io.jgitkins.server.presentation.common.ResponseFactory;
 import io.jgitkins.server.presentation.dto.RunnerActivateRequest;
 import io.jgitkins.server.presentation.dto.RunnerCreateRequest;
 import io.jgitkins.server.presentation.dto.RunnerResponse;
@@ -43,28 +42,28 @@ public class RunnerController {
     public ResponseEntity<ApiResponse<RunnerRegistrationResult>> registerRunner(@Valid @RequestBody RunnerCreateRequest request) {
         RunnerRegisterCommand registerCommand = runnerRequestMapper.toCommand(request);
         RunnerRegistrationResult result = runnerRegisterUseCase.register(registerCommand);
-        return ResponseFactory.created(result.getRunnerId(), result);
+        return ApiResponse.created(result.getRunnerId(), result);
     }
 
     @Operation(summary = "List Runners", description = "Retrieve all registered runners")
     @GetMapping
-    public ResponseEntity<List<RunnerResponse>> getRunners() {
+    public ResponseEntity<ApiResponse<List<RunnerResponse>>> getRunners() {
         List<RunnerDetailResult> results = runnerLoadUseCase.getRunners();
-        return ResponseEntity.ok(runnerResponseMapper.toResponses(results));
+        return ApiResponse.ok(runnerResponseMapper.toResponses(results));
     }
 
     @Operation(summary = "Get Runner", description = "Retrieve a runner detail by id")
     @GetMapping("/{runnerId}")
-    public ResponseEntity<RunnerResponse> getRunner(@PathVariable Long runnerId) {
+    public ResponseEntity<ApiResponse<RunnerResponse>> getRunner(@PathVariable Long runnerId) {
         RunnerDetailResult result = runnerLoadUseCase.getRunner(runnerId);
-        return ResponseEntity.ok(runnerResponseMapper.toResponse(result));
+        return ApiResponse.ok(runnerResponseMapper.toResponse(result));
     }
 
     @Operation(summary = "Delete Runner", description = "Delete a runner by id")
     @DeleteMapping("/{runnerId}")
-    public ResponseEntity<Void> deleteRunner(@PathVariable Long runnerId) {
+    public ResponseEntity<ApiResponse<Void>> deleteRunner(@PathVariable Long runnerId) {
         runnerDeleteUseCase.deleteRunner(runnerId);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.noContent();
     }
 
     @Operation(summary = "Activate Runner", description = "Activate a runner and set it ONLINE")
@@ -73,7 +72,7 @@ public class RunnerController {
                                                                             HttpServletRequest httpServletRequest) {
         String clientIp = extractClientIp(httpServletRequest);
         RunnerActivateResult result = runnerActivateUseCase.activate(request.getToken(), clientIp);
-        return ResponseEntity.ok(ApiResponse.success(result));
+        return ApiResponse.ok(result);
     }
 
     private String extractClientIp(HttpServletRequest request) {

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Builder
 public class RepositoryResult {
     private final Long id;
-    private final Long organizeId;
+    private final String ownerType;
     private final String name;
     private final String path;
     private final String defaultBranch;

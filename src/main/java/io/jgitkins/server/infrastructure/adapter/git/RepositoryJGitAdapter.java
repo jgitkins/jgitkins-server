@@ -25,15 +25,18 @@ public class RepositoryJGitAdapter implements RepositoryGitPort {
     @Override
     public void create(String taskCd, String repoName) {
         File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
+        long startedAt = System.nanoTime();
+        log.info("Repository git create started. namespace={}, repoName={}", taskCd, repoName);
         try {
             RepositoryFileSystemHelper.createRepositoryDir(gitDir);
             try (Repository repo = repositoryResolver.openBareRepository(gitDir)) {
                 RepositoryFileSystemHelper.initializeBareRepository(repo);
-                log.info("Bare repository initialized. repo=[{}], task=[{}]", gitDir.getName(), taskCd);
+                long durationMs = (System.nanoTime() - startedAt) / 1_000_000;
+                log.info("Repository git create completed. namespace={}, repoName={}, durationMs={}", taskCd, repoName, durationMs);
             }
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.REPOSITORY_CREATE_FAILED,
-                                                    "Repository creation failed: " + gitDir.getAbsolutePath(), e);
+            log.error("Repository git create failed. namespace={}, repoName={}", taskCd, repoName, e);
+            throw new InternalServerErrorException(ErrorCode.REPOSITORY_CREATE_FAILED, "Repository creation failed: " + gitDir.getAbsolutePath(), e);
         }
     }
 

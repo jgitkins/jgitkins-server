@@ -1,4 +1,4 @@
-package io.jgitkins.server.infrastructure.adapter.persistence;
+package io.jgitkins.server.infrastructure.mapper;
 
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntity;
@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface RunnerAssignmentMapper {
+public interface RunnerAssignmentDomainMapper {
 
     @Mapping(target = "runnerId", expression = "java(runner.getId())")
     @Mapping(target = "targetType", expression = "java(runner.getScopeType().name())")

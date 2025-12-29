@@ -165,66 +165,6 @@ public class RepositoryEntityCondition {
             return (Criteria) this;
         }
 
-        public Criteria andOrganizeIdIsNull() {
-            addCriterion("ORGANIZE_ID is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizeIdIsNotNull() {
-            addCriterion("ORGANIZE_ID is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizeIdEqualTo(Long value) {
-            addCriterion("ORGANIZE_ID =", value, "organizeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizeIdNotEqualTo(Long value) {
-            addCriterion("ORGANIZE_ID <>", value, "organizeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizeIdGreaterThan(Long value) {
-            addCriterion("ORGANIZE_ID >", value, "organizeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizeIdGreaterThanOrEqualTo(Long value) {
-            addCriterion("ORGANIZE_ID >=", value, "organizeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizeIdLessThan(Long value) {
-            addCriterion("ORGANIZE_ID <", value, "organizeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizeIdLessThanOrEqualTo(Long value) {
-            addCriterion("ORGANIZE_ID <=", value, "organizeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizeIdIn(List<Long> values) {
-            addCriterion("ORGANIZE_ID in", values, "organizeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizeIdNotIn(List<Long> values) {
-            addCriterion("ORGANIZE_ID not in", values, "organizeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizeIdBetween(Long value1, Long value2) {
-            addCriterion("ORGANIZE_ID between", value1, value2, "organizeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizeIdNotBetween(Long value1, Long value2) {
-            addCriterion("ORGANIZE_ID not between", value1, value2, "organizeId");
-            return (Criteria) this;
-        }
-
         public Criteria andNameIsNull() {
             addCriterion("NAME is null");
             return (Criteria) this;
@@ -432,6 +372,76 @@ public class RepositoryEntityCondition {
 
         public Criteria andRepositoryTypeNotBetween(String value1, String value2) {
             addCriterion("REPOSITORY_TYPE not between", value1, value2, "repositoryType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeIsNull() {
+            addCriterion("OWNER_TYPE is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeIsNotNull() {
+            addCriterion("OWNER_TYPE is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeEqualTo(String value) {
+            addCriterion("OWNER_TYPE =", value, "ownerType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeNotEqualTo(String value) {
+            addCriterion("OWNER_TYPE <>", value, "ownerType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeGreaterThan(String value) {
+            addCriterion("OWNER_TYPE >", value, "ownerType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("OWNER_TYPE >=", value, "ownerType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeLessThan(String value) {
+            addCriterion("OWNER_TYPE <", value, "ownerType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeLessThanOrEqualTo(String value) {
+            addCriterion("OWNER_TYPE <=", value, "ownerType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeLike(String value) {
+            addCriterion("OWNER_TYPE like", value, "ownerType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeNotLike(String value) {
+            addCriterion("OWNER_TYPE not like", value, "ownerType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeIn(List<String> values) {
+            addCriterion("OWNER_TYPE in", values, "ownerType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeNotIn(List<String> values) {
+            addCriterion("OWNER_TYPE not in", values, "ownerType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeBetween(String value1, String value2) {
+            addCriterion("OWNER_TYPE between", value1, value2, "ownerType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOwnerTypeNotBetween(String value1, String value2) {
+            addCriterion("OWNER_TYPE not between", value1, value2, "ownerType");
             return (Criteria) this;
         }
 

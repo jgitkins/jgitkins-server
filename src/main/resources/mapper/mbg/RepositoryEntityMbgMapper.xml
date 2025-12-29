@@ -3,10 +3,10 @@
 <mapper namespace="io.jgitkins.server.infrastructure.persistence.mapper.RepositoryEntityMbgMapper">
   <resultMap id="BaseResultMap" type="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity">
     <id column="ID" jdbcType="BIGINT" property="id" />
-    <result column="ORGANIZE_ID" jdbcType="BIGINT" property="organizeId" />
     <result column="NAME" jdbcType="VARCHAR" property="name" />
     <result column="PATH" jdbcType="VARCHAR" property="path" />
     <result column="REPOSITORY_TYPE" jdbcType="VARCHAR" property="repositoryType" />
+    <result column="OWNER_TYPE" jdbcType="VARCHAR" property="ownerType" />
     <result column="OWNER_ID" jdbcType="BIGINT" property="ownerId" />
     <result column="CREDENTIAL_ID" jdbcType="VARCHAR" property="credentialId" />
     <result column="CLONE_PATH" jdbcType="VARCHAR" property="clonePath" />
@@ -79,7 +79,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    ID, ORGANIZE_ID, NAME, PATH, REPOSITORY_TYPE, OWNER_ID, CREDENTIAL_ID, CLONE_PATH, 
+    ID, NAME, PATH, REPOSITORY_TYPE, OWNER_TYPE, OWNER_ID, CREDENTIAL_ID, CLONE_PATH, 
     DEFAULT_BRANCH, VISIBILITY, STATUS, LAST_SYNCED_AT, CREATED_AT, UPDATED_AT
   </sql>
   <sql id="Blob_Column_List">
@@ -134,13 +134,13 @@
     </if>
   </delete>
   <insert id="insert" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity" useGeneratedKeys="true">
-    insert into REPOSITORY (ORGANIZE_ID, NAME, PATH, 
-      REPOSITORY_TYPE, OWNER_ID, CREDENTIAL_ID, 
+    insert into REPOSITORY (NAME, PATH, REPOSITORY_TYPE, 
+      OWNER_TYPE, OWNER_ID, CREDENTIAL_ID, 
       CLONE_PATH, DEFAULT_BRANCH, VISIBILITY, 
       STATUS, LAST_SYNCED_AT, CREATED_AT, 
       UPDATED_AT, DESCRIPTION)
-    values (#{organizeId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
-      #{repositoryType,jdbcType=VARCHAR}, #{ownerId,jdbcType=BIGINT}, #{credentialId,jdbcType=VARCHAR}, 
+    values (#{name,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{repositoryType,jdbcType=VARCHAR}, 
+      #{ownerType,jdbcType=VARCHAR}, #{ownerId,jdbcType=BIGINT}, #{credentialId,jdbcType=VARCHAR}, 
       #{clonePath,jdbcType=VARCHAR}, #{defaultBranch,jdbcType=VARCHAR}, #{visibility,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{lastSyncedAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=TIMESTAMP}, 
       #{updatedAt,jdbcType=TIMESTAMP}, #{description,jdbcType=LONGVARCHAR})
@@ -148,9 +148,6 @@
   <insert id="insertSelective" keyColumn="ID" keyProperty="id" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity" useGeneratedKeys="true">
     insert into REPOSITORY
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="organizeId != null">
-        ORGANIZE_ID,
-      </if>
       <if test="name != null">
         NAME,
       </if>
@@ -159,6 +156,9 @@
       </if>
       <if test="repositoryType != null">
         REPOSITORY_TYPE,
+      </if>
+      <if test="ownerType != null">
+        OWNER_TYPE,
       </if>
       <if test="ownerId != null">
         OWNER_ID,
@@ -192,9 +192,6 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="organizeId != null">
-        #{organizeId,jdbcType=BIGINT},
-      </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
@@ -203,6 +200,9 @@
       </if>
       <if test="repositoryType != null">
         #{repositoryType,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerType != null">
+        #{ownerType,jdbcType=VARCHAR},
       </if>
       <if test="ownerId != null">
         #{ownerId,jdbcType=BIGINT},
@@ -248,9 +248,6 @@
       <if test="row.id != null">
         ID = #{row.id,jdbcType=BIGINT},
       </if>
-      <if test="row.organizeId != null">
-        ORGANIZE_ID = #{row.organizeId,jdbcType=BIGINT},
-      </if>
       <if test="row.name != null">
         NAME = #{row.name,jdbcType=VARCHAR},
       </if>
@@ -259,6 +256,9 @@
       </if>
       <if test="row.repositoryType != null">
         REPOSITORY_TYPE = #{row.repositoryType,jdbcType=VARCHAR},
+      </if>
+      <if test="row.ownerType != null">
+        OWNER_TYPE = #{row.ownerType,jdbcType=VARCHAR},
       </if>
       <if test="row.ownerId != null">
         OWNER_ID = #{row.ownerId,jdbcType=BIGINT},
@@ -298,10 +298,10 @@
   <update id="updateByConditionWithBLOBs" parameterType="map">
     update REPOSITORY
     set ID = #{row.id,jdbcType=BIGINT},
-      ORGANIZE_ID = #{row.organizeId,jdbcType=BIGINT},
       NAME = #{row.name,jdbcType=VARCHAR},
       PATH = #{row.path,jdbcType=VARCHAR},
       REPOSITORY_TYPE = #{row.repositoryType,jdbcType=VARCHAR},
+      OWNER_TYPE = #{row.ownerType,jdbcType=VARCHAR},
       OWNER_ID = #{row.ownerId,jdbcType=BIGINT},
       CREDENTIAL_ID = #{row.credentialId,jdbcType=VARCHAR},
       CLONE_PATH = #{row.clonePath,jdbcType=VARCHAR},
@@ -319,10 +319,10 @@
   <update id="updateByCondition" parameterType="map">
     update REPOSITORY
     set ID = #{row.id,jdbcType=BIGINT},
-      ORGANIZE_ID = #{row.organizeId,jdbcType=BIGINT},
       NAME = #{row.name,jdbcType=VARCHAR},
       PATH = #{row.path,jdbcType=VARCHAR},
       REPOSITORY_TYPE = #{row.repositoryType,jdbcType=VARCHAR},
+      OWNER_TYPE = #{row.ownerType,jdbcType=VARCHAR},
       OWNER_ID = #{row.ownerId,jdbcType=BIGINT},
       CREDENTIAL_ID = #{row.credentialId,jdbcType=VARCHAR},
       CLONE_PATH = #{row.clonePath,jdbcType=VARCHAR},
@@ -339,9 +339,6 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity">
     update REPOSITORY
     <set>
-      <if test="organizeId != null">
-        ORGANIZE_ID = #{organizeId,jdbcType=BIGINT},
-      </if>
       <if test="name != null">
         NAME = #{name,jdbcType=VARCHAR},
       </if>
@@ -350,6 +347,9 @@
       </if>
       <if test="repositoryType != null">
         REPOSITORY_TYPE = #{repositoryType,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerType != null">
+        OWNER_TYPE = #{ownerType,jdbcType=VARCHAR},
       </if>
       <if test="ownerId != null">
         OWNER_ID = #{ownerId,jdbcType=BIGINT},
@@ -386,10 +386,10 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity">
     update REPOSITORY
-    set ORGANIZE_ID = #{organizeId,jdbcType=BIGINT},
-      NAME = #{name,jdbcType=VARCHAR},
+    set NAME = #{name,jdbcType=VARCHAR},
       PATH = #{path,jdbcType=VARCHAR},
       REPOSITORY_TYPE = #{repositoryType,jdbcType=VARCHAR},
+      OWNER_TYPE = #{ownerType,jdbcType=VARCHAR},
       OWNER_ID = #{ownerId,jdbcType=BIGINT},
       CREDENTIAL_ID = #{credentialId,jdbcType=VARCHAR},
       CLONE_PATH = #{clonePath,jdbcType=VARCHAR},
@@ -404,10 +404,10 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity">
     update REPOSITORY
-    set ORGANIZE_ID = #{organizeId,jdbcType=BIGINT},
-      NAME = #{name,jdbcType=VARCHAR},
+    set NAME = #{name,jdbcType=VARCHAR},
       PATH = #{path,jdbcType=VARCHAR},
       REPOSITORY_TYPE = #{repositoryType,jdbcType=VARCHAR},
+      OWNER_TYPE = #{ownerType,jdbcType=VARCHAR},
       OWNER_ID = #{ownerId,jdbcType=BIGINT},
       CREDENTIAL_ID = #{credentialId,jdbcType=VARCHAR},
       CLONE_PATH = #{clonePath,jdbcType=VARCHAR},

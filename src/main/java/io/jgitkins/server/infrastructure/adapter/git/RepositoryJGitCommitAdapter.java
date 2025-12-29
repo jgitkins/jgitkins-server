@@ -39,6 +39,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
                        String authorName,
                        String authorEmail,
                        List<CommitFile> files) {
+
         File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
         try (Repository repo = repositoryResolver.openBareRepository(gitDir);
              ObjectInserter inserter = repo.newObjectInserter();
@@ -53,8 +54,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
 
             updateBranchRef(repo, branch, commitId, parentCommit);
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.COMMIT_CREATE_FAILED,
-                    String.format("Failed to commit to repo %s/%s", taskCd, repoName), e);
+            throw new InternalServerErrorException(ErrorCode.COMMIT_CREATE_FAILED, String.format("Failed to commit to repo %s/%s", taskCd, repoName), e);
         }
     }
 
@@ -213,8 +213,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
         ru.setExpectedOldObjectId(parentCommit != null ? parentCommit.getId() : ObjectId.zeroId());
         RefUpdate.Result updateResult = ru.update();
         if (updateResult == RefUpdate.Result.REJECTED || updateResult == RefUpdate.Result.LOCK_FAILURE) {
-            throw new InternalServerErrorException(ErrorCode.HEAD_POINT_FAILED,
-                    String.format("Failed to update originRef %s, %s", originRef, updateResult));
+            throw new InternalServerErrorException(ErrorCode.HEAD_POINT_FAILED, String.format("Failed to update originRef %s, %s", originRef, updateResult));
         }
     }
 

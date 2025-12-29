@@ -7,7 +7,6 @@ import io.jgitkins.server.application.port.in.UserCredentialIssueUseCase;
 import io.jgitkins.server.application.port.in.UserCredentialQueryUseCase;
 import io.jgitkins.server.application.port.in.UserCredentialRevokeUseCase;
 import io.jgitkins.server.presentation.common.ApiResponse;
-import io.jgitkins.server.presentation.common.ResponseFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -36,14 +35,14 @@ public class UserCredentialController {
         Long userId = Long.valueOf(authentication.getName());
         UserCredentialIssueCommand command = new UserCredentialIssueCommand(userId);
         UserCredentialIssueResult result = userCredentialIssueUseCase.issueToken(command);
-        return ResponseFactory.created(result.getCredentialId(), result);
+        return ApiResponse.created(result.getCredentialId(), result);
     }
 
     @Operation(summary = "List personal access tokens")
     @GetMapping("/pats")
     public ResponseEntity<ApiResponse<java.util.List<UserCredentialSummary>>> getPats(Authentication authentication) {
         Long userId = Long.valueOf(authentication.getName());
-        return ResponseEntity.ok(ApiResponse.success(userCredentialQueryUseCase.getPatList(userId)));
+        return ApiResponse.ok(userCredentialQueryUseCase.getPatList(userId));
     }
 
     @Operation(summary = "Revoke personal access token")
@@ -52,6 +51,6 @@ public class UserCredentialController {
                                                        @PathVariable Long credentialId) {
         Long userId = Long.valueOf(authentication.getName());
         userCredentialRevokeUseCase.revokePat(userId, credentialId);
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.noContent();
     }
 }

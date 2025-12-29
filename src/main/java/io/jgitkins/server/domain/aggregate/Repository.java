@@ -5,11 +5,12 @@ import io.jgitkins.server.domain.event.RepositorySynchronizedEvent;
 import io.jgitkins.server.domain.model.vo.BranchName;
 import io.jgitkins.server.domain.model.vo.InitialCommitOptions;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
+import io.jgitkins.server.domain.model.vo.OwnerId;
+import io.jgitkins.server.domain.model.vo.OwnerType;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.RepositoryPath;
 import io.jgitkins.server.domain.model.vo.RepositoryVisibility;
-import io.jgitkins.server.domain.model.vo.UserId;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,8 @@ import java.time.LocalDateTime;
 public class Repository extends AbstractAggregateRoot<RepositoryId> {
 
     private final RepositoryId id;
-    private final OrganizeId organizeId;
+    private final OwnerType ownerType;
+    private final OwnerId ownerId;
     private final RepositoryName name;
     private final RepositoryPath path;
     private final BranchName defaultBranch;
@@ -29,7 +31,6 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
     private final String description;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
-    private final UserId ownerId;
     private final String credentialId;
     private final String clonePath;
     private final LocalDateTime lastSyncedAt;
@@ -37,7 +38,8 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
     private final boolean initialized;
 
     private Repository(RepositoryId id,
-                       OrganizeId organizeId,
+                       OwnerType ownerType,
+                       OwnerId ownerId,
                        RepositoryName name,
                        RepositoryPath path,
                        BranchName defaultBranch,
@@ -45,14 +47,14 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                        String description,
                        LocalDateTime createdAt,
                        LocalDateTime updatedAt,
-                       UserId ownerId,
                        String credentialId,
                        String clonePath,
                        LocalDateTime lastSyncedAt,
                        boolean requiresInitialContent,
                        boolean initialized) {
         this.id = id;
-        this.organizeId = organizeId;
+        this.ownerType = ownerType;
+        this.ownerId = ownerId;
         this.name = name;
         this.path = path;
         this.defaultBranch = defaultBranch;
@@ -60,7 +62,6 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
         this.description = description != null ? description.trim() : null;
         this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
         this.updatedAt = updatedAt != null ? updatedAt : this.createdAt;
-        this.ownerId = ownerId;
         this.credentialId = credentialId;
         this.clonePath = clonePath;
         this.lastSyncedAt = lastSyncedAt;
@@ -68,12 +69,12 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
         this.initialized = initialized;
     }
 
-    public static Repository create(OrganizeId organizeId,
+    public static Repository create(OwnerType ownerType,
+                                    OwnerId ownerId,
                                     RepositoryName name,
                                     RepositoryPath path,
                                     BranchName defaultBranch,
                                     RepositoryVisibility visibility,
-                                    UserId ownerId,
                                     String description,
                                     String clonePath,
                                     String credentialId,
@@ -84,7 +85,8 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
         LocalDateTime now = LocalDateTime.now();
         Repository repository = new Repository(
                 null,
-                organizeId,
+                ownerType,
+                ownerId,
                 name,
                 path,
                 defaultBranch,
@@ -92,7 +94,6 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                 description,
                 now,
                 now,
-                ownerId,
                 credentialId,
                 clonePath,
                 null,
@@ -107,7 +108,8 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                                    LocalDateTime createdAt,
                                    LocalDateTime updatedAt) {
         Repository identified = new Repository(repositoryId,
-                                               organizeId,
+                                               ownerType,
+                                               ownerId,
                                                name,
                                                path,
                                                defaultBranch,
@@ -115,7 +117,6 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                                                description,
                                                createdAt,
                                                updatedAt,
-                                               ownerId,
                                                credentialId,
                                                clonePath,
                                                lastSyncedAt,
@@ -128,7 +129,8 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
     public Repository markInit(LocalDateTime syncedAt) {
         LocalDateTime effectiveSyncedAt = syncedAt != null ? syncedAt : LocalDateTime.now();
         Repository marked = new Repository(id,
-                                           organizeId,
+                                           ownerType,
+                                           ownerId,
                                            name,
                                            path,
                                            defaultBranch,
@@ -136,7 +138,6 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                                            description,
                                            createdAt,
                                            effectiveSyncedAt,
-                                           ownerId,
                                            credentialId,
                                            clonePath,
                                            effectiveSyncedAt,
@@ -150,12 +151,12 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
 
     // internal factory method (entity to domain)
     public static Repository rehydrate(RepositoryId repositoryId,
-                                       OrganizeId organizeId,
+                                       OwnerType ownerType,
+                                       OwnerId ownerId,
                                        RepositoryName name,
                                        RepositoryPath path,
                                        BranchName defaultBranch,
                                        RepositoryVisibility visibility,
-                                       UserId ownerId,
                                        String description,
                                        String clonePath,
                                        String credentialId,
@@ -163,7 +164,8 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                                        LocalDateTime updatedAt,
                                        LocalDateTime lastSyncedAt) {
         return new Repository(repositoryId,
-                              organizeId,
+                              ownerType,
+                              ownerId,
                               name,
                               path,
                               defaultBranch,
@@ -171,11 +173,17 @@ public class Repository extends AbstractAggregateRoot<RepositoryId> {
                               description,
                               createdAt,
                               updatedAt,
-                              ownerId,
                               credentialId,
                               clonePath,
                               lastSyncedAt,
                               lastSyncedAt == null,
                               lastSyncedAt != null);
+    }
+
+    public OrganizeId getOrganizeId() {
+        if (ownerType == OwnerType.ORGANIZATION && ownerId != null) {
+            return OrganizeId.of(ownerId.getValue());
+        }
+        return null;
     }
 }

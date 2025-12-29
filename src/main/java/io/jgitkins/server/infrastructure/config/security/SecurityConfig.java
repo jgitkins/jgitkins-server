@@ -2,10 +2,11 @@ package io.jgitkins.server.infrastructure.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jgitkins.server.application.service.OAuthLoginService;
+import io.jgitkins.server.infrastructure.config.security.filter.JwtAuthenticationFilter;
+import io.jgitkins.server.infrastructure.config.security.filter.PatAuthenticationProvider;
 import io.jgitkins.server.infrastructure.config.security.handler.ApiAccessDeniedHandler;
 import io.jgitkins.server.infrastructure.config.security.handler.ApiAnauthorizeHandler;
 import io.jgitkins.server.infrastructure.config.security.handler.OAuth2LoginSuccessHandler;
-import io.jgitkins.server.security.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;

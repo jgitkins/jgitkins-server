@@ -39,7 +39,7 @@ public class RepositoryMemberController {
                 .role(request.getRole())
                 .build();
         repositoryMemberAddUseCase.addRepositoryMember(command);
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.ok();
     }
 
     @Operation(summary = "Remove repository member")
@@ -47,12 +47,12 @@ public class RepositoryMemberController {
     public ResponseEntity<ApiResponse<Void>> removeMember(@PathVariable Long repositoryId,
                                                           @PathVariable Long userId) {
         repositoryMemberRemoveUseCase.removeRepositoryMember(repositoryId, userId);
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.noContent();
     }
 
     @Operation(summary = "List repository members")
     @GetMapping
     public ResponseEntity<ApiResponse<java.util.List<RepositoryMemberSummary>>> listMembers(@PathVariable Long repositoryId) {
-        return ResponseEntity.ok(ApiResponse.success(repositoryMemberQueryUseCase.getRepositoryMembers(repositoryId)));
+        return ApiResponse.ok(repositoryMemberQueryUseCase.getRepositoryMembers(repositoryId));
     }
 }

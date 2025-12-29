@@ -6,7 +6,6 @@ import lombok.Getter;
 @Builder
 @Getter
 public class BranchCreateCommand {
-
     private final Long repositoryId;
     private final String branchName;
     private final String sourceBranch;

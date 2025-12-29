@@ -5,13 +5,13 @@ import java.time.LocalDateTime;
 public class RepositoryEntity {
     private Long id;
 
-    private Long organizeId;
-
     private String name;
 
     private String path;
 
     private String repositoryType;
+
+    private String ownerType;
 
     private Long ownerId;
 
@@ -44,19 +44,6 @@ public class RepositoryEntity {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getOrganizeId() {
-        return organizeId;
-    }
-
-    public RepositoryEntity withOrganizeId(Long organizeId) {
-        this.setOrganizeId(organizeId);
-        return this;
-    }
-
-    public void setOrganizeId(Long organizeId) {
-        this.organizeId = organizeId;
     }
 
     public String getName() {
@@ -96,6 +83,19 @@ public class RepositoryEntity {
 
     public void setRepositoryType(String repositoryType) {
         this.repositoryType = repositoryType == null ? null : repositoryType.trim();
+    }
+
+    public String getOwnerType() {
+        return ownerType;
+    }
+
+    public RepositoryEntity withOwnerType(String ownerType) {
+        this.setOwnerType(ownerType);
+        return this;
+    }
+
+    public void setOwnerType(String ownerType) {
+        this.ownerType = ownerType == null ? null : ownerType.trim();
     }
 
     public Long getOwnerId() {

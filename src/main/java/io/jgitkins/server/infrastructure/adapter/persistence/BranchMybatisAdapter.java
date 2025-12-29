@@ -2,6 +2,7 @@ package io.jgitkins.server.infrastructure.adapter.persistence;
 
 import io.jgitkins.server.application.port.out.BranchPort;
 import io.jgitkins.server.domain.Branch;
+import io.jgitkins.server.infrastructure.mapper.BranchDomainMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.BranchEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.BranchEntity;
 import io.jgitkins.server.infrastructure.persistence.model.BranchEntityCondition;

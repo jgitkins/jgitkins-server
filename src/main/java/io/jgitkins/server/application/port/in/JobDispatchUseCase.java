@@ -5,5 +5,5 @@ import io.jgitkins.server.presentation.dto.RunnerJobFetchRequest;
 import java.util.Optional;
 
 public interface JobDispatchUseCase {
-    Optional<JobDispatchMessage> dispatchJobForRunner(RunnerJobFetchRequest request);
+    Optional<JobDispatchMessage> fetchJob(RunnerJobFetchRequest request);
 }

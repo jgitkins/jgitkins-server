@@ -26,7 +26,7 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class MergeGitJgitAdapter implements MergeGitPort {
+public class MergeJGitAdapter implements MergeGitPort {
 
     private final String ROOT_PATH = String.format("%s/%s", System.getProperty("user.home"), "tmptmp/bare");
 

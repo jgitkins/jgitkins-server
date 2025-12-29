@@ -4,12 +4,12 @@ import io.jgitkins.server.domain.event.RepositoryProvisionedEvent;
 import io.jgitkins.server.domain.event.RepositorySynchronizedEvent;
 import io.jgitkins.server.domain.model.vo.BranchName;
 import io.jgitkins.server.domain.model.vo.InitialCommitOptions;
-import io.jgitkins.server.domain.model.vo.OrganizeId;
+import io.jgitkins.server.domain.model.vo.OwnerId;
+import io.jgitkins.server.domain.model.vo.OwnerType;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.RepositoryPath;
 import io.jgitkins.server.domain.model.vo.RepositoryVisibility;
-import io.jgitkins.server.domain.model.vo.UserId;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -21,12 +21,12 @@ class RepositoryTest {
     @Test
     void shouldCreateRepositoryAndEmitProvisionedEvent() {
         Repository repository = Repository.create(
-                OrganizeId.of(1L),
+                OwnerType.ORGANIZATION,
+                OwnerId.of(1L),
                 RepositoryName.from("demo"),
                 RepositoryPath.from("demo-path"),
                 BranchName.of("main"),
                 RepositoryVisibility.PRIVATE,
-                UserId.of(5L),
                 " Demo repository ",
                 "/demo/demo-path.git",
                 "cred-1",
@@ -49,12 +49,12 @@ class RepositoryTest {
     @Test
     void shouldMarkRepositoryAsSyncedAndEmitEvent() {
         Repository repository = Repository.create(
-                OrganizeId.of(2L),
+                OwnerType.ORGANIZATION,
+                OwnerId.of(2L),
                 RepositoryName.from("demo"),
                 RepositoryPath.from("demo"),
                 BranchName.of("main"),
                 RepositoryVisibility.PRIVATE,
-                null,
                 null,
                 "/demo/demo.git",
                 null,
@@ -74,12 +74,12 @@ class RepositoryTest {
 
     @Test
     void shouldCopyEventsWhenAssigningIdentity() {
-        Repository repository = Repository.create(OrganizeId.of(3L),
+        Repository repository = Repository.create(OwnerType.ORGANIZATION,
+                                                  OwnerId.of(3L),
                                                   RepositoryName.from("demo"),
                                                   RepositoryPath.from("demo-path"),
                                                   BranchName.of("main"),
                                                   RepositoryVisibility.PRIVATE,
-                                                  UserId.of(10L),
                                                   null,
                                                   "/demo/demo-path.git",
                                                   null,

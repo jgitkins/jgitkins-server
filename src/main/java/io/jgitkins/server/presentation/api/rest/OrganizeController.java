@@ -6,7 +6,6 @@ import io.jgitkins.server.application.port.in.OrganizeCreationUseCase;
 import io.jgitkins.server.application.port.in.OrganizeDeletionUseCase;
 import io.jgitkins.server.application.port.in.OrganizeLoadUseCase;
 import io.jgitkins.server.presentation.common.ApiResponse;
-import io.jgitkins.server.presentation.common.ResponseFactory;
 import io.jgitkins.server.presentation.dto.OrganizeCreationRequest;
 import io.jgitkins.server.presentation.mapper.OrganizeRequestMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +25,6 @@ public class OrganizeController {
     private final OrganizeCreationUseCase organizeCreationUseCase;
     private final OrganizeLoadUseCase organizeLoadUseCase;
     private final OrganizeDeletionUseCase organizeDeletionUseCase;
-//    private final OrganizeUpdateUseCase organizeUpdateUseCase;
 
     private final OrganizeRequestMapper organizeRequestMapper;
 
@@ -35,19 +33,19 @@ public class OrganizeController {
     public ResponseEntity<ApiResponse<OrganizeCreationResult>> createOrganize(@RequestBody OrganizeCreationRequest request) {
         OrganizeCreationCommand command = organizeRequestMapper.toCommand(request);
         OrganizeCreationResult result = organizeCreationUseCase.createOrganize(command);
-        return ResponseFactory.created(result.getId(), result);
+        return ApiResponse.created(result.getId(), result);
     }
 
     @Operation(summary = "List Organizes")
     @GetMapping
     public ResponseEntity<ApiResponse<List<OrganizeCreationResult>>> getOrganizes() {
-        return ResponseEntity.ok(ApiResponse.success(organizeLoadUseCase.getOrganizes()));
+        return ApiResponse.ok(organizeLoadUseCase.getOrganizes());
     }
 
     @Operation(summary = "Get Organize")
     @GetMapping("/{organizeId}")
     public ResponseEntity<ApiResponse<OrganizeCreationResult>> getOrganize(@PathVariable Long organizeId) {
-        return ResponseEntity.ok(ApiResponse.success(organizeLoadUseCase.getOrganize(organizeId)));
+        return ApiResponse.ok(organizeLoadUseCase.getOrganize(organizeId));
     }
 
 //    @Operation(summary = "Update Organize")
@@ -62,6 +60,6 @@ public class OrganizeController {
     @DeleteMapping("/{organizeId}")
     public ResponseEntity<ApiResponse<Void>> deleteOrganize(@PathVariable Long organizeId) {
         organizeDeletionUseCase.deleteOrganize(organizeId);
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.noContent();
     }
 }

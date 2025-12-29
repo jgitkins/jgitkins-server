@@ -7,15 +7,14 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateRepositoryCommand {
+public class RepositoryCreateCommand {
     // required
     private String repoName;
+    private String ownerType;
     private Long organizeId;
     private String authorName;    // initial commit author (fallback if null)
     private String authorEmail;   // initial commit email (fallback if null)
-    private Long ownerId;
     private String mainBranch;    // e.g., "main" (default if null/blank)
-    private String path;
     private String visibility;
     private String description;
     private String credentialId;

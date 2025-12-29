@@ -1,6 +1,5 @@
 package io.jgitkins.server.application.dto.command;
 
-import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.aggregate.Repository;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +16,7 @@ public class BranchCreationContext {
     private final String repositoryName;
 
     public static BranchCreationContext of(BranchCreateCommand command,
-                                           Organize organize,
+                                           String namespace,
                                            Repository repository,
                                            String resolvedSourceBranch) {
         return BranchCreationContext.builder()
@@ -25,7 +24,7 @@ public class BranchCreationContext {
                 .branchName(command.getBranchName())
                 .sourceBranch(resolvedSourceBranch)
                 .physicalCreationRequired(command.isPhysicalCreationRequired())
-                .taskCd(organize.getName().getValue())
+                .taskCd(namespace)
                 .repositoryName(repository.getName().getValue())
                 .build();
     }

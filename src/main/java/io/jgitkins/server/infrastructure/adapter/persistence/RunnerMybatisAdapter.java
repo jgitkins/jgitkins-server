@@ -3,6 +3,8 @@ package io.jgitkins.server.infrastructure.adapter.persistence;
 import io.jgitkins.server.application.port.out.RunnerPort;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.vo.RunnerScopeType;
+import io.jgitkins.server.infrastructure.mapper.RunnerAssignmentDomainMapper;
+import io.jgitkins.server.infrastructure.mapper.RunnerDomainMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.RunnerAssignmentEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.RunnerEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntity;
@@ -25,7 +27,7 @@ public class RunnerMybatisAdapter implements RunnerPort {
     private final RunnerAssignmentEntityMbgMapper runnerAssignmentEntityMbgMapper;
 
     private final RunnerDomainMapper runnerDomainMapper;
-    private final RunnerAssignmentMapper runnerAssignmentMapper;
+    private final RunnerAssignmentDomainMapper runnerAssignmentDomainMapper;
 
     @Override
     @Transactional
@@ -35,12 +37,12 @@ public class RunnerMybatisAdapter implements RunnerPort {
         if (runner.getId() == null) {
             runnerEntityMbgMapper.insertSelective(entity);
             Runner restoredEntity = restoreRunner(entity);
-            runnerAssignmentEntityMbgMapper.insertSelective(runnerAssignmentMapper.toEntity(restoredEntity));
+            runnerAssignmentEntityMbgMapper.insertSelective(runnerAssignmentDomainMapper.toEntity(restoredEntity));
             return runnerDomainMapper.toDomain(entity, runner.getScopeType(), runner.getScopeTargetId());
 
         } else {
             runnerEntityMbgMapper.updateByPrimaryKeySelective(entity);
-            runnerAssignmentEntityMbgMapper.updateByPrimaryKeySelective(runnerAssignmentMapper.toEntity(runner));
+            runnerAssignmentEntityMbgMapper.updateByPrimaryKeySelective(runnerAssignmentDomainMapper.toEntity(runner));
             RunnerEntity updated = runnerEntityMbgMapper.selectByPrimaryKey(runner.getId());
             return restoreRunner(updated);
         }
@@ -95,7 +97,7 @@ public class RunnerMybatisAdapter implements RunnerPort {
 
 
     private void persistAssignment(Runner runner) {
-        RunnerAssignmentEntity assignment = runnerAssignmentMapper.toEntity(runner);
+        RunnerAssignmentEntity assignment = runnerAssignmentDomainMapper.toEntity(runner);
         runnerAssignmentEntityMbgMapper.insertSelective(assignment);
     }
 

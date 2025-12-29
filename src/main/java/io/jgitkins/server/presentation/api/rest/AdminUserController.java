@@ -30,13 +30,13 @@ public class AdminUserController {
     @Operation(summary = "List users")
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserAdminSummary>>> listUsers() {
-        return ResponseEntity.ok(ApiResponse.success(adminUserQueryUseCase.getUsers()));
+        return ApiResponse.ok(adminUserQueryUseCase.getUsers());
     }
 
     @Operation(summary = "Get user detail")
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse<UserAdminDetail>> getUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(ApiResponse.success(adminUserQueryUseCase.getUser(userId)));
+        return ApiResponse.ok(adminUserQueryUseCase.getUser(userId));
     }
 
     @Operation(summary = "Update user status")
@@ -44,6 +44,6 @@ public class AdminUserController {
     public ResponseEntity<ApiResponse<Void>> updateStatus(@PathVariable Long userId,
                                                           @RequestBody UserStatusUpdateRequest request) {
         adminUserUpdateUseCase.updateUserStatus(userId, request.getStatus());
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.ok();
     }
 }

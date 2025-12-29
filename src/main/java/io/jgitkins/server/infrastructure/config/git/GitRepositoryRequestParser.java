@@ -18,16 +18,26 @@ public class GitRepositoryRequestParser {
         if (parts.length < 2) {
             return null;
         }
-        String organizeSlug = parts[0];
-        String repoSegment = parts[1];
+        String namespace = parts[0];
+        String ownerSlug = null;
+        String repoSegment;
+        if ("users".equals(namespace)) {
+            if (parts.length < 3) {
+                return null;
+            }
+            ownerSlug = parts[1];
+            repoSegment = parts[2];
+        } else {
+            repoSegment = parts[1];
+        }
         String repositoryPath = repoSegment.endsWith(".git")
                 ? repoSegment.substring(0, repoSegment.length() - 4)
                 : repoSegment;
-        if (organizeSlug.isBlank() || repositoryPath.isBlank()) {
+        if (namespace.isBlank() || repositoryPath.isBlank()) {
             return null;
         }
-        return new GitRepositoryRequest(organizeSlug, repositoryPath);
+        return new GitRepositoryRequest(namespace, ownerSlug, repositoryPath);
     }
 
-    public record GitRepositoryRequest(String organizeSlug, String repositoryPath) {}
+    public record GitRepositoryRequest(String namespace, String ownerSlug, String repositoryName) {}
 }

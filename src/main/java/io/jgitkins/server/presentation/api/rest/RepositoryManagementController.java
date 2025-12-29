@@ -1,16 +1,16 @@
 package io.jgitkins.server.presentation.api.rest;
 
-import io.jgitkins.server.application.dto.command.CreateRepositoryCommand;
+import io.jgitkins.server.application.dto.command.RepositoryCreateCommand;
 import io.jgitkins.server.application.dto.result.RepositoryResult;
-import io.jgitkins.server.application.port.in.RepositoryCreationUseCase;
-import io.jgitkins.server.application.port.in.RepositoryDeletionUseCase;
+import io.jgitkins.server.application.port.in.RepositoryCreateUseCase;
+import io.jgitkins.server.application.port.in.RepositoryDeleteUseCase;
 import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
 import io.jgitkins.server.presentation.common.ApiResponse;
-import io.jgitkins.server.presentation.common.ResponseFactory;
 import io.jgitkins.server.presentation.dto.RepositoryCreateRequest;
 import io.jgitkins.server.presentation.mapper.RepositoryRequestMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,47 +28,36 @@ import java.util.List;
 @RequestMapping("/api/repositories")
 public class RepositoryManagementController {
 
-    private final RepositoryCreationUseCase repositoryCreationUseCase;
+    private final RepositoryCreateUseCase repositoryCreateUseCase;
     private final RepositoryLoadUseCase repositoryLoadUseCase;
-    private final RepositoryDeletionUseCase repositoryDeletionUseCase;
-    //    private final UpdateRepositoryUseCase updateRepositoryUseCase;
+    private final RepositoryDeleteUseCase repositoryDeleteUseCase;
 
     private final RepositoryRequestMapper repositoryRequestMapper;
 
-    @Operation(summary = "Create Repository")
+    @Operation(summary = "Create Repository", description = "ownerType required.")
     @PostMapping
-    public ResponseEntity<ApiResponse<RepositoryResult>> create(@org.springframework.web.bind.annotation.RequestBody RepositoryCreateRequest request) {
-        CreateRepositoryCommand createCommand = repositoryRequestMapper.toCommand(request);
-        RepositoryResult result = repositoryCreationUseCase.create(createCommand);
-        return ResponseFactory.created(result.getId(), result);
+    public ResponseEntity<ApiResponse<RepositoryResult>> create(@Valid @org.springframework.web.bind.annotation.RequestBody RepositoryCreateRequest request) {
+        RepositoryCreateCommand createCommand = repositoryRequestMapper.toCommand(request);
+        RepositoryResult result = repositoryCreateUseCase.create(createCommand);
+        return ApiResponse.created(result.getId(), result);
     }
 
     @Operation(summary = "Get Repository Metadata")
     @GetMapping("/{repositoryId}")
     public ResponseEntity<ApiResponse<RepositoryResult>> getRepository(@PathVariable Long repositoryId) {
-        return ResponseEntity.ok(ApiResponse.success(repositoryLoadUseCase.getRepository(repositoryId)));
+        return ApiResponse.ok(repositoryLoadUseCase.getRepository(repositoryId));
     }
 
     @Operation(summary = "Get Repositories")
     @GetMapping
     public ResponseEntity<ApiResponse<List<RepositoryResult>>> getRepositories() {
-        return ResponseEntity.ok(ApiResponse.success(repositoryLoadUseCase.getRepositories()));
+        return ApiResponse.ok(repositoryLoadUseCase.getRepositories());
     }
-
-//    @Operation(summary = "Update Repository Metadata")
-//    @PutMapping("/{repositoryId}")
-//    public ResponseEntity<ApiResponse<RepositoryResult>> updateRepository(@PathVariable Long repositoryId,
-//                                                                          @org.springframework.web.bind.annotation.RequestBody UpdateRepositoryRequest request) {
-//        UpdateRepositoryCommand command = createRepositoryMapper.toUpdateCommand(request);
-//        RepositoryResult response = updateRepositoryUseCase.updateRepository(repositoryId, command);
-//        return ResponseEntity.ok(ApiResponse.success(response));
-//    }
 
     @Operation(summary = "Delete Repository")
     @DeleteMapping("/{repositoryId}")
     public ResponseEntity<ApiResponse<Void>> deleteRepository(@PathVariable Long repositoryId) {
-        repositoryDeletionUseCase.deleteRepository(repositoryId);
-        return ResponseEntity.ok(ApiResponse.success());
+        repositoryDeleteUseCase.deleteRepository(repositoryId);
+        return ApiResponse.noContent();
     }
-
 }

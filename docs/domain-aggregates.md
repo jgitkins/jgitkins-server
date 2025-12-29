@@ -43,6 +43,7 @@ classDiagram
     }
     class Repository {
         +RepositoryId id
+        +OwnerType ownerType
         +OrganizeId organizeId
         +RepositoryName name
         +RepositoryPath path
@@ -54,6 +55,7 @@ classDiagram
         +LocalDateTime createdAt
         +LocalDateTime updatedAt
     }
+    class OwnerType
     class Branch {
         +RepositoryId repositoryId
         +BranchName name
@@ -88,13 +90,15 @@ classDiagram
 
     User "1" --> "many" UserIdentity
     User "1" --> "many" UserCredential
+    User "1" --> "many" Organize
     Organize "1" --> "many" Repository
+    User "1" --> "many" Repository
+    Repository "1" --> "many" RepositoryMember
     Repository "1" --> "many" Branch
     Repository "1" --> "many" Job
     Job "1" --> "many" JobHistory
     Runner "1" --> "many" JobHistory
     Organize "1" --> "many" OrganizeMember
-    Repository "1" --> "many" RepositoryMember
     User "1" --> "many" OrganizeMember
     User "1" --> "many" RepositoryMember
     class OrganizeMember {
@@ -114,7 +118,8 @@ classDiagram
 ### Flow Summary
 
 - A `User` signs in with OAuth and has `UserIdentity` and `UserCredential` for provider and PAT data.
-- An `Organize` is the tenant boundary and owns `Repository`.
+- A `User` owns one or more `Organize` entities as the top-level account boundary.
+- A `Repository` is owned by either `Organize` or `User` based on `ownerType`.
 - A `Repository` has path, visibility, and default branch. It links to `Branch` and `Job`.
 - A `Runner` executes jobs and is tracked by heartbeat.
 - Memberships (organize/repository) are separate aggregates used for access control.
@@ -200,6 +205,7 @@ classDiagram
 classDiagram
     class Repository {
         +RepositoryId id
+        +OwnerType ownerType
         +OrganizeId organizeId
         +RepositoryName name
         +RepositoryPath path
@@ -214,6 +220,7 @@ classDiagram
         +markInit(...)
     }
     class RepositoryId
+    class OwnerType
     class OrganizeId
     class RepositoryName
     class RepositoryPath

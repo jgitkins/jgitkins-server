@@ -6,7 +6,7 @@ import io.jgitkins.server.application.dto.command.BranchCreateCommand;
 import io.jgitkins.server.presentation.dto.BranchCreateRequest;
 
 @Mapper(componentModel = "spring")
-public interface BranchCreateMapper {
+public interface BranchRequestMapper {
 
 //    @Mapping(target = "taskCd", source = "taskCd")
     @Mapping(target = "repositoryId", source = "repositoryId")

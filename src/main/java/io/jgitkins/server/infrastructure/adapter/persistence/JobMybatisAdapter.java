@@ -6,6 +6,7 @@ import io.jgitkins.server.application.port.out.JobPort;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.model.JobHistory;
 import io.jgitkins.server.domain.model.vo.*;
+import io.jgitkins.server.infrastructure.mapper.JobDomainMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.JobEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.JobHistoryEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.RepositoryEntityMbgMapper;
@@ -165,7 +166,13 @@ public class JobMybatisAdapter implements JobPort {
             return Optional.empty();
         }
         RepositoryEntity repositoryEntity = repositoryEntityMbgMapper.selectByPrimaryKey(jobEntity.getRepositoryId());
-        Long organizeId = repositoryEntity != null ? repositoryEntity.getOrganizeId() : null;
+        Long organizeId = null;
+        if (repositoryEntity != null) {
+            OwnerType ownerType = OwnerType.from(repositoryEntity.getOwnerType());
+            if (ownerType == OwnerType.ORGANIZATION) {
+                organizeId = repositoryEntity.getOwnerId();
+            }
+        }
         String clonePath = repositoryEntity != null ? repositoryEntity.getClonePath() : null;
 
         Job job = toAggregate(jobEntity);
@@ -194,7 +201,9 @@ public class JobMybatisAdapter implements JobPort {
 
     private List<Long> findRepositoryIdsByOrganize(Long organizeId) {
         RepositoryEntityCondition condition = new RepositoryEntityCondition();
-        condition.createCriteria().andOrganizeIdEqualTo(organizeId);
+        condition.createCriteria()
+                .andOwnerTypeEqualTo(OwnerType.ORGANIZATION.name())
+                .andOwnerIdEqualTo(organizeId);
         condition.setOrderByClause("created_at ASC");
         return repositoryEntityMbgMapper.selectByCondition(condition).stream()
                 .map(RepositoryEntity::getId)

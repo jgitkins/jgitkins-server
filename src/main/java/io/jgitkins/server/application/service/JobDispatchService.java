@@ -31,7 +31,7 @@ public class JobDispatchService implements JobDispatchUseCase {
 
     @Override
     @Transactional
-    public Optional<JobDispatchMessage> dispatchJobForRunner(RunnerJobFetchRequest request) {
+    public Optional<JobDispatchMessage> fetchJob(RunnerJobFetchRequest request) {
         Optional<RunnerAssignmentCandidate> candidateOptional = resolveRunnerCandidate(request.getRunnerToken());
         if (candidateOptional.isEmpty()) {
             return Optional.empty();

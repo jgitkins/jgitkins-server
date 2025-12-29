@@ -33,7 +33,7 @@ public class JobDispatchGrpcController extends JobDispatchServiceGrpc.JobDispatc
                                                                 .runnerToken(request.getRunnerToken())
                                                                 .build();
 
-        Optional<JobDispatchMessage> dispatchMessage = jobDispatchUseCase.dispatchJobForRunner(jobRequest);
+        Optional<JobDispatchMessage> dispatchMessage = jobDispatchUseCase.fetchJob(jobRequest);
         log.info("dispatchMessage: [{}]", dispatchMessage);
 
         JobDispatchResponse.Builder responseBuilder = JobDispatchResponse.newBuilder();

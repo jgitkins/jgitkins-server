@@ -34,9 +34,7 @@ public class BranchJGitAdapter implements BranchGitPort {
 
             String newRef = GitConstants.REFS_HEADS_PREFIX + context.getBranchName();
             if (repo.exactRef(newRef) != null) {
-//                throw new BranchCreateException("Branch already exists: " + command.getBranchName());
-                throw new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND,
-                        "Source branch not found: " + context.getSourceBranch());
+                throw new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND, "Source branch not found: " + context.getSourceBranch());
             }
 
             RefUpdate update = repo.updateRef(newRef);
@@ -59,22 +57,17 @@ public class BranchJGitAdapter implements BranchGitPort {
         try (Repository repo = repositoryResolver.openBareRepository(taskCd, repoName)) {
             if (repo.exactRef(refName) == null) {
                 throw new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND, "Branch not found: " + branchName);
-//                throw new BranchDeleteException("Branch not found: " + branchName);
             }
 
             RefUpdate update = repo.updateRef(refName);
             update.setForceUpdate(true);
             RefUpdate.Result result = update.delete();
             if (result != RefUpdate.Result.FORCED && result != RefUpdate.Result.NEW) {
-//                throw new BranchDeleteException("Failed to delete branch: " + result);
                 throw new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND, String.format("Failed to delete branch %s for repo %s/%s", branchName, taskCd, repoName));
-//                throw new InternalServerErrorException(ErrorCode.BRANCH_ALREADY_EXISTS, String.format("Failed to delete branch %s for repo %s/%s", branchName, taskCd, repoName));
             }
 
         } catch (IOException e) {
             throw new InternalServerErrorException(ErrorCode.BRANCH_ALREADY_EXISTS, String.format("Failed to delete branch %s for repo %s/%s", branchName, taskCd, repoName), e);
-//            throw new BranchDeleteException(String.format("Failed to delete branch %s for repo %s/%s",
-//                    branchName, taskCd, repoName), e);
         }
     }
 

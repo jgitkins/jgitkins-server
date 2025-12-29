@@ -5,6 +5,7 @@ import io.jgitkins.server.application.common.exception.ResourceNotFoundException
 import io.jgitkins.server.application.dto.CommitFile;
 import io.jgitkins.server.application.factory.CommitFileFactory;
 import io.jgitkins.server.application.port.out.*;
+import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.event.RepositoryProvisionedEvent;
@@ -28,9 +29,9 @@ public class RepositoryProvisionedEventListener {
 
     private final CommitFileFactory commitFileFactory;
 
-    private final OrganizePort organizePort;
     private final RepositoryPort repositoryPort;
     private final BranchPort branchPort;
+    private final RepositoryNamespaceResolver repositoryNamespaceResolver;
 
     private final CommitGitPort commitGitPort;
     private final RepositoryGitPort repositoryGitPort;
@@ -43,11 +44,9 @@ public class RepositoryProvisionedEventListener {
         RepositoryName repositoryName = event.getName();
         String repoNameValue = repositoryName.getValue();
         String branchName = event.getDefaultBranch().getValue();
-        String organizeSlug = loadOrganizeSlug(event);
+        String namespace = repositoryNamespaceResolver.resolve(event.getOwnerType(), event.getOwnerId());
 
-        Repository repository = repositoryPort.findByOrganizeAndName(event.getOrganizeId(), repositoryName)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
-                        "Repository not found for event: " + repoNameValue));
+        Repository repository = loadRepository(event, repositoryName, repoNameValue);
 
         // 기본 브랜치 엔트리를 미리 생성해 애플리케이션 상태를 일관되게 유지한다.
         Branch defaultBranch = Branch.create(repository.getId().getValue(),
@@ -59,25 +58,26 @@ public class RepositoryProvisionedEventListener {
 
         if (event.getInitialCommitOptions() != null && event.getInitialCommitOptions().requiresInitialContent()) {
             List<CommitFile> files = commitFileFactory.prepareInitialFile(repoNameValue);
-            commitGitPort.commit(organizeSlug,
-                                        repoNameValue,
-                                        branchName,
-                                        event.getInitialCommitOptions().commitMessage(),
-                                        event.getInitialCommitOptions().authorName(),
-                                        event.getInitialCommitOptions().authorEmail(),
-                                        files);
-            repositoryGitPort.updateHeadReference(organizeSlug, repoNameValue, branchName);
+            commitGitPort.commit(namespace,
+                                 repoNameValue,
+                                 branchName,
+                                 event.getInitialCommitOptions().commitMessage(),
+                                 event.getInitialCommitOptions().authorName(),
+                                 event.getInitialCommitOptions().authorEmail(),
+                                 files);
+            repositoryGitPort.updateHeadReference(namespace, repoNameValue, branchName);
             log.info("repository has initialized with readme");
 
             repositoryPort.update(repository.markInit(LocalDateTime.now()));
         }
     }
 
-    private String loadOrganizeSlug(RepositoryProvisionedEvent event) {
-        return organizePort.findById(event.getOrganizeId())
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
-                        "Organize not found: " + event.getOrganizeId().getValue()))
-                .getName()
-                .getValue();
+    private Repository loadRepository(RepositoryProvisionedEvent event,
+                                      RepositoryName repositoryName,
+                                      String repoNameValue) {
+        return repositoryPort.findByOwnerAndName(event.getOwnerType(), event.getOwnerId(), repositoryName)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
+                        "Repository not found for event: " + repoNameValue));
     }
+
 }

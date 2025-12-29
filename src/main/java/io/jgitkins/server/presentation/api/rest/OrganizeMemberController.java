@@ -39,7 +39,7 @@ public class OrganizeMemberController {
                 .role(request.getRole())
                 .build();
         organizeMemberAddUseCase.addOrganizeMember(command);
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.ok();
     }
 
     @Operation(summary = "Remove organize member")
@@ -47,12 +47,12 @@ public class OrganizeMemberController {
     public ResponseEntity<ApiResponse<Void>> removeMember(@PathVariable Long organizeId,
                                                           @PathVariable Long userId) {
         organizeMemberRemoveUseCase.removeOrganizeMember(organizeId, userId);
-        return ResponseEntity.ok(ApiResponse.success());
+        return ApiResponse.noContent();
     }
 
     @Operation(summary = "List organize members")
     @GetMapping
     public ResponseEntity<ApiResponse<java.util.List<OrganizeMemberSummary>>> listMembers(@PathVariable Long organizeId) {
-        return ResponseEntity.ok(ApiResponse.success(organizeMemberQueryUseCase.getOrganizeMembers(organizeId)));
+        return ApiResponse.ok(organizeMemberQueryUseCase.getOrganizeMembers(organizeId));
     }
 }

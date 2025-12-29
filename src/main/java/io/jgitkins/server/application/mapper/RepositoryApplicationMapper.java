@@ -14,7 +14,7 @@ public abstract class RepositoryApplicationMapper {
     protected CloneUrlBuilder cloneUrlBuilder;
 
     @Mapping(target = "id", expression = "java(repository.getId() != null ? repository.getId().getValue() : null)")
-    @Mapping(target = "organizeId", expression = "java(repository.getOrganizeId().getValue())")
+    @Mapping(target = "ownerType", expression = "java(repository.getOwnerType() != null ? repository.getOwnerType().name() : null)")
     @Mapping(target = "name", expression = "java(repository.getName().getValue())")
     @Mapping(target = "path", expression = "java(repository.getPath().getValue())")
     @Mapping(target = "defaultBranch", expression = "java(repository.getDefaultBranch().getValue())")

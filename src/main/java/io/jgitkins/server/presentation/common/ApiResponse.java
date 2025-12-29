@@ -2,6 +2,11 @@ package io.jgitkins.server.presentation.common;
 
 
 import io.jgitkins.server.application.common.ErrorCode;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 /**
  * Standardized wrapper that matches the README contract (`data` payload with optional `error`).
@@ -30,6 +35,27 @@ public final class ApiResponse<T> {
 
     public static <T> ApiResponse<T> failure(ErrorCode errorCode, String message) {
         return new ApiResponse<>(null, ApiError.of(errorCode, message));
+    }
+
+    public static <T> ResponseEntity<ApiResponse<T>> created(Object resourceId, T body) {
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(resourceId)
+                .toUri();
+        return ResponseEntity.created(location).body(ApiResponse.success(body));
+    }
+
+    public static <T> ResponseEntity<ApiResponse<T>> ok(T body) {
+        return ResponseEntity.ok(ApiResponse.success(body));
+    }
+
+    public static ResponseEntity<ApiResponse<Void>> ok() {
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    public static ResponseEntity<ApiResponse<Void>> noContent() {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success());
     }
 
     public T getData() {

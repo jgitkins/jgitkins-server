@@ -48,7 +48,7 @@ public class RepositoryContentController {
                                                           @RequestPart("file") MultipartFile file,
                                                           @RequestPart("request") FileUploadInfo request) throws IOException {
         fileUploadUseCase.uploadFileToRepository(taskCd, repoName, branch, file, request);
-        return ResponseEntity.ok(ApiResponse.success("File uploaded and committed."));
+        return ApiResponse.ok("File uploaded and committed.");
     }
 
     @Operation(summary = "View File Tree", description = "트리 조회")
@@ -58,6 +58,6 @@ public class RepositoryContentController {
                                                                 @PathVariable String branch,
                                                                 @RequestParam(name = "dir", required = false, defaultValue = "") String dir) throws IOException {
         List<FileEntry> files = fileTreeLoadUseCase.getTree(taskCd, repoName, branch, dir);
-        return ResponseEntity.ok(ApiResponse.success(files));
+        return ApiResponse.ok(files);
     }
 }

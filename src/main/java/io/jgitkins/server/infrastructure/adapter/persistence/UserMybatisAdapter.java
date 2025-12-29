@@ -2,6 +2,7 @@ package io.jgitkins.server.infrastructure.adapter.persistence;
 
 import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.model.User;
+import io.jgitkins.server.infrastructure.mapper.UserDomainMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.UserEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.UserEntity;
 import io.jgitkins.server.infrastructure.persistence.model.UserEntityCondition;
