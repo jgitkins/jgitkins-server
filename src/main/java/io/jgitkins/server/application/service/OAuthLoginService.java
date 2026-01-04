@@ -16,12 +16,20 @@ public class OAuthLoginService {
     private final JwtService jwtService;
 
     public OAuthLoginResult loginWithOidc(String providerName, OidcUser oidcUser) {
-        String providerSub = oidcUser.getSubject();
-        String email = oidcUser.getEmail();
-        String name = oidcUser.getFullName();
-        boolean emailVerified = oidcUser.getEmailVerified() != null && oidcUser.getEmailVerified();
-        String avatarUrl = oidcUser.getPicture() != null ? oidcUser.getPicture().toString() : null;
+        return loginWithOidcAttributes(providerName,
+                                       oidcUser.getSubject(),
+                                       oidcUser.getEmail(),
+                                       oidcUser.getFullName(),
+                                       oidcUser.getEmailVerified() != null && oidcUser.getEmailVerified(),
+                                       oidcUser.getPicture() != null ? oidcUser.getPicture().toString() : null);
+    }
 
+    public OAuthLoginResult loginWithOidcAttributes(String providerName,
+                                                    String providerSub,
+                                                    String email,
+                                                    String name,
+                                                    boolean emailVerified,
+                                                    String avatarUrl) {
         User user = userService.findOrCreateUser(providerName,
                                                  providerSub,
                                                  email,

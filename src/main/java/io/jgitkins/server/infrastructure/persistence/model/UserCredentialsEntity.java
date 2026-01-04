@@ -9,11 +9,15 @@ public class UserCredentialsEntity {
 
     private String provider;
 
+    private String name;
+
     private String passwordHash;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private String description;
 
     public Long getId() {
         return id;
@@ -54,6 +58,19 @@ public class UserCredentialsEntity {
         this.provider = provider == null ? null : provider.trim();
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public UserCredentialsEntity withName(String name) {
+        this.setName(name);
+        return this;
+    }
+
+    public void setName(String name) {
+        this.name = name == null ? null : name.trim();
+    }
+
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -91,5 +108,18 @@ public class UserCredentialsEntity {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public UserCredentialsEntity withDescription(String description) {
+        this.setDescription(description);
+        return this;
+    }
+
+    public void setDescription(String description) {
+        this.description = description == null ? null : description.trim();
     }
 }

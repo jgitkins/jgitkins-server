@@ -42,12 +42,14 @@ public class PatAuthenticationProvider implements AuthenticationProvider {
         Long userId = userPort.findUserIdByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        Optional<UserCredential> credential = userCredentialPort.findByUserIdAndProvider(userId, "PAT");
-        if (credential.isEmpty()) {
+        List<UserCredential> credentials = userCredentialPort.findAllByUserIdAndProvider(userId, "PAT");
+        if (credentials.isEmpty()) {
             throw new BadCredentialsException("Token not registered");
         }
 
-        if (!passwordEncoder.matches(rawToken, credential.get().getPasswordHash())) {
+        boolean matched = credentials.stream()
+                .anyMatch(credential -> passwordEncoder.matches(rawToken, credential.getPasswordHash()));
+        if (!matched) {
             throw new BadCredentialsException("Invalid token");
         }
 

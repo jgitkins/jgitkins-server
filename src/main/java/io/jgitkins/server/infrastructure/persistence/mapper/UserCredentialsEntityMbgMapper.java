@@ -18,15 +18,21 @@ public interface UserCredentialsEntityMbgMapper {
 
     int insertSelective(UserCredentialsEntity row);
 
+    List<UserCredentialsEntity> selectByConditionWithBLOBs(UserCredentialsEntityCondition example);
+
     List<UserCredentialsEntity> selectByCondition(UserCredentialsEntityCondition example);
 
     UserCredentialsEntity selectByPrimaryKey(Long id);
 
     int updateByConditionSelective(@Param("row") UserCredentialsEntity row, @Param("example") UserCredentialsEntityCondition example);
 
+    int updateByConditionWithBLOBs(@Param("row") UserCredentialsEntity row, @Param("example") UserCredentialsEntityCondition example);
+
     int updateByCondition(@Param("row") UserCredentialsEntity row, @Param("example") UserCredentialsEntityCondition example);
 
     int updateByPrimaryKeySelective(UserCredentialsEntity row);
+
+    int updateByPrimaryKeyWithBLOBs(UserCredentialsEntity row);
 
     int updateByPrimaryKey(UserCredentialsEntity row);
 }

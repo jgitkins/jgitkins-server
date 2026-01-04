@@ -17,6 +17,8 @@ public interface UserCredentialDomainMapper {
                 entity.getId(),
                 entity.getUserId(),
                 entity.getProvider(),
+                entity.getName(),
+                entity.getDescription(),
                 entity.getPasswordHash(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()

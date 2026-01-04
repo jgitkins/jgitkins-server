@@ -9,6 +9,8 @@ import lombok.Getter;
 public class UserCredentialSummary {
     private final Long id;
     private final String provider;
+    private final String name;
+    private final String description;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 }

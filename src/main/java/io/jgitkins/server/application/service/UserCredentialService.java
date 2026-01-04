@@ -31,7 +31,12 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
     public UserCredentialIssueResult issueToken(UserCredentialIssueCommand command) {
         String token = generateToken();
         String hash = passwordEncoder.encode(token);
-        UserCredential credential = UserCredential.issuePat(command.getUserId(), hash);
+        UserCredential credential = UserCredential.issuePat(
+                command.getUserId(),
+                command.getName(),
+                command.getDescription(),
+                hash
+        );
         UserCredential saved = userCredentialPort.save(credential);
         return new UserCredentialIssueResult(saved.getId(), token);
     }
@@ -43,6 +48,8 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
                 .map(credential -> new UserCredentialSummary(
                         credential.getId(),
                         credential.getProvider(),
+                        credential.getName(),
+                        credential.getDescription(),
                         credential.getCreatedAt(),
                         credential.getUpdatedAt()
                 ))
