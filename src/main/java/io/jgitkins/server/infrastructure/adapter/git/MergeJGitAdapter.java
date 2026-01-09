@@ -4,7 +4,6 @@ import io.jgitkins.server.application.common.GitConstants;
 import io.jgitkins.server.application.dto.MergeRequest;
 import io.jgitkins.server.application.dto.result.MergeResult;
 import io.jgitkins.server.application.port.out.MergeGitPort;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.merge.MergeStrategy;
@@ -13,6 +12,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -24,15 +24,21 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @Slf4j
 public class MergeJGitAdapter implements MergeGitPort {
 
-    private final String ROOT_PATH = String.format("%s/%s", System.getProperty("user.home"), "tmptmp/bare");
+    private final String rootPath;
+
+    public MergeJGitAdapter(@Value("${jgitkins.server.runtime.volume:${user.home}}")
+                            String runtimeVolume) {
+//        this.rootPath = java.nio.file.Path.of(runtimeVolume, "tmptmp", "bare").toString();
+        this.rootPath = runtimeVolume;
+    }
 
     @Override
     public MergeResult checkCanMerge(String taskCd, String repoName, String sourceBranch, String targetBranch) throws IOException {
-        File bareRepositoryPath = new File(ROOT_PATH + "/" + taskCd + "/" + repoName + ".git");
+        File bareRepositoryPath = new File(rootPath + "/" + taskCd + "/" + repoName + ".git");
 
         try (Repository repo = new FileRepositoryBuilder()
                 .setGitDir(bareRepositoryPath)
@@ -111,7 +117,7 @@ public class MergeJGitAdapter implements MergeGitPort {
 
     @Override
     public MergeResult merge(String taskCd, String repoName, MergeRequest req) throws IOException {
-        File bareRepositoryPath = new File(ROOT_PATH + "/" + taskCd + "/" + repoName + ".git");
+        File bareRepositoryPath = new File(rootPath + "/" + taskCd + "/" + repoName + ".git");
 
         try (Repository repo = new FileRepositoryBuilder()
                 .setGitDir(bareRepositoryPath)

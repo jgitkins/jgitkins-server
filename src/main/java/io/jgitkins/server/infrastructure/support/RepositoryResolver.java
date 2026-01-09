@@ -14,8 +14,9 @@ public class RepositoryResolver {
 
     private String rootPath;
 
-    public RepositoryResolver(@Value("${jgitkins.server.runtime.volumn:${user.home}}") String runtimeVolume) {
-        this.rootPath = Path.of(runtimeVolume, "tmptmp", "bare").toString();
+    public RepositoryResolver(@Value("${jgitkins.server.runtime.volume:${user.home}}") String runtimeVolume) {
+//        this.rootPath = Path.of(runtimeVolume, "tmptmp", "bare").toString();
+        this.rootPath = runtimeVolume;
     }
 
     public Repository openBareRepository(String taskCd, String repoName) throws IOException {

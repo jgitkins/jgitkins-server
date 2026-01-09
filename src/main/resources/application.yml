@@ -39,7 +39,7 @@ jgitkins:
       grpc-port: ${grpc.server.port:9090}
       poll-interval-ms: 5000
       busy-wait-interval-ms: 1000
-      volumn: ${user.home}
+      volume: ${user.home}/jgitkins/bare
   security:
     jwt:
       secret: ${JGITKINS_JWT_SECRET}
@@ -62,3 +62,9 @@ spring:
         provider:
           google:
             issuer-uri: https://accounts.google.com
+
+#---
+#jgitkins:
+#  server:
+#    runtime:
+#      volume: ${user.home}/jgitkins/bare
