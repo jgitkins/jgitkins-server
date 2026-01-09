@@ -87,6 +87,10 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+bootJar {
+	archiveFileName = 'app.jar'
+}
+
 protobuf {
 	protoc {
 		artifact = "com.google.protobuf:protoc:${protobufVersion}"

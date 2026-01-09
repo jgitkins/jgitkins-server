@@ -27,6 +27,8 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --max-connections=300
+    networks:
+      - jgitkins-net
 
     deploy:
       resources:
@@ -63,6 +65,8 @@ services:
       - --save
       - "60"
       - "10000"
+    networks:
+      - jgitkins-net
 
     deploy:
       resources:
@@ -73,3 +77,7 @@ services:
 volumes:
   mariadb_data:
   valkey_data:
+
+networks:
+  jgitkins-net:
+    external: true
