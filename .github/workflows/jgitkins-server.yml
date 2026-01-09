@@ -34,8 +34,8 @@ jobs:
       - name: Set up Docker Buildx (action)
         uses: docker/setup-buildx-action@v3
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      # - name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v3 # for performance
 
       - name: Log in to GHCR
         run: echo '[DEBUG] Login GHCR ...'
@@ -54,31 +54,35 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          platforms: linux/amd64,linux/arm64
+          # platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+          # cache-from: type=gha # for performance
+          # cache-to: type=gha,mode=max # for performance
+
 
       - name: Upload docker-compose.yml
         run: echo '[DEBUG] Upload Manifest file(docker-compose.yml)'
       - name: Upload docker-compose.yml (scp)
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SSH_HOST_ALZAR }}
+          username: ${{ secrets.SSH_USER_ALZAR }}
+          key: ${{ secrets.SSH_KEY_ALZAR }}
           port: ${{ secrets.SSH_PORT || 22 }}
           source: ${{ env.COMPOSE_FILE }}
-          target: ${{ secrets.DEPLOY_PATH }}
+          target: ${{ secrets.DEPLOY_PATH_SERVER }}
 
       - name: Deploy to home server
         uses: appleboy/ssh-action@v1.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SSH_HOST_ALZAR }}
+          username: ${{ secrets.SSH_USER_ALZAR }}
+          key: ${{ secrets.SSH_KEY_ALZAR }}
           port: ${{ secrets.SSH_PORT || 22 }}
           envs: GITHUB_ACTOR,GITHUB_TOKEN,REGISTRY
           script: |
@@ -86,7 +90,7 @@ jobs:
             export PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin
             echo '[DEBUG] Deploy jgitkins-server ...'
             echo "${GITHUB_TOKEN}" | docker login "${REGISTRY}" -u "${GITHUB_ACTOR}" --password-stdin
-            cd "${{ secrets.DEPLOY_PATH }}"
+            cd "${{ secrets.DEPLOY_PATH_SERVER }}"
             docker-compose -f "${{ env.COMPOSE_FILE }}" pull jgitkins-server
             docker-compose -f "${{ env.COMPOSE_FILE }}" up -d --force-recreate jgitkins-server
             docker image prune -f
