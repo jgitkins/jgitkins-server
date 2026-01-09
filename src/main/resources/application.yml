@@ -26,7 +26,7 @@ springdoc:
 # import
 spring:
   config:
-    import: optional:classpath:auth.properties
+    import: optional:classpath:env.properties
 
 ---
 jgitkins:

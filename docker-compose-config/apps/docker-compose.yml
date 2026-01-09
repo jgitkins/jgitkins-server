@@ -9,6 +9,8 @@ services:
     ports:
       - "18080:8084"
       - "19090:9090"
+    env_file:
+      - env.properties
     environment:
       SPRING_PROFILES_ACTIVE: local
       SPRING_DATASOURCE_HIKARI_JDBC_URL: jdbc:log4jdbc:mariadb://mariadb:3306/JGITKINS?allowMultiQueries=true
