@@ -11,10 +11,14 @@ services:
       - "19090:9090"
     env_file:
       - env.properties
-#    environment:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+#      SOPS_AGE_KEY_FILE: /run/secrets/sops.age
+      SOPS_AGE_KEY_FILE: /opt/apps/jgitkins/config/sops/age/keys.txt
     volumes:
       # - /opt/apps/jgitkins/server/bare:/opt/apps/jgitkins/server/bare
       - /opt/apps/jgitkins/bare:/opt/apps/jgitkins/bare
+      - /opt/apps/jgitkins/config/sops/age/keys.txt:/opt/apps/jgitkins/config/sops/age/keys.txt
     networks:
       - jgitkins-net
     restart: unless-stopped

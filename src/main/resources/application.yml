@@ -1,51 +1,55 @@
-grpc:
-  server:
-    port: 9090
----
-
-# 기본 설정
+# tomcat
 server:
-  port: 8084
+  port: ${REST_PORT}
   servlet:
     context-path: /
 ---
-# Mybatis 설정
+# netty
+grpc:
+  server:
+    port: ${GRPC_PORT}
+---
+# mybatis
 mybatis:
   mapper-locations: classpath*:/mapper/**/*.xml
----
-# Swagger 설정
-springdoc:
-  api-docs:
-    enabled: true
-  swagger-ui:
-    enabled: true
-    operations-sorter: method
-    display-request-duration: true
-    persist-authorization: true
----
-# import
-spring:
-  config:
-    import: optional:classpath:env.properties
 
 ---
+# env
+---
+# Spring 설정
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    hikari:
+      driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+      jdbc-url: ${JDBC_URL}
+      username: ${JDBC_USERNAME}
+      password: ${JDBC_PASSWORD}
+      pool-name: CP
+      maximum-pool-size: 5
+      connection-timeout: 8000
+      max-lifetime: 147000
+---
+# Application
 jgitkins:
   server:
     runtime:
-      rest-host: localhost
-      rest-port: ${server.port:8084}
+      rest-host: ${SERVICE_HOST}
+      rest-port: ${REST_PORT}
       rest-base-path: /api
-      grpc-host: localhost
-      grpc-port: ${grpc.server.port:9090}
+      grpc-host: ${SERVICE_HOST}
+      grpc-port: ${GRPC_PORT}
       poll-interval-ms: 5000
       busy-wait-interval-ms: 1000
-      volume: ${user.home}/jgitkins/bare
+      volume: ${BARE_PATH}
   security:
     jwt:
       secret: ${JGITKINS_JWT_SECRET}
       ttl-seconds: ${JGITKINS_JWT_TTL:900}
 
 ---
+# OAuth
 spring:
   security:
     oauth2:
@@ -63,8 +67,3 @@ spring:
           google:
             issuer-uri: https://accounts.google.com
 
-#---
-#jgitkins:
-#  server:
-#    runtime:
-#      volume: ${user.home}/jgitkins/bare
