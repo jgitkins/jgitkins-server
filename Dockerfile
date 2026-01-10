@@ -7,8 +7,7 @@ RUN cp build/libs/app.jar /workspace/app.jar
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends sops age ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get install -y --no-install-recommends sops age
 COPY --from=build /workspace/app.jar /app/app.jar
 COPY secrets /app/secrets
 EXPOSE 8084 9090
