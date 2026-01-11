@@ -6,6 +6,8 @@ RUN cp build/libs/app.jar /workspace/app.jar
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
+
+# install SOPS
 ARG SOPS_VERSION=3.9.1
 ARG TARGETARCH
 RUN apt-get update \

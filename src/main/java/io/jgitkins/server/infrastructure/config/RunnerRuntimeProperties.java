@@ -16,7 +16,13 @@ import org.springframework.stereotype.Component;
 public class RunnerRuntimeProperties {
 
     @NotBlank
-    private String restHost = "localhost";
+    private String serviceHost = "localhost";
+
+    @NotBlank
+    private String restScheme = "https";
+
+//    @NotBlank
+//    private String restHost = "localhost";
 
     @Min(1)
     private int restPort = 8084;
@@ -24,8 +30,8 @@ public class RunnerRuntimeProperties {
     @NotBlank
     private String restBasePath = "/api";
 
-    @NotBlank
-    private String grpcHost = "localhost";
+//    @NotBlank
+//    private String grpcHost = "localhost";
 
     @Min(1)
     private int grpcPort = 9090;

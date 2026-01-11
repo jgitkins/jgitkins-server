@@ -36,14 +36,12 @@ public class FetchEventUploadPackFactory implements UploadPackFactory<HttpServle
         up.setRefFilter(new RefLogger()); // 서버가 클라이언트에 제공할 정보 로깅 (Refs)
         up.setPreUploadHook(new CustomPreUploadHook()); // 사용자의 Fetching Packfile 요청에 대한 로깅 (사용자가 요청한 wants, haves || 그래서 어떤 Packfile 구성이 도출되었는지)
         up.setPostUploadHook(new CustomPostUploadHook());
-//        up.setProtocolV2Hook(new LoggingProtocolV2Hook());
 
         System.out.println("req.requestUri!!!: " + req.getRequestURI());
         System.out.println("req.queryStr: " + req.getQueryString());
         System.out.println("req.contextPath: " + req.getContextPath());
 
         return up;
-
     }
 
     private void authorizeRead(HttpServletRequest request) throws ServiceNotAuthorizedException {

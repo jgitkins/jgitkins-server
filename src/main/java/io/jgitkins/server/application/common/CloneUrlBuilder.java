@@ -1,31 +1,28 @@
 package io.jgitkins.server.application.common;
 
-import org.springframework.beans.factory.annotation.Value;
+import io.jgitkins.server.infrastructure.config.RunnerRuntimeProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class CloneUrlBuilder {
 
-    private final String baseUrl;
+    private static final String CLONE_PREFIX_PATH = "/git";
 
-    public CloneUrlBuilder(@Value("${jgitkins.clone-base-url:http://localhost:8084/git}") String baseUrl) {
-        this.baseUrl = normalizeBaseUrl(baseUrl);
-    }
+    private final RunnerRuntimeProperties properties;
 
     public String build(String clonePath) {
         if (clonePath == null || clonePath.isBlank()) {
             return null;
         }
-        if (clonePath.startsWith("/")) {
-            return baseUrl + clonePath;
-        }
-        return baseUrl + "/" + clonePath;
-    }
 
-    private String normalizeBaseUrl(String value) {
-        if (value == null || value.isBlank()) {
-            return "http://localhost:8084";
-        }
-        return value.endsWith("/") ? value.substring(0, value.length() - 1) : value;
+        String normalizedPath = clonePath.startsWith("/") ? clonePath : "/" + clonePath;
+        return "%s://%s%s%s".formatted(
+                properties.getRestScheme(),
+                properties.getServiceHost(),
+                CLONE_PREFIX_PATH,
+                normalizedPath
+        );
     }
 }

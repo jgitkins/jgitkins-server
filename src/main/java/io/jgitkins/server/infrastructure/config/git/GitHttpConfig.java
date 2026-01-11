@@ -14,7 +14,6 @@ import java.io.File;
 
 @Configuration
 @Slf4j
-//@RequiredArgsConstructor
 public class GitHttpConfig {
 
     private final File repoRoot; // 저장소 루트 경로
@@ -26,7 +25,6 @@ public class GitHttpConfig {
                          @Value("${jgitkins.server.runtime.volume:${user.home}}") String runtimeVolume) {
         this.fetchEventUploadPackFactory = fetchEventUploadPackFactory;
         this.pushEventReceivePackFactory = pushEventReceivePackFactory;
-//        this.repoRoot = new File(java.nio.file.Path.of(runtimeVolume, "tmptmp", "bare").toString());
         this.repoRoot = new File(runtimeVolume);
     }
 
@@ -38,41 +36,11 @@ public class GitHttpConfig {
         RepositoryResolver<HttpServletRequest> resolver = new FileResolver<>(repoRoot, true); // false → exportAll=false
         servlet.setRepositoryResolver(resolver);
 
-
-        // When Occur Fetch Event (Pull, Clone)
-//        servlet.setUploadPackFactory((req, db) -> {
-//            UploadPack up = new UploadPack(db);
-//
-//            up.setAdvertiseRefsHook(new AdvertiseRefsLogger(req));
-//            up.setRefFilter(new RefLogger());
-//            up.setPreUploadHook(new NegotiationEventLogger()); // 사용자의 Fetching Packfile 요청에 대한 로깅
-//            up.setPostUploadHook(new LoggingPostUploadHook());
-//            up.setProtocolV2Hook(new LoggingProtocolV2Hook());
-//
-//            System.out.println("req.requestUri!!!: " + req.getRequestURI());
-//            System.out.println("req.queryStr: " + req.getQueryString());
-//            System.out.println("req.contextPath: " + req.getContextPath());
-//
-//
-//            return up;
-//        });
-        servlet.setUploadPackFactory(fetchEventUploadPackFactory); // Fetch 이벤트 발생에대한 로깅 설정
+        // Fetch Event
+        servlet.setUploadPackFactory(fetchEventUploadPackFactory);
+        // Push Event
         servlet.setReceivePackFactory(pushEventReceivePackFactory);
-
-//        servlet.setReceivePackFactory((req, db) -> {
-//            ReceivePack rp = new ReceivePack(db);
-//
-//            // 브랜치 신규 생성 Listener (브랜치 관리 가능)
-//            rp.setPostReceiveHook(new LoggingPostReceiveHook(req));
-//
-//            return rp;
-//        }); // push
 
         return new ServletRegistrationBean<>(servlet, "/git/*");
     }
-
-//    private String authorization(){
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        return (String) authentication.getPrincipal();
-//    }
 }

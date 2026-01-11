@@ -7,10 +7,12 @@ import lombok.Getter;
 @Builder
 public class RunnerRuntimeConfig {
 
-    private final String restHost;
+    private final String serviceHost;
+    private final String restScheme;
+//    private final String restHost;
     private final Integer restPort;
     private final String restBasePath;
-    private final String grpcHost;
+//    private final String grpcHost;
     private final Integer grpcPort;
     private final Long pollIntervalMs;
     private final Long busyWaitIntervalMs;

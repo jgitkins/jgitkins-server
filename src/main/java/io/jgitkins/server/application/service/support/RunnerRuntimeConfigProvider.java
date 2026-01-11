@@ -13,10 +13,12 @@ public class RunnerRuntimeConfigProvider {
 
     public RunnerRuntimeConfig createConfig() {
         return RunnerRuntimeConfig.builder()
-                .restHost(properties.getRestHost())
+                .serviceHost(properties.getServiceHost())
+                .restScheme(properties.getRestScheme())
+//                .restHost(properties.getRestHost())
                 .restPort(properties.getRestPort())
                 .restBasePath(properties.getRestBasePath())
-                .grpcHost(properties.getGrpcHost())
+//                .grpcHost(properties.getGrpcHost())
                 .grpcPort(properties.getGrpcPort())
                 .pollIntervalMs(properties.getPollIntervalMs())
                 .busyWaitIntervalMs(properties.getBusyWaitIntervalMs())
