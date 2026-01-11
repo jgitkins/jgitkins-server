@@ -102,10 +102,12 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
     @Override
     @Transactional(readOnly = true)
     public List<RepositoryResult> getRepositories() {
-        return repositoryPort.findAll()
+        List<RepositoryResult> repositories= repositoryPort.findAll()
                 .stream()
                 .map(repository -> repositoryApplicationMapper.toDto(repository))
                 .toList();
+        log.debug("repositories: [{}]", repositories);
+        return repositories;
     }
 
     @Override

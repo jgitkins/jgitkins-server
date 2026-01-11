@@ -16,16 +16,15 @@ import org.springframework.stereotype.Component;
 public class RunnerRuntimeProperties {
 
     @NotBlank
-    private String serviceHost = "localhost";
+    private String serviceHost;
 
     @NotBlank
-    private String restScheme = "https";
+    private String restScheme;
 
 //    @NotBlank
 //    private String restHost = "localhost";
 
-    @Min(1)
-    private int restPort = 8084;
+    private int restPort;
 
     @NotBlank
     private String restBasePath = "/api";
@@ -33,12 +32,10 @@ public class RunnerRuntimeProperties {
 //    @NotBlank
 //    private String grpcHost = "localhost";
 
-    @Min(1)
-    private int grpcPort = 9090;
+    private int grpcPort;
 
-    @Min(1)
+    // TODO
     private long pollIntervalMs = 5000L;
 
-    @Min(1)
     private long busyWaitIntervalMs = 1000L;
 }

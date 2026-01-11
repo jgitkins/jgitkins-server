@@ -51,10 +51,6 @@ public class FetchEventUploadPackFactory implements UploadPackFactory<HttpServle
             throw new ServiceNotAuthorizedException("Invalid repository path");
         }
         Long userId = resolveUserId();
-        if (userId == null) {
-            log.warn("git fetch denied: unauthenticated request uri=[{}]", request.getRequestURI());
-            throw new ServiceNotAuthorizedException("Unauthenticated");
-        }
         boolean allowed = gitRepositoryAccessService.canRead(
                 repoRequest.namespace(),
                 repoRequest.ownerSlug(),

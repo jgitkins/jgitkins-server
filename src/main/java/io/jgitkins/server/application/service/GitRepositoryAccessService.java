@@ -30,22 +30,29 @@ public class GitRepositoryAccessService {
     private final UserPort userPort;
 
     public boolean canRead(String namespace, String ownerSlug, String repositoryName, Long userId) {
-        return canAccess(namespace, ownerSlug, repositoryName, userId);
-    }
-
-    public boolean canWrite(String namespace, String ownerSlug, String repositoryName, Long userId) {
-        return canAccess(namespace, ownerSlug, repositoryName, userId);
-    }
-
-    private boolean canAccess(String namespace, String ownerSlug, String repositoryName, Long userId) {
-        if (userId == null) {
-            return false;
-        }
         Optional<Repository> repository = resolveRepository(namespace, ownerSlug, repositoryName);
         if (repository.isEmpty()) {
             return false;
         }
         Repository repo = repository.get();
+        if (repo.getVisibility() == io.jgitkins.server.domain.model.vo.RepositoryVisibility.PUBLIC) {
+            return true;
+        }
+        return canAccess(repo, userId);
+    }
+
+    public boolean canWrite(String namespace, String ownerSlug, String repositoryName, Long userId) {
+        Optional<Repository> repository = resolveRepository(namespace, ownerSlug, repositoryName);
+        if (repository.isEmpty()) {
+            return false;
+        }
+        return canAccess(repository.get(), userId);
+    }
+
+    private boolean canAccess(Repository repo, Long userId) {
+        if (userId == null) {
+            return false;
+        }
         UserId uid = UserId.of(userId);
         if (repo.getOwnerType() == OwnerType.USER
                 && repo.getOwnerId() != null

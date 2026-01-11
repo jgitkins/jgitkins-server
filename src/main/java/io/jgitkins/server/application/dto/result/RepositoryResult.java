@@ -2,11 +2,13 @@ package io.jgitkins.server.application.dto.result;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@ToString
 public class RepositoryResult {
     private final Long id;
     private final String ownerType;
