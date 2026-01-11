@@ -110,36 +110,12 @@ public class RepositoryMybatisAdapter implements RepositoryPort {
     }
 
     @Override
-    public Optional<Long> findRepositoryId(String ownerNamespace, String repoName) {
-        if (ownerNamespace == null || ownerNamespace.isBlank()) {
-            return Optional.empty();
-        }
-        OwnerType ownerType;
-        Long ownerId;
-        if (ownerNamespace.startsWith("users/")) {
-            ownerType = OwnerType.USER;
-            String username = ownerNamespace.substring("users/".length());
-            UserEntityCondition userCondition = new UserEntityCondition();
-            userCondition.createCriteria().andUsernameEqualTo(username);
-            List<UserEntity> users = userEntityMbgMapper.selectByCondition(userCondition);
-            if (users.isEmpty()) {
-                return Optional.empty();
-            }
-            ownerId = users.get(0).getId();
-        } else {
-            ownerType = OwnerType.ORGANIZATION;
-            OrganizeEntityCondition organizeCondition = new OrganizeEntityCondition();
-            organizeCondition.createCriteria().andNameEqualTo(ownerNamespace);
-            List<OrganizeEntity> organizes = organizeEntityMbgMapper.selectByCondition(organizeCondition);
-            if (organizes.isEmpty()) {
-                return Optional.empty();
-            }
-            ownerId = organizes.get(0).getId();
-        }
+    public Optional<Long> findRepositoryId(OwnerType ownerType, OwnerId ownerId, String repoName) {
+
         RepositoryEntityCondition repositoryCondition = new RepositoryEntityCondition();
         repositoryCondition.createCriteria()
                 .andOwnerTypeEqualTo(ownerType.name())
-                .andOwnerIdEqualTo(ownerId)
+                .andOwnerIdEqualTo(ownerId.getValue())
                 .andNameEqualTo(repoName);
 
         List<RepositoryEntity> repositories = repositoryEntityMbgMapper.selectByCondition(repositoryCondition);

@@ -71,8 +71,7 @@ public class RepositoryManagementController {
     @Operation(summary = "Get Repository Overview")
     @GetMapping("/{repositoryId}/overview")
     public ResponseEntity<ApiResponse<RepositoryOverviewResult>> getOverview(@PathVariable Long repositoryId,
-                                                                             @RequestParam(name = "branch", required = false) String branch)
-            throws java.io.IOException {
+                                                                             @RequestParam(name = "branch", required = false) String branch) throws java.io.IOException {
         return ApiResponse.ok(repositoryOverviewUseCase.getOverview(repositoryId, branch));
     }
 

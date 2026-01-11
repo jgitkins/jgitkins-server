@@ -1,12 +1,7 @@
 package io.jgitkins.server.application.port.out;
 
 import io.jgitkins.server.domain.aggregate.Repository;
-import io.jgitkins.server.domain.model.vo.OwnerId;
-import io.jgitkins.server.domain.model.vo.OwnerType;
-import io.jgitkins.server.domain.model.vo.RepositoryId;
-import io.jgitkins.server.domain.model.vo.RepositoryName;
-import io.jgitkins.server.domain.model.vo.RepositoryPath;
-import io.jgitkins.server.domain.model.vo.UserId;
+import io.jgitkins.server.domain.model.vo.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +22,6 @@ public interface RepositoryPort {
 
     Optional<Repository> findByOwnerAndName(OwnerType ownerType, OwnerId ownerId, RepositoryName name);
 
-    Optional<Long> findRepositoryId(String ownerNamespace, String repoName);
+    Optional<Long> findRepositoryId(OwnerType ownerType, OwnerId ownerId, String repoName);
 
 }

@@ -5,8 +5,13 @@ import io.jgitkins.server.application.dto.command.PushEventCommand;
 import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
 import io.jgitkins.server.application.port.in.JobCreateUseCase;
 import io.jgitkins.server.application.port.out.BranchPort;
+import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
+import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.Branch;
+import io.jgitkins.server.domain.model.vo.OwnerType;
+import io.jgitkins.server.domain.model.vo.OrganizeName;
+import io.jgitkins.server.domain.model.vo.OwnerId;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,22 +25,31 @@ import java.util.Optional;
 public class PushEventHandleService implements PushEventHandleUseCase {
 
     private final JobCreateUseCase jobCreateUseCase;
-
     private final RepositoryPort repositoryPort;
     private final BranchPort branchPort;
+
+    private final OrganizePort organizePort;
+    private final UserPort userPort;
 
     @Override
     @Transactional
     public void handle(PushEventCommand command) {
-        Optional<Long> repositoryIdOptional = repositoryPort.findRepositoryId(command.getOrganizeCode(), command.getRepositoryName());
+
+        OwnerId ownerId = resolveOwnerId(command.getOwnerType(), command.getNamespace());
+        if (ownerId == null) {
+            log.warn("push event skipped: owner not resolved. ownerType: [{}] namespace: [{}]", command.getOwnerType(), command.getNamespace());
+            return;
+        }
+
+        Optional<Long> repositoryIdOptional = repositoryPort.findRepositoryId(command.getOwnerType(), ownerId, command.getRepositoryName());
+        log.debug("repository: [{}]", repositoryIdOptional);
 
         if (repositoryIdOptional.isEmpty()) {
-            log.warn("push event skipped: repository not registered. taskCd={} repo={}", command.getOrganizeCode(), command.getRepositoryName());
+            log.warn("push event skipped: repository not registered. ownerType: [{}] namespace: [{}] repoName: [{}]", command.getOwnerType(), command.getNamespace(), command.getRepositoryName());
             return;
         }
 
         Long repositoryId = repositoryIdOptional.get();
-
         if (command.isBranchCreated()) {
             branchPort.create(Branch.create(repositoryId, command.getBranchName()));
         }
@@ -53,7 +67,7 @@ public class PushEventHandleService implements PushEventHandleUseCase {
         }
 
         JobCreateCommand jobCommand = JobCreateCommand.builder()
-                .taskCd(command.getOrganizeCode())
+                .taskCd(command.getNamespace())
                 .repoName(command.getRepositoryName())
                 .repositoryId(repositoryId)
                 .branchName(command.getBranchName())
@@ -62,5 +76,23 @@ public class PushEventHandleService implements PushEventHandleUseCase {
                 .build();
 
         jobCreateUseCase.create(jobCommand);
+    }
+
+
+    private OwnerId resolveOwnerId(OwnerType ownerType, String namespace) {
+        if (ownerType == null || namespace == null || namespace.isBlank()) {
+            return null;
+        }
+        if (OwnerType.USER == ownerType) {
+            return userPort.findUserIdByUsername(namespace)
+                    .map(OwnerId::of)
+                    .orElse(null);
+        }
+        if (OwnerType.ORGANIZATION == ownerType) {
+            return organizePort.findByName(OrganizeName.from(namespace))
+                    .map(organize -> OwnerId.of(organize.getId().getValue()))
+                    .orElse(null);
+        }
+        return null;
     }
 }
