@@ -2,7 +2,7 @@ package io.jgitkins.server.infrastructure.config.git;
 
 import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
 import io.jgitkins.server.application.service.GitRepositoryAccessService;
-import io.jgitkins.server.infrastructure.config.git.GitRepositoryRequestParser.GitRepositoryRequest;
+import io.jgitkins.server.infrastructure.config.git.hook.push.PushHook;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +11,6 @@ import org.eclipse.jgit.transport.ReceivePack;
 import org.eclipse.jgit.transport.resolver.ReceivePackFactory;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-import io.jgitkins.server.infrastructure.config.git.hook.push.PushHook;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,7 +20,7 @@ public class PushEventReceivePackFactory implements ReceivePackFactory<HttpServl
 
     private final PushEventHandleUseCase pushEventHandleUseCase;
     private final GitRepositoryAccessService gitRepositoryAccessService;
-    private final GitRepositoryRequestParser requestParser = new GitRepositoryRequestParser();
+    private final GitRequestAuthSupport requestAuthSupport;
 
     // @Override
     // public UploadPack create(HttpServletRequest req, Repository db) {
@@ -58,44 +55,35 @@ public class PushEventReceivePackFactory implements ReceivePackFactory<HttpServl
     }
 
     private void authorizeWrite(HttpServletRequest request) throws ServiceNotAuthorizedException {
-        GitRepositoryRequest repoRequest = requestParser.parse(request);
+        GitSmartHttpEvent repoRequest = GitSmartHttpEventParser.parse(request);
         if (repoRequest == null) {
             log.warn("git push denied: invalid repository path uri=[{}]", request.getRequestURI());
             throw new ServiceNotAuthorizedException("Invalid repository path");
         }
-        Long userId = resolveUserId();
+        Long userId = requestAuthSupport.resolveUserId(request);
         if (userId == null) {
             log.warn("git push denied: unauthenticated request uri=[{}]", request.getRequestURI());
             throw new ServiceNotAuthorizedException("Unauthenticated");
         }
         boolean allowed = gitRepositoryAccessService.canWrite(
-                repoRequest.namespace(),
-                repoRequest.ownerSlug(),
+                repoRequest.ownerType(),
+                repoRequest.ownerName(),
                 repoRequest.repositoryName(),
                 userId
         );
         if (!allowed) {
-            log.warn("git push denied: org=[{}] repo=[{}] userId=[{}]",
-                    repoRequest.namespace(),
+            log.warn("git push denied: ownerType=[{}] owner=[{}] repo=[{}] userId=[{}]",
+                    repoRequest.ownerType(),
+                    repoRequest.ownerName(),
                     repoRequest.repositoryName(),
                     userId);
             throw new ServiceNotAuthorizedException("Access denied");
         }
-        log.info("git push allowed: org=[{}] repo=[{}] userId=[{}]",
-                repoRequest.namespace(),
+        log.info("git push allowed: ownerType=[{}] owner=[{}] repo=[{}] userId=[{}]",
+                repoRequest.ownerType(),
+                repoRequest.ownerName(),
                 repoRequest.repositoryName(),
                 userId);
     }
 
-    private Long resolveUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return null;
-        }
-        try {
-            return Long.valueOf(authentication.getName());
-        } catch (NumberFormatException ex) {
-            return null;
-        }
-    }
 }

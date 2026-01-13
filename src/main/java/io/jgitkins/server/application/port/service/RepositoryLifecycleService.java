@@ -58,6 +58,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
                                                                             command.getAuthorEmail());
 
         RepositoryCreationContext context = prepareCreateContext(command);
+        log.debug("repositoryCreationContext: [{}]", context);
 
         Repository repository = Repository.create(context.ownerType(),
                                                   context.ownerId(),

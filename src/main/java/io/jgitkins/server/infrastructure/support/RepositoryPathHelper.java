@@ -14,9 +14,13 @@ public class RepositoryPathHelper {
         return "/" + namespaceSegment + "/" + repoSegment;
     }
 
-    public String buildUserNamespace(String username) {
-        return "users/" + trimSlashes(username);
+    public String buildUserNamespace(String ownerName) {
+        return "user/" + trimSlashes(ownerName);
     }
+    public String buildOrganizeNamespace(String ownerName) {
+        return "organize/" + trimSlashes(ownerName);
+    }
+
 
     private String trimSlashes(String value) {
         if (value == null) {

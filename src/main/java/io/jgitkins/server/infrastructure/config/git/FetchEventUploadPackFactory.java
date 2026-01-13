@@ -1,21 +1,19 @@
 package io.jgitkins.server.infrastructure.config.git;
 
 import io.jgitkins.server.application.service.GitRepositoryAccessService;
-import io.jgitkins.server.infrastructure.config.git.GitRepositoryRequestParser.GitRepositoryRequest;
 import io.jgitkins.server.infrastructure.config.git.hook.fetch.CustomAdvertiseRefsHook;
 import io.jgitkins.server.infrastructure.config.git.hook.fetch.CustomPostUploadHook;
 import io.jgitkins.server.infrastructure.config.git.hook.fetch.CustomPreUploadHook;
 import io.jgitkins.server.infrastructure.config.git.hook.fetch.RefLogger;
+import io.jgitkins.server.infrastructure.config.security.filter.GitAuthChallengeFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.UploadPack;
-import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,11 +22,14 @@ import org.springframework.stereotype.Component;
 public class FetchEventUploadPackFactory implements UploadPackFactory<HttpServletRequest> {
 
     private final GitRepositoryAccessService gitRepositoryAccessService;
-    private final GitRepositoryRequestParser requestParser = new GitRepositoryRequestParser();
+    private final GitRequestAuthSupport requestAuthSupport;
 
+    /***
+     * Fetch Event Listener
+     */
     @Override
     public UploadPack create(HttpServletRequest req, Repository db) throws ServiceNotEnabledException, ServiceNotAuthorizedException {
-        authorizeRead(req);
+        authorizeCanRead(req);
 
         UploadPack up = new UploadPack(db);
 
@@ -37,48 +38,40 @@ public class FetchEventUploadPackFactory implements UploadPackFactory<HttpServle
         up.setPreUploadHook(new CustomPreUploadHook()); // 사용자의 Fetching Packfile 요청에 대한 로깅 (사용자가 요청한 wants, haves || 그래서 어떤 Packfile 구성이 도출되었는지)
         up.setPostUploadHook(new CustomPostUploadHook());
 
-        System.out.println("req.requestUri!!!: " + req.getRequestURI());
-        System.out.println("req.queryStr: " + req.getQueryString());
-        System.out.println("req.contextPath: " + req.getContextPath());
-
         return up;
     }
 
-    private void authorizeRead(HttpServletRequest request) throws ServiceNotAuthorizedException {
-        GitRepositoryRequest repoRequest = requestParser.parse(request);
-        if (repoRequest == null) {
+    private void authorizeCanRead(HttpServletRequest request) throws ServiceNotAuthorizedException {
+        GitSmartHttpEvent fetchEvent = GitSmartHttpEventParser.parse(request);
+        if (fetchEvent == null) {
             log.warn("git fetch denied: invalid repository path uri=[{}]", request.getRequestURI());
             throw new ServiceNotAuthorizedException("Invalid repository path");
         }
-        Long userId = resolveUserId();
-        boolean allowed = gitRepositoryAccessService.canRead(
-                repoRequest.namespace(),
-                repoRequest.ownerSlug(),
-                repoRequest.repositoryName(),
-                userId
-        );
+
+        Object publicAttr = request.getAttribute(GitAuthChallengeFilter.REPO_PUBLIC_ATTR);
+        if (Boolean.TRUE.equals(publicAttr)) {
+            log.info("git fetch allowed (public repository): ownerType=[{}] owner=[{}] repo=[{}]",
+                    fetchEvent.ownerType(), fetchEvent.ownerName(), fetchEvent.repositoryName());
+            return;
+        }
+
+        log.info("the repository is private [{}] will be authorization soon", fetchEvent.repositoryName());
+        Long userId = requestAuthSupport.resolveUserId(request);
+        log.debug("authorized userId: [{}]", userId);
+        if (userId == null) {
+            log.warn("git fetch denied: unauthenticated request uri=[{}]", request.getRequestURI());
+            throw new ServiceNotAuthorizedException("Unauthenticated");
+        }
+
+        boolean allowed = gitRepositoryAccessService.canRead(fetchEvent.ownerType(),
+                                                             fetchEvent.ownerName(),
+                                                             fetchEvent.repositoryName(),
+                                                             userId);
         if (!allowed) {
-            log.warn("git fetch denied: org=[{}] repo=[{}] userId=[{}]",
-                    repoRequest.namespace(),
-                    repoRequest.repositoryName(),
-                    userId);
+            log.warn("git fetch denied: ownerType=[{}] owner=[{}] repo=[{}] userId=[{}]", fetchEvent.ownerType(), fetchEvent.ownerName(), fetchEvent.repositoryName(), userId);
             throw new ServiceNotAuthorizedException("Access denied");
         }
-        log.info("git fetch allowed: org=[{}] repo=[{}] userId=[{}]",
-                repoRequest.namespace(),
-                repoRequest.repositoryName(),
-                userId);
+        log.info("git fetch allowed: ownerType=[{}] owner=[{}] repo=[{}] userId=[{}]", fetchEvent.ownerType(), fetchEvent.ownerName(), fetchEvent.repositoryName(), userId);
     }
 
-    private Long resolveUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return null;
-        }
-        try {
-            return Long.valueOf(authentication.getName());
-        } catch (NumberFormatException ex) {
-            return null;
-        }
-    }
 }

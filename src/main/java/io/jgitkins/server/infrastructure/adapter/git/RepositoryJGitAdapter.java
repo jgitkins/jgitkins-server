@@ -23,19 +23,19 @@ public class RepositoryJGitAdapter implements RepositoryGitPort {
     private final RepositoryResolver repositoryResolver;
 
     @Override
-    public void create(String taskCd, String repoName) {
-        File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
+    public void create(String namespace, String repoName) {
+        File gitDir = repositoryResolver.resolveGitDir(namespace, repoName);
         long startedAt = System.nanoTime();
-        log.info("Repository git create started. namespace={}, repoName={}", taskCd, repoName);
+        log.info("Repository git create started. namespace={}, repoName={}", namespace, repoName);
         try {
             RepositoryFileSystemHelper.createRepositoryDir(gitDir);
             try (Repository repo = repositoryResolver.openBareRepository(gitDir)) {
                 RepositoryFileSystemHelper.initializeBareRepository(repo);
                 long durationMs = (System.nanoTime() - startedAt) / 1_000_000;
-                log.info("Repository git create completed. namespace={}, repoName={}, durationMs={}", taskCd, repoName, durationMs);
+                log.info("Repository git create completed. namespace={}, repoName={}, durationMs={}", namespace, repoName, durationMs);
             }
         } catch (IOException e) {
-            log.error("Repository git create failed. namespace={}, repoName={}", taskCd, repoName, e);
+            log.error("Repository git create failed. namespace={}, repoName={}", namespace, repoName, e);
             throw new InternalServerErrorException(ErrorCode.REPOSITORY_CREATE_FAILED, "Repository creation failed: " + gitDir.getAbsolutePath(), e);
         }
     }

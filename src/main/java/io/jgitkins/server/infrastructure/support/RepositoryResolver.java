@@ -1,13 +1,12 @@
 package io.jgitkins.server.infrastructure.support;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.IOException;
 
 @Component
 public class RepositoryResolver {
@@ -26,8 +25,8 @@ public class RepositoryResolver {
         return new RepositoryBuilder().setBare().setGitDir(gitDir).build();
     }
 
-    public File resolveGitDir(String taskCd, String repoName) {
-        File repoRoot = new File(rootPath + "/" + taskCd);
+    public File resolveGitDir(String namespace, String repoName) {
+        File repoRoot = new File(rootPath + "/" + namespace);
         String finalRepoName = repoName.endsWith(".git") ? repoName : repoName + ".git";
         return new File(repoRoot, finalRepoName);
     }

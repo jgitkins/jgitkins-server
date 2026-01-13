@@ -12,6 +12,9 @@ public enum OwnerType {
         if (normalized.isEmpty()) {
             return null;
         }
+        if ("ORGANIZE".equals(normalized) || "ORG".equals(normalized)) {
+            return ORGANIZATION;
+        }
         return OwnerType.valueOf(normalized);
     }
 }

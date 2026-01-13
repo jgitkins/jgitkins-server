@@ -14,13 +14,16 @@ import io.jgitkins.server.domain.model.vo.OwnerType;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.RepositoryPath;
 import io.jgitkins.server.domain.model.vo.UserId;
+import io.jgitkins.server.domain.model.vo.RepositoryVisibility;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GitRepositoryAccessService {
 
     private final OrganizePort organizePort;
@@ -29,8 +32,8 @@ public class GitRepositoryAccessService {
     private final RepositoryMemberPort repositoryMemberPort;
     private final UserPort userPort;
 
-    public boolean canRead(String namespace, String ownerSlug, String repositoryName, Long userId) {
-        Optional<Repository> repository = resolveRepository(namespace, ownerSlug, repositoryName);
+    public boolean canRead(OwnerType ownerType, String ownerName, String repositoryName, Long userId) {
+        Optional<Repository> repository = resolveRepository(ownerType, ownerName, repositoryName);
         if (repository.isEmpty()) {
             return false;
         }
@@ -41,12 +44,24 @@ public class GitRepositoryAccessService {
         return canAccess(repo, userId);
     }
 
-    public boolean canWrite(String namespace, String ownerSlug, String repositoryName, Long userId) {
-        Optional<Repository> repository = resolveRepository(namespace, ownerSlug, repositoryName);
+    public boolean canWrite(OwnerType ownerType, String ownerName, String repositoryName, Long userId) {
+        Optional<Repository> repository = resolveRepository(ownerType, ownerName, repositoryName);
         if (repository.isEmpty()) {
             return false;
         }
         return canAccess(repository.get(), userId);
+    }
+
+    public boolean isPublicRepo(OwnerType ownerType, String ownerName, String repositoryName) {
+        return resolveRepository(ownerType, ownerName, repositoryName)
+                .map(repo -> repo.getVisibility() == io.jgitkins.server.domain.model.vo.RepositoryVisibility.PUBLIC)
+                .orElse(false);
+    }
+
+    public Optional<Boolean> resolveVisibility(OwnerType ownerType, String ownerName, String repositoryName) {
+        log.debug("find repository ownerType: [{}], ownerName: [{}], repositoryName: [{}]", ownerType, ownerName, repositoryName);
+        return resolveRepository(ownerType, ownerName, repositoryName)
+                .map(repo -> repo.getVisibility() == RepositoryVisibility.PUBLIC);
     }
 
     private boolean canAccess(Repository repo, Long userId) {
@@ -68,21 +83,18 @@ public class GitRepositoryAccessService {
         return organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(repo.getOwnerId().getValue()), uid);
     }
 
-    private Optional<Repository> resolveRepository(String namespace, String ownerSlug, String repositoryName) {
-        if (namespace == null || namespace.isBlank()
-                || repositoryName == null || repositoryName.isBlank()) {
+    private Optional<Repository> resolveRepository(OwnerType ownerType, String ownerName, String repositoryName) {
+        if (ownerType == null
+            || ownerName == null || ownerName.isBlank()
+            || repositoryName == null || repositoryName.isBlank()) {
             return Optional.empty();
         }
-        if ("users".equals(namespace)) {
-            if (ownerSlug == null || ownerSlug.isBlank()) {
-                return Optional.empty();
-            }
-            return userPort.findByUsername(ownerSlug)
-                    .map(user -> repositoryPort.findByOwnerAndName(OwnerType.USER, OwnerId.of(user.getId()),
-                            RepositoryName.from(repositoryName)))
+        if (ownerType == OwnerType.USER) {
+            return userPort.findByUsername(ownerName)
+                    .map(user -> repositoryPort.findByOwnerAndName(OwnerType.USER, OwnerId.of(user.getId()), RepositoryName.from(repositoryName)))
                     .orElse(Optional.empty());
         }
-        Optional<Organize> organize = organizePort.findByName(OrganizeName.from(namespace));
+        Optional<Organize> organize = organizePort.findByName(OrganizeName.from(ownerName));
         if (organize.isEmpty()) {
             return Optional.empty();
         }

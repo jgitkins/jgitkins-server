@@ -2,8 +2,8 @@ package io.jgitkins.server.infrastructure.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jgitkins.server.application.service.OAuthLoginService;
+import io.jgitkins.server.infrastructure.config.security.filter.GitAuthChallengeFilter;
 import io.jgitkins.server.infrastructure.config.security.filter.JwtAuthenticationFilter;
-import io.jgitkins.server.infrastructure.config.security.filter.PatAuthenticationProvider;
 import io.jgitkins.server.infrastructure.config.security.handler.ApiAccessDeniedHandler;
 import io.jgitkins.server.infrastructure.config.security.handler.ApiAnauthorizeHandler;
 import io.jgitkins.server.infrastructure.config.security.handler.OAuth2LoginSuccessHandler;
@@ -12,10 +12,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -28,12 +29,11 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     SecurityFilterChain gitSecurityFilterChain(HttpSecurity http,
-                                               PatAuthenticationProvider patAuthenticationProvider) throws Exception {
+                                               GitAuthChallengeFilter gitAuthChallengeFilter) throws Exception {
         http.securityMatcher(new AntPathRequestMatcher("/git/**"));
         http.csrf(csrf -> csrf.disable());
-        http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
-        http.httpBasic(Customizer.withDefaults());
-        http.authenticationProvider(patAuthenticationProvider);
+        http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        http.addFilterBefore(gitAuthChallengeFilter, BasicAuthenticationFilter.class);
         return http.build();
     }
 
