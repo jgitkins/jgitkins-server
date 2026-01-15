@@ -54,8 +54,9 @@ public class SecurityConfig {
                 .requestMatchers("/oauth2/**",
                                  "/login/**",
                                  "/swagger-ui/**",
+                                 "/actuator/prometheus",
                                  "/v3/api-docs/**")
-                .permitAll()
+                        .permitAll()
 //                .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
         );
