@@ -22,7 +22,7 @@ services:
       - "0.0.0.0:3306:3306"
 
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - /opt/apps-data/jgitkins/third-party/mariadb:/var/lib/mysql
 
     command:
       - --character-set-server=utf8mb4
@@ -50,7 +50,7 @@ services:
 
     # 데이터 영구화(베타라도 추천)
     volumes:
-      - valkey_data:/data
+      - /opt/apps-data/jgitkins/third-party/valkey:/data
 
     # 운영 기본값: AOF 켜고, 스냅샷도 유지
     command:
@@ -75,9 +75,7 @@ services:
           memory: 1g
 
 
-volumes:
-  mariadb_data:
-  valkey_data:
+volumes: {}
 
 networks:
   jgitkins-net:
