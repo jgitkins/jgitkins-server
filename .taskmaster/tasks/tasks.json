@@ -762,16 +762,143 @@
           }
         ],
         "updatedAt": "2025-12-28T17:06:19.525Z"
+      },
+      {
+        "id": 16,
+        "title": "Setup Git Repository Access Service",
+        "description": "Create a foundational backend service layer for interacting with Git repositories. This service will abstract low-level Git operations, such as repository cloning, opening, and navigating through its contents.",
+        "details": "Implement a Java service, e.g., `GitRepositoryService`, utilizing the JGit library. This service should provide methods for: 1. Initializing a Git repository object given a local path or URL. 2. Fetching references (branches, tags). 3. Resolving a tree object for a specific branch and path. 4. Resolving a blob object for a specific branch and path. Ensure proper resource management for Git repository objects (e.g., `Repository.close()`).\n\nExample pseudo-code for service method:\n```java\npublic class GitRepositoryService {\n    public Repository getRepository(String owner, String repoName) { /* ... */ }\n    public RevWalk getRevWalk(Repository repo) { /* ... */ }\n    public ObjectId resolveTree(Repository repo, String branch, String path) { /* ... */ }\n    public TreeWalk getTreeWalk(Repository repo, RevTree tree, String path) { /* ... */ }\n    public byte[] getBlobContent(Repository repo, ObjectId blobId) { /* ... */ }\n}\n```",
+        "testStrategy": "Unit tests for `GitRepositoryService` methods to ensure correct interaction with JGit. Test repository initialization, branch resolution, tree object lookup, and blob content retrieval. Use mocked Git objects or an in-memory Git repository for isolated testing. Integration tests with a real, small Git repository to confirm end-to-end functionality.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Implement Backend API for File Tree Content",
+        "description": "Develop a REST API endpoint to retrieve the contents of a specified directory (tree) within a Git repository for a given branch and path. This will support the file tree view.",
+        "details": "Create a Spring Boot REST controller, e.g., `RepositoryController`, with an endpoint like `GET /api/repositories/{ownerType}/{owner}/{repoName}/{branch}/**path`. The `**path` should capture the full path of the directory within the repository. The endpoint should:\n1.  Receive `ownerType`, `owner`, `repoName`, `branch`, and `path` from the URL.\n2.  Utilize `GitRepositoryService` (Task 16) to access the repository and resolve the specified tree.\n3.  Iterate through the `TreeWalk` to list files and subdirectories within the current path.\n4.  Return a JSON array of objects, each containing `name`, `type` ('file'/'directory'), and potentially `size` (for files) and `sha`.\n\nExample API response:\n```json\n[\n  {\"name\": \"src\", \"type\": \"directory\", \"sha\": \"...\"},\n  {\"name\": \"README.md\", \"type\": \"file\", \"size\": 1234, \"sha\": \"...\"}\n]\n```",
+        "testStrategy": "Unit tests for the controller to verify request parameter parsing and service method calls. Integration tests using MockMvc to call the endpoint with various valid and invalid parameters (e.g., existing path, non-existent path, different branches) and assert the correct JSON response structure and content. Test edge cases like root directory (`path=''`) and deeply nested directories.",
+        "priority": "high",
+        "dependencies": [
+          16
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Implement Backend API for File Blob Content",
+        "description": "Develop a REST API endpoint to retrieve the raw content of a specified file (blob) within a Git repository for a given branch and file path. This will support the file detail view.",
+        "details": "Extend the `RepositoryController` (or create a new one) with an endpoint like `GET /api/repositories/{ownerType}/{owner}/{repoName}/{branch}/**filePath`. The `**filePath` should capture the full path of the file within the repository.\n1.  Receive `ownerType`, `owner`, `repoName`, `branch`, and `filePath`.\n2.  Utilize `GitRepositoryService` (Task 16) to access the repository and resolve the specified blob.\n3.  Retrieve the raw content of the blob.\n4.  Return the content directly with the appropriate `Content-Type` header (e.g., `text/plain`, `text/markdown`, `application/octet-stream`). Handle binary files appropriately.\n\nConsider using `ResponseEntity<byte[]>` for binary content and `String` for text content, setting the `Content-Type` header dynamically based on file extension.",
+        "testStrategy": "Unit tests for the controller to verify parameter handling and service interaction. Integration tests using MockMvc to call the endpoint with various file paths (e.g., text file, markdown file, binary file) and assert the correct content and `Content-Type` header in the response. Test for non-existent files and branches.",
+        "priority": "high",
+        "dependencies": [
+          16
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 19,
+        "title": "Frontend Router Setup for Repository Views",
+        "description": "Configure the frontend routing to handle repository-specific URLs, including dynamic parameters for owner type, owner, repository name, branch, and file/directory path.",
+        "details": "Set up a main frontend component (e.g., `RepositoryView`) and define a route structure that captures all necessary parameters: `/repositories/:ownerType/:owner/:repoName/:branch/*path`. The `*path` segment should be optional and capture the remainder of the URL for file/directory paths.\n\nExample routing configuration (e.g., React Router, Vue Router, Angular Router):\n```javascript\n// Assuming a React-like router setup\n<Routes>\n  <Route path=\"/repositories/:ownerType/:owner/:repoName/:branch/*path\" element={<RepositoryView />} />\n</Routes>\n```\nThe `RepositoryView` component should be able to extract these parameters (e.g., `useParams()` in React Router) to pass to child components or use for API calls. Default the `branch` to 'main' or 'master' if not explicitly provided in the URL initially.",
+        "testStrategy": "Unit tests for the routing configuration to ensure correct parameter extraction. Manual testing by navigating to various valid and invalid repository URLs and verifying that the correct component renders and extracts the parameters correctly.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 20,
+        "title": "Develop File Tree UI Component",
+        "description": "Create a reusable frontend UI component capable of rendering a hierarchical list of files and directories within a repository.",
+        "details": "Design and implement a component (e.g., `FileTree`) that takes an array of file/directory objects (as returned by Task 17) as props. The component should:\n1.  Display file/directory names clearly.\n2.  Visually differentiate between files and directories (e.g., using icons).\n3.  Make each item clickable.\n4.  Handle loading states (e.g., showing a spinner).\n5.  Include a dropdown or similar UI element for branch selection.\n\nConsider using a UI library's tree view component or building a custom list that mimics a tree structure.",
+        "testStrategy": "Unit tests for the `FileTree` component to verify correct rendering of different data sets (empty, with files, with directories). Test interaction (e.g., `onClick` events) are correctly triggered when items are clicked. Snapshot tests can be used to ensure consistent UI rendering. Accessibility checks.",
+        "priority": "medium",
+        "dependencies": [
+          19
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 21,
+        "title": "Integrate File Tree API with Frontend Component",
+        "description": "Connect the `FileTree` UI component to the backend API developed in Task 17 to fetch and display the contents of a specified repository path.",
+        "details": "Within the `RepositoryView` (Task 19) or a child component, implement data fetching logic.\n1.  When the component mounts or URL parameters (owner, repoName, branch, path) change, make an API call to `GET /api/repositories/{ownerType}/{owner}/{repoName}/{branch}/**path`.\n2.  Store the fetched data in the component's state.\n3.  Pass the fetched file/directory list to the `FileTree` component (Task 20) for rendering.\n4.  Display loading indicators while data is being fetched and error messages if the API call fails.\n\nUse a state management solution (e.g., React Context, Redux, Vuex, NGRX) for managing repository data if applicable.",
+        "testStrategy": "Integration tests to verify the frontend component successfully fetches data from the mocked backend API and renders it correctly in the `FileTree` component. Test various scenarios: successful fetch, API error, empty directory. End-to-end tests using a tool like Cypress or Playwright to simulate user navigation and verify content display.",
+        "priority": "high",
+        "dependencies": [
+          17,
+          20
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 22,
+        "title": "Implement Frontend Tree Navigation Logic",
+        "description": "Add interactivity to the `FileTree` UI component to handle user clicks on directories and branch selection, updating the URL and fetching new data.",
+        "details": "Modify the `FileTree` component (Task 20) to:\n1.  On clicking a directory, update the current route's `path` parameter to reflect the new directory's path. Use the frontend router's navigation API (e.g., `navigate('/repositories/.../new/path')`).\n2.  Implement logic for the branch selection dropdown. When a new branch is selected, update the route's `branch` parameter, triggering a re-fetch of the file tree for the new branch.\n\nEnsure that URL changes automatically trigger the data fetching in Task 21.",
+        "testStrategy": "Unit tests for the `FileTree` component's navigation handlers, verifying that `onClick` for directories and `onChange` for branch selection correctly invoke the router's navigation function with the expected new URL. Manual testing to ensure seamless navigation between directories and branches, with the URL correctly reflecting the current view.",
+        "priority": "high",
+        "dependencies": [
+          19,
+          21
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 23,
+        "title": "Develop File Content Viewer UI Component with WYSIWYG",
+        "description": "Create a frontend UI component to display file content, integrating a WYSIWYG editor for rendering various file types (e.g., Markdown, code, plain text).",
+        "details": "Implement a component (e.g., `FileContentViewer`) that accepts raw file content and its type (derived from file extension).\n1.  For Markdown files (`.md`, `.markdown`), integrate a Markdown renderer library (e.g., `react-markdown`, `marked.js`) to display rendered HTML.\n2.  For code files (e.g., `.java`, `.js`, `.py`, `.xml`), integrate a code highlighter/editor (e.g., Monaco Editor, CodeMirror, Prism.js) to display syntax-highlighted code.\n3.  For plain text files, display the content directly.\n4.  For unknown or binary files, display a message indicating content cannot be rendered directly.\n\nThe component should act as a viewer (read-only) as per the PRD's '읽을 수 있는 기능을 제공한다' (provides the ability to read).",
+        "testStrategy": "Unit tests for the `FileContentViewer` component to verify correct rendering of different content types (e.g., sample Markdown, Java code, plain text). Snapshot tests to ensure consistent UI. Cross-browser compatibility testing for the rendering output.",
+        "priority": "medium",
+        "dependencies": [
+          19
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 24,
+        "title": "Integrate File Blob API and Navigation for File Details",
+        "description": "Connect the `FileContentViewer` component to the backend API (Task 18) and implement navigation logic for clicking files in the tree view to display their content.",
+        "details": "Extend the `RepositoryView` or a relevant child component:\n1.  Modify the `FileTree` component (Task 20) to handle clicks on *files*. When a file is clicked, update the current route's `path` parameter to point to the file's path.\n2.  When the URL's `path` parameter points to a file, trigger an API call to `GET /api/repositories/{ownerType}/{owner}/{repoName}/{branch}/**filePath` (Task 18).\n3.  Pass the fetched raw file content and its type to the `FileContentViewer` component (Task 23) for display.\n4.  Handle loading states and errors for file content fetching.",
+        "testStrategy": "Integration tests to verify that clicking a file in the tree triggers a new API call for its content and the `FileContentViewer` component displays it correctly. End-to-end tests to simulate user interaction, clicking on various files (e.g., Markdown, Java) and verifying the content appears as expected in the WYSIWYG viewer. Test navigation to non-existent files.",
+        "priority": "high",
+        "dependencies": [
+          18,
+          22,
+          23
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 25,
+        "title": "Implement Robust Error Handling and Loading States",
+        "description": "Add comprehensive error handling (e.g., repository not found, file/path not found, API errors) and loading indicators across both file tree and file detail views to improve user experience.",
+        "details": "Enhance both frontend and backend:\n**Frontend:**\n1.  Display user-friendly error messages for failed API calls (e.g., 'Repository not found', 'File not found', 'Network error').\n2.  Implement visual loading indicators (spinners, skeletons) during all data fetches (file tree, file content).\n3.  Provide clear UI feedback when a branch is switched or directory is navigated.\n\n**Backend:**\n1.  Implement custom exception handling for specific Git errors (e.g., `RepositoryNotFoundException`, `BranchNotFoundException`, `PathNotFoundException`).\n2.  Map these exceptions to appropriate HTTP status codes (e.g., 404 Not Found, 500 Internal Server Error) and provide informative error bodies.\n\nEnsure that an unhandled error doesn't crash the application.",
+        "testStrategy": "Integration tests for both frontend and backend to verify error paths. For backend, trigger errors (e.g., request non-existent repo/branch/path) and assert correct HTTP status codes and error messages. For frontend, use mocked API errors to confirm loading states and error messages are displayed correctly to the user. End-to-end tests for navigation to invalid URLs or non-existent resources.",
+        "priority": "medium",
+        "dependencies": [
+          21,
+          24
+        ],
+        "status": "pending",
+        "subtasks": []
       }
     ],
     "metadata": {
-      "version": "1.0.0",
-      "lastModified": "2025-12-28T17:06:19.527Z",
-      "taskCount": 15,
-      "completedCount": 10,
-      "tags": [
-        "master"
-      ]
+      "created": "2026-01-16T14:23:00.952Z",
+      "updated": "2026-01-16T14:23:00.952Z",
+      "description": "Tasks for master context"
     }
   }
 }

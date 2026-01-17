@@ -75,6 +75,16 @@ _No tasks found._
 | 13 | Implement Credential Management API | done | medium | 0 |
 | 14 | Implement Runner Health Check (Heartbeat) | pending | medium | 0 |
 | 15 | Repository 소유자(owner) 추상화 및 ownerId 기반 경로 분기 도입 | done | medium | 6 |
+| 16 | Setup Git Repository Access Service | pending | high | 0 |
+| 17 | Implement Backend API for File Tree Content | pending | high | 0 |
+| 18 | Implement Backend API for File Blob Content | pending | high | 0 |
+| 19 | Frontend Router Setup for Repository Views | pending | high | 0 |
+| 20 | Develop File Tree UI Component | pending | medium | 0 |
+| 21 | Integrate File Tree API with Frontend Component | pending | high | 0 |
+| 22 | Implement Frontend Tree Navigation Logic | pending | high | 0 |
+| 23 | Develop File Content Viewer UI Component with WYSIWYG | pending | medium | 0 |
+| 24 | Integrate File Blob API and Navigation for File Details | pending | high | 0 |
+| 25 | Implement Robust Error Handling and Loading States | pending | medium | 0 |
 
 <!-- TASKS-TABLE:END -->
 

@@ -25,12 +25,12 @@ public class HttpLogFilter extends OncePerRequestFilter {
         ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper(response);
 
         try {
+            String requestBody = truncateBody(readBody(requestWrapper.getContentAsByteArray(), requestWrapper.getCharacterEncoding()));
+            log.info("[SERVER] [REQUEST-RECEIVED] [BODY {}]", requestBody);
             filterChain.doFilter(requestWrapper, responseWrapper);
         } finally {
-            String requestBody = truncateBody(readBody(requestWrapper.getContentAsByteArray(), requestWrapper.getCharacterEncoding()));
             String responseBody = truncateBody(readBody(responseWrapper.getContentAsByteArray(), responseWrapper.getCharacterEncoding()));
-            log.info("[SERVER] [IN-REQUEST] [BODY {}]", requestBody);
-            log.info("[SERVER] [OUT-RESPONSE] [BODY {}]", responseBody);
+            log.info("[SERVER] [RESPONSE-SENT] [BODY {}]", responseBody);
             responseWrapper.copyBodyToResponse();
         }
     }
