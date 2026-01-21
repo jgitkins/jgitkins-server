@@ -32,8 +32,10 @@ public class RepositoryJGitFileAdapter implements FileGitPort {
     private final RepositoryResolver repositoryResolver;
 
     @Override
-    public List<FileEntry> getTree(String namespace, String repoName, String branch, String directory) throws IOException {
+    public List<FileEntry> getTree(String namespace, String repoName, String branch, String directory) {
+
         File gitDir = repositoryResolver.resolveGitDir(namespace, repoName);
+
         try (Repository repo = repositoryResolver.openBareRepository(gitDir)) {
             RevTree commitTree = resolveCommitTree(repo, branch);
             return collectTreeEntries(repo, commitTree, directory);

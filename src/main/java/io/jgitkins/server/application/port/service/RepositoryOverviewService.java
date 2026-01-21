@@ -24,10 +24,18 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 
 	@Override
 	public RepositoryOverviewResult getOverview(Long repositoryId, String branch) throws IOException {
+
+		// repository 기본 정보
 		RepositoryResult repository = repositoryLoadUseCase.getRepository(repositoryId);
+
 		RepositoryKey key = resolveRepositoryKey(repository);
-		String selectedBranch = resolveBranch(branch, repository);
+
+//		String selectedBranch = resolveBranch(branch, repository);
+
 		List<BranchSearchResult> branches = branchLoadUseCase.getBranches(repositoryId);
+
+		String selectedBranch = resolveBranch(branch, branches);
+
 		List<FileEntry> tree = key == null
 				? List.of()
 				: fileTreeLoadUseCase.getTree(key.namespace(), key.repoName(), selectedBranch, "");
@@ -38,6 +46,20 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 				.tree(tree)
 				.selectedBranch(selectedBranch)
 				.build();
+	}
+
+
+	private String resolveBranch(String branch, List<BranchSearchResult> branches) {
+		if (StringUtils.hasText(branch)) {
+			return branch;
+		}
+
+		return branches.stream()
+				.filter(b -> b.isDefaultBranch())
+				.findFirst()
+				.get()
+				.getName();
+//		return "main";
 	}
 
 	private String resolveBranch(String branch, RepositoryResult repository) {

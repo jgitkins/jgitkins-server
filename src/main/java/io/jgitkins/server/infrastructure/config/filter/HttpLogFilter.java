@@ -23,14 +23,16 @@ public class HttpLogFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper(response);
+        String method = requestWrapper.getMethod();
+        String path = requestWrapper.getRequestURI();
 
         try {
             String requestBody = truncateBody(readBody(requestWrapper.getContentAsByteArray(), requestWrapper.getCharacterEncoding()));
-            log.info("[SERVER] [REQUEST-RECEIVED] [BODY {}]", requestBody);
+            log.info("[SERVER] [REQUEST-RECEIVED] [METHOD {}] [PATH {}] [BODY {}]", method, path, requestBody);
             filterChain.doFilter(requestWrapper, responseWrapper);
         } finally {
             String responseBody = truncateBody(readBody(responseWrapper.getContentAsByteArray(), responseWrapper.getCharacterEncoding()));
-            log.info("[SERVER] [RESPONSE-SENT] [BODY {}]", responseBody);
+            log.info("[SERVER] [RESPONSE-SENT] [METHOD {}] [PATH {}] [BODY {}]", method, path, responseBody);
             responseWrapper.copyBodyToResponse();
         }
     }
