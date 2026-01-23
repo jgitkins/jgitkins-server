@@ -1,42 +1,33 @@
 package io.jgitkins.server.application.service;
 
+import io.jgitkins.server.application.dto.command.OAuthLoginCommand;
 import io.jgitkins.server.application.dto.result.OAuthLoginResult;
+import io.jgitkins.server.application.port.in.OAuthLoginUseCase;
+import io.jgitkins.server.application.port.out.TokenIssuerPort;
 import io.jgitkins.server.domain.model.User;
-import io.jgitkins.server.infrastructure.config.security.JwtService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class OAuthLoginService {
+public class OAuthLoginService implements OAuthLoginUseCase {
 
     private final UserService userService;
-    private final JwtService jwtService;
+    private final TokenIssuerPort tokenIssuerPort;
 
-    public OAuthLoginResult loginWithOidc(String providerName, OidcUser oidcUser) {
-        return loginWithOidcAttributes(providerName,
-                                       oidcUser.getSubject(),
-                                       oidcUser.getEmail(),
-                                       oidcUser.getFullName(),
-                                       oidcUser.getEmailVerified() != null && oidcUser.getEmailVerified(),
-                                       oidcUser.getPicture() != null ? oidcUser.getPicture().toString() : null);
-    }
-
-    public OAuthLoginResult loginWithOidcAttributes(String providerName,
-                                                    String providerSub,
-                                                    String email,
-                                                    String name,
-                                                    boolean emailVerified,
-                                                    String avatarUrl) {
-        User user = userService.findOrCreateUser(providerName,
-                                                 providerSub,
-                                                 email,
-                                                 emailVerified,
-                                                 name,
-                                                 avatarUrl);
-        String appToken = jwtService.issueToken(user.getId(), List.of("ROLE_USER"));
-        return new OAuthLoginResult(appToken, user, providerName);
+    @Override
+    public OAuthLoginResult login(OAuthLoginCommand command) {
+        User user = userService.findOrCreateUser(
+                command.getProvider(),
+                command.getSubject(),
+                command.getEmail(),
+                command.isEmailVerified(),
+                command.getName(),
+                command.getAvatarUrl()
+        );
+        String appToken = tokenIssuerPort.issueToken(user.getId(), List.of("ROLE_USER"));
+        return new OAuthLoginResult(appToken, user, command.getProvider());
     }
 }

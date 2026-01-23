@@ -8,6 +8,7 @@ import io.jgitkins.server.domain.model.UserIdentity;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,27 +26,30 @@ public class UserService {
                                  boolean emailVerified,
                                  String name,
                                  String avatarUrl) {
+
         LocalDateTime loginAt = LocalDateTime.now();
-        Optional<UserIdentity> existingIdentity =
-                userIdentityPort.findByProvider(providerName, providerSub);
+
+        Optional<UserIdentity> existingIdentity = userIdentityPort.findByProvider(providerName, providerSub);
+
         if (existingIdentity.isPresent()) {
-            return handleExistingIdentity(existingIdentity.get(), email, emailVerified, name, avatarUrl, loginAt);
+            return signin(existingIdentity.get(), email, emailVerified, name, avatarUrl, loginAt);
         }
 
-        return handleNewIdentity(providerName, providerSub, email, emailVerified, name, avatarUrl, loginAt);
+        return signInAfterSignUp(providerName, providerSub, email, emailVerified, name, avatarUrl, loginAt);
     }
 
-    private User handleExistingIdentity(UserIdentity identity,
-                                        String email,
-                                        boolean emailVerified,
-                                        String name,
-                                        String avatarUrl,
-                                        LocalDateTime loginAt) {
+    private User signin(UserIdentity identity,
+                        String email,
+                        boolean emailVerified,
+                        String name,
+                        String avatarUrl,
+                        LocalDateTime loginAt) {
 
         User user = userPort.findById(identity.getUserId())
                 .orElseThrow(() -> new IllegalStateException("User not found for identity"));
 
         User updatedUser = applyUserUpdates(user, email, name, avatarUrl, loginAt);
+
         User persistedUser = userPort.save(updatedUser);
 
         UserIdentity updatedIdentity = maybeUpdateIdentity(identity, email, emailVerified, name, avatarUrl);
@@ -56,7 +60,7 @@ public class UserService {
         return persistedUser;
     }
 
-    private User handleNewIdentity(String providerName,
+    private User signInAfterSignUp(String providerName,
                                    String providerSub,
                                    String email,
                                    boolean emailVerified,
@@ -86,16 +90,21 @@ public class UserService {
                                            String avatarUrl,
                                            String providerName,
                                            String providerSub) {
-        if (email != null && !email.isBlank()) {
-            Optional<User> existingByEmail = userPort.findByEmail(email.trim());
-            if (existingByEmail.isPresent()) {
-                return existingByEmail.get();
-            }
+        Optional<User> existingByEmail = findExistingUserByEmail(email);
+        if (existingByEmail.isPresent()) {
+            return existingByEmail.get();
         }
 
         String baseUsername = deriveUsername(email, providerName, providerSub);
-        String username = ensureUniqueUsername(baseUsername, providerSub);
+        String username = allocateUniqueUsername(baseUsername, providerSub);
         return User.create(username, email, name, avatarUrl);
+    }
+
+    private Optional<User> findExistingUserByEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return Optional.empty();
+        }
+        return userPort.findByEmail(email.trim());
     }
 
     private User applyUserUpdates(User user,
@@ -107,19 +116,23 @@ public class UserService {
         return updated.touchLogin(loginAt);
     }
 
-    private String ensureUniqueUsername(String baseUsername, String providerSub) {
-        if (isNamespaceAvailable(baseUsername)) {
-            return baseUsername;
+    private String allocateUniqueUsername(String baseUsername, String providerSub) {
+        String providerSuffix = providerSub == null ? "user" : providerSub.substring(Math.max(0, providerSub.length() - 6));
+        String randomSuffix = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+
+        String[] candidates = new String[] {
+                baseUsername,
+                baseUsername + "-" + providerSuffix.toLowerCase(),
+                baseUsername + "-" + randomSuffix.toLowerCase(),
+                baseUsername + "-" + System.currentTimeMillis()
+        };
+
+        for (String candidate : candidates) {
+            if (isNamespaceAvailable(candidate)) {
+                return candidate;
+            }
         }
-        String suffix = providerSub == null ? "user" : providerSub.substring(Math.max(0, providerSub.length() - 6));
-        String fallback = baseUsername + "-" + suffix.toLowerCase();
-        if (isNamespaceAvailable(fallback)) {
-            return fallback;
-        }
-        String candidate = baseUsername + "-" + System.currentTimeMillis();
-        if (isNamespaceAvailable(candidate)) {
-            return candidate;
-        }
+
         return baseUsername + "-" + System.nanoTime();
     }
 

@@ -1,7 +1,7 @@
 package io.jgitkins.server.infrastructure.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jgitkins.server.application.service.OAuthLoginService;
+import io.jgitkins.server.application.port.in.OAuthLoginUseCase;
 import io.jgitkins.server.infrastructure.config.security.filter.GitAuthChallengeFilter;
 import io.jgitkins.server.infrastructure.config.security.filter.JwtAuthenticationFilter;
 import io.jgitkins.server.infrastructure.config.security.handler.ApiAccessDeniedHandler;
@@ -79,8 +79,8 @@ public class SecurityConfig {
 
     @Bean
     OAuth2LoginSuccessHandler oauth2LoginSuccessHandler(ObjectMapper objectMapper,
-                                                        OAuthLoginService oauthLoginService) {
-        return new OAuth2LoginSuccessHandler(objectMapper, oauthLoginService);
+                                                        OAuthLoginUseCase oauthLoginUseCase) {
+        return new OAuth2LoginSuccessHandler(objectMapper, oauthLoginUseCase);
     }
 
     @Bean
