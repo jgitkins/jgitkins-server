@@ -84,10 +84,12 @@ public class GitRepositoryAccessService {
     }
 
     private Optional<Repository> resolveRepository(OwnerType ownerType, String ownerName, String repositoryName) {
-        if (ownerType == null
-            || ownerName == null || ownerName.isBlank()
+        if (ownerName == null || ownerName.isBlank()
             || repositoryName == null || repositoryName.isBlank()) {
             return Optional.empty();
+        }
+        if (ownerType == null) {
+            return resolveRepositoryByNamespace(ownerName, repositoryName);
         }
         if (ownerType == OwnerType.USER) {
             return userPort.findByUsername(ownerName)
@@ -101,5 +103,35 @@ public class GitRepositoryAccessService {
         OrganizeId organizeId = organize.get().getId();
         return repositoryPort.findByOwnerAndPath(OwnerType.ORGANIZATION, OwnerId.of(organizeId.getValue()),
                 RepositoryPath.from(repositoryName));
+    }
+
+    private Optional<Repository> resolveRepositoryByNamespace(String namespace, String repositoryName) {
+        Optional<io.jgitkins.server.domain.model.User> user = userPort.findByUsername(namespace);
+        Optional<Organize> organize = findOrganizeByNamespace(namespace);
+
+        if (user.isPresent() && organize.isPresent()) {
+            log.warn("Ambiguous namespace for git access. namespace=[{}]", namespace);
+            return Optional.empty();
+        }
+        if (user.isPresent()) {
+            return repositoryPort.findByOwnerAndName(OwnerType.USER,
+                    OwnerId.of(user.get().getId()),
+                    RepositoryName.from(repositoryName));
+        }
+        if (organize.isPresent()) {
+            OrganizeId organizeId = organize.get().getId();
+            return repositoryPort.findByOwnerAndPath(OwnerType.ORGANIZATION,
+                    OwnerId.of(organizeId.getValue()),
+                    RepositoryPath.from(repositoryName));
+        }
+        return Optional.empty();
+    }
+
+    private Optional<Organize> findOrganizeByNamespace(String namespace) {
+        try {
+            return organizePort.findByName(OrganizeName.from(namespace));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 }

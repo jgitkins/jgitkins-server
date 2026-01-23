@@ -10,6 +10,7 @@ import io.jgitkins.server.application.port.in.OrganizeCreationUseCase;
 import io.jgitkins.server.application.port.in.OrganizeDeletionUseCase;
 import io.jgitkins.server.application.port.in.OrganizeLoadUseCase;
 import io.jgitkins.server.application.port.out.OrganizePort;
+import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
@@ -28,6 +29,7 @@ public class OrganizeService implements OrganizeCreationUseCase,
                                         OrganizeDeletionUseCase {
 
     private final OrganizePort organizePort;
+    private final UserPort userPort;
 
     private final OrganizeApplicationMapper organizeApplicationMapper;
 
@@ -40,6 +42,10 @@ public class OrganizeService implements OrganizeCreationUseCase,
         organizePort.findByName(organizeName)
                 .ifPresent(existing -> {
                     throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS, "Organize name already exists: " + organizeName.getValue());
+                });
+        userPort.findByUsername(organizeName.getValue())
+                .ifPresent(existing -> {
+                    throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS, "Namespace already exists: " + organizeName.getValue());
                 });
 
         Organize organize = Organize.create(command.getName(),

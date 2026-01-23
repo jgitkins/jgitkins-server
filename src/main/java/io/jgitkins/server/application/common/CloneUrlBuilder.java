@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CloneUrlBuilder {
 
-    private static final String CLONE_PREFIX_PATH = "/git";
-
     private final RunnerRuntimeProperties properties;
 
     public String build(String clonePath) {
@@ -18,10 +16,9 @@ public class CloneUrlBuilder {
         }
 
         String normalizedPath = clonePath.startsWith("/") ? clonePath : "/" + clonePath;
-        return "%s://%s%s%s".formatted(
+        return "%s://%s%s".formatted(
                 properties.getRestScheme(),
                 properties.getServiceHost(),
-                CLONE_PREFIX_PATH,
                 normalizedPath
         );
     }

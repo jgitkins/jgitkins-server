@@ -1,5 +1,3 @@
 package io.jgitkins.server.infrastructure.config.git;
 
-import io.jgitkins.server.domain.model.vo.OwnerType;
-
-public record GitSmartHttpEvent(OwnerType ownerType, String ownerName, String repositoryName) {}
+public record GitSmartHttpEvent(String ownerName, String repositoryName) {}

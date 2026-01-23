@@ -2,7 +2,6 @@ package io.jgitkins.server.infrastructure.config.git.hook.push;
 
 import io.jgitkins.server.application.dto.command.PushEventCommand;
 import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
-import io.jgitkins.server.domain.model.vo.OwnerType;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +58,7 @@ public class PushHook implements PostReceiveHook {
         }
 
         PushEventCommand pushEventCommand = PushEventCommand.builder()
-                .ownerType(repositoryContext.ownerType())
+//                .ownerType(repositoryContext.ownerType())
                 .namespace(repositoryContext.namespace())
                 .repositoryName(repositoryContext.repositoryName())
                 .branchName(branchName)
@@ -81,21 +80,13 @@ public class PushHook implements PostReceiveHook {
 
         File namespaceDir = gitDir.getParentFile();
         if (namespaceDir == null) {
-            log.warn("push hook skipped: organize directory missing for repo dir: [{}]", gitDir);
+            log.warn("push hook skipped: namespace directory missing for repo dir: [{}]", gitDir);
             return Optional.empty();
         }
-        File ownerTypeDir = namespaceDir.getParentFile();
-        if (ownerTypeDir == null) {
-            log.warn("push hook skipped: ownerType directory missing for repo dir: [{}]", gitDir);
-            return Optional.empty();
-        }
-
 
         String repoName = stripGitSuffix(gitDir.getName());
         String namespace = namespaceDir.getName();
-        OwnerType ownerType = OwnerType.from(ownerTypeDir.getName());
-
-        return Optional.of(new RepositoryContext(ownerType, namespace, repoName));
+        return Optional.of(new RepositoryContext(namespace, repoName));
     }
 
     private Optional<String> extractBranchName(ReceiveCommand command) {
@@ -134,6 +125,7 @@ public class PushHook implements PostReceiveHook {
         return name.endsWith(".git") ? name.substring(0, name.length() - 4) : name;
     }
 
-    private record RepositoryContext(OwnerType ownerType, String namespace, String repositoryName) {
+    private record RepositoryContext(String namespace, String repositoryName) {
     }
+
 }

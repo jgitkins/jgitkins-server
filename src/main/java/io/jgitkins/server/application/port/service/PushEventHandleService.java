@@ -35,17 +35,20 @@ public class PushEventHandleService implements PushEventHandleUseCase {
     @Transactional
     public void handle(PushEventCommand command) {
 
-        OwnerId ownerId = resolveOwnerId(command.getOwnerType(), command.getNamespace());
-        if (ownerId == null) {
-            log.warn("push event skipped: owner not resolved. ownerType: [{}] namespace: [{}]", command.getOwnerType(), command.getNamespace());
+        OwnerContext ownerContext = resolveOwnerContext(command.getNamespace());
+        if (ownerContext == null) {
+            log.warn("push event skipped: owner not resolved. namespace: [{}]", command.getNamespace());
             return;
         }
 
-        Optional<Long> repositoryIdOptional = repositoryPort.findRepositoryId(command.getOwnerType(), ownerId, command.getRepositoryName());
+        Optional<Long> repositoryIdOptional = repositoryPort.findRepositoryId(ownerContext.ownerType(),
+                                                                              ownerContext.ownerId(),
+                                                                              command.getRepositoryName());
         log.debug("repository: [{}]", repositoryIdOptional);
 
         if (repositoryIdOptional.isEmpty()) {
-            log.warn("push event skipped: repository not registered. ownerType: [{}] namespace: [{}] repoName: [{}]", command.getOwnerType(), command.getNamespace(), command.getRepositoryName());
+            log.warn("push event skipped: repository not registered. ownerType: [{}] namespace: [{}] repoName: [{}]",
+                    ownerContext.ownerType(), command.getNamespace(), command.getRepositoryName());
             return;
         }
 
@@ -79,20 +82,30 @@ public class PushEventHandleService implements PushEventHandleUseCase {
     }
 
 
-    private OwnerId resolveOwnerId(OwnerType ownerType, String namespace) {
-        if (ownerType == null || namespace == null || namespace.isBlank()) {
+    private OwnerContext resolveOwnerContext(String namespace) {
+        if (namespace == null || namespace.isBlank()) {
             return null;
         }
-        if (OwnerType.USER == ownerType) {
-            return userPort.findUserIdByUsername(namespace)
-                    .map(OwnerId::of)
-                    .orElse(null);
+        OwnerContext userOwner = userPort.findUserIdByUsername(namespace)
+                .map(userId -> new OwnerContext(OwnerType.USER, OwnerId.of(userId)))
+                .orElse(null);
+        OwnerContext organizeOwner = findOrganizeOwner(namespace);
+        if (userOwner != null && organizeOwner != null) {
+            log.warn("push event skipped: ambiguous namespace. namespace=[{}]", namespace);
+            return null;
         }
-        if (OwnerType.ORGANIZATION == ownerType) {
-            return organizePort.findByName(OrganizeName.from(namespace))
-                    .map(organize -> OwnerId.of(organize.getId().getValue()))
-                    .orElse(null);
-        }
-        return null;
+        return userOwner != null ? userOwner : organizeOwner;
     }
+
+    private OwnerContext findOrganizeOwner(String namespace) {
+        try {
+            return organizePort.findByName(OrganizeName.from(namespace))
+                    .map(organize -> new OwnerContext(OwnerType.ORGANIZATION, OwnerId.of(organize.getId().getValue())))
+                    .orElse(null);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private record OwnerContext(OwnerType ownerType, OwnerId ownerId) {}
 }

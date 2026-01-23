@@ -2,8 +2,10 @@ package io.jgitkins.server.application.service;
 
 import io.jgitkins.server.application.port.out.UserIdentityPort;
 import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserIdentity;
+import io.jgitkins.server.domain.model.vo.OrganizeName;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ public class UserService {
 
     private final UserPort userPort;
     private final UserIdentityPort userIdentityPort;
+    private final OrganizePort organizePort;
 
     public User findOrCreateUser(String providerName,
                                  String providerSub,
@@ -105,15 +108,19 @@ public class UserService {
     }
 
     private String ensureUniqueUsername(String baseUsername, String providerSub) {
-        if (userPort.findByUsername(baseUsername).isEmpty()) {
+        if (isNamespaceAvailable(baseUsername)) {
             return baseUsername;
         }
         String suffix = providerSub == null ? "user" : providerSub.substring(Math.max(0, providerSub.length() - 6));
         String fallback = baseUsername + "-" + suffix.toLowerCase();
-        if (userPort.findByUsername(fallback).isEmpty()) {
+        if (isNamespaceAvailable(fallback)) {
             return fallback;
         }
-        return baseUsername + "-" + System.currentTimeMillis();
+        String candidate = baseUsername + "-" + System.currentTimeMillis();
+        if (isNamespaceAvailable(candidate)) {
+            return candidate;
+        }
+        return baseUsername + "-" + System.nanoTime();
     }
 
     private String deriveUsername(String email, String providerName, String providerSub) {
@@ -127,6 +134,21 @@ public class UserService {
 
     private String sanitize(String value) {
         return value.replaceAll("[^a-z0-9._-]", "-");
+    }
+
+    private boolean isNamespaceAvailable(String username) {
+        if (userPort.findByUsername(username).isPresent()) {
+            return false;
+        }
+        return findOrganizeByName(username).isEmpty();
+    }
+
+    private Optional<io.jgitkins.server.domain.aggregate.Organize> findOrganizeByName(String namespace) {
+        try {
+            return organizePort.findByName(OrganizeName.from(namespace));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 
     private User maybeUpdateUser(User user, String email, String name, String avatarUrl) {

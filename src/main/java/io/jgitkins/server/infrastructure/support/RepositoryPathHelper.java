@@ -15,10 +15,10 @@ public class RepositoryPathHelper {
     }
 
     public String buildUserNamespace(String ownerName) {
-        return "user/" + trimSlashes(ownerName);
+        return trimSlashes(ownerName);
     }
     public String buildOrganizeNamespace(String ownerName) {
-        return "organize/" + trimSlashes(ownerName);
+        return trimSlashes(ownerName);
     }
 
 

@@ -33,11 +33,12 @@ public class RepositoryNamespaceResolver {
             throw new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND, "Repository owner context missing");
         }
         if (ownerType == OwnerType.ORGANIZATION) {
-            return organizePort.findById(OrganizeId.of(ownerId.getValue()))
+            String organizeName = organizePort.findById(OrganizeId.of(ownerId.getValue()))
                     .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
                             "Organize not found: " + ownerId.getValue()))
                     .getName()
                     .getValue();
+            return RepositoryPathHelper.buildOrganizeNamespace(organizeName);
         }
         if (ownerType == OwnerType.USER) {
             String username = userPort.findById(ownerId.getValue())

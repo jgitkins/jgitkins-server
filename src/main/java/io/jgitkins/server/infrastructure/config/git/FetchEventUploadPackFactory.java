@@ -50,8 +50,8 @@ public class FetchEventUploadPackFactory implements UploadPackFactory<HttpServle
 
         Object publicAttr = request.getAttribute(GitAuthChallengeFilter.REPO_PUBLIC_ATTR);
         if (Boolean.TRUE.equals(publicAttr)) {
-            log.info("git fetch allowed (public repository): ownerType=[{}] owner=[{}] repo=[{}]",
-                    fetchEvent.ownerType(), fetchEvent.ownerName(), fetchEvent.repositoryName());
+            log.info("git fetch allowed (public repository): owner=[{}] repo=[{}]",
+                    fetchEvent.ownerName(), fetchEvent.repositoryName());
             return;
         }
 
@@ -63,15 +63,15 @@ public class FetchEventUploadPackFactory implements UploadPackFactory<HttpServle
             throw new ServiceNotAuthorizedException("Unauthenticated");
         }
 
-        boolean allowed = gitRepositoryAccessService.canRead(fetchEvent.ownerType(),
+        boolean allowed = gitRepositoryAccessService.canRead(null,
                                                              fetchEvent.ownerName(),
                                                              fetchEvent.repositoryName(),
                                                              userId);
         if (!allowed) {
-            log.warn("git fetch denied: ownerType=[{}] owner=[{}] repo=[{}] userId=[{}]", fetchEvent.ownerType(), fetchEvent.ownerName(), fetchEvent.repositoryName(), userId);
+            log.warn("git fetch denied: owner=[{}] repo=[{}] userId=[{}]", fetchEvent.ownerName(), fetchEvent.repositoryName(), userId);
             throw new ServiceNotAuthorizedException("Access denied");
         }
-        log.info("git fetch allowed: ownerType=[{}] owner=[{}] repo=[{}] userId=[{}]", fetchEvent.ownerType(), fetchEvent.ownerName(), fetchEvent.repositoryName(), userId);
+        log.info("git fetch allowed: owner=[{}] repo=[{}] userId=[{}]", fetchEvent.ownerName(), fetchEvent.repositoryName(), userId);
     }
 
 }

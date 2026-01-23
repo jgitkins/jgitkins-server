@@ -18,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 @Configuration
 public class SecurityConfig {
@@ -30,7 +31,11 @@ public class SecurityConfig {
     @Order(1)
     SecurityFilterChain gitSecurityFilterChain(HttpSecurity http,
                                                GitAuthChallengeFilter gitAuthChallengeFilter) throws Exception {
-        http.securityMatcher(new AntPathRequestMatcher("/git/**"));
+        http.securityMatcher(new OrRequestMatcher(
+                new AntPathRequestMatcher("/git/**"),
+                new AntPathRequestMatcher("/**/*.git"),
+                new AntPathRequestMatcher("/**/*.git/**")
+        ));
         http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         http.addFilterBefore(gitAuthChallengeFilter, BasicAuthenticationFilter.class);

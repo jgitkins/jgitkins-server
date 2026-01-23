@@ -43,7 +43,7 @@ public class GitAuthChallengeFilter extends OncePerRequestFilter {
         }
 
         // check visibility
-        Optional<Boolean> isPublic = gitRepositoryAccessService.resolveVisibility(repoRequest.ownerType(),
+        Optional<Boolean> isPublic = gitRepositoryAccessService.resolveVisibility(null,
                                                                                   repoRequest.ownerName(),
                                                                                   repoRequest.repositoryName());
 
