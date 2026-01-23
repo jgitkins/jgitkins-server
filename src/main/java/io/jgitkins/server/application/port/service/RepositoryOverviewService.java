@@ -1,6 +1,7 @@
 package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.dto.FileEntry;
+import io.jgitkins.server.application.dto.RepositoryKey;
 import io.jgitkins.server.application.dto.result.BranchSearchResult;
 import io.jgitkins.server.application.dto.result.RepositoryOverviewResult;
 import io.jgitkins.server.application.dto.result.RepositoryResult;
@@ -29,8 +30,6 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 		RepositoryResult repository = repositoryLoadUseCase.getRepository(repositoryId);
 
 		RepositoryKey key = resolveRepositoryKey(repository);
-
-//		String selectedBranch = resolveBranch(branch, repository);
 
 		List<BranchSearchResult> branches = branchLoadUseCase.getBranches(repositoryId);
 
@@ -62,48 +61,14 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 //		return "main";
 	}
 
-	private String resolveBranch(String branch, RepositoryResult repository) {
-		if (StringUtils.hasText(branch)) {
-			return branch;
-		}
-		if (repository != null && StringUtils.hasText(repository.getDefaultBranch())) {
-			return repository.getDefaultBranch();
-		}
-		return "main";
-	}
-
 	private RepositoryKey resolveRepositoryKey(RepositoryResult repository) {
 		if (repository == null) {
 			return null;
 		}
-		RepositoryKey key = parsePath(repository.getClonePath());
+		RepositoryKey key = RepositoryKey.fromPath(repository.getClonePath());
 		if (key != null) {
 			return key;
 		}
-		return parsePath(repository.getPath());
-	}
-
-	private RepositoryKey parsePath(String value) {
-		if (!StringUtils.hasText(value)) {
-			return null;
-		}
-		String trimmed = trimSlashes(value);
-		if (trimmed.endsWith(".git")) {
-			trimmed = trimmed.substring(0, trimmed.length() - 4);
-		}
-		String[] parts = trimmed.split("/");
-		if (parts.length < 2) {
-			return null;
-		}
-		String repoName = parts[parts.length - 1];
-		String namespace = String.join("/", java.util.Arrays.copyOf(parts, parts.length - 1));
-		return new RepositoryKey(namespace, repoName);
-	}
-
-	private String trimSlashes(String value) {
-		return value.replaceAll("^/+", "").replaceAll("/+$", "");
-	}
-
-	private record RepositoryKey(String namespace, String repoName) {
+		return RepositoryKey.fromPath(repository.getPath());
 	}
 }

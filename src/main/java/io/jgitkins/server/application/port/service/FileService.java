@@ -49,11 +49,11 @@ public class FileService implements FileUploadUseCase,
 
     @Override
     @Transactional(readOnly = true)
-    public List<FileEntry> getTree(String taskCd,
+    public List<FileEntry> getTree(String namespace,
                                    String repoName,
                                    String branch,
                                    String directory) throws IOException {
-        return fileGitPort.getTree(taskCd, repoName, branch, directory);
+        return fileGitPort.getTree(namespace, repoName, branch, directory);
     }
 
     @Override
