@@ -16,6 +16,7 @@ import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.OrganizeMemberPort;
 import io.jgitkins.server.application.port.out.RepositoryGitPort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
+import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.*;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +44,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
     private final RepositoryPort repositoryPort;
     private final OrganizeMemberPort organizeMemberPort;
     private final CurrentUserPort currentUserPort;
+    private final UserPort userPort;
 
     @Override
     @Transactional
@@ -103,12 +106,72 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
     @Override
     @Transactional(readOnly = true)
     public List<RepositoryResult> getRepositories() {
-        List<RepositoryResult> repositories= repositoryPort.findAll()
+        Optional<Long> requesterId = currentUserPort.currentUserId();
+        java.util.Map<OrganizeId, Boolean> membershipCache = new java.util.HashMap<>();
+
+        List<RepositoryResult> repositories = repositoryPort.findAll()
                 .stream()
-                .map(repository -> repositoryApplicationMapper.toDto(repository))
+                .filter(repository -> isVisibleToRequester(repository, requesterId, membershipCache))
+                .map(repositoryApplicationMapper::toDto)
                 .toList();
         log.debug("repositories: [{}]", repositories);
         return repositories;
+    }
+
+    @Transactional(readOnly = true)
+    public List<RepositoryResult> getRepositoriesByUsername(String username) {
+        if (username == null || username.isBlank()) {
+            throw new UnprocessableException(ErrorCode.BAD_REQUEST, "username is required.");
+        }
+        Long ownerId = userPort.findUserIdByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND, "User not found: " + username));
+
+        Optional<Long> requesterId = currentUserPort.currentUserId();
+        List<Repository> repositories = repositoryPort.findAllByOwner(OwnerType.USER, OwnerId.of(ownerId));
+        return repositories.stream()
+                .filter(repository -> isVisibleToUserOwner(repository, requesterId, ownerId))
+                .map(repositoryApplicationMapper::toDto)
+                .toList();
+    }
+
+    private boolean isVisibleToRequester(Repository repository,
+                                         java.util.Optional<Long> requesterId,
+                                         java.util.Map<OrganizeId, Boolean> membershipCache) {
+        if (repository == null) {
+            return false;
+        }
+        RepositoryVisibility visibility = repository.getVisibility();
+        if (visibility == RepositoryVisibility.PUBLIC) {
+            return true;
+        }
+        if (requesterId.isEmpty()) {
+            return false;
+        }
+        Long userId = requesterId.get();
+        if (repository.getOwnerType() == OwnerType.USER) {
+            return repository.getOwnerId() != null && userId.equals(repository.getOwnerId().getValue());
+        }
+        if (repository.getOwnerType() == OwnerType.ORGANIZATION && repository.getOwnerId() != null) {
+            OrganizeId organizeId = OrganizeId.of(repository.getOwnerId().getValue());
+            return membershipCache.computeIfAbsent(organizeId,
+                    id -> organizeMemberPort.existsByOrganizeAndUser(id, UserId.of(userId)));
+        }
+        return false;
+    }
+
+    private boolean isVisibleToUserOwner(Repository repository,
+                                         Optional<Long> requesterId,
+                                         Long ownerId) {
+        if (repository == null) {
+            return false;
+        }
+        if (repository.getVisibility() == RepositoryVisibility.PUBLIC) {
+            return true;
+        }
+        if (requesterId.isEmpty()) {
+            return false;
+        }
+        return ownerId != null && ownerId.equals(requesterId.get());
     }
 
     @Override

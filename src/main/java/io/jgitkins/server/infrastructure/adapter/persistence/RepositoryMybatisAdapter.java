@@ -123,4 +123,16 @@ public class RepositoryMybatisAdapter implements RepositoryPort {
                 .findFirst()
                 .map(RepositoryEntity::getId);
     }
+
+    @Override
+    public List<Repository> findAllByOwner(OwnerType ownerType, OwnerId ownerId) {
+        RepositoryEntityCondition condition = new RepositoryEntityCondition();
+        condition.createCriteria()
+                .andOwnerTypeEqualTo(ownerType.name())
+                .andOwnerIdEqualTo(ownerId.getValue());
+        return repositoryEntityMbgMapper.selectByConditionWithBLOBs(condition)
+                .stream()
+                .map(repositoryDomainMapper::toDomain)
+                .toList();
+    }
 }

@@ -24,4 +24,6 @@ public interface RepositoryPort {
 
     Optional<Long> findRepositoryId(OwnerType ownerType, OwnerId ownerId, String repoName);
 
+    List<Repository> findAllByOwner(OwnerType ownerType, OwnerId ownerId);
+
 }

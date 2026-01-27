@@ -7,4 +7,6 @@ import java.util.List;
 public interface RepositoryLoadUseCase {
     RepositoryResult getRepository(Long repositoryId);
     List<RepositoryResult> getRepositories();
+
+    List<RepositoryResult> getRepositoriesByUsername(String username);
 }
