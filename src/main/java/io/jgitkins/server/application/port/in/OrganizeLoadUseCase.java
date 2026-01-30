@@ -7,5 +7,6 @@ import java.util.List;
 public interface OrganizeLoadUseCase {
     OrganizeCreationResult getOrganize(Long organizeId);
     List<OrganizeCreationResult> getOrganizes();
+    List<OrganizeCreationResult> getAccessibleOrganizes();
 
 }

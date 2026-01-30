@@ -40,6 +40,27 @@ public class User {
                         now);
     }
 
+    public static User createWithStatus(String username,
+                                        String email,
+                                        String displayName,
+                                        String avatarUrl,
+                                        String status) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Username is required");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        return new User(null,
+                        username.trim(),
+                        normalize(email),
+                        normalize(displayName),
+                        normalize(avatarUrl),
+                        UserAuthority.USER,
+                        status != null ? status : "ACTIVE",
+                        now,
+                        now,
+                        now);
+    }
+
     public User withId(Long id) {
         return new User(id,
                         username,
@@ -61,6 +82,22 @@ public class User {
                         normalize(avatarUrl),
                         authority,
                         status,
+                        lastLoginAt,
+                        createdAt,
+                        LocalDateTime.now());
+    }
+
+    public User updateUsername(String username, String status) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Username is required");
+        }
+        return new User(id,
+                        username.trim(),
+                        email,
+                        displayName,
+                        avatarUrl,
+                        authority,
+                        status != null ? status : this.status,
                         lastLoginAt,
                         createdAt,
                         LocalDateTime.now());

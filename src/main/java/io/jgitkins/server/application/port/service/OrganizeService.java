@@ -9,16 +9,21 @@ import io.jgitkins.server.application.mapper.OrganizeApplicationMapper;
 import io.jgitkins.server.application.port.in.OrganizeCreationUseCase;
 import io.jgitkins.server.application.port.in.OrganizeDeletionUseCase;
 import io.jgitkins.server.application.port.in.OrganizeLoadUseCase;
+import io.jgitkins.server.application.port.out.CurrentUserPort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPort;
 import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
+import io.jgitkins.server.domain.model.vo.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +35,8 @@ public class OrganizeService implements OrganizeCreationUseCase,
 
     private final OrganizePort organizePort;
     private final UserPort userPort;
+    private final OrganizeMemberPort organizeMemberPort;
+    private final CurrentUserPort currentUserPort;
 
     private final OrganizeApplicationMapper organizeApplicationMapper;
 
@@ -73,6 +80,36 @@ public class OrganizeService implements OrganizeCreationUseCase,
                 .stream()
                 .map(organizeApplicationMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrganizeCreationResult> getAccessibleOrganizes() {
+        Optional<Long> requesterId = currentUserPort.currentUserId();
+        if (requesterId.isEmpty()) {
+            return List.of();
+        }
+        UserId userId = UserId.of(requesterId.get());
+        Map<OrganizeId, Boolean> membershipCache = new java.util.HashMap<>();
+        return organizePort.findAll()
+                .stream()
+                .filter(organize -> isAccessible(organize, userId, membershipCache))
+                .map(organizeApplicationMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private boolean isAccessible(Organize organize,
+                                 UserId userId,
+                                 Map<OrganizeId, Boolean> membershipCache) {
+        if (organize == null || organize.getId() == null) {
+            return false;
+        }
+        if (organize.getOwnerId() != null && organize.getOwnerId().getValue().equals(userId.getValue())) {
+            return true;
+        }
+        OrganizeId organizeId = organize.getId();
+        return membershipCache.computeIfAbsent(organizeId,
+                id -> organizeMemberPort.existsByOrganizeAndUser(id, userId));
     }
 
 //    @Override

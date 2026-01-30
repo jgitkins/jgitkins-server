@@ -31,6 +31,7 @@ public enum ErrorCode {
     , BRANCH_ALREADY_EXISTS("BRANCH_ALREADY_EXISTS", "Branch Already Exists")
     , RUNNER_ALREADY_ACTIVE("RUNNER_ALREADY_ACTIVE", "Runner Already Active")
     , ORGANIZE_ALREADY_EXISTS("ORGANIZE_ALREADY_EXISTS", "Organize Already Exists")
+    , USERNAME_ALREADY_EXISTS("USERNAME_ALREADY_EXISTS", "Username Already Exists")
 
     // 422
     , REPOSITORY_DOES_NOT_INITIALIZED("REPOSITORY_DOES_NOT_INITIALIZED", "Repository Does Not Initialized")

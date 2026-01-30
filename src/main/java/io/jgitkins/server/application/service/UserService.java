@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
 
+    private static final String STATUS_PENDING_USERNAME = "PENDING_USERNAME";
+
     private final UserPort userPort;
     private final UserIdentityPort userIdentityPort;
     private final OrganizePort organizePort;
@@ -97,7 +99,7 @@ public class UserService {
 
         String baseUsername = deriveUsername(email, providerName, providerSub);
         String username = allocateUniqueUsername(baseUsername, providerSub);
-        return User.create(username, email, name, avatarUrl);
+        return User.createWithStatus(username, email, name, avatarUrl, STATUS_PENDING_USERNAME);
     }
 
     private Optional<User> findExistingUserByEmail(String email) {

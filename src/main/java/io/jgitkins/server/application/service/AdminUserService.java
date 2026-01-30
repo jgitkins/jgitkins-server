@@ -19,7 +19,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateUseCase {
 
-    private static final List<String> SUPPORTED_STATUSES = List.of("ACTIVE", "BLOCKED", "DELETED");
+    private static final List<String> SUPPORTED_STATUSES = List.of("ACTIVE", "BLOCKED", "DELETED", "PENDING_USERNAME");
 
     private final UserPort userPort;
     private final UserIdentityPort userIdentityPort;

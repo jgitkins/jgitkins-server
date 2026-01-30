@@ -42,6 +42,12 @@ public class OrganizeController {
         return ApiResponse.ok(organizeLoadUseCase.getOrganizes());
     }
 
+    @Operation(summary = "List Accessible Organizes")
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<List<OrganizeCreationResult>>> getAccessibleOrganizes() {
+        return ApiResponse.ok(organizeLoadUseCase.getAccessibleOrganizes());
+    }
+
     @Operation(summary = "Get Organize")
     @GetMapping("/{organizeId}")
     public ResponseEntity<ApiResponse<OrganizeCreationResult>> getOrganize(@PathVariable Long organizeId) {

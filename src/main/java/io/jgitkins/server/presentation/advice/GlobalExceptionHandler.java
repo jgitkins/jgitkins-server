@@ -48,6 +48,7 @@ public class GlobalExceptionHandler {
             case REPOSITORY_ALREADY_EXISTS,
                  BRANCH_ALREADY_EXISTS,
                  ORGANIZE_ALREADY_EXISTS,
+                 USERNAME_ALREADY_EXISTS,
                  RUNNER_ALREADY_ACTIVE -> HttpStatus.CONFLICT;
 
             case REPOSITORY_DOES_NOT_INITIALIZED -> HttpStatus.UNPROCESSABLE_ENTITY;
