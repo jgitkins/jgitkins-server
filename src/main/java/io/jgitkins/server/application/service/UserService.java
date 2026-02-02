@@ -21,14 +21,18 @@ public class UserService {
     private final UsernameAllocator usernameAllocator;
     private final UserProfileUpdater userProfileUpdater;
 
-    public User findOrCreateUser(String providerName,
-                                 String providerSub,
-                                 String email,
-                                 boolean emailVerified,
-                                 String name,
-                                 String avatarUrl) {
+    public User loginOrSignUp(String providerName,
+                              String providerSub,
+                              String email,
+                              boolean emailVerified,
+                              String name,
+                              String avatarUrl) {
 
         LocalDateTime loginAt = LocalDateTime.now();
+
+        if (!isProviderIdentityReady(providerName, providerSub)) {
+            throw new IllegalArgumentException("Provider identity is required");
+        }
 
         return userIdentityPort.findByProvider(providerName, providerSub)
                 .map(identity -> signin(identity, email, emailVerified, name, avatarUrl, loginAt))
@@ -45,7 +49,7 @@ public class UserService {
         User user = userPort.findById(identity.getUserId())
                 .orElseThrow(() -> new IllegalStateException("User not found for identity"));
 
-        User persistedUser = persistUserWithUpdates(user, email, name, avatarUrl, loginAt); // 데이터가 변경된 부분이 있다면, 업데이트를 진행함
+        User persistedUser = persistUserWithUpdates(user, email, name, avatarUrl, loginAt); // 데이터가 변경된 부분이 있다면, 업데이트를 진행
         UserIdentity updatedIdentity = userProfileUpdater.updateIdentityIfChanged(identity, email, emailVerified, name, avatarUrl);
         if (updatedIdentity != identity) {
             userIdentityPort.save(updatedIdentity);
@@ -93,6 +97,11 @@ public class UserService {
             return Optional.empty();
         }
         return userPort.findByEmail(email.trim());
+    }
+
+    private boolean isProviderIdentityReady(String providerName, String providerSub) {
+        return providerName != null && !providerName.isBlank()
+                && providerSub != null && !providerSub.isBlank();
     }
 
     private User createPendingUser(String email,

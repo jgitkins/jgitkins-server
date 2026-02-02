@@ -19,7 +19,7 @@ public class OAuthLoginService implements OAuthLoginUseCase {
 
     @Override
     public OAuthLoginResult login(OAuthLoginCommand command) {
-        User user = userService.findOrCreateUser(
+        User user = userService.loginOrSignUp(
                 command.getProvider(),
                 command.getSubject(),
                 command.getEmail(),

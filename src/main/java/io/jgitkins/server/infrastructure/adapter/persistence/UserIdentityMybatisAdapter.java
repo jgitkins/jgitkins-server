@@ -19,9 +19,6 @@ public class UserIdentityMybatisAdapter implements UserIdentityPort {
 
     @Override
     public Optional<UserIdentity> findByProvider(String providerName, String providerSub) {
-        if (providerName == null || providerName.isBlank() || providerSub == null || providerSub.isBlank()) {
-            return Optional.empty();
-        }
         UserIdentitiesEntityCondition condition = new UserIdentitiesEntityCondition();
         condition.createCriteria()
                 .andProviderNameEqualTo(providerName.trim())
