@@ -8,6 +8,7 @@ import io.jgitkins.server.application.port.in.AdminUserUpdateUseCase;
 import io.jgitkins.server.application.port.out.UserIdentityPort;
 import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.model.User;
+import io.jgitkins.server.domain.model.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,12 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateUseCase {
 
-    private static final List<String> SUPPORTED_STATUSES = List.of("ACTIVE", "BLOCKED", "DELETED", "PENDING_USERNAME");
+    private static final List<UserStatus> SUPPORTED_STATUSES = List.of(
+            UserStatus.ACTIVE,
+            UserStatus.BLOCKED,
+            UserStatus.DELETED,
+            UserStatus.PENDING
+    );
 
     private final UserPort userPort;
     private final UserIdentityPort userIdentityPort;
@@ -34,7 +40,7 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
                         user.getUsername(),
                         user.getEmail(),
                         user.getDisplayName(),
-                        user.getStatus(),
+                        user.getStatus().name(),
                         user.getLastLoginAt()
                 ))
                 .toList();
@@ -62,7 +68,7 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
                 user.getEmail(),
                 user.getDisplayName(),
                 user.getAvatarUrl(),
-                user.getStatus(),
+                user.getStatus().name(),
                 user.getLastLoginAt(),
                 user.getCreatedAt(),
                 user.getUpdatedAt(),
@@ -76,7 +82,7 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
         if (userId == null) {
             throw new IllegalArgumentException("UserId is required");
         }
-        String normalized = normalizeStatus(status);
+        UserStatus normalized = normalizeStatus(status);
         if (!SUPPORTED_STATUSES.contains(normalized)) {
             throw new IllegalArgumentException("Unsupported status: " + status);
         }
@@ -97,10 +103,14 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
         userPort.save(updated);
     }
 
-    private String normalizeStatus(String status) {
+    private UserStatus normalizeStatus(String status) {
         if (status == null || status.isBlank()) {
             throw new IllegalArgumentException("Status is required");
         }
-        return status.trim().toUpperCase(Locale.ROOT);
+        String normalized = status.trim().toUpperCase(Locale.ROOT);
+        if ("PENDING_USERNAME".equals(normalized)) {
+            return UserStatus.PENDING;
+        }
+        return UserStatus.fromString(normalized);
     }
 }

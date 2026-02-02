@@ -10,6 +10,7 @@ import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.model.User;
+import io.jgitkins.server.domain.model.UserStatus;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
 import io.jgitkins.server.domain.model.vo.OwnerId;
@@ -27,8 +28,6 @@ public class UserProfileService implements UserProfileUpdateUseCase {
 
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9._-]+$");
     private static final Pattern ORGANIZE_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9_-]+$");
-    private static final String STATUS_PENDING_USERNAME = "PENDING_USERNAME";
-    private static final String STATUS_ACTIVE = "ACTIVE";
 
     private final CurrentUserPort currentUserPort;
     private final UserPort userPort;
@@ -50,7 +49,7 @@ public class UserProfileService implements UserProfileUpdateUseCase {
         User user = userPort.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.BAD_REQUEST, "User not found"));
 
-        if (!STATUS_PENDING_USERNAME.equalsIgnoreCase(user.getStatus())) {
+        if (user.getStatus() != UserStatus.PENDING) {
             throw new UnprocessableException(ErrorCode.BAD_REQUEST, "Username already set");
         }
 
@@ -72,7 +71,7 @@ public class UserProfileService implements UserProfileUpdateUseCase {
             throw new ConflictException(ErrorCode.BAD_REQUEST, "Cannot rename user with existing repositories");
         }
 
-        User updated = user.updateUsername(normalized, STATUS_ACTIVE);
+        User updated = user.updateUsername(normalized, UserStatus.ACTIVE);
         userPort.save(updated);
     }
 

@@ -15,7 +15,7 @@ public class User {
     private final String displayName;
     private final String avatarUrl;
     private final UserAuthority authority;
-    private final String status;
+    private final UserStatus status;
     private final LocalDateTime lastLoginAt;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
@@ -34,7 +34,7 @@ public class User {
                         normalize(displayName),
                         normalize(avatarUrl),
                         UserAuthority.USER,
-                        "ACTIVE",
+                        UserStatus.ACTIVE,
                         now,
                         now,
                         now);
@@ -44,7 +44,7 @@ public class User {
                                         String email,
                                         String displayName,
                                         String avatarUrl,
-                                        String status) {
+                                        UserStatus status) {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Username is required");
         }
@@ -55,7 +55,7 @@ public class User {
                         normalize(displayName),
                         normalize(avatarUrl),
                         UserAuthority.USER,
-                        status != null ? status : "ACTIVE",
+                        status != null ? status : UserStatus.ACTIVE,
                         now,
                         now,
                         now);
@@ -87,7 +87,7 @@ public class User {
                         LocalDateTime.now());
     }
 
-    public User updateUsername(String username, String status) {
+    public User updateUsername(String username, UserStatus status) {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Username is required");
         }
@@ -123,7 +123,7 @@ public class User {
                                  String displayName,
                                  String avatarUrl,
                                  UserAuthority authority,
-                                 String status,
+                                 UserStatus status,
                                  LocalDateTime lastLoginAt,
                                  LocalDateTime createdAt,
                                  LocalDateTime updatedAt) {
@@ -144,7 +144,7 @@ public class User {
                                  String email,
                                  String displayName,
                                  String avatarUrl,
-                                 String status,
+                                 UserStatus status,
                                  LocalDateTime lastLoginAt,
                                  LocalDateTime createdAt,
                                  LocalDateTime updatedAt) {
