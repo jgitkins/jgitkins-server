@@ -44,7 +44,7 @@ public class UserCredentialController {
 
     @Operation(summary = "List personal access tokens")
     @GetMapping("/pats")
-    public ResponseEntity<ApiResponse<java.util.List<UserCredentialSummary>>> getPats(Authentication authentication) {
+    public ResponseEntity<ApiResponse<java.util.List<UserCredentialSummary>>> getPatList(Authentication authentication) {
         Long userId = Long.valueOf(authentication.getName());
         return ApiResponse.ok(userCredentialQueryUseCase.getPatList(userId));
     }
