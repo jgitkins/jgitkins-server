@@ -5,10 +5,9 @@ import io.jgitkins.server.application.dto.result.MergeResult;
 import io.jgitkins.server.application.port.in.MergeUseCase;
 import io.jgitkins.server.application.port.in.MergeabilityCheckUseCase;
 import io.jgitkins.server.application.port.out.MergeGitPort;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -26,4 +25,3 @@ public class MergeService implements MergeabilityCheckUseCase, MergeUseCase {
         return mergeGitPort.merge(taskCd, repoName, request);
     }
 }
-

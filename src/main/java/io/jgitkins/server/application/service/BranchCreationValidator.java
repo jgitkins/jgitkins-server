@@ -19,14 +19,14 @@ public class BranchCreationValidator {
 
     private final BranchPort branchPort;
 
-    public void ensureBranchDoesNotExist(Long repositoryId, String branchName) throws IOException {
+    public void validateBranchDoesNotExist(Long repositoryId, String branchName) throws IOException {
         branchPort.getBranch(repositoryId, branchName)
                 .ifPresent(existing -> {
                     throw new ConflictException(ErrorCode.BRANCH_ALREADY_EXISTS);
                 });
     }
 
-    public void ensureRepositoryInitialized(Repository repository) {
+    public void validateRepositoryInitialized(Repository repository) {
         if (!repository.isInitialized()) {
             throw new UnprocessableException(ErrorCode.REPOSITORY_DOES_NOT_INITIALIZED, "Repository is not yet initialized. Initialize default branch before creating new branches.");
         }
@@ -43,7 +43,7 @@ public class BranchCreationValidator {
         return sourceBranch;
     }
 
-    public void ensureNotDefaultBranch(Repository repository, Branch branch) {
+    public void validateNotDefaultBranch(Repository repository, Branch branch) {
         if (repository.getDefaultBranch().getValue().equals(branch.getName()) || branch.isDefaultBranch()) {
             throw new ConflictException(ErrorCode.BRANCH_DELETE_FAILED,
                     "Default branch cannot be deleted: " + branch.getName());

@@ -21,13 +21,14 @@ import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.*;
 import io.jgitkins.server.infrastructure.support.RepositoryPathHelper;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -107,7 +108,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
     @Transactional(readOnly = true)
     public List<RepositoryResult> getRepositories() {
         Optional<Long> requesterId = currentUserPort.currentUserId();
-        java.util.Map<OrganizeId, Boolean> membershipCache = new java.util.HashMap<>();
+        Map<OrganizeId, Boolean> membershipCache = new HashMap<>();
 
         List<RepositoryResult> repositories = repositoryPort.findAll()
                 .stream()
@@ -124,7 +125,8 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
             throw new UnprocessableException(ErrorCode.BAD_REQUEST, "username is required.");
         }
         Long ownerId = userPort.findUserIdByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND, "User not found: " + username));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
+                        "User not found: " + username));
 
         Optional<Long> requesterId = currentUserPort.currentUserId();
         List<Repository> repositories = repositoryPort.findAllByOwner(OwnerType.USER, OwnerId.of(ownerId));
@@ -180,7 +182,8 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
         RepositoryId id = RepositoryId.of(repositoryId);
 
         Repository repository = repositoryPort.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND, "Repository not found: " + repositoryId));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
+                        "Repository not found: " + repositoryId));
 
         enforceDeletionPermission(repository);
 
@@ -196,7 +199,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
 
 
 
-    private void ensureRepositoryNameUnique(OwnerType ownerType, OwnerId ownerId, RepositoryName name) {
+    private void validateRepositoryNameUnique(OwnerType ownerType, OwnerId ownerId, RepositoryName name) {
         repositoryPort.findByOwnerAndName(ownerType, ownerId, name)
                 .ifPresent(existing -> {
                     throw new ConflictException(ErrorCode.REPOSITORY_ALREADY_EXISTS,
@@ -300,13 +303,13 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
                                              RepositoryName repositoryName) {
         if (ownerType == OwnerType.ORGANIZATION) {
             OwnerId ownerId = OwnerId.of(command.getOrganizeId());
-            ensureRepositoryNameUnique(ownerType, ownerId, repositoryName);
+            validateRepositoryNameUnique(ownerType, ownerId, repositoryName);
             String namespace = repositoryNamespaceResolver.resolve(ownerType, ownerId);
             return new OwnerContext(ownerType, ownerId, namespace);
         }
         Long currentUserId = requireCurrentUserId();
         OwnerId ownerId = OwnerId.of(currentUserId);
-        ensureRepositoryNameUnique(OwnerType.USER, ownerId, repositoryName);
+        validateRepositoryNameUnique(OwnerType.USER, ownerId, repositoryName);
         String namespace = repositoryNamespaceResolver.resolve(ownerType, ownerId);
         return new OwnerContext(OwnerType.USER, ownerId, namespace);
     }

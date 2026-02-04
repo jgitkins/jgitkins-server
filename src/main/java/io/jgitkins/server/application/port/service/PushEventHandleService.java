@@ -12,12 +12,11 @@ import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.model.vo.OwnerType;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
 import io.jgitkins.server.domain.model.vo.OwnerId;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -53,23 +52,39 @@ public class PushEventHandleService implements PushEventHandleUseCase {
         }
 
         Long repositoryId = repositoryIdOptional.get();
-        if (command.isBranchCreated()) {
-            branchPort.create(Branch.create(repositoryId, command.getBranchName()));
+        createBranchIfNeeded(repositoryId, command);
+
+        if (shouldSkipJob(command)) {
+            return;
         }
 
+        jobCreateUseCase.create(buildJobCommand(command, repositoryId));
+    }
+
+    private void createBranchIfNeeded(Long repositoryId, PushEventCommand command) {
+        if (!command.isBranchCreated()) {
+            return;
+        }
+        branchPort.create(Branch.create(repositoryId, command.getBranchName()));
+    }
+
+    private boolean shouldSkipJob(PushEventCommand command) {
         if (command.getCommitHash() == null || command.getCommitHash().isBlank()) {
             log.warn("push event skipped: missing commit hash for repo={} branch={}",
                     command.getRepositoryName(), command.getBranchName());
-            return;
+            return true;
         }
 
         if (command.getTriggeredBy() == null) {
             log.warn("push event skipped: unable to resolve triggering user for repo={} branch={}",
                     command.getRepositoryName(), command.getBranchName());
-            return;
+            return true;
         }
+        return false;
+    }
 
-        JobCreateCommand jobCommand = JobCreateCommand.builder()
+    private JobCreateCommand buildJobCommand(PushEventCommand command, Long repositoryId) {
+        return JobCreateCommand.builder()
                 .taskCd(command.getNamespace())
                 .repoName(command.getRepositoryName())
                 .repositoryId(repositoryId)
@@ -77,10 +92,7 @@ public class PushEventHandleService implements PushEventHandleUseCase {
                 .commitHash(command.getCommitHash())
                 .triggeredBy(command.getTriggeredBy())
                 .build();
-
-        jobCreateUseCase.create(jobCommand);
     }
-
 
     private OwnerContext resolveOwnerContext(String namespace) {
         if (namespace == null || namespace.isBlank()) {

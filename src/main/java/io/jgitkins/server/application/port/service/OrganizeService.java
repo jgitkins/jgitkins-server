@@ -17,6 +17,7 @@ import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
 import io.jgitkins.server.domain.model.vo.UserId;
+import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,14 +46,8 @@ public class OrganizeService implements OrganizeCreationUseCase,
 
         OrganizeName organizeName = OrganizeName.from(command.getName());
 
-        organizePort.findByName(organizeName)
-                .ifPresent(existing -> {
-                    throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS, "Organize name already exists: " + organizeName.getValue());
-                });
-        userPort.findByUsername(organizeName.getValue())
-                .ifPresent(existing -> {
-                    throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS, "Namespace already exists: " + organizeName.getValue());
-                });
+        assertOrganizeNameAvailable(organizeName);
+        assertNamespaceAvailable(organizeName);
 
         Organize organize = Organize.create(command.getName(),
                                             command.getOwnerId(),
@@ -79,7 +73,7 @@ public class OrganizeService implements OrganizeCreationUseCase,
         return organizePort.findAll()
                 .stream()
                 .map(organizeApplicationMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -90,12 +84,12 @@ public class OrganizeService implements OrganizeCreationUseCase,
             return List.of();
         }
         UserId userId = UserId.of(requesterId.get());
-        Map<OrganizeId, Boolean> membershipCache = new java.util.HashMap<>();
+        Map<OrganizeId, Boolean> membershipCache = new HashMap<>();
         return organizePort.findAll()
                 .stream()
                 .filter(organize -> isAccessible(organize, userId, membershipCache))
                 .map(organizeApplicationMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean isAccessible(Organize organize,
@@ -110,6 +104,22 @@ public class OrganizeService implements OrganizeCreationUseCase,
         OrganizeId organizeId = organize.getId();
         return membershipCache.computeIfAbsent(organizeId,
                 id -> organizeMemberPort.existsByOrganizeAndUser(id, userId));
+    }
+
+    private void assertOrganizeNameAvailable(OrganizeName organizeName) {
+        organizePort.findByName(organizeName)
+                .ifPresent(existing -> {
+                    throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS,
+                            "Organize name already exists: " + organizeName.getValue());
+                });
+    }
+
+    private void assertNamespaceAvailable(OrganizeName organizeName) {
+        userPort.findByUsername(organizeName.getValue())
+                .ifPresent(existing -> {
+                    throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS,
+                            "Namespace already exists: " + organizeName.getValue());
+                });
     }
 
 //    @Override

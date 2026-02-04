@@ -10,6 +10,7 @@ import io.jgitkins.server.domain.model.OrganizeMember;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeMemberRole;
 import io.jgitkins.server.domain.model.vo.UserId;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +26,15 @@ public class OrganizeMemberService implements OrganizeMemberAddUseCase,
     @Override
     @Transactional
     public void addOrganizeMember(OrganizeMemberAddCommand command) {
-        validateCommand(command);
-        OrganizeId organizeId = OrganizeId.of(command.getOrganizeId());
-        UserId userId = UserId.of(command.getUserId());
+        OrganizeMemberAddCommand safeCommand = requireCommand(command);
+        OrganizeId organizeId = OrganizeId.of(safeCommand.getOrganizeId());
+        UserId userId = UserId.of(safeCommand.getUserId());
         if (organizeMemberPort.existsByOrganizeAndUser(organizeId, userId)) {
             return;
         }
-        OrganizeMemberRole role = command.getRole() != null ? command.getRole() : OrganizeMemberRole.MEMBER;
+        OrganizeMemberRole role = safeCommand.getRole() != null
+                ? safeCommand.getRole()
+                : OrganizeMemberRole.MEMBER;
         OrganizeMember member = OrganizeMember.create(organizeId, userId, role, null);
         organizeMemberPort.save(member);
     }
@@ -39,18 +42,15 @@ public class OrganizeMemberService implements OrganizeMemberAddUseCase,
     @Override
     @Transactional
     public void removeOrganizeMember(Long organizeId, Long userId) {
-        if (organizeId == null || userId == null) {
-            throw new IllegalArgumentException("OrganizeId and UserId are required to remove an organize member");
-        }
+        requireOrganizeAndUser(organizeId, userId,
+                "OrganizeId and UserId are required to remove an organize member");
         organizeMemberPort.deleteByOrganizeAndUser(OrganizeId.of(organizeId), UserId.of(userId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public java.util.List<OrganizeMemberSummary> getOrganizeMembers(Long organizeId) {
-        if (organizeId == null) {
-            throw new IllegalArgumentException("OrganizeId is required to load organize members");
-        }
+    public List<OrganizeMemberSummary> getOrganizeMembers(Long organizeId) {
+        requireOrganizeId(organizeId, "OrganizeId is required to load organize members");
         return organizeMemberPort.findAllByOrganize(OrganizeId.of(organizeId))
                 .stream()
                 .map(member -> new OrganizeMemberSummary(
@@ -61,9 +61,22 @@ public class OrganizeMemberService implements OrganizeMemberAddUseCase,
                 .toList();
     }
 
-    private void validateCommand(OrganizeMemberAddCommand command) {
+    private OrganizeMemberAddCommand requireCommand(OrganizeMemberAddCommand command) {
         if (command == null || command.getOrganizeId() == null || command.getUserId() == null) {
             throw new IllegalArgumentException("OrganizeId and UserId are required to add an organize member");
+        }
+        return command;
+    }
+
+    private void requireOrganizeId(Long organizeId, String message) {
+        if (organizeId == null) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    private void requireOrganizeAndUser(Long organizeId, Long userId, String message) {
+        if (organizeId == null || userId == null) {
+            throw new IllegalArgumentException(message);
         }
     }
 }
