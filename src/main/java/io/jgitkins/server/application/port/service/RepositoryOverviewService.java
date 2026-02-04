@@ -19,6 +19,8 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 
+	private static final String ROOT_PATH = "";
+
 	private final RepositoryLoadUseCase repositoryLoadUseCase;
 	private final BranchLoadUseCase branchLoadUseCase;
 	private final FileTreeLoadUseCase fileTreeLoadUseCase;
@@ -26,18 +28,11 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 	@Override
 	public RepositoryOverviewResult getOverview(Long repositoryId, String branch) throws IOException {
 
-		// repository 기본 정보
 		RepositoryResult repository = repositoryLoadUseCase.getRepository(repositoryId);
-
 		RepositoryKey key = resolveRepositoryKey(repository);
-
 		List<BranchSearchResult> branches = branchLoadUseCase.getBranches(repositoryId);
-
 		String selectedBranch = resolveBranch(branch, branches);
-
-		List<FileEntry> tree = key == null
-				? List.of()
-				: fileTreeLoadUseCase.getTree(key.namespace(), key.repoName(), selectedBranch, "");
+		List<FileEntry> tree = loadTree(key, selectedBranch);
 
 		return RepositoryOverviewResult.builder()
 				.repository(repository)
@@ -47,6 +42,12 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 				.build();
 	}
 
+	private List<FileEntry> loadTree(RepositoryKey key, String selectedBranch) throws IOException {
+		if (key == null || !StringUtils.hasText(selectedBranch)) {
+			return List.of();
+		}
+		return fileTreeLoadUseCase.getTree(key.namespace(), key.repoName(), selectedBranch, ROOT_PATH);
+	}
 
 	private String resolveBranch(String branch, List<BranchSearchResult> branches) {
 		if (StringUtils.hasText(branch)) {
@@ -56,9 +57,8 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 		return branches.stream()
 				.filter(b -> b.isDefaultBranch())
 				.findFirst()
-				.get()
-				.getName();
-//		return "main";
+				.map(BranchSearchResult::getName)
+				.orElseGet(() -> branches.isEmpty() ? null : branches.get(0).getName());
 	}
 
 	private RepositoryKey resolveRepositoryKey(RepositoryResult repository) {
@@ -66,9 +66,6 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 			return null;
 		}
 		RepositoryKey key = RepositoryKey.fromPath(repository.getClonePath());
-		if (key != null) {
-			return key;
-		}
-		return RepositoryKey.fromPath(repository.getPath());
+		return key != null ? key : RepositoryKey.fromPath(repository.getPath());
 	}
 }
