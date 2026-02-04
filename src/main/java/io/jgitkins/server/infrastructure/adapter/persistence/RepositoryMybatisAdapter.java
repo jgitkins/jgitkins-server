@@ -135,4 +135,13 @@ public class RepositoryMybatisAdapter implements RepositoryPort {
                 .map(repositoryDomainMapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public long countByOwner(OwnerType ownerType, OwnerId ownerId) {
+        RepositoryEntityCondition condition = new RepositoryEntityCondition();
+        condition.createCriteria()
+                .andOwnerTypeEqualTo(ownerType.name())
+                .andOwnerIdEqualTo(ownerId.getValue());
+        return repositoryEntityMbgMapper.countByCondition(condition);
+    }
 }

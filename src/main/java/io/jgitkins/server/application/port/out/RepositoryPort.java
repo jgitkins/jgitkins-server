@@ -26,4 +26,6 @@ public interface RepositoryPort {
 
     List<Repository> findAllByOwner(OwnerType ownerType, OwnerId ownerId);
 
+    long countByOwner(OwnerType ownerType, OwnerId ownerId);
+
 }

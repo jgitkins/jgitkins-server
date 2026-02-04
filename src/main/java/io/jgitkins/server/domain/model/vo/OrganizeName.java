@@ -34,6 +34,17 @@ public class OrganizeName {
         return new OrganizeName(value);
     }
 
+    public static boolean isValid(String value) {
+        if (value == null) {
+            return false;
+        }
+        String trimmed = value.trim();
+        if (trimmed.isEmpty()) {
+            return false;
+        }
+        return ALLOWED.matcher(trimmed).matches();
+    }
+
     @Override
     public String toString() {
         return value;

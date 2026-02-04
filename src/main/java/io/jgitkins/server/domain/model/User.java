@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import io.jgitkins.server.domain.exception.UsernameAlreadySetException;
+import io.jgitkins.server.domain.model.vo.Username;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -87,17 +89,20 @@ public class User {
                         LocalDateTime.now());
     }
 
-    public User updateUsername(String username, UserStatus status) {
-        if (username == null || username.isBlank()) {
+    public User activateWithUsername(Username username) {
+        if (username == null) {
             throw new IllegalArgumentException("Username is required");
         }
+        if (status != UserStatus.PENDING) {
+            throw new UsernameAlreadySetException();
+        }
         return new User(id,
-                        username.trim(),
+                        username.getValue(),
                         email,
                         displayName,
                         avatarUrl,
                         authority,
-                        status != null ? status : this.status,
+                        UserStatus.ACTIVE,
                         lastLoginAt,
                         createdAt,
                         LocalDateTime.now());
