@@ -2,7 +2,7 @@
 
 **Title:** jgitkins-server JUnit 테스트 체계 구축
 
-**Status:** pending
+**Status:** in-progress
 
 **Dependencies:** None
 
@@ -22,7 +22,7 @@
 
 ### 26.1. OAuth 로그인/JWT 발급 기능 테스트
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 OAuthController, OAuthLoginService, Jwt 관련 흐름 테스트

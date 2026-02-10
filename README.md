@@ -85,7 +85,8 @@ _No tasks found._
 | 23 | Develop File Content Viewer UI Component with WYSIWYG | pending | medium | 0 |
 | 24 | Integrate File Blob API and Navigation for File Details | pending | high | 0 |
 | 25 | Implement Robust Error Handling and Loading States | pending | medium | 0 |
-| 26 | jgitkins-server JUnit 테스트 체계 구축 | pending | high | 17 |
+| 26 | jgitkins-server JUnit 테스트 체계 구축 | in-progress | high | 17 |
+| 27 | OAuth 인증 실패/요청 검증 개선 | pending | high | 2 |
 
 <!-- TASKS-TABLE:END -->
 
