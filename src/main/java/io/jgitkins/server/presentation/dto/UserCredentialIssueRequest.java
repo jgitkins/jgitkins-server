@@ -13,4 +13,6 @@ public class UserCredentialIssueRequest {
 
     @NotBlank
     private String description;
+
+    private String expiration;
 }

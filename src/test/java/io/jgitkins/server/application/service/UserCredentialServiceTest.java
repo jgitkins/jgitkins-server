@@ -42,7 +42,7 @@ class UserCredentialServiceTest {
             return credential.withId(10L);
         });
 
-        UserCredentialIssueResult result = service.issueToken(new UserCredentialIssueCommand(1L, "token", "desc"));
+        UserCredentialIssueResult result = service.issueToken(new UserCredentialIssueCommand(1L, "token", "desc", null));
 
         assertNotNull(result.getToken());
         assertTrue(result.getToken().startsWith("jkpat_"));

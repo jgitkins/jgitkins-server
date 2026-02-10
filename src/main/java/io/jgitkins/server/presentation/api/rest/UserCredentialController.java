@@ -37,7 +37,7 @@ public class UserCredentialController {
     public ResponseEntity<ApiResponse<UserCredentialIssueResult>> issuePat(Authentication authentication,
                                                                            @Valid @RequestBody UserCredentialIssueRequest request) {
         Long userId = Long.valueOf(authentication.getName());
-        UserCredentialIssueCommand command = new UserCredentialIssueCommand(userId, request.getName(), request.getDescription());
+        UserCredentialIssueCommand command = new UserCredentialIssueCommand(userId, request.getName(), request.getDescription(), request.getExpiration());
         UserCredentialIssueResult result = userCredentialIssueUseCase.issueToken(command);
         return ApiResponse.created(result.getCredentialId(), result);
     }
