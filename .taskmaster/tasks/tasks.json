@@ -931,11 +931,11 @@
             "title": "Admin User 관리 기능 테스트",
             "description": "AdminUserController, AdminUserService 테스트",
             "details": "관리자 사용자 목록/상태 업데이트 API의 권한 및 예외 케이스 검증",
-            "status": "in-progress",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 26,
             "parentId": "26",
-            "updatedAt": "2026-02-10T13:53:25.249Z"
+            "updatedAt": "2026-02-10T13:54:55.563Z"
           },
           {
             "id": 4,
@@ -1095,7 +1095,7 @@
             "parentId": "26"
           }
         ],
-        "updatedAt": "2026-02-10T13:53:25.249Z"
+        "updatedAt": "2026-02-10T13:54:55.563Z"
       },
       {
         "id": "27",
@@ -1134,7 +1134,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-10T13:53:25.250Z",
+      "lastModified": "2026-02-10T13:54:55.564Z",
       "taskCount": 27,
       "completedCount": 10,
       "tags": [
