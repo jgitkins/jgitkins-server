@@ -920,21 +920,22 @@
             "title": "User 조회/프로필 업데이트 기능 테스트",
             "description": "UserController, UserService, PublicUserQueryService 테스트",
             "details": "내 정보 조회, 공개 사용자 조회, username 업데이트 성공/실패 검증",
-            "status": "in-progress",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 26,
             "parentId": "26",
-            "updatedAt": "2026-02-10T13:51:20.671Z"
+            "updatedAt": "2026-02-10T13:53:14.452Z"
           },
           {
             "id": 3,
             "title": "Admin User 관리 기능 테스트",
             "description": "AdminUserController, AdminUserService 테스트",
             "details": "관리자 사용자 목록/상태 업데이트 API의 권한 및 예외 케이스 검증",
-            "status": "pending",
+            "status": "in-progress",
             "dependencies": [],
             "parentTaskId": 26,
-            "parentId": "26"
+            "parentId": "26",
+            "updatedAt": "2026-02-10T13:53:25.249Z"
           },
           {
             "id": 4,
@@ -1094,7 +1095,7 @@
             "parentId": "26"
           }
         ],
-        "updatedAt": "2026-02-10T13:51:20.671Z"
+        "updatedAt": "2026-02-10T13:53:25.249Z"
       },
       {
         "id": "27",
@@ -1133,7 +1134,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-10T13:51:20.672Z",
+      "lastModified": "2026-02-10T13:53:25.250Z",
       "taskCount": 27,
       "completedCount": 10,
       "tags": [
