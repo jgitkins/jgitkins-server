@@ -893,11 +893,210 @@
         ],
         "status": "pending",
         "subtasks": []
+      },
+      {
+        "id": "26",
+        "title": "jgitkins-server JUnit 테스트 체계 구축",
+        "description": "jgitkins-server의 모든 기능에 대해 JUnit 기반 테스트 코드를 작성하고 회귀 검증 체계를 구축한다.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "details": "컨트롤러(WebMvcTest), 서비스(Mockito 기반 단위 테스트), 핵심 인프라 통합 테스트를 기능 단위로 확장한다. 기능 목록을 SubTask로 분해해 누락 없이 작성한다.",
+        "testStrategy": "기능별 JUnit 테스트 + 전체 clean test + 핵심 API 스모크 테스트",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "OAuth 로그인/JWT 발급 기능 테스트",
+            "description": "OAuthController, OAuthLoginService, Jwt 관련 흐름 테스트",
+            "details": "정상 로그인, 잘못된 provider/sub, 토큰 발급 실패, JWT claim 검증 케이스 포함",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 2,
+            "title": "User 조회/프로필 업데이트 기능 테스트",
+            "description": "UserController, UserService, PublicUserQueryService 테스트",
+            "details": "내 정보 조회, 공개 사용자 조회, username 업데이트 성공/실패 검증",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 3,
+            "title": "Admin User 관리 기능 테스트",
+            "description": "AdminUserController, AdminUserService 테스트",
+            "details": "관리자 사용자 목록/상태 업데이트 API의 권한 및 예외 케이스 검증",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 4,
+            "title": "Organize 생성/조회/삭제 기능 테스트",
+            "description": "OrganizeController와 관련 서비스/포트 테스트",
+            "details": "조직 생성 유효성, 조회 필터링, 삭제 권한/실패 케이스 검증",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 5,
+            "title": "Organize Member 관리 기능 테스트",
+            "description": "OrganizeMemberController 및 멤버 추가/삭제/조회 테스트",
+            "details": "중복 멤버 처리, 권한 검증, 잘못된 조직/사용자 입력 처리 포함",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 6,
+            "title": "Repository 생성/조회/삭제 기능 테스트",
+            "description": "RepositoryManagementController, Repository 관련 UseCase 테스트",
+            "details": "owner type(USER/ORGANIZATION), 공개/비공개, 삭제 실패/권한 케이스 포함",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 7,
+            "title": "Repository Member 관리 기능 테스트",
+            "description": "RepositoryMemberController 및 멤버 추가/조회/삭제 테스트",
+            "details": "역할(role) 검증, 중복 추가, 존재하지 않는 멤버 삭제 시나리오 포함",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 8,
+            "title": "Branch 생성/조회/삭제 기능 테스트",
+            "description": "BranchController 및 Branch 관련 서비스 테스트",
+            "details": "브랜치명 유효성, 중복 생성, 기본 브랜치 삭제 방지 등 정책 검증",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 9,
+            "title": "Repository Commit 조회 기능 테스트",
+            "description": "RepositoryCommitController 및 CommitLoadUseCase 테스트",
+            "details": "브랜치별 커밋 조회, 페이지/정렬, 비정상 ref 입력 처리 포함",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 10,
+            "title": "Repository Content(Tree/Blob/File) 조회 기능 테스트",
+            "description": "RepositoryContentController, RepositoryFileController 테스트",
+            "details": "트리 탐색, blob 로드, 파일 경로 인코딩/디코딩 및 404 시나리오 검증",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 11,
+            "title": "File Upload 기반 새 파일 생성 기능 테스트",
+            "description": "FileUploadUseCase 및 업로드 API 테스트",
+            "details": "multipart 업로드 성공, 파일 크기/형식 제한, 경로 충돌 처리 포함",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 12,
+            "title": "Merge/Mergeability 기능 테스트",
+            "description": "MergeController와 Merge 관련 유스케이스 테스트",
+            "details": "merge 가능 여부 판단, 충돌 상황, 대상 브랜치 없음 케이스 포함",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 13,
+            "title": "Runner 등록/조회/활성화/삭제 기능 테스트",
+            "description": "RunnerController, RunnerReadService, RunnerWriteService 테스트",
+            "details": "runner token/상태 전이, heartbeat 처리, 중복 등록/삭제 시나리오 포함",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 14,
+            "title": "Job 생성/디스패치/결과보고/PushEvent 기능 테스트",
+            "description": "JobService, JobDispatchService, JobResultReportService 테스트",
+            "details": "job lifecycle(생성→큐잉→완료), 결과 보고 검증, push 이벤트 처리 케이스 포함",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 15,
+            "title": "User Credential(PAT) 발급/조회/폐기 기능 테스트",
+            "description": "UserCredentialController, UserCredentialService 테스트",
+            "details": "토큰 발급 규칙, 만료일/설명 입력, 폐기 후 재조회 결과 검증",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 16,
+            "title": "공통 예외/보안/인증 필터 회귀 테스트",
+            "description": "전역 예외 처리, 인증 필터, 권한 실패 응답 테스트",
+            "details": "401/403/404 포맷 일관성, 예외 메시지 규격, 인증 누락 요청 처리 검증",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26,
+            "parentId": "26"
+          },
+          {
+            "id": 17,
+            "title": "테스트 인프라 통합 및 CI 실행 전략 확정",
+            "description": "테스트 유틸/픽스처/빌더 정리 및 CI 태스크 설계",
+            "details": "공용 fixture, test data builder, 태그 전략(unit/integration), gradle test 분리 실행 정책 수립",
+            "status": "pending",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16
+            ],
+            "parentTaskId": 26,
+            "parentId": "26"
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2026-01-16T14:23:00.952Z",
-      "updated": "2026-01-16T14:23:00.952Z",
+      "updated": "2026-02-10T14:10:00Z",
       "description": "Tasks for master context"
     }
   }
