@@ -14,6 +14,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -21,6 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileService implements FileUploadUseCase,
                                     FileTreeLoadUseCase,
                                     FileLoadUseCase {
+
+    private static final String DEFAULT_AUTHOR_NAME = "jgitkins";
+    private static final String DEFAULT_AUTHOR_EMAIL = "no-reply@jgitkins.local";
 
     private final CommitFileFactory commitFileFactory;
 
@@ -41,8 +45,8 @@ public class FileService implements FileUploadUseCase,
                              repoName,
                              branch,
                              request.getCommitMessage(),
-                             request.getAuthorName(),
-                             request.getAuthorEmail(),
+                             resolveAuthorName(request),
+                             resolveAuthorEmail(request),
                              files);
     }
 
@@ -61,5 +65,19 @@ public class FileService implements FileUploadUseCase,
                                        String repoName,
                                        String reference) {
         return fileGitPort.getAllFiles(taskCd, repoName, reference);
+    }
+
+    private String resolveAuthorName(FileUploadInfo request) {
+        if (request == null || !StringUtils.hasText(request.getAuthorName())) {
+            return DEFAULT_AUTHOR_NAME;
+        }
+        return request.getAuthorName();
+    }
+
+    private String resolveAuthorEmail(FileUploadInfo request) {
+        if (request == null || !StringUtils.hasText(request.getAuthorEmail())) {
+            return DEFAULT_AUTHOR_EMAIL;
+        }
+        return request.getAuthorEmail();
     }
 }

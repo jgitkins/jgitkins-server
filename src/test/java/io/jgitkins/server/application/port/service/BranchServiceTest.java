@@ -1,15 +1,19 @@
 package io.jgitkins.server.application.port.service;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
 import io.jgitkins.server.application.port.out.BranchGitPort;
 import io.jgitkins.server.application.port.out.BranchPort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
+import io.jgitkins.server.application.mapper.BranchApplicationMapper;
 import io.jgitkins.server.application.service.BranchCreationValidator;
 import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
+import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
@@ -30,6 +34,9 @@ class BranchServiceTest {
 
     @Mock
     private BranchCreationValidator branchCreationValidator;
+
+    @Mock
+    private BranchApplicationMapper branchApplicationMapper;
 
     @Mock
     private BranchGitPort branchGitPort;
@@ -65,5 +72,29 @@ class BranchServiceTest {
         io.jgitkins.server.domain.Branch created = captor.getValue();
         org.junit.jupiter.api.Assertions.assertEquals(1L, created.getRepositoryId());
         org.junit.jupiter.api.Assertions.assertEquals("feature", created.getName());
+    }
+
+    @Test
+    void deleteBranch_deletesInGitAndPersistenceWhenNotDefaultBranch() throws IOException {
+        Repository repository = org.mockito.Mockito.mock(Repository.class);
+        Branch branch = Branch.create(1L, "feature");
+
+        when(repository.getName()).thenReturn(RepositoryName.from("repo"));
+        when(repositoryPort.findById(RepositoryId.of(1L))).thenReturn(Optional.of(repository));
+        when(repositoryNamespaceResolver.resolve(repository)).thenReturn("org");
+        when(branchPort.getBranch(1L, "feature")).thenReturn(Optional.of(branch));
+
+        service.deleteBranch(1L, "feature");
+
+        verify(branchCreationValidator).validateNotDefaultBranch(repository, branch);
+        verify(branchGitPort).deleteBranch("org", "repo", "feature");
+        verify(branchPort).delete(1L, "feature");
+    }
+
+    @Test
+    void getBranch_throwsWhenBranchMissing() throws IOException {
+        when(branchPort.getBranch(1L, "missing")).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> service.getBranch(1L, "missing"));
     }
 }

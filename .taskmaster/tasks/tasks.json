@@ -942,50 +942,55 @@
             "title": "Organize 생성/조회/삭제 기능 테스트",
             "description": "OrganizeController와 관련 서비스/포트 테스트",
             "details": "조직 생성 유효성, 조회 필터링, 삭제 권한/실패 케이스 검증",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 26,
-            "parentId": "26"
+            "parentId": "26",
+            "updatedAt": "2026-02-10T14:01:10.657Z"
           },
           {
             "id": 5,
             "title": "Organize Member 관리 기능 테스트",
             "description": "OrganizeMemberController 및 멤버 추가/삭제/조회 테스트",
             "details": "중복 멤버 처리, 권한 검증, 잘못된 조직/사용자 입력 처리 포함",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 26,
-            "parentId": "26"
+            "parentId": "26",
+            "updatedAt": "2026-02-10T14:04:18.464Z"
           },
           {
             "id": 6,
             "title": "Repository 생성/조회/삭제 기능 테스트",
             "description": "RepositoryManagementController, Repository 관련 UseCase 테스트",
             "details": "owner type(USER/ORGANIZATION), 공개/비공개, 삭제 실패/권한 케이스 포함",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 26,
-            "parentId": "26"
+            "parentId": "26",
+            "updatedAt": "2026-02-10T14:09:17.304Z"
           },
           {
             "id": 7,
             "title": "Repository Member 관리 기능 테스트",
             "description": "RepositoryMemberController 및 멤버 추가/조회/삭제 테스트",
             "details": "역할(role) 검증, 중복 추가, 존재하지 않는 멤버 삭제 시나리오 포함",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 26,
-            "parentId": "26"
+            "parentId": "26",
+            "updatedAt": "2026-02-10T14:11:05.114Z"
           },
           {
             "id": 8,
             "title": "Branch 생성/조회/삭제 기능 테스트",
             "description": "BranchController 및 Branch 관련 서비스 테스트",
             "details": "브랜치명 유효성, 중복 생성, 기본 브랜치 삭제 방지 등 정책 검증",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 26,
-            "parentId": "26"
+            "parentId": "26",
+            "updatedAt": "2026-02-10T14:14:09.558Z"
           },
           {
             "id": 9,
@@ -1095,7 +1100,7 @@
             "parentId": "26"
           }
         ],
-        "updatedAt": "2026-02-10T13:54:55.563Z"
+        "updatedAt": "2026-02-10T14:14:09.558Z"
       },
       {
         "id": "27",
@@ -1134,7 +1139,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-10T13:54:55.564Z",
+      "lastModified": "2026-02-10T14:14:09.559Z",
       "taskCount": 27,
       "completedCount": 10,
       "tags": [
