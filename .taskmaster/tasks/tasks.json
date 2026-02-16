@@ -216,7 +216,7 @@
             "title": "[17] Implement Backend API for File Tree Content",
             "description": "Develop a REST API endpoint to retrieve the contents of a specified directory (tree) within a Git repository for a given branch and path. This will support the file tree view.",
             "details": "Create a Spring Boot REST controller, e.g., `RepositoryController`, with an endpoint like `GET /api/repositories/{ownerType}/{owner}/{repoName}/{branch}/**path`. The `**path` should capture the full path of the directory within the repository. The endpoint should:\n1.  Receive `ownerType`, `owner`, `repoName`, `branch`, and `path` from the URL.\n2.  Utilize `GitRepositoryService` (Task 16) to access the repository and resolve the specified tree.\n3.  Iterate through the `TreeWalk` to list files and subdirectories within the current path.\n4.  Return a JSON array of objects, each containing `name`, `type` ('file'/'directory'), and potentially `size` (for files) and `sha`.\n\nExample API response:\n```json\n[\n  {\"name\": \"src\", \"type\": \"directory\", \"sha\": \"...\"},\n  {\"name\": \"README.md\", \"type\": \"file\", \"size\": 1234, \"sha\": \"...\"}\n]\n```",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 1,
             "parentId": "1",
@@ -232,7 +232,7 @@
             "title": "[18] Implement Backend API for File Blob Content",
             "description": "Develop a REST API endpoint to retrieve the raw content of a specified file (blob) within a Git repository for a given branch and file path. This will support the file detail view.",
             "details": "Extend the `RepositoryController` (or create a new one) with an endpoint like `GET /api/repositories/{ownerType}/{owner}/{repoName}/{branch}/**filePath`. The `**filePath` should capture the full path of the file within the repository.\n1.  Receive `ownerType`, `owner`, `repoName`, `branch`, and `filePath`.\n2.  Utilize `GitRepositoryService` (Task 16) to access the repository and resolve the specified blob.\n3.  Retrieve the raw content of the blob.\n4.  Return the content directly with the appropriate `Content-Type` header (e.g., `text/plain`, `text/markdown`, `application/octet-stream`). Handle binary files appropriately.\n\nConsider using `ResponseEntity<byte[]>` for binary content and `String` for text content, setting the `Content-Type` header dynamically based on file extension.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 1,
             "parentId": "1",
@@ -262,7 +262,7 @@
             "title": "[20] Develop File Tree UI Component",
             "description": "Create a reusable frontend UI component capable of rendering a hierarchical list of files and directories within a repository.",
             "details": "Design and implement a component (e.g., `FileTree`) that takes an array of file/directory objects (as returned by Task 17) as props. The component should:\n1.  Display file/directory names clearly.\n2.  Visually differentiate between files and directories (e.g., using icons).\n3.  Make each item clickable.\n4.  Handle loading states (e.g., showing a spinner).\n5.  Include a dropdown or similar UI element for branch selection.\n\nConsider using a UI library's tree view component or building a custom list that mimics a tree structure.",
-            "status": "pending",
+            "status": "cancelled",
             "dependencies": [],
             "parentTaskId": 1,
             "parentId": "1",
@@ -278,7 +278,7 @@
             "title": "[21] Integrate File Tree API with Frontend Component",
             "description": "Connect the `FileTree` UI component to the backend API developed in Task 17 to fetch and display the contents of a specified repository path.",
             "details": "Within the `RepositoryView` (Task 19) or a child component, implement data fetching logic.\n1.  When the component mounts or URL parameters (owner, repoName, branch, path) change, make an API call to `GET /api/repositories/{ownerType}/{owner}/{repoName}/{branch}/**path`.\n2.  Store the fetched data in the component's state.\n3.  Pass the fetched file/directory list to the `FileTree` component (Task 20) for rendering.\n4.  Display loading indicators while data is being fetched and error messages if the API call fails.\n\nUse a state management solution (e.g., React Context, Redux, Vuex, NGRX) for managing repository data if applicable.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 1,
             "parentId": "1",
@@ -359,7 +359,7 @@
             "legacyUpdatedAt": null
           }
         ],
-        "updatedAt": "2026-02-16T23:43:00+09:00"
+        "updatedAt": "2026-02-17T00:00:00+09:00"
       },
       {
         "id": 2,
@@ -421,7 +421,7 @@
             "legacyUpdatedAt": "2026-02-10T14:14:09.558Z"
           }
         ],
-        "updatedAt": "2026-02-16T23:43:00+09:00"
+        "updatedAt": "2026-02-17T00:00:00+09:00"
       },
       {
         "id": 3,
@@ -481,7 +481,7 @@
             "legacyUpdatedAt": null
           }
         ],
-        "updatedAt": "2026-02-16T23:43:00+09:00"
+        "updatedAt": "2026-02-17T00:00:00+09:00"
       },
       {
         "id": 4,
@@ -510,7 +510,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-16T23:43:00+09:00",
+      "lastModified": "2026-02-17T00:00:00+09:00",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [
