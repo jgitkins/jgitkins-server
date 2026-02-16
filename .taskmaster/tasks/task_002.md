@@ -2,7 +2,7 @@
 
 **Title:** 리팩토링
 
-**Status:** done
+**Status:** in-progress
 
 **Dependencies:** None
 
@@ -98,3 +98,73 @@ jgitkins-server의 모든 기능에 대해 JUnit 기반 테스트 코드를 작�
 
 
 (legacy task: 26)
+
+### 2.4. RunnerController WebMvc 테스트 추가
+
+**Status:** pending  
+
+**Dependencies:** 2.3  
+
+
+RunnerController의 register/list/get/delete/activate API 응답, 매핑, 헤더(X-Forwarded-For) 처리 검증
+
+**Details:**
+
+
+RunnerController의 register/list/get/delete/activate API 응답, 매핑, 헤더(X-Forwarded-For) 처리 검증
+
+### 2.5. UserCredentialController WebMvc 테스트 추가
+
+**Status:** pending  
+
+**Dependencies:** 2.3  
+
+
+PAT issue/list/revoke 경로 및 인증 주체 파싱/응답 포맷 검증
+
+**Details:**
+
+
+PAT issue/list/revoke 경로 및 인증 주체 파싱/응답 포맷 검증
+
+### 2.6. MergeController WebMvc 테스트 추가
+
+**Status:** pending  
+
+**Dependencies:** 2.3  
+
+
+merge check/perform API 정상/예외 매핑 검증
+
+**Details:**
+
+
+merge check/perform API 정상/예외 매핑 검증
+
+### 2.7. RepositoryCommit/RepositoryFile Controller 테스트 추가
+
+**Status:** pending  
+
+**Dependencies:** 2.3  
+
+
+커밋 상세/목록 및 파일 목록 API 파라미터 매핑/응답 포맷 검증
+
+**Details:**
+
+
+커밋 상세/목록 및 파일 목록 API 파라미터 매핑/응답 포맷 검증
+
+### 2.8. JobDispatch/Runner 서비스 단위 테스트 보강
+
+**Status:** pending  
+
+**Dependencies:** 2.3  
+
+
+JobDispatchService, RunnerReadService, RunnerWriteService 핵심 분기 및 예외 경로 검증
+
+**Details:**
+
+
+JobDispatchService, RunnerReadService, RunnerWriteService 핵심 분기 및 예외 경로 검증

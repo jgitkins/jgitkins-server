@@ -365,7 +365,7 @@
         "id": 2,
         "title": "리팩토링",
         "description": "구조 개선, 품질 개선, 테스트 체계 강화 작업",
-        "status": "done",
+        "status": "in-progress",
         "dependencies": [],
         "priority": "high",
         "details": "기존 기능별 Task를 카테고리 기반(신규기능/리팩토링/보안)으로 재구성함.",
@@ -420,9 +420,74 @@
             "legacyPriority": "high",
             "legacyUpdatedAt": "2026-02-10T14:14:09.558Z",
             "updatedAt": "2026-02-17T01:02:00+09:00"
+          },
+          {
+            "id": 4,
+            "title": "RunnerController WebMvc 테스트 추가",
+            "description": "RunnerController의 register/list/get/delete/activate API 응답, 매핑, 헤더(X-Forwarded-For) 처리 검증",
+            "details": "RunnerController의 register/list/get/delete/activate API 응답, 매핑, 헤더(X-Forwarded-For) 처리 검증",
+            "status": "pending",
+            "dependencies": [
+              3
+            ],
+            "parentTaskId": 2,
+            "parentId": "2",
+            "updatedAt": "2026-02-17T01:20:00+09:00"
+          },
+          {
+            "id": 5,
+            "title": "UserCredentialController WebMvc 테스트 추가",
+            "description": "PAT issue/list/revoke 경로 및 인증 주체 파싱/응답 포맷 검증",
+            "details": "PAT issue/list/revoke 경로 및 인증 주체 파싱/응답 포맷 검증",
+            "status": "pending",
+            "dependencies": [
+              3
+            ],
+            "parentTaskId": 2,
+            "parentId": "2",
+            "updatedAt": "2026-02-17T01:20:00+09:00"
+          },
+          {
+            "id": 6,
+            "title": "MergeController WebMvc 테스트 추가",
+            "description": "merge check/perform API 정상/예외 매핑 검증",
+            "details": "merge check/perform API 정상/예외 매핑 검증",
+            "status": "pending",
+            "dependencies": [
+              3
+            ],
+            "parentTaskId": 2,
+            "parentId": "2",
+            "updatedAt": "2026-02-17T01:20:00+09:00"
+          },
+          {
+            "id": 7,
+            "title": "RepositoryCommit/RepositoryFile Controller 테스트 추가",
+            "description": "커밋 상세/목록 및 파일 목록 API 파라미터 매핑/응답 포맷 검증",
+            "details": "커밋 상세/목록 및 파일 목록 API 파라미터 매핑/응답 포맷 검증",
+            "status": "pending",
+            "dependencies": [
+              3
+            ],
+            "parentTaskId": 2,
+            "parentId": "2",
+            "updatedAt": "2026-02-17T01:20:00+09:00"
+          },
+          {
+            "id": 8,
+            "title": "JobDispatch/Runner 서비스 단위 테스트 보강",
+            "description": "JobDispatchService, RunnerReadService, RunnerWriteService 핵심 분기 및 예외 경로 검증",
+            "details": "JobDispatchService, RunnerReadService, RunnerWriteService 핵심 분기 및 예외 경로 검증",
+            "status": "pending",
+            "dependencies": [
+              3
+            ],
+            "parentTaskId": 2,
+            "parentId": "2",
+            "updatedAt": "2026-02-17T01:20:00+09:00"
           }
         ],
-        "updatedAt": "2026-02-17T01:02:00+09:00"
+        "updatedAt": "2026-02-17T01:20:00+09:00"
       },
       {
         "id": 3,
@@ -511,9 +576,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-17T01:02:00+09:00",
+      "lastModified": "2026-02-17T01:20:00+09:00",
       "taskCount": 5,
-      "completedCount": 1,
+      "completedCount": 0,
       "tags": [
         "master"
       ],
