@@ -359,7 +359,7 @@
             "legacyUpdatedAt": null
           }
         ],
-        "updatedAt": "2026-02-16T23:32:00+09:00"
+        "updatedAt": "2026-02-16T23:43:00+09:00"
       },
       {
         "id": 2,
@@ -421,7 +421,7 @@
             "legacyUpdatedAt": "2026-02-10T14:14:09.558Z"
           }
         ],
-        "updatedAt": "2026-02-16T23:32:00+09:00"
+        "updatedAt": "2026-02-16T23:43:00+09:00"
       },
       {
         "id": 3,
@@ -481,7 +481,7 @@
             "legacyUpdatedAt": null
           }
         ],
-        "updatedAt": "2026-02-16T23:32:00+09:00"
+        "updatedAt": "2026-02-16T23:43:00+09:00"
       },
       {
         "id": 4,
@@ -493,7 +493,7 @@
         "details": "카테고리 기반 상위 Task",
         "testStrategy": "운영 시나리오 검증",
         "subtasks": [],
-        "updatedAt": "2026-02-16T23:40:00+09:00"
+        "updatedAt": "2026-02-16T23:43:00+09:00"
       },
       {
         "id": 5,
@@ -505,17 +505,18 @@
         "details": "카테고리 기반 상위 Task",
         "testStrategy": "재현/수정/회귀 테스트",
         "subtasks": [],
-        "updatedAt": "2026-02-16T23:40:00+09:00"
+        "updatedAt": "2026-02-16T23:43:00+09:00"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-16T23:40:00+09:00",
+      "lastModified": "2026-02-16T23:43:00+09:00",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [
         "master"
-      ]
+      ],
+      "standard": "task-standard-v1"
     }
   }
 }
