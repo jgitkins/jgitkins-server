@@ -365,7 +365,7 @@
         "id": 2,
         "title": "리팩토링",
         "description": "구조 개선, 품질 개선, 테스트 체계 강화 작업",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "details": "기존 기능별 Task를 카테고리 기반(신규기능/리팩토링/보안)으로 재구성함.",
@@ -410,8 +410,8 @@
             "id": 3,
             "title": "[26] jgitkins-server JUnit 테스트 체계 구축",
             "description": "jgitkins-server의 모든 기능에 대해 JUnit 기반 테스트 코드를 작성하고 회귀 검증 체계를 구축한다.",
-            "details": "진행 워크플로우: (1) 테스트 인벤토리 스캔 -> (2) 도메인/서비스/WebMvc 공백 식별 -> (3) 공통 fixture/유틸 정리 -> (4) 우선순위 테스트 추가 -> (5) 회귀 실행 및 안정화.\n\n현재 스캔 결과(2026-02-17): OAuth/User/Admin/Organize/RepositoryMember/Branch/Commit/RepositoryManagement/Credential/Runner 등록 관련 테스트는 존재.\n우선 보강 대상: Repository Content(Tree/Blob/File) API, File Upload 생성 경로, 공통 인증/예외 응답 포맷 회귀.\n\n이번 사이클 목표:\n- [x] RepositoryContentController/WebMvc 테스트 보강\n- [x] FileUploadUseCase/서비스 단위 테스트 보강\n- [ ] 401/403/404 공통 응답 포맷 회귀 테스트 보강\n- [ ] gradle test 기준 최소 회귀 세트 확정",
-            "status": "in-progress",
+            "details": "진행 워크플로우: (1) 테스트 인벤토리 스캔 -> (2) 도메인/서비스/WebMvc 공백 식별 -> (3) 공통 fixture/유틸 정리 -> (4) 우선순위 테스트 추가 -> (5) 회귀 실행 및 안정화.\n\n현재 스캔 결과(2026-02-17): OAuth/User/Admin/Organize/RepositoryMember/Branch/Commit/RepositoryManagement/Credential/Runner 등록 관련 테스트는 존재.\n우선 보강 대상: Repository Content(Tree/Blob/File) API, File Upload 생성 경로, 공통 인증/예외 응답 포맷 회귀.\n\n이번 사이클 목표:\n- [x] RepositoryContentController/WebMvc 테스트 보강\n- [x] FileUploadUseCase/서비스 단위 테스트 보강\n- [x] 401/403/404 공통 응답 포맷 회귀 테스트 보강\n- [x] gradle test 기준 최소 회귀 세트 확정",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "2",
@@ -419,10 +419,10 @@
             "legacyDependencies": [],
             "legacyPriority": "high",
             "legacyUpdatedAt": "2026-02-10T14:14:09.558Z",
-            "updatedAt": "2026-02-17T00:18:00+09:00"
+            "updatedAt": "2026-02-17T01:02:00+09:00"
           }
         ],
-        "updatedAt": "2026-02-17T00:18:00+09:00"
+        "updatedAt": "2026-02-17T01:02:00+09:00"
       },
       {
         "id": 3,
@@ -511,9 +511,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-17T00:18:00+09:00",
+      "lastModified": "2026-02-17T01:02:00+09:00",
       "taskCount": 5,
-      "completedCount": 0,
+      "completedCount": 1,
       "tags": [
         "master"
       ],

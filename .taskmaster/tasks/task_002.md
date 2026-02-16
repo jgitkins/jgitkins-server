@@ -2,7 +2,7 @@
 
 **Title:** 리팩토링
 
-**Status:** in-progress
+**Status:** done
 
 **Dependencies:** None
 
@@ -75,7 +75,7 @@ Based on the existing codebase, specifically drawing from the implementation pat
 
 ### 2.3. [26] jgitkins-server JUnit 테스트 체계 구축
 
-**Status:** in-progress  
+**Status:** done  
 
 **Dependencies:** None  
 
@@ -93,8 +93,8 @@ jgitkins-server의 모든 기능에 대해 JUnit 기반 테스트 코드를 작�
 이번 사이클 목표:
 - [x] RepositoryContentController/WebMvc 테스트 보강
 - [x] FileUploadUseCase/서비스 단위 테스트 보강
-- [ ] 401/403/404 공통 응답 포맷 회귀 테스트 보강
-- [ ] gradle test 기준 최소 회귀 세트 확정
+- [x] 401/403/404 공통 응답 포맷 회귀 테스트 보강
+- [x] gradle test 기준 최소 회귀 세트 확정
 
 
 (legacy task: 26)
