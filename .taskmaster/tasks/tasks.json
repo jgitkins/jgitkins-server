@@ -18,8 +18,8 @@
             "details": "",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "undefined",
+            "parentTaskId": "1",
+            "parentId": "1",
             "updatedAt": "2025-12-08T07:31:21.514Z"
           },
           {
@@ -29,8 +29,8 @@
             "details": "",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "undefined"
+            "parentTaskId": "1",
+            "parentId": "1"
           },
           {
             "id": 3,
@@ -39,8 +39,8 @@
             "details": "",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "undefined"
+            "parentTaskId": "1",
+            "parentId": "1"
           },
           {
             "id": 4,
@@ -49,8 +49,8 @@
             "details": "",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 1,
-            "parentId": "undefined"
+            "parentTaskId": "1",
+            "parentId": "1"
           }
         ],
         "updatedAt": "2025-12-08T07:31:21.514Z"
@@ -73,7 +73,8 @@
             "details": "`src/main/java/io/jgitkins/server/application/port/out/`에 `JobQueuePort`, `RunnerHeartbeatPort` 인터페이스를 추가하여 enqueue/dequeue, ack, 하트비트 조회·저장을 추상화하고, DTO(`application/dto/JobQueuePayload`, `RunnerHeartbeatSnapshot`)에는 `job_id`, `repository_id`, `commit_hash`, `runner_id`, 타임스탬프 필드를 포함한 불변 객체를 정의한다. 큐 작업 실패를 표준화하기 위해 `application/exception/JobQueueException`(새로운 패키지 위치 허용)을 만들어 서비스 계층이 명확한 메시지와 함께 예외를 전달할 수 있게 한다.",
             "status": "pending",
             "testStrategy": "Add compile-time focused unit tests (or contract tests using mocks) to ensure DTO builders and exception wiring behave as expected.",
-            "parentId": "undefined"
+            "parentId": "2",
+            "parentTaskId": "2"
           },
           {
             "id": 2,
@@ -85,7 +86,8 @@
             "details": "`src/main/java/io/jgitkins/server/infrastructure/adapter/mq/`에 `InMemoryJobQueueAdapter`(예: `BlockingQueue<JobQueuePayload>` 기반)와 `InMemoryRunnerHeartbeatAdapter`(예: `ConcurrentHashMap<String, RunnerHeartbeatSnapshot>`)를 구현해 각각 `JobQueuePort`, `RunnerHeartbeatPort`를 충족시키고, Spring `@Component` 혹은 구성 클래스로 빈 등록 가능한 형태로 작성한다. 큐 오퍼레이션 실패 시 `JobQueueException`을 던지며, 로그에 직렬화된 payload/runner id를 포함해 추적하기 쉽게 만든다.",
             "status": "pending",
             "testStrategy": "Write focused unit tests targeting the adapters (e.g., verifying enqueue/dequeue order, heartbeat freshness) using plain JUnit without Spring context.",
-            "parentId": "undefined"
+            "parentId": "2",
+            "parentTaskId": "2"
           },
           {
             "id": 3,
@@ -97,7 +99,8 @@
             "details": "`src/main/java/io/jgitkins/server/infrastructure/config/mq/MessagingConfig.java`(새 디렉터리)에서 `@Configuration` 클래스를 정의하고 `@Bean` 메서드로 인메모리 어댑터를 등록하며, `@ConditionalOnMissingBean(JobQueuePort.class)` 등 조건을 붙여 실제 MQ 구현이 존재할 경우 자동으로 대체되도록 한다. 러너 하트비트 만료 처리나 재시도 스케줄러가 필요하면 같은 구성 클래스 안에서 `TaskScheduler` 또는 `Executor` 빈을 정의해 어댑터에 주입한다.",
             "status": "pending",
             "testStrategy": "Add a simple Spring context test verifying the configuration loads and that `JobQueuePort` and `RunnerHeartbeatPort` beans resolve without conflicts.",
-            "parentId": "undefined"
+            "parentId": "2",
+            "parentTaskId": "2"
           },
           {
             "id": 4,
@@ -110,7 +113,8 @@
             "details": "`src/main/java/io/jgitkins/server/application/port/service/` 경로에 `PipelineJobService`(또는 기존 서비스 확장)를 두고, Jenkinsfile 파싱으로 생성된 잡 엔터티를 `JobQueuePayload`로 변환하여 `JobQueuePort.enqueue`를 호출한다. 직렬화 시 `data/ERD.md`에 맞춘 필드 네이밍을 유지하며, enqueue 실패는 `JobQueueException`으로 감싸 상위 호출자가 재시도/롤백을 결정할 수 있게 한다. 러너 배정 전 하트비트 확인이 필요하면 `RunnerHeartbeatPort`를 주입해 특정 러너가 최신 신호를 보냈는지 검사하고, 필요 시 하트비트를 갱신하는 헬퍼 메서드를 추가한다.",
             "status": "pending",
             "testStrategy": "Use a service-level unit test with mocked `JobQueuePort` to ensure payload serialization matches ERD fields and exceptions propagate when enqueueing fails.",
-            "parentId": "undefined"
+            "parentId": "2",
+            "parentTaskId": "2"
           },
           {
             "id": 5,
@@ -124,7 +128,8 @@
             "details": "`src/test/java/io/jgitkins/server/mq/JobQueueIntegrationTest` 등 패키지에서 스프링 테스트 슬라이스를 띄우고 `MessagingConfig`를 불러온 뒤, 페이크 파이프라인 잡을 persist/생성하고 서비스가 `JobQueuePort`를 통해 enqueue 했는지, 인메모리 큐에 직렬화 payload가 저장됐는지, `RunnerHeartbeatPort`가 러너 하트비트 타임스탬프를 최신 상태로 유지하는지 검증한다. 큐 예외를 강제로 발생시켜 도메인 예외가 상위로 전파되는 네거티브 시나리오도 포함한다.",
             "status": "pending",
             "testStrategy": "Spring Boot integration-style tests using the in-memory adapters to validate enqueue/dequeue + heartbeat freshness, alongside assertions on emitted payload fields.",
-            "parentId": "undefined"
+            "parentId": "2",
+            "parentTaskId": "2"
           },
           {
             "id": 6,
@@ -133,9 +138,9 @@
             "details": "",
             "status": "in-progress",
             "dependencies": [],
-            "parentTaskId": 2,
+            "parentTaskId": "2",
             "updatedAt": "2025-12-04T08:37:59.733Z",
-            "parentId": "undefined"
+            "parentId": "2"
           },
           {
             "id": 7,
@@ -144,8 +149,8 @@
             "details": "",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 2,
-            "parentId": "undefined",
+            "parentTaskId": "2",
+            "parentId": "2",
             "updatedAt": "2025-12-10T11:05:16.998Z"
           }
         ],
@@ -186,7 +191,8 @@
             "details": "Model `RunnerImage` with fields like `id`, `name`, `version`, `dockerImageRef`, `status` (e.g., pending, approved), `creationDate`. Model `PluginBundle` with `id`, `name`, `version`, list of `pluginIds`, `status`, `creationDate`. Place these in `src/main/java/io/jgitkins/server/application/domain/model/runner` and DTOs in `src/main/java/io/jgitkins/server/application/dto/runner`. Benchmarking `src/main/java/io/jgitkins/server/domain/model/Job.java` for Aggregate/Value Object patterns.",
             "status": "pending",
             "testStrategy": "Add unit tests for the domain model constructors and basic getters/setters to ensure data integrity.",
-            "parentId": "undefined"
+            "parentId": "4",
+            "parentTaskId": "4"
           },
           {
             "id": 2,
@@ -198,7 +204,8 @@
             "details": "Create `RunnerImagePersistencePort` and `PluginBundlePersistencePort` interfaces in `src/main/java/io/jgitkins/server/application/port/out/runner`. These ports should define methods like `save`, `findById`, `findByVersion`, `findAll`. Implement in-memory adapters for initial testing, following the pattern of `PipelineJobPersistencePort` used in Task 1.",
             "status": "pending",
             "testStrategy": "Develop Spring Boot slice tests for the in-memory adapters to verify save, find, and update scenarios for both RunnerImage and PluginBundle entities, ensuring data persistence and retrieval.",
-            "parentId": "undefined"
+            "parentId": "4",
+            "parentTaskId": "4"
           },
           {
             "id": 3,
@@ -211,7 +218,8 @@
             "details": "Implement `RunnerManagementService` in `src/main/java/io/jgitkins/server/application/port/service/runner`. This service will expose methods such as `createRunnerImage`, `approveRunnerImage`, `getRunnerImage`, `addPluginBundle`, `updatePluginBundle`, etc. It should handle validation and status transitions.",
             "status": "pending",
             "testStrategy": "Add unit tests for `RunnerManagementService` in `src/test/java/.../application/port/service/runner/RunnerManagementServiceTest`, mocking the `RunnerImagePersistencePort` and `PluginBundlePersistencePort` to verify business logic, validations, and status changes (e.g., approval flow).",
-            "parentId": "undefined"
+            "parentId": "4",
+            "parentTaskId": "4"
           },
           {
             "id": 4,
@@ -224,7 +232,8 @@
             "details": "Create `RunnerImageController` and `PluginBundleController` in `src/main/java/io/jgitkins/server/interface/rest/runner`. These controllers will expose endpoints like `POST /runner-images`, `GET /runner-images/{id}`, `PUT /runner-images/{id}/approve`, `POST /plugin-bundles`, etc., interacting with the `RunnerManagementService`. Ensure appropriate input validation and error handling.",
             "status": "pending",
             "testStrategy": "Write integration tests using Spring Boot's `MockMvc` to verify the API endpoints, ensuring correct request mapping, JSON serialization/deserialization, and proper interaction with the `RunnerManagementService` and error handling.",
-            "parentId": "undefined"
+            "parentId": "4",
+            "parentTaskId": "4"
           },
           {
             "id": 5,
@@ -238,7 +247,8 @@
             "details": "Define a new domain model `RunnerConfiguration` (or extend `Runner` if it exists) in `src/main/java/io/jgitkins/server/application/domain/model/runner` to hold settings like `runnerId`, `allowedImageVersions`, `allowedPluginBundles`, `resourceLimits`, `scheduleCycle`. Create a corresponding `RunnerConfigurationPersistencePort` and update `RunnerManagementService` to manage these per-runner settings.",
             "status": "pending",
             "testStrategy": "Add unit tests for the `RunnerConfiguration` domain model and service logic for managing these settings. Develop integration tests for the `RunnerConfigurationPersistencePort` to ensure correct saving and retrieval of per-runner settings.",
-            "parentId": "undefined"
+            "parentId": "4",
+            "parentTaskId": "4"
           },
           {
             "id": 6,
@@ -247,9 +257,9 @@
             "details": "",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 4,
+            "parentTaskId": "4",
             "updatedAt": "2025-12-17T11:35:46.873Z",
-            "parentId": "undefined"
+            "parentId": "4"
           }
         ],
         "updatedAt": "2025-12-17T11:35:46.873Z"
@@ -293,7 +303,8 @@
             "details": "Introduce the `Repository` aggregate as a Java record in `src/main/java/io/jgitkins/server/application/domain/model/`. It should include properties such as `id` (UUID), `url`, `name`, `branch`, `credentialId`, `lastSyncedAt`, `status` (e.g., 'ACTIVE', 'INACTIVE', 'ERROR'), and `ownerId`. Define `RepositoryType` (e.g., GITHUB, GITLAB) as a Value Object, potentially an enum or record. Ensure consistency with the `Job.java` pattern from Task 1.",
             "status": "done",
             "testStrategy": "Add unit tests under `src/test/java/io/jgitkins/server/application/domain/model/RepositoryTest` to verify the `Repository` aggregate's constructor, property immutability, invariants, and potential state transitions.",
-            "parentId": "undefined"
+            "parentId": "6",
+            "parentTaskId": "6"
           },
           {
             "id": 2,
@@ -305,7 +316,8 @@
             "details": "Define the `RepositoryPersistencePort` interface in `src/main/java/io/jgitkins/server/application/port/out/` with methods such as `save(Repository repository)`, `findById(UUID id)`, `findByUrl(String url)`, and `delete(UUID id)`. Implement an `InMemoryRepositoryAdapter` for this port in `src/main/java/io/jgitkins/server/infrastructure/adapter/out/persistence/`, mirroring the approach of other in-memory adapters.",
             "status": "done",
             "testStrategy": "Create `InMemoryRepositoryAdapterTest` under `src/test/java/io/jgitkins/server/infrastructure/adapter/out/persistence/` to verify that all CRUD methods (save, find by ID, find by URL, delete) function correctly against the in-memory store.",
-            "parentId": "undefined"
+            "parentId": "6",
+            "parentTaskId": "6"
           },
           {
             "id": 3,
@@ -317,7 +329,8 @@
             "details": "Develop corresponding Data Transfer Objects (DTOs) in `src/main/java/io/jgitkins/server/application/dto/`. These DTOs should include `CreateRepositoryCommand` (for initial repository data), `UpdateRepositoryCommand` (for modifying repository details), and `RepositoryResponse` (for returning repository information via the API). Ensure these DTOs align with the `Repository` domain model.",
             "status": "done",
             "testStrategy": null,
-            "parentId": "undefined"
+            "parentId": "6",
+            "parentTaskId": "6"
           },
           {
             "id": 4,
@@ -331,7 +344,8 @@
             "details": "Update or extend `src/main/java/io/jgitkins/server/application/port/service/RepositoryService.java` to implement use cases for creating, updating, retrieving, and deleting repositories. This service will operate on the `Repository` domain model, utilize `RepositoryPersistencePort`, and integrate with the new DTOs. Ensure its design accommodates future integration with `RepositoryContentPort` from Task 2.",
             "status": "done",
             "testStrategy": "Create `RepositoryServiceTest` under `src/test/java/io/jgitkins/server/application/port/service/` using mocked `RepositoryPersistencePort` to verify correct handling of CRUD operations, business rules, and interaction with the persistence layer, including mapping DTOs to domain objects.",
-            "parentId": "undefined"
+            "parentId": "6",
+            "parentTaskId": "6"
           },
           {
             "id": 5,
@@ -343,7 +357,8 @@
             "details": "Implement or modify REST controllers (e.g., `RepositoryController` in `src/main/java/io/jgitkins/server/interfaces/rest/`) to expose endpoints for managing repositories. This includes `POST /api/repositories` (create), `GET /api/repositories/{id}` (retrieve by ID), `PUT /api/repositories/{id}` (update), and `DELETE /api/repositories/{id}` (delete). These endpoints must use the newly defined DTOs and interact with `RepositoryService`.",
             "status": "done",
             "testStrategy": "Implement integration tests for `RepositoryController` using Spring Boot's testing capabilities (`@WebMvcTest` or `@SpringBootTest` with MockMvc) to verify endpoint behavior, HTTP status codes, request/response payload mapping, and proper interaction with `RepositoryService`.",
-            "parentId": "undefined"
+            "parentId": "6",
+            "parentTaskId": "6"
           }
         ]
       },
@@ -370,7 +385,8 @@
             "details": "Introduce the `Organize` aggregate as a Java record in `src/main/java/io/jgitkins/server/application/domain/model/`. It should include properties such as `id` (UUID), `url`, `name`, `branch`, `credentialId`, `lastSyncedAt`, `status` (e.g., 'ACTIVE', 'INACTIVE', 'ERROR'), and `ownerId`. Define `OrganizeType` (e.g., GITHUB, GITLAB) as a Value Object, potentially an enum or record. Ensure consistency with the `Job.java` pattern from Task 1.",
             "status": "done",
             "testStrategy": "Add unit tests under `src/test/java/io/jgitkins/server/application/domain/model/OrganizeTest` to verify the `Organize` aggregate's constructor, property immutability, invariants, and potential state transitions.",
-            "parentId": "undefined"
+            "parentId": "7",
+            "parentTaskId": "7"
           },
           {
             "id": 2,
@@ -382,7 +398,8 @@
             "details": "Define the `OrganizePersistencePort` interface in `src/main/java/io/jgitkins/server/application/port/out/` with methods such as `save(Organize repository)`, `findById(UUID id)`, `findByUrl(String url)`, and `delete(UUID id)`. Implement an `InMemoryOrganizeAdapter` for this port in `src/main/java/io/jgitkins/server/infrastructure/adapter/out/persistence/`, mirroring the approach of other in-memory adapters.",
             "status": "done",
             "testStrategy": "Create `InMemoryOrganizeAdapterTest` under `src/test/java/io/jgitkins/server/infrastructure/adapter/out/persistence/` to verify that all CRUD methods (save, find by ID, find by URL, delete) function correctly against the in-memory store.",
-            "parentId": "undefined"
+            "parentId": "7",
+            "parentTaskId": "7"
           },
           {
             "id": 3,
@@ -394,7 +411,8 @@
             "details": "Develop corresponding Data Transfer Objects (DTOs) in `src/main/java/io/jgitkins/server/application/dto/`. These DTOs should include `CreateOrganizeCommand` (for initial repository data), `UpdateOrganizeCommand` (for modifying repository details), and `OrganizeResponse` (for returning repository information via the API). Ensure these DTOs align with the `Organize` domain model.",
             "status": "done",
             "testStrategy": null,
-            "parentId": "undefined"
+            "parentId": "7",
+            "parentTaskId": "7"
           },
           {
             "id": 4,
@@ -408,7 +426,8 @@
             "details": "Update or extend `src/main/java/io/jgitkins/server/application/port/service/OrganizeService.java` to implement use cases for creating, updating, retrieving, and deleting repositories. This service will operate on the `Organize` domain model, utilize `OrganizePersistencePort`, and integrate with the new DTOs. Ensure its design accommodates future integration with `OrganizeContentPort` from Task 2.",
             "status": "done",
             "testStrategy": "Create `OrganizeServiceTest` under `src/test/java/io/jgitkins/server/application/port/service/` using mocked `OrganizePersistencePort` to verify correct handling of CRUD operations, business rules, and interaction with the persistence layer, including mapping DTOs to domain objects.",
-            "parentId": "undefined"
+            "parentId": "7",
+            "parentTaskId": "7"
           },
           {
             "id": 5,
@@ -420,7 +439,8 @@
             "details": "Implement or modify REST controllers (e.g., `OrganizeController` in `src/main/java/io/jgitkins/server/interfaces/rest/`) to expose endpoints for managing repositories. This includes `POST /api/repositories` (create), `GET /api/repositories/{id}` (retrieve by ID), `PUT /api/repositories/{id}` (update), and `DELETE /api/repositories/{id}` (delete). These endpoints must use the newly defined DTOs and interact with `OrganizeService`.",
             "status": "done",
             "testStrategy": "Implement integration tests for `OrganizeController` using Spring Boot's testing capabilities (`@WebMvcTest` or `@SpringBootTest` with MockMvc) to verify endpoint behavior, HTTP status codes, request/response payload mapping, and proper interaction with `OrganizeService`.",
-            "parentId": "undefined"
+            "parentId": "7",
+            "parentTaskId": "7"
           }
         ]
       },
@@ -462,7 +482,8 @@
             "status": "done",
             "testStrategy": "Create `RepositoryUrlTest.java` and `BranchNameTest.java` under `src/test/java/io/jgitkins/server/application/domain/model/` to unit test their constructors, validation rules, immutability, and equality logic. Ensure edge cases like invalid URLs or branch names are handled correctly.",
             "updatedAt": "2025-12-19T09:08:23.599Z",
-            "parentId": "undefined"
+            "parentId": "9",
+            "parentTaskId": "9"
           },
           {
             "id": 2,
@@ -474,8 +495,9 @@
             "details": "Modify `src/main/java/io/jgitkins/server/application/domain/model/Repository.java`. Introduce methods like `updateStatus(RepositoryStatus newStatus)` and `assignCredential(CredentialId id)` to encapsulate domain logic directly within the aggregate. Ensure the `Repository` record remains immutable, using 'with' methods (e.g., `withStatus(RepositoryStatus newStatus)`) for state changes, consistent with Java record patterns. Adjust constructors and existing methods to utilize `RepositoryUrl` and `BranchName`.",
             "status": "done",
             "testStrategy": "Update `src/test/java/io/jgitkins/server/application/domain/model/RepositoryTest.java`. Add new unit tests for the newly introduced domain behaviors (e.g., `updateStatus`, `assignCredential`) to verify correct state transitions and business rule enforcement. Verify that the 'with' methods correctly return new instances with updated states while preserving immutability.",
-            "parentId": "undefined",
-            "updatedAt": "2025-12-19T09:08:17.588Z"
+            "parentId": "9",
+            "updatedAt": "2025-12-19T09:08:17.588Z",
+            "parentTaskId": "9"
           },
           {
             "id": 3,
@@ -485,7 +507,8 @@
             "details": "Examine `src/main/java/io/jgitkins/server/application/domain/model/Organize.java`. Identify if any properties within `Organize` (e.g., specific identifiers or configuration settings) could benefit from encapsulation as Value Objects. Introduce domain-specific methods to the `Organize` aggregate (e.g., `addRepository(RepositoryId id)`, `updateConfiguration(...)`). Ensure the aggregate maintains immutability using 'with' methods if state changes are required, aligning with the pattern used for `Job.java`.",
             "status": "done",
             "testStrategy": "Create `src/test/java/io/jgitkins/server/application/domain/model/OrganizeTest.java` if it doesn't exist, or update it. Add unit tests for any new value objects or nested structures within `Organize`. Implement comprehensive tests for the new domain behaviors to ensure they correctly modify the `Organize` state and enforce any relevant business rules.",
-            "parentId": "undefined"
+            "parentId": "9",
+            "parentTaskId": "9"
           },
           {
             "id": 4,
@@ -498,7 +521,8 @@
             "details": "Modify `src/main/java/io/jgitkins/server/application/port/service/RepositoryService.java` and `OrganizeService.java`. Update method signatures and implementations to correctly handle the new Value Objects and utilize the new domain behaviors of the `Repository` and `Organize` aggregates. If applicable, introduce or refine domain event publishing mechanisms within these services when a `Repository` or `Organize` aggregate state changes significantly (e.g., `RepositoryStatusUpdatedEvent`, `OrganizeConfigurationChangedEvent`), following existing patterns for event publication.",
             "status": "cancelled",
             "testStrategy": "Update `RepositoryServiceTest.java` and `OrganizeServiceTest.java`. Add integration-style tests using mocks to verify that services correctly interact with the refined domain models, handle new Value Objects, and, if implemented, publish domain events with correct payloads upon relevant state transitions. Ensure existing functionality remains intact.",
-            "parentId": "undefined"
+            "parentId": "9",
+            "parentTaskId": "9"
           },
           {
             "id": 5,
@@ -512,8 +536,9 @@
             "details": "Review and enhance existing test files: `src/test/java/io/jgitkins/server/application/domain/model/RepositoryTest.java`, `RepositoryUrlTest.java`, `BranchNameTest.java`, `OrganizeTest.java`, `RepositoryServiceTest.java`, and `OrganizeServiceTest.java`. Add test cases to cover all new methods, edge cases, invariants, and ensure proper interaction between components after the domain model and service refinements. Focus on thorough validation, state changes, and event emission where applicable.",
             "status": "cancelled",
             "testStrategy": "Execute all updated and new unit tests to confirm the correctness of the refined domain models and their Value Objects. Run integration tests for the services to verify their interaction with the updated domain and any new event handling logic. Aim for high code coverage for the modified domain and service layers.",
-            "parentId": "undefined",
-            "updatedAt": "2025-12-22T09:43:19.840Z"
+            "parentId": "9",
+            "updatedAt": "2025-12-22T09:43:19.840Z",
+            "parentTaskId": "9"
           },
           {
             "id": 6,
@@ -522,9 +547,9 @@
             "details": "",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 9,
+            "parentTaskId": "9",
             "updatedAt": "2025-12-22T09:34:58.771Z",
-            "parentId": "undefined"
+            "parentId": "9"
           }
         ],
         "updatedAt": "2025-12-22T09:43:37.152Z"
@@ -547,7 +572,8 @@
             "details": "1. Add `spring-boot-starter-oauth2-client` dependency to the `pom.xml`.\n2. Configure `application.yml` or `application.properties` with the OAuth2 client registration details: client ID, client secret, authorization URI, token URI, user info URI, and redirect URI for the chosen IdP (e.g., Google).\n3. Define a Spring Security configuration class (e.g., `SecurityConfig.java`) to enable OAuth2 login.\n4. Ensure the application correctly handles the initial `/oauth2/authorization/<idp-name>` redirect to the IdP.",
             "status": "done",
             "testStrategy": "Manually test the initiation of the OAuth2 flow by navigating to the login endpoint, verifying redirection to the IdP's authentication page, and confirming that the IdP redirects back to the application with an authorization code.",
-            "parentId": "undefined"
+            "parentId": "10",
+            "parentTaskId": "10"
           },
           {
             "id": 2,
@@ -559,7 +585,8 @@
             "details": "1. Implement an endpoint (e.g., `/login/oauth2/code/<idp-name>`) that receives the authorization code as a callback from the IdP.\n2. Utilize Spring Security's `OAuth2AuthorizedClientService` or `WebClient` to programmatically make a POST request to the IdP's token endpoint, sending the authorization code, client ID, client secret, and redirect URI.\n3. Parse the JSON response from the IdP to extract the `id_token` (JWT), `access_token`, and `refresh_token`.\n4. Validate the `id_token`'s signature and expiration, and then parse its claims (e.g., `sub`, `email`, `name`, `picture`).",
             "status": "done",
             "testStrategy": "Unit test the token exchange logic using mock IdP responses to verify correct request construction and token parsing. Integration test by simulating a successful OAuth2 callback (e.g., using `MockMvc` or a test client) and asserting that all expected tokens are received and parsed.",
-            "parentId": "undefined"
+            "parentId": "10",
+            "parentTaskId": "10"
           },
           {
             "id": 3,
@@ -571,7 +598,8 @@
             "details": "1. Define a `User` entity (e.g., `io.jgitkins.server.application.domain.model.User.java`) with fields such as `id` (internal primary key), `providerId` (IdP's 'sub' claim), `providerName` (e.g., 'google'), `email`, and `name`.\n2. Create a `UserRepository` interface (e.g., `io.jgitkins.server.application.port.out.persistence.UserRepository.java`) for persistence operations, potentially using Spring Data JPA.\n3. Develop a `UserService` (e.g., `io.jgitkins.server.application.port.service.UserService.java`) method, such as `findOrCreateUser(String providerName, String providerId, String email, String name)`, which:\n    a. Queries the `UserRepository` to find an existing user by `providerId` and `providerName`.\n    b. If the user does not exist, creates a new `User` entity and persists it.\n    c. If the user exists, updates relevant user details (e.g., name, email) if they have changed.",
             "status": "done",
             "testStrategy": "Unit tests for `UserService` using mock `UserRepository` to verify the `findOrCreateUser` logic for both new user creation and existing user updates. Integration tests using an in-memory database (e.g., H2) to confirm persistence operations on the `User` entity.",
-            "parentId": "undefined"
+            "parentId": "10",
+            "parentTaskId": "10"
           },
           {
             "id": 4,
@@ -583,7 +611,8 @@
             "details": "1. Implement a `JwtService` (e.g., `io.jgitkins.server.security.JwtService.java`) responsible for generating and validating internal JWTs.\n2. Use a Java JWT library (e.g., `jjwt` or `Auth0 JWT`) to create digitally signed JWTs.\n3. Configure a robust, securely stored secret key for signing the internal JWTs.\n4. Include essential claims in the JWT payload: `sub` (local internal user ID), `roles` (list of assigned roles), `exp` (expiration timestamp), and `iat` (issued at timestamp).\n5. Integrate the `JwtService` into the authentication flow after local user record management (Subtask 3) to return the newly generated internal JWT to the client (e.g., in the response body or as a cookie).\n6. Consider a simple refresh token strategy, possibly by requiring re-authentication via the IdP for session renewal or implementing a server-side refresh token management system for the internal JWTs.",
             "status": "done",
             "testStrategy": "Unit tests for the `JwtService` to verify correct token generation, including the presence of all required claims, accurate expiration times, and valid signature generation. Test the validation method to ensure it correctly identifies valid, expired, and invalid tokens. No actual token exchange with IdP is part of this subtask testing.",
-            "parentId": "undefined"
+            "parentId": "10",
+            "parentTaskId": "10"
           },
           {
             "id": 5,
@@ -595,7 +624,8 @@
             "details": "1. For REST APIs: Implement a `JwtAuthenticationFilter` that extends `OncePerRequestFilter`. This filter will:\n    a. Extract the JWT from the `Authorization` header (e.g., 'Bearer <token>').\n    b. Validate the JWT's signature and expiration using the `JwtService` developed in Subtask 4.\n    c. Extract the local `userId` and `roles` from the validated JWT.\n    d. Load user details (e.g., `UserDetails`) based on the `userId`.\n    e. Set the authenticated user in `SecurityContextHolder.getContext().setAuthentication(authentication)`.\n2. For gRPC APIs (considering Task 8: 'Migrate Service Communication with gRPC'): Implement a `ServerInterceptor` (e.g., `JwtGrpcServerInterceptor`) that performs similar JWT validation logic for gRPC requests and sets the authenticated user within the gRPC `Context`.\n3. Configure the filter/interceptor to be applied to all protected API endpoints in `SecurityConfig.java`.",
             "status": "done",
             "testStrategy": "Integration tests to confirm that protected REST and gRPC API endpoints correctly require a valid internal JWT and reject requests with missing, invalid, or expired tokens. End-to-end tests involving a client sending a valid internal JWT to access a protected resource. Unit tests for the filter/interceptor logic, mocking the `JwtService` and `SecurityContextHolder` interactions.",
-            "parentId": "undefined"
+            "parentId": "10",
+            "parentTaskId": "10"
           },
           {
             "id": 6,
@@ -604,8 +634,8 @@
             "details": "",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 10,
-            "parentId": "undefined"
+            "parentTaskId": "10",
+            "parentId": "10"
           }
         ]
       },
@@ -694,7 +724,8 @@
             "status": "done",
             "testStrategy": "Add unit tests for OwnerType enum validation. Update RepositoryTest to cover the presence and handling of ownerType in the Repository aggregate.",
             "updatedAt": "2025-12-27T05:39:45.352Z",
-            "parentId": "undefined"
+            "parentId": "15",
+            "parentTaskId": "15"
           },
           {
             "id": 2,
@@ -706,8 +737,9 @@
             "details": "Modify io.jgitkins.server.application.port.service.RepositoryService (e.g., createRepository, updateRepository) to receive ownerType and ownerId directly from the DTO, mapping them to the Repository domain object. Remove any direct usage or parsing of organizeId for new repository creation flows within this service.",
             "status": "done",
             "testStrategy": "Create or update RepositoryServiceTest cases to verify that createRepository correctly persists repositories with the specified ownerType and ownerId. Ensure no organizeId related logic is inadvertently triggered for new creations.",
-            "parentId": "undefined",
-            "updatedAt": "2025-12-27T05:39:49.629Z"
+            "parentId": "15",
+            "updatedAt": "2025-12-27T05:39:49.629Z",
+            "parentTaskId": "15"
           },
           {
             "id": 3,
@@ -719,8 +751,9 @@
             "details": "Create a new class io.jgitkins.server.application.util.RepositoryPathResolver with a public method String resolveBareRepositoryPath(OwnerType ownerType, String ownerId, String repoName). Implement logic to return paths like /bare/users/{ownerId}/{repoName}.git or /bare/orgs/{ownerId}/{repoName}.git based on ownerType. Ensure robustness for various input cases.",
             "status": "done",
             "testStrategy": "Add unit tests for RepositoryPathResolver covering both USER and ORGANIZATION owner types, various owner IDs, and repository names. Test edge cases like null/empty inputs if applicable.",
-            "parentId": "undefined",
-            "updatedAt": "2025-12-27T04:40:06.071Z"
+            "parentId": "15",
+            "updatedAt": "2025-12-27T04:40:06.071Z",
+            "parentTaskId": "15"
           },
           {
             "id": 4,
@@ -733,8 +766,9 @@
             "details": "Modify RepositoryService methods (e.g., createRepository, getRepositoryUrl) to invoke RepositoryPathResolver.resolveBareRepositoryPath when determining the actual file system location for bare Git repositories. Update any RepositoryPersistencePort or infrastructure adapters that manage file system interactions to use the resolved path.",
             "status": "done",
             "testStrategy": "Update RepositoryServiceTest to verify that repository creation correctly uses the RepositoryPathResolver to determine the physical path and that the infrastructure layer (mocked or actual) receives the correct path. Integration tests should confirm actual repository creation at the new paths.",
-            "parentId": "undefined",
-            "updatedAt": "2025-12-27T04:40:18.973Z"
+            "parentId": "15",
+            "updatedAt": "2025-12-27T04:40:18.973Z",
+            "parentTaskId": "15"
           },
           {
             "id": 5,
@@ -746,8 +780,9 @@
             "details": "Within RepositoryService or RepositoryPersistencePort, implement logic to handle repositories where ownerType might be null or missing (legacy data). For such cases, infer ownerType (e.g., default to ORGANIZATION) and map organizeId to ownerId for path resolution. Propose a separate, explicit migration process (e.g., a one-time script or a background job) to populate ownerType for all existing Repository entries in the database, based on existing organizeId values. This ensures old repositories remain accessible and allows for a smooth transition.",
             "status": "done",
             "testStrategy": "Write integration tests that simulate loading and accessing legacy repositories (missing ownerType, relying on organizeId) to confirm they are still resolvable and functional. Test the fallback logic in RepositoryService or RepositoryPathResolver. Outline manual steps for verifying the migration script or logic.",
-            "parentId": "undefined",
-            "updatedAt": "2025-12-28T17:06:19.525Z"
+            "parentId": "15",
+            "updatedAt": "2025-12-28T17:06:19.525Z",
+            "parentTaskId": "15"
           },
           {
             "id": 6,
@@ -756,8 +791,8 @@
             "details": "",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 15,
-            "parentId": "undefined",
+            "parentTaskId": "15",
+            "parentId": "15",
             "updatedAt": "2025-12-28T12:54:10.396Z"
           }
         ],
@@ -911,7 +946,7 @@
             "details": "정상 로그인, 잘못된 provider/sub, 토큰 발급 실패, JWT claim 검증 케이스 포함",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26",
             "updatedAt": "2026-02-10T13:44:50.699Z"
           },
@@ -922,7 +957,7 @@
             "details": "내 정보 조회, 공개 사용자 조회, username 업데이트 성공/실패 검증",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26",
             "updatedAt": "2026-02-10T13:53:14.452Z"
           },
@@ -933,7 +968,7 @@
             "details": "관리자 사용자 목록/상태 업데이트 API의 권한 및 예외 케이스 검증",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26",
             "updatedAt": "2026-02-10T13:54:55.563Z"
           },
@@ -944,7 +979,7 @@
             "details": "조직 생성 유효성, 조회 필터링, 삭제 권한/실패 케이스 검증",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26",
             "updatedAt": "2026-02-10T14:01:10.657Z"
           },
@@ -955,7 +990,7 @@
             "details": "중복 멤버 처리, 권한 검증, 잘못된 조직/사용자 입력 처리 포함",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26",
             "updatedAt": "2026-02-10T14:04:18.464Z"
           },
@@ -966,7 +1001,7 @@
             "details": "owner type(USER/ORGANIZATION), 공개/비공개, 삭제 실패/권한 케이스 포함",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26",
             "updatedAt": "2026-02-10T14:09:17.304Z"
           },
@@ -977,7 +1012,7 @@
             "details": "역할(role) 검증, 중복 추가, 존재하지 않는 멤버 삭제 시나리오 포함",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26",
             "updatedAt": "2026-02-10T14:11:05.114Z"
           },
@@ -988,7 +1023,7 @@
             "details": "브랜치명 유효성, 중복 생성, 기본 브랜치 삭제 방지 등 정책 검증",
             "status": "done",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26",
             "updatedAt": "2026-02-10T14:14:09.558Z"
           },
@@ -999,7 +1034,7 @@
             "details": "브랜치별 커밋 조회, 페이지/정렬, 비정상 ref 입력 처리 포함",
             "status": "pending",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26"
           },
           {
@@ -1009,7 +1044,7 @@
             "details": "트리 탐색, blob 로드, 파일 경로 인코딩/디코딩 및 404 시나리오 검증",
             "status": "pending",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26"
           },
           {
@@ -1019,7 +1054,7 @@
             "details": "multipart 업로드 성공, 파일 크기/형식 제한, 경로 충돌 처리 포함",
             "status": "pending",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26"
           },
           {
@@ -1029,7 +1064,7 @@
             "details": "merge 가능 여부 판단, 충돌 상황, 대상 브랜치 없음 케이스 포함",
             "status": "pending",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26"
           },
           {
@@ -1039,7 +1074,7 @@
             "details": "runner token/상태 전이, heartbeat 처리, 중복 등록/삭제 시나리오 포함",
             "status": "pending",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26"
           },
           {
@@ -1049,7 +1084,7 @@
             "details": "job lifecycle(생성→큐잉→완료), 결과 보고 검증, push 이벤트 처리 케이스 포함",
             "status": "pending",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26"
           },
           {
@@ -1059,7 +1094,7 @@
             "details": "토큰 발급 규칙, 만료일/설명 입력, 폐기 후 재조회 결과 검증",
             "status": "pending",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26"
           },
           {
@@ -1069,7 +1104,7 @@
             "details": "401/403/404 포맷 일관성, 예외 메시지 규격, 인증 누락 요청 처리 검증",
             "status": "pending",
             "dependencies": [],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26"
           },
           {
@@ -1096,7 +1131,7 @@
               15,
               16
             ],
-            "parentTaskId": 26,
+            "parentTaskId": "26",
             "parentId": "26"
           }
         ],
@@ -1119,7 +1154,7 @@
             "details": "provider/subject/email 등 필수 필드 검증을 추가하고 누락/형식 오류 시 400 응답을 보장",
             "status": "pending",
             "dependencies": [],
-            "parentTaskId": 27,
+            "parentTaskId": "27",
             "parentId": "27"
           },
           {
@@ -1131,7 +1166,7 @@
             "dependencies": [
               1
             ],
-            "parentTaskId": 27,
+            "parentTaskId": "27",
             "parentId": "27"
           }
         ]
@@ -1139,7 +1174,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-10T14:14:09.559Z",
+      "lastModified": "2026-02-16T23:26:00+09:00",
       "taskCount": 27,
       "completedCount": 10,
       "tags": [
