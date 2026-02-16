@@ -91,8 +91,8 @@ jgitkins-server의 모든 기능에 대해 JUnit 기반 테스트 코드를 작�
 우선 보강 대상: Repository Content(Tree/Blob/File) API, File Upload 생성 경로, 공통 인증/예외 응답 포맷 회귀.
 
 이번 사이클 목표:
-- [ ] RepositoryContentController/WebMvc 테스트 보강
-- [ ] FileUploadUseCase/서비스 단위 테스트 보강
+- [x] RepositoryContentController/WebMvc 테스트 보강
+- [x] FileUploadUseCase/서비스 단위 테스트 보강
 - [ ] 401/403/404 공통 응답 포맷 회귀 테스트 보강
 - [ ] gradle test 기준 최소 회귀 세트 확정
 
