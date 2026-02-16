@@ -85,7 +85,16 @@ jgitkins-server의 모든 기능에 대해 JUnit 기반 테스트 코드를 작�
 **Details:**
 
 
-컨트롤러(WebMvcTest), 서비스(Mockito 기반 단위 테스트), 핵심 인프라 통합 테스트를 기능 단위로 확장한다. 기능 목록을 SubTask로 분해해 누락 없이 작성한다.
+진행 워크플로우: (1) 테스트 인벤토리 스캔 -> (2) 도메인/서비스/WebMvc 공백 식별 -> (3) 공통 fixture/유틸 정리 -> (4) 우선순위 테스트 추가 -> (5) 회귀 실행 및 안정화.
+
+현재 스캔 결과(2026-02-17): OAuth/User/Admin/Organize/RepositoryMember/Branch/Commit/RepositoryManagement/Credential/Runner 등록 관련 테스트는 존재.
+우선 보강 대상: Repository Content(Tree/Blob/File) API, File Upload 생성 경로, 공통 인증/예외 응답 포맷 회귀.
+
+이번 사이클 목표:
+- [ ] RepositoryContentController/WebMvc 테스트 보강
+- [ ] FileUploadUseCase/서비스 단위 테스트 보강
+- [ ] 401/403/404 공통 응답 포맷 회귀 테스트 보강
+- [ ] gradle test 기준 최소 회귀 세트 확정
 
 
 (legacy task: 26)
