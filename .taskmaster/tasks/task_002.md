@@ -2,7 +2,7 @@
 
 **Title:** 리팩토링
 
-**Status:** in-progress
+**Status:** done
 
 **Dependencies:** None
 
@@ -157,7 +157,7 @@ merge check/perform API 정상/예외 매핑 검증
 
 ### 2.8. JobDispatch/Runner 서비스 단위 테스트 보강
 
-**Status:** in-progress  
+**Status:** done  
 
 **Dependencies:** 2.3  
 
