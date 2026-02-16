@@ -426,13 +426,13 @@
             "title": "RunnerController WebMvc 테스트 추가",
             "description": "RunnerController의 register/list/get/delete/activate API 응답, 매핑, 헤더(X-Forwarded-For) 처리 검증",
             "details": "RunnerController의 register/list/get/delete/activate API 응답, 매핑, 헤더(X-Forwarded-For) 처리 검증",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               3
             ],
             "parentTaskId": 2,
             "parentId": "2",
-            "updatedAt": "2026-02-17T01:20:00+09:00"
+            "updatedAt": "2026-02-17T01:21:00+09:00"
           },
           {
             "id": 5,
@@ -487,7 +487,7 @@
             "updatedAt": "2026-02-17T01:20:00+09:00"
           }
         ],
-        "updatedAt": "2026-02-17T01:20:00+09:00"
+        "updatedAt": "2026-02-17T01:21:00+09:00"
       },
       {
         "id": 3,
@@ -576,7 +576,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-17T01:20:00+09:00",
+      "lastModified": "2026-02-17T01:21:00+09:00",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [

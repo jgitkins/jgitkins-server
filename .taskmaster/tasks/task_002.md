@@ -101,7 +101,7 @@ jgitkins-server의 모든 기능에 대해 JUnit 기반 테스트 코드를 작�
 
 ### 2.4. RunnerController WebMvc 테스트 추가
 
-**Status:** pending  
+**Status:** done  
 
 **Dependencies:** 2.3  
 
