@@ -479,3 +479,17 @@ Ensure that an unhandled error doesn't crash the application.
 
 
 (legacy task: 25)
+
+### 1.22. Find a file 검색 API 추가
+
+**Status:** in-progress  
+
+**Dependencies:** None  
+
+
+브랜치 기준 전체 파일 목록에서 키워드 검색 결과를 반환하는 API를 제공한다.
+
+**Details:**
+
+
+/repositories/{taskCd}/{repoName}/files/search?ref={branch}&q={keyword}&limit={n} 형태로 제공하고 name/path contains(ignore-case) 매칭 및 limit 기본값을 지원한다.

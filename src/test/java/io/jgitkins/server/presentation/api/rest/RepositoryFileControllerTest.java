@@ -55,4 +55,36 @@ class RepositoryFileControllerTest {
 
         verify(fileLoadUseCase).getAllFiles("team", "repo", "feature");
     }
+
+    @Test
+    void searchFiles_filtersByQueryAndAppliesLimit() throws Exception {
+        when(fileLoadUseCase.getAllFiles("team", "repo", "main")).thenReturn(List.of(
+                FileEntry.builder().name("README.md").path("README.md").type("blob").build(),
+                FileEntry.builder().name("ReadService.java").path("src/ReadService.java").type("blob").build(),
+                FileEntry.builder().name("WriteService.java").path("src/WriteService.java").type("blob").build()
+        ));
+
+        mockMvc.perform(get("/repositories/team/repo/files/search")
+                        .param("ref", "main")
+                        .param("q", "read")
+                        .param("limit", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(1))
+                .andExpect(jsonPath("$.data[0].name").value("README.md"));
+
+        verify(fileLoadUseCase).getAllFiles("team", "repo", "main");
+    }
+
+    @Test
+    void searchFiles_returnsAllWhenQueryEmpty() throws Exception {
+        when(fileLoadUseCase.getAllFiles("team", "repo", "main")).thenReturn(List.of(
+                FileEntry.builder().name("A").path("A").type("blob").build(),
+                FileEntry.builder().name("B").path("B").type("blob").build()
+        ));
+
+        mockMvc.perform(get("/repositories/team/repo/files/search").param("ref", "main"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.length()").value(2));
+    }
 }
+
