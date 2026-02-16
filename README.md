@@ -63,6 +63,8 @@ _No tasks found._
 | 1 | 신규기능 | in-progress | high | 21 |
 | 2 | 리팩토링 | in-progress | high | 3 |
 | 3 | 보안 | in-progress | high | 3 |
+| 4 | 운영/인프라 | pending | high | 0 |
+| 5 | 버그/핫픽스 | pending | high | 0 |
 
 <!-- TASKS-TABLE:END -->
 
