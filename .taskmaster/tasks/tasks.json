@@ -439,55 +439,55 @@
             "title": "UserCredentialController WebMvc 테스트 추가",
             "description": "PAT issue/list/revoke 경로 및 인증 주체 파싱/응답 포맷 검증",
             "details": "PAT issue/list/revoke 경로 및 인증 주체 파싱/응답 포맷 검증",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               3
             ],
             "parentTaskId": 2,
             "parentId": "2",
-            "updatedAt": "2026-02-17T01:20:00+09:00"
+            "updatedAt": "2026-02-17T01:29:00+09:00"
           },
           {
             "id": 6,
             "title": "MergeController WebMvc 테스트 추가",
             "description": "merge check/perform API 정상/예외 매핑 검증",
             "details": "merge check/perform API 정상/예외 매핑 검증",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               3
             ],
             "parentTaskId": 2,
             "parentId": "2",
-            "updatedAt": "2026-02-17T01:20:00+09:00"
+            "updatedAt": "2026-02-17T01:29:00+09:00"
           },
           {
             "id": 7,
             "title": "RepositoryCommit/RepositoryFile Controller 테스트 추가",
             "description": "커밋 상세/목록 및 파일 목록 API 파라미터 매핑/응답 포맷 검증",
             "details": "커밋 상세/목록 및 파일 목록 API 파라미터 매핑/응답 포맷 검증",
-            "status": "pending",
+            "status": "done",
             "dependencies": [
               3
             ],
             "parentTaskId": 2,
             "parentId": "2",
-            "updatedAt": "2026-02-17T01:20:00+09:00"
+            "updatedAt": "2026-02-17T01:29:00+09:00"
           },
           {
             "id": 8,
             "title": "JobDispatch/Runner 서비스 단위 테스트 보강",
             "description": "JobDispatchService, RunnerReadService, RunnerWriteService 핵심 분기 및 예외 경로 검증",
-            "details": "JobDispatchService, RunnerReadService, RunnerWriteService 핵심 분기 및 예외 경로 검증",
-            "status": "pending",
+            "details": "JobDispatchService, RunnerReadService, RunnerWriteService 핵심 분기 및 예외 경로 검증\n\n진행 현황(2026-02-17): RunnerReadServiceTest/RunnerWriteServiceTest 추가 완료. JobDispatchService 테스트는 다음 커밋에서 보강 예정.",
+            "status": "in-progress",
             "dependencies": [
               3
             ],
             "parentTaskId": 2,
             "parentId": "2",
-            "updatedAt": "2026-02-17T01:20:00+09:00"
+            "updatedAt": "2026-02-17T01:29:00+09:00"
           }
         ],
-        "updatedAt": "2026-02-17T01:21:00+09:00"
+        "updatedAt": "2026-02-17T01:29:00+09:00"
       },
       {
         "id": 3,
@@ -576,7 +576,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-02-17T01:21:00+09:00",
+      "lastModified": "2026-02-17T01:29:00+09:00",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [

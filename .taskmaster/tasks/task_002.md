@@ -115,7 +115,7 @@ RunnerController의 register/list/get/delete/activate API 응답, 매핑, 헤더
 
 ### 2.5. UserCredentialController WebMvc 테스트 추가
 
-**Status:** pending  
+**Status:** done  
 
 **Dependencies:** 2.3  
 
@@ -129,7 +129,7 @@ PAT issue/list/revoke 경로 및 인증 주체 파싱/응답 포맷 검증
 
 ### 2.6. MergeController WebMvc 테스트 추가
 
-**Status:** pending  
+**Status:** done  
 
 **Dependencies:** 2.3  
 
@@ -143,7 +143,7 @@ merge check/perform API 정상/예외 매핑 검증
 
 ### 2.7. RepositoryCommit/RepositoryFile Controller 테스트 추가
 
-**Status:** pending  
+**Status:** done  
 
 **Dependencies:** 2.3  
 
@@ -157,7 +157,7 @@ merge check/perform API 정상/예외 매핑 검증
 
 ### 2.8. JobDispatch/Runner 서비스 단위 테스트 보강
 
-**Status:** pending  
+**Status:** in-progress  
 
 **Dependencies:** 2.3  
 
@@ -168,3 +168,5 @@ JobDispatchService, RunnerReadService, RunnerWriteService 핵심 분기 및 예�
 
 
 JobDispatchService, RunnerReadService, RunnerWriteService 핵심 분기 및 예외 경로 검증
+
+진행 현황(2026-02-17): RunnerReadServiceTest/RunnerWriteServiceTest 추가 완료. JobDispatchService 테스트는 다음 커밋에서 보강 예정.
