@@ -60,33 +60,9 @@ _No tasks found._
 
 | ID | Title | Status | Priority | Subtasks |
 | --- | --- | --- | --- | --- |
-| 1 | Feature Runner Management API | done | medium | 4 |
-| 2 | Feature Integrate MQ | cancelled | medium | 7 |
-| 3 | Feature Batch Job Publisher | cancelled | medium | 0 |
-| 4 | Runner Management(Manage Plugin or Runner Configuration (Schedule cycle or.. dockerImage(Jenkinsfile Runner or Jenkinsfile Runner 에 사용되는 플러그인들을 서버에서 설정 )) | in-progress | medium | 6 |
-| 5 | Scheduled Job Publication Flow | cancelled | medium | 0 |
-| 6 | Define Repository Domain and Refine Repository Management API | done | medium | 5 |
-| 7 | Define Organize Domain and Refine Repository Management API | done | medium | 5 |
-| 8 | Migrate Service Communication with gRPC | done | medium | 0 |
-| 9 | Domain Modeling Refinement and Test Case Addition | done | medium | 6 |
-| 10 | OAuth + JWT Flow (Architectural View) | done | medium | 6 |
-| 11 | Implement Admin User Management API | done | medium | 0 |
-| 12 | Add Member Management API | done | medium | 0 |
-| 13 | Implement Credential Management API | done | medium | 0 |
-| 14 | Implement Runner Health Check (Heartbeat) | pending | medium | 0 |
-| 15 | Repository 소유자(owner) 추상화 및 ownerId 기반 경로 분기 도입 | done | medium | 6 |
-| 16 | Setup Git Repository Access Service | pending | high | 0 |
-| 17 | Implement Backend API for File Tree Content | pending | high | 0 |
-| 18 | Implement Backend API for File Blob Content | pending | high | 0 |
-| 19 | Frontend Router Setup for Repository Views | pending | high | 0 |
-| 20 | Develop File Tree UI Component | pending | medium | 0 |
-| 21 | Integrate File Tree API with Frontend Component | pending | high | 0 |
-| 22 | Implement Frontend Tree Navigation Logic | pending | high | 0 |
-| 23 | Develop File Content Viewer UI Component with WYSIWYG | pending | medium | 0 |
-| 24 | Integrate File Blob API and Navigation for File Details | pending | high | 0 |
-| 25 | Implement Robust Error Handling and Loading States | pending | medium | 0 |
-| 26 | jgitkins-server JUnit 테스트 체계 구축 | in-progress | high | 17 |
-| 27 | OAuth 인증 실패/요청 검증 개선 | pending | high | 2 |
+| 1 | 신규기능 | in-progress | high | 21 |
+| 2 | 리팩토링 | in-progress | high | 3 |
+| 3 | 보안 | in-progress | high | 3 |
 
 <!-- TASKS-TABLE:END -->
 
