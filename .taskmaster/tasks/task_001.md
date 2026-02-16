@@ -265,7 +265,7 @@ public class GitRepositoryService {
 
 ### 1.13. [17] Implement Backend API for File Tree Content
 
-**Status:** pending  
+**Status:** done  
 
 **Dependencies:** None  
 
@@ -294,7 +294,7 @@ Example API response:
 
 ### 1.14. [18] Implement Backend API for File Blob Content
 
-**Status:** pending  
+**Status:** done  
 
 **Dependencies:** None  
 
@@ -343,7 +343,7 @@ The `RepositoryView` component should be able to extract these parameters (e.g.,
 
 ### 1.16. [20] Develop File Tree UI Component
 
-**Status:** pending  
+**Status:** cancelled  
 
 **Dependencies:** None  
 
@@ -367,7 +367,7 @@ Consider using a UI library's tree view component or building a custom list that
 
 ### 1.17. [21] Integrate File Tree API with Frontend Component
 
-**Status:** pending  
+**Status:** done  
 
 **Dependencies:** None  
 
