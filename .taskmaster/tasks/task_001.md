@@ -479,3 +479,17 @@ Ensure that an unhandled error doesn't crash the application.
 
 
 (legacy task: 25)
+
+### 1.22. Find a file용 전체 파일 인덱스 응답 정리
+
+**Status:** done  
+
+**Dependencies:** None  
+
+
+서버는 브랜치 기준 전체 파일 목록만 응답하고, 검색은 웹에서 수행하도록 역할을 분리한다.
+
+**Details:**
+
+
+신규 /search API를 두지 않고 기존 /repositories/{taskCd}/{repoName}/files?ref={branch} 응답을 표준 전체 인덱스로 사용한다.
