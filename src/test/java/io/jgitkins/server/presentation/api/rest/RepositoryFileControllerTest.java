@@ -55,4 +55,19 @@ class RepositoryFileControllerTest {
 
         verify(fileLoadUseCase).getAllFiles("team", "repo", "feature");
     }
+
+    @Test
+    void listFileIndex_returnsCompactFields() throws Exception {
+        when(fileLoadUseCase.getAllFiles("team", "repo", "main")).thenReturn(List.of(
+                FileEntry.builder().name("README.md").path("README.md").type("blob").mode("100644").size(12L).build()
+        ));
+
+        mockMvc.perform(get("/repositories/team/repo/files/index").param("ref", "main"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].name").value("README.md"))
+                .andExpect(jsonPath("$.data[0].path").value("README.md"))
+                .andExpect(jsonPath("$.data[0].type").value("blob"))
+                .andExpect(jsonPath("$.data[0].mode").doesNotExist())
+                .andExpect(jsonPath("$.data[0].size").doesNotExist());
+    }
 }

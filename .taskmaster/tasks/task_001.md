@@ -480,16 +480,16 @@ Ensure that an unhandled error doesn't crash the application.
 
 (legacy task: 25)
 
-### 1.22. Find a file 검색 API 추가
+### 1.22. Find a file용 전체 파일 인덱스 응답 정리
 
-**Status:** in-progress  
+**Status:** done  
 
 **Dependencies:** None  
 
 
-브랜치 기준 전체 파일 목록에서 키워드 검색 결과를 반환하는 API를 제공한다.
+서버는 브랜치 기준 전체 파일 목록만 응답하고, 검색은 웹에서 수행하도록 역할을 분리한다.
 
 **Details:**
 
 
-/repositories/{taskCd}/{repoName}/files/search?ref={branch}&q={keyword}&limit={n} 형태로 제공하고 name/path contains(ignore-case) 매칭 및 limit 기본값을 지원한다.
+신규 /search API를 두지 않고 기존 /repositories/{taskCd}/{repoName}/files?ref={branch} 응답을 표준 전체 인덱스로 사용한다.
