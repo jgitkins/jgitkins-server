@@ -19,6 +19,7 @@ public interface RepositoryPort {
     List<Repository> findAll();
 
     Optional<Repository> findByOwnerAndPath(OwnerType ownerType, OwnerId ownerId, RepositoryPath path);
+    Optional<Repository> findByClonePath(String clonePath);
 
     Optional<Repository> findByOwnerAndName(OwnerType ownerType, OwnerId ownerId, RepositoryName name);
 

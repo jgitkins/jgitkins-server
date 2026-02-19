@@ -14,6 +14,7 @@ import io.jgitkins.server.application.port.in.RepositoryDeleteUseCase;
 import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.OrganizeMemberPort;
+import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.RepositoryGitPort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.port.out.UserPort;
@@ -44,6 +45,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
     private final RepositoryGitPort repositoryGitPort;
     private final RepositoryPort repositoryPort;
     private final OrganizeMemberPort organizeMemberPort;
+    private final OrganizePort organizePort;
     private final CurrentUserPort currentUserPort;
     private final UserPort userPort;
 
@@ -101,6 +103,17 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
         Repository repository = repositoryPort.findById(RepositoryId.of(repositoryId))
                 .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
                         "Repository not found: " + repositoryId));
+        return repositoryApplicationMapper.toDto(repository);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public RepositoryResult getRepositoryByPath(String namespace, String repoName) {
+        Repository repository = resolveRepositoryByPath(namespace, repoName)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ErrorCode.REPOSITORY_NOT_FOUND,
+                        String.format("Repository not found: %s/%s", namespace, repoName)
+                ));
         return repositoryApplicationMapper.toDto(repository);
     }
 
@@ -312,6 +325,48 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
         validateRepositoryNameUnique(OwnerType.USER, ownerId, repositoryName);
         String namespace = repositoryNamespaceResolver.resolve(ownerType, ownerId);
         return new OwnerContext(OwnerType.USER, ownerId, namespace);
+    }
+
+    private Optional<Repository> resolveRepositoryByPath(String namespace, String repoName) {
+        if (namespace == null || namespace.isBlank() || repoName == null || repoName.isBlank()) {
+            return Optional.empty();
+        }
+
+        String normalizedNamespace = namespace.trim().replaceAll("^/+", "").replaceAll("/+$", "");
+        String normalizedRepo = repoName.trim().replaceAll("^/+", "").replaceAll("/+$", "");
+        String clonePath = RepositoryPathHelper.buildClonePath(normalizedNamespace, normalizedRepo);
+        Optional<Repository> byClonePath = repositoryPort.findByClonePath(clonePath);
+        if (byClonePath.isPresent()) {
+            return byClonePath;
+        }
+
+        Optional<Repository> userRepository = userPort.findByUsername(normalizedNamespace)
+                .flatMap(user -> repositoryPort.findByOwnerAndName(
+                        OwnerType.USER,
+                        OwnerId.of(user.getId()),
+                        RepositoryName.from(normalizedRepo)
+                ));
+
+        Optional<Repository> organizeRepository = findOrganizeByNamespace(normalizedNamespace)
+                .flatMap(organize -> repositoryPort.findByOwnerAndPath(
+                        OwnerType.ORGANIZATION,
+                        OwnerId.of(organize.getId().getValue()),
+                        RepositoryPath.from(normalizedRepo)
+                ));
+
+        if (userRepository.isPresent() && organizeRepository.isPresent()) {
+            log.warn("Ambiguous repository path. namespace={}, repoName={}. Prefer USER-owned repository.", namespace, repoName);
+            return userRepository;
+        }
+        return userRepository.isPresent() ? userRepository : organizeRepository;
+    }
+
+    private Optional<io.jgitkins.server.domain.aggregate.Organize> findOrganizeByNamespace(String namespace) {
+        try {
+            return organizePort.findByName(OrganizeName.from(namespace));
+        } catch (IllegalArgumentException ex) {
+            return Optional.empty();
+        }
     }
 
     private record OwnerContext(OwnerType ownerType, OwnerId ownerId, String namespace) {}
