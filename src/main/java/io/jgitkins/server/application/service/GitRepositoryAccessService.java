@@ -7,6 +7,8 @@ import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.aggregate.Repository;
+import io.jgitkins.server.domain.model.OrganizeMember;
+import io.jgitkins.server.domain.model.RepositoryMember;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
 import io.jgitkins.server.domain.model.vo.OwnerId;
@@ -41,7 +43,7 @@ public class GitRepositoryAccessService {
         if (repo.getVisibility() == io.jgitkins.server.domain.model.vo.RepositoryVisibility.PUBLIC) {
             return true;
         }
-        return canAccess(repo, userId);
+        return resolvePermission(repo, userId).member();
     }
 
     public boolean canWrite(OwnerType ownerType, String ownerName, String repositoryName, Long userId) {
@@ -49,7 +51,15 @@ public class GitRepositoryAccessService {
         if (repository.isEmpty()) {
             return false;
         }
-        return canAccess(repository.get(), userId);
+        return resolvePermission(repository.get(), userId).writable();
+    }
+
+    public RepositoryPermission resolvePermission(OwnerType ownerType, String ownerName, String repositoryName, Long userId) {
+        Optional<Repository> repository = resolveRepository(ownerType, ownerName, repositoryName);
+        if (repository.isEmpty()) {
+            return RepositoryPermission.none();
+        }
+        return resolvePermission(repository.get(), userId);
     }
 
     public boolean isPublicRepo(OwnerType ownerType, String ownerName, String repositoryName) {
@@ -64,23 +74,41 @@ public class GitRepositoryAccessService {
                 .map(repo -> repo.getVisibility() == RepositoryVisibility.PUBLIC);
     }
 
-    private boolean canAccess(Repository repo, Long userId) {
+    public RepositoryPermission resolvePermission(Repository repo, Long userId) {
+        if (repo == null) {
+            return RepositoryPermission.none();
+        }
         if (userId == null) {
-            return false;
+            return RepositoryPermission.anonymous();
         }
         UserId uid = UserId.of(userId);
         if (repo.getOwnerType() == OwnerType.USER
                 && repo.getOwnerId() != null
                 && repo.getOwnerId().getValue().equals(uid.getValue())) {
-            return true;
+            return new RepositoryPermission("OWNER", true, true);
         }
-        if (repositoryMemberPort.existsByRepositoryAndUser(repo.getId(), uid)) {
-            return true;
+
+        Optional<RepositoryMember> repositoryMember = repositoryMemberPort.findByRepositoryAndUser(repo.getId(), uid);
+        if (repositoryMember.isPresent()) {
+            var role = repositoryMember.get().getRole();
+            boolean writable = role == io.jgitkins.server.domain.model.vo.RepositoryMemberRole.WRITER
+                    || role == io.jgitkins.server.domain.model.vo.RepositoryMemberRole.MAINTAINER;
+            return new RepositoryPermission("REPOSITORY_" + role.name(), writable, true);
         }
-        if (repo.getOwnerType() != OwnerType.ORGANIZATION || repo.getOwnerId() == null) {
-            return false;
+
+        if (repo.getOwnerType() == OwnerType.ORGANIZATION && repo.getOwnerId() != null) {
+            Optional<OrganizeMember> organizeMember = organizeMemberPort.findByOrganizeAndUser(
+                    OrganizeId.of(repo.getOwnerId().getValue()),
+                    uid
+            );
+            if (organizeMember.isPresent()) {
+                var role = organizeMember.get().getRole();
+                boolean writable = role == io.jgitkins.server.domain.model.vo.OrganizeMemberRole.OWNER
+                        || role == io.jgitkins.server.domain.model.vo.OrganizeMemberRole.MAINTAINER;
+                return new RepositoryPermission("ORGANIZATION_" + role.name(), writable, true);
+            }
         }
-        return organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(repo.getOwnerId().getValue()), uid);
+        return new RepositoryPermission("NONE", false, false);
     }
 
     private Optional<Repository> resolveRepository(OwnerType ownerType, String ownerName, String repositoryName) {
@@ -132,6 +160,16 @@ public class GitRepositoryAccessService {
             return organizePort.findByName(OrganizeName.from(namespace));
         } catch (IllegalArgumentException e) {
             return Optional.empty();
+        }
+    }
+
+    public record RepositoryPermission(String role, boolean writable, boolean member) {
+        public static RepositoryPermission anonymous() {
+            return new RepositoryPermission("ANONYMOUS", false, false);
+        }
+
+        public static RepositoryPermission none() {
+            return new RepositoryPermission("NONE", false, false);
         }
     }
 }
