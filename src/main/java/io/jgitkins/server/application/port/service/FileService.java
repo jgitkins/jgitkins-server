@@ -9,6 +9,7 @@ import io.jgitkins.server.application.port.in.FileTreeLoadUseCase;
 import io.jgitkins.server.application.port.in.FileUploadUseCase;
 import io.jgitkins.server.application.port.out.CommitGitPort;
 import io.jgitkins.server.application.port.out.FileGitPort;
+import io.jgitkins.server.application.service.RepositoryWritePermissionGuard;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class FileService implements FileUploadUseCase,
 
     private final CommitGitPort commitGitPort;
     private final FileGitPort fileGitPort;
+    private final RepositoryWritePermissionGuard repositoryWritePermissionGuard;
 
     @Override
     @Transactional
@@ -38,6 +40,7 @@ public class FileService implements FileUploadUseCase,
                                        String branch,
                                        MultipartFile file,
                                        FileUploadInfo request) throws IOException {
+        repositoryWritePermissionGuard.assertCanWrite(taskCd, repoName);
 
         List<CommitFile> files = commitFileFactory.prepareUploadFile(file, request);
 
