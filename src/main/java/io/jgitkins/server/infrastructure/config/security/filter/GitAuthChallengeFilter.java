@@ -53,17 +53,17 @@ public class GitAuthChallengeFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Public repos don't require auth challenge.
+        // Public repositories can be read without credentials.
+        // But push negotiation (receive-pack) still needs credentials.
         request.setAttribute(REPO_PUBLIC_ATTR, isPublic.get());
-        if (isPublic.get()) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        boolean challengeRequired = !isPublic.get() || isReceivePackRequest(request);
 
         String authorization = request.getHeader("Authorization");
-        if (authorization == null || authorization.isBlank()) {
-            log.debug("git auth challenge: private repo access without credentials uri=[{}]",
-                    request.getRequestURI());
+        if (challengeRequired && (authorization == null || authorization.isBlank())) {
+            log.debug("git auth challenge: missing credentials uri=[{}] public=[{}] query=[{}]",
+                    request.getRequestURI(),
+                    isPublic.get(),
+                    request.getQueryString());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setHeader("WWW-Authenticate", "Basic realm=\"JGITKINS\"");
             return;
@@ -71,5 +71,14 @@ public class GitAuthChallengeFilter extends OncePerRequestFilter {
 
         // Authorization exists: allow downstream handlers to authenticate and authorize.
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isReceivePackRequest(HttpServletRequest request) {
+        String query = request.getQueryString();
+        if (query != null && query.contains("service=git-receive-pack")) {
+            return true;
+        }
+        String uri = request.getRequestURI();
+        return uri != null && uri.endsWith("/git-receive-pack");
     }
 }
