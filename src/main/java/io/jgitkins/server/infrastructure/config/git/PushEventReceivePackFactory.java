@@ -60,9 +60,10 @@ public class PushEventReceivePackFactory implements ReceivePackFactory<HttpServl
             log.warn("git push denied: invalid repository path uri=[{}]", request.getRequestURI());
             throw new ServiceNotAuthorizedException("Invalid repository path");
         }
+        log.debug("git push auth check. uri=[{}] query=[{}]", request.getRequestURI(), request.getQueryString());
         Long userId = requestAuthSupport.resolveUserId(request);
         if (userId == null) {
-            log.warn("git push denied: unauthenticated request uri=[{}]", request.getRequestURI());
+            log.warn("git push denied: unauthenticated request uri=[{}] query=[{}]", request.getRequestURI(), request.getQueryString());
             throw new ServiceNotAuthorizedException("Unauthenticated");
         }
         boolean allowed = gitRepositoryAccessService.canWrite(

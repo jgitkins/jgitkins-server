@@ -56,10 +56,11 @@ public class FetchEventUploadPackFactory implements UploadPackFactory<HttpServle
         }
 
         log.info("the repository is private [{}] will be authorization soon", fetchEvent.repositoryName());
+        log.debug("git fetch auth check. uri=[{}] query=[{}]", request.getRequestURI(), request.getQueryString());
         Long userId = requestAuthSupport.resolveUserId(request);
         log.debug("authorized userId: [{}]", userId);
         if (userId == null) {
-            log.warn("git fetch denied: unauthenticated request uri=[{}]", request.getRequestURI());
+            log.warn("git fetch denied: unauthenticated request uri=[{}] query=[{}]", request.getRequestURI(), request.getQueryString());
             throw new ServiceNotAuthorizedException("Unauthenticated");
         }
 
