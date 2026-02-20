@@ -8,6 +8,7 @@ import io.jgitkins.server.infrastructure.mapper.RepositoryMemberDomainMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.RepositoryMemberEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntity;
 import io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntityCondition;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +30,21 @@ public class RepositoryMemberAdapter implements RepositoryMemberPort {
                 .andRepositoryIdEqualTo(repositoryId.getValue())
                 .andUserIdEqualTo(userId.getValue());
         return repositoryMemberEntityMbgMapper.countByCondition(condition) > 0;
+    }
+
+    @Override
+    public Optional<RepositoryMember> findByRepositoryAndUser(RepositoryId repositoryId, UserId userId) {
+        if (repositoryId == null || userId == null) {
+            return Optional.empty();
+        }
+        RepositoryMemberEntityCondition condition = new RepositoryMemberEntityCondition();
+        condition.createCriteria()
+                .andRepositoryIdEqualTo(repositoryId.getValue())
+                .andUserIdEqualTo(userId.getValue());
+        return repositoryMemberEntityMbgMapper.selectByCondition(condition)
+                .stream()
+                .findFirst()
+                .map(repositoryMemberDomainMapper::toDomain);
     }
 
     @Override

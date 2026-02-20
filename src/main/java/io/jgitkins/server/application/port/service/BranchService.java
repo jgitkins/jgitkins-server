@@ -14,6 +14,7 @@ import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.mapper.BranchApplicationMapper;
 import io.jgitkins.server.application.service.BranchCreationValidator;
 import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
+import io.jgitkins.server.application.service.RepositoryWritePermissionGuard;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
@@ -30,6 +31,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
     private final RepositoryNamespaceResolver repositoryNamespaceResolver;
     private final BranchApplicationMapper branchApplicationMapper;
     private final BranchCreationValidator branchCreationValidator;
+    private final RepositoryWritePermissionGuard repositoryWritePermissionGuard;
 
     private final BranchGitPort branchGitPort;
     private final BranchPort branchPort;
@@ -54,6 +56,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
     @Override
     public void createBranch(BranchCreateCommand command) throws IOException {
         Repository repository = loadRepository(command.getRepositoryId());
+        repositoryWritePermissionGuard.assertCanWrite(repository);
         String namespace = repositoryNamespaceResolver.resolve(repository);
 
         branchCreationValidator.validateRepositoryInitialized(repository);
@@ -71,6 +74,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
     @Override
     public void deleteBranch(Long repositoryId, String branchName) throws IOException {
         Repository repository = loadRepository(repositoryId);
+        repositoryWritePermissionGuard.assertCanWrite(repository);
         String namespace = repositoryNamespaceResolver.resolve(repository);
         Branch branch = loadBranch(repositoryId, branchName);
         branchCreationValidator.validateNotDefaultBranch(repository, branch);

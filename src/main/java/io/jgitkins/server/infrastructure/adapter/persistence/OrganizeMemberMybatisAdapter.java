@@ -8,6 +8,7 @@ import io.jgitkins.server.infrastructure.mapper.OrganizeMemberDomainMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.OrganizeMemberEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntity;
 import io.jgitkins.server.infrastructure.persistence.model.OrganizeMemberEntityCondition;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +34,21 @@ public class OrganizeMemberMybatisAdapter implements OrganizeMemberPort {
                 .andOrganizeIdEqualTo(organizeId.getValue())
                 .andUserIdEqualTo(userId.getValue());
         return organizeMemberMapper.countByCondition(condition) > 0;
+    }
+
+    @Override
+    public Optional<OrganizeMember> findByOrganizeAndUser(OrganizeId organizeId, UserId userId) {
+        if (organizeId == null || userId == null) {
+            return Optional.empty();
+        }
+        OrganizeMemberEntityCondition condition = new OrganizeMemberEntityCondition();
+        condition.createCriteria()
+                .andOrganizeIdEqualTo(organizeId.getValue())
+                .andUserIdEqualTo(userId.getValue());
+        return organizeMemberMapper.selectByCondition(condition)
+                .stream()
+                .findFirst()
+                .map(organizeMemberDomainMapper::toDomain);
     }
 
     @Override

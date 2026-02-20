@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.config.filter;
 
-import io.jgitkins.server.infrastructure.config.git.GitSmartHttpPathForwardFilter;
+import io.jgitkins.server.infrastructure.config.git.GitSmartHttpCanonicalRedirectFilter;
 import jakarta.servlet.DispatcherType;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +17,7 @@ public class FilterOrderConfig {
         return new HttpLogFilter();
     }
 
+    // 디버깅 필터
     @Bean
     public FilterRegistrationBean<HttpLogFilter> httpLogFilterRegistration(HttpLogFilter httpLogFilter){
         FilterRegistrationBean<HttpLogFilter> filterRegistry = new FilterRegistrationBean<>();
@@ -27,19 +28,20 @@ public class FilterOrderConfig {
     }
 
     @Bean
-    public GitSmartHttpPathForwardFilter gitSmartHttpPathForwardFilter() {
-        return new GitSmartHttpPathForwardFilter();
+    public GitSmartHttpCanonicalRedirectFilter gitSmartHttpCanonicalRedirectFilter() {
+        return new GitSmartHttpCanonicalRedirectFilter();
     }
 
+    // Git 요청 Filter
     @Bean
-    public FilterRegistrationBean<GitSmartHttpPathForwardFilter> gitSmartHttpPathForwardFilterRegistration(
-            GitSmartHttpPathForwardFilter gitSmartHttpPathForwardFilter
+    public FilterRegistrationBean<GitSmartHttpCanonicalRedirectFilter> gitSmartHttpCanonicalRedirectFilterRegistration(
+            GitSmartHttpCanonicalRedirectFilter gitSmartHttpCanonicalRedirectFilter
     ){
-        FilterRegistrationBean<GitSmartHttpPathForwardFilter> filterRegistry = new FilterRegistrationBean<>();
-        filterRegistry.setFilter(gitSmartHttpPathForwardFilter);
+        FilterRegistrationBean<GitSmartHttpCanonicalRedirectFilter> filterRegistry = new FilterRegistrationBean<>();
+        filterRegistry.setFilter(gitSmartHttpCanonicalRedirectFilter);
         filterRegistry.addUrlPatterns("/*");
         filterRegistry.setDispatcherTypes(EnumSet.of(DispatcherType.REQUEST));
-        filterRegistry.setOrder(-50); // Security Filter Chain 이후
+        filterRegistry.setOrder(-150); // Security Filter Chain 이전에 canonical redirect 수행
         return filterRegistry;
     }
 

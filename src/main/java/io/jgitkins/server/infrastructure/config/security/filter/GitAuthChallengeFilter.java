@@ -25,8 +25,8 @@ public class GitAuthChallengeFilter extends OncePerRequestFilter {
     private final GitRepositoryAccessService gitRepositoryAccessService;
 
     /***
-     * smart http 에 대응되는 filter
-     * git fetch, push 이벤트 발생시 동작하는 filter
+     * smart http 요청 filter
+     * git fetch, push 이벤트에 동작
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -54,7 +54,7 @@ public class GitAuthChallengeFilter extends OncePerRequestFilter {
         }
 
         // Public repositories can be read without credentials.
-        // But push negotiation (receive-pack) still needs credentials.
+        // But push negotiation(receive-pack) still requires credentials.
         request.setAttribute(REPO_PUBLIC_ATTR, isPublic.get());
         boolean challengeRequired = !isPublic.get() || isReceivePackRequest(request);
 
