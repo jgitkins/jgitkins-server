@@ -23,6 +23,7 @@ public class GitSmartHttpCanonicalRedirectFilter extends OncePerRequestFilter {
         return !shouldCanonicalize(path);
     }
 
+    // Smart HTTP 요청이 들어왔을때 실제 Path 로 Redirect 하기 위한 필터
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
