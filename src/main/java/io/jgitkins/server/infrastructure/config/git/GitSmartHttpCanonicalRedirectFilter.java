@@ -10,7 +10,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-public class GitSmartHttpPathForwardFilter extends OncePerRequestFilter {
+public class GitSmartHttpCanonicalRedirectFilter extends OncePerRequestFilter {
 
     private static final Pattern ROOT_GIT_PATH = Pattern.compile("^/[^/]+/[^/]+\\.git(?:/.*)?$");
 
@@ -19,22 +19,21 @@ public class GitSmartHttpPathForwardFilter extends OncePerRequestFilter {
         if (request.getDispatcherType() == DispatcherType.FORWARD) {
             return true;
         }
-        String path = resolvePath(request);
-        if (path.startsWith("/git/")) {
-            return true;
-        }
-        return !ROOT_GIT_PATH.matcher(path).matches();
+        String path = normalizeRequestPath(request);
+        return !shouldCanonicalize(path);
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        String path = resolvePath(request);
-        request.getRequestDispatcher("/git" + path).forward(request, response);
+        String path = normalizeRequestPath(request);
+        String target = buildRedirectTarget(path, request.getQueryString());
+        response.setStatus(308);
+        response.setHeader("Location", target);
     }
 
-    private String resolvePath(HttpServletRequest request) {
+    private String normalizeRequestPath(HttpServletRequest request) {
         String path = request.getRequestURI();
         String contextPath = request.getContextPath();
         if (contextPath != null && !contextPath.isBlank() && path.startsWith(contextPath)) {
@@ -44,5 +43,17 @@ public class GitSmartHttpPathForwardFilter extends OncePerRequestFilter {
             return "/";
         }
         return path;
+    }
+
+    private boolean shouldCanonicalize(String path) {
+        return !path.startsWith("/git/") && ROOT_GIT_PATH.matcher(path).matches();
+    }
+
+    private String buildRedirectTarget(String path, String query) {
+        String target = "/git" + path;
+        if (query == null || query.isBlank()) {
+            return target;
+        }
+        return target + "?" + query;
     }
 }
