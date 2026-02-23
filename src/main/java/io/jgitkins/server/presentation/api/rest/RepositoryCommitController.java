@@ -22,7 +22,6 @@ import java.util.List;
 public class RepositoryCommitController {
 
     private final CommitLoadUseCase commitLoadUseCase;
-//    private final LoadBranchCommitHistoriesUseCase loadBranchCommitHistoriesUseCase;
 
     @Operation(summary = "View Commit Detail", description = "커밋 상세 조회")
     @GetMapping("/{taskCd}/{repoName}/commits/{commitHash}")

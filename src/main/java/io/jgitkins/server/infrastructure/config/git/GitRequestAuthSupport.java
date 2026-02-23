@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.config.git;
 
-import io.jgitkins.server.infrastructure.config.security.filter.PatAuthenticationProvider;
+import io.jgitkins.server.infrastructure.config.security.auth.PatTokenAuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import java.util.Base64;
 @Slf4j
 public class GitRequestAuthSupport {
 
-    private final PatAuthenticationProvider patAuthenticationProvider;
+    private final PatTokenAuthenticationService patTokenAuthenticationService;
 
     public Long resolveUserId(HttpServletRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -56,11 +56,7 @@ public class GitRequestAuthSupport {
         String username = decoded.substring(0, idx);
         String password = decoded.substring(idx + 1);
         try {
-            Authentication auth = patAuthenticationProvider.authenticate(
-                    org.springframework.security.authentication.UsernamePasswordAuthenticationToken.unauthenticated(
-                            username, password
-                    )
-            );
+            Authentication auth = patTokenAuthenticationService.authenticate(username, password);
             SecurityContextHolder.getContext().setAuthentication(auth);
             return Long.valueOf(auth.getName());
         } catch (AuthenticationException | NumberFormatException ex) {

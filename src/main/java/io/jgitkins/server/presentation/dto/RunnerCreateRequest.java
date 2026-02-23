@@ -17,6 +17,4 @@ public class RunnerCreateRequest {
     private RunnerScopeType scopeType;
 
     private Long targetId;
-
-//    private String ipAddress;
 }

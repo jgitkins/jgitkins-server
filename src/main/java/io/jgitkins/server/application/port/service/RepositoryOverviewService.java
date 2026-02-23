@@ -7,10 +7,10 @@ import io.jgitkins.server.application.dto.result.RepositoryOverviewResult;
 import io.jgitkins.server.application.dto.result.RepositoryResult;
 import io.jgitkins.server.application.port.in.BranchLoadUseCase;
 import io.jgitkins.server.application.port.in.FileTreeLoadUseCase;
+import io.jgitkins.server.application.port.in.GitRepositoryAccessUseCase;
 import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
 import io.jgitkins.server.application.port.in.RepositoryOverviewUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
-import io.jgitkins.server.application.service.GitRepositoryAccessService;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 	private final BranchLoadUseCase branchLoadUseCase;
 	private final FileTreeLoadUseCase fileTreeLoadUseCase;
 	private final CurrentUserPort currentUserPort;
-	private final GitRepositoryAccessService gitRepositoryAccessService;
+	private final GitRepositoryAccessUseCase gitRepositoryAccessUseCase;
 
 	@Override
 	public RepositoryOverviewResult getOverview(Long repositoryId, String branch) throws IOException {
@@ -38,8 +38,8 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 		String selectedBranch = resolveBranch(branch, branches);
 		List<FileEntry> tree = loadTree(key, selectedBranch);
 		Long userId = currentUserPort.currentUserId().orElse(null);
-		GitRepositoryAccessService.RepositoryPermission permission =
-				gitRepositoryAccessService.resolvePermission(null, key != null ? key.namespace() : null, key != null ? key.repoName() : null, userId);
+		GitRepositoryAccessUseCase.RepositoryPermission permission =
+				gitRepositoryAccessUseCase.resolvePermission(null, key != null ? key.namespace() : null, key != null ? key.repoName() : null, userId);
 
 		return RepositoryOverviewResult.builder()
 				.repository(repository)

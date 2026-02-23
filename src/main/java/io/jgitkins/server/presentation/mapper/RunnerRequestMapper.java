@@ -11,8 +11,5 @@ public interface RunnerRequestMapper {
     @Mapping(target = "description", source = "request.description")
     @Mapping(target = "scopeType", source = "request.scopeType")
     @Mapping(target = "targetId", source = "request.targetId")
-//    @Mapping(target = "ipAddress", source = "resolvedIpAddress")
     RunnerRegisterCommand toCommand(RunnerCreateRequest request);
-
-//    RunnerRegistrationResponse toResponse(RunnerRegistrationResult result);
 }

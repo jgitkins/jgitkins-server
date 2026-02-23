@@ -39,34 +39,6 @@ public class Organize extends AbstractAggregateRoot<OrganizeId> {
         return organize;
     }
 
-//    public Organize updateMetadata(String newName,
-//                                   Long newOwnerId,
-//                                   String newDescription) {
-//        Organize updated = new Organize(
-//                id,
-//                newName != null ? OrganizeName.from(newName) : name,
-//                newDescription != null ? newDescription.trim() : description,
-//                newOwnerId != null ? UserId.of(newOwnerId) : ownerId,
-//                createdAt,
-//                LocalDateTime.now()
-//        );
-//        updated.copyDomainEventsFrom(this);
-//        return updated;
-//    }
-
-//    public Organize withIdentity(OrganizeId organizeId,
-//                                 LocalDateTime createdAt,
-//                                 LocalDateTime updatedAt) {
-//        Organize identified = new Organize(organizeId,
-//                                           name,
-//                                           description,
-//                                           ownerId,
-//                                           createdAt != null ? createdAt : this.createdAt,
-//                                           updatedAt != null ? updatedAt : this.updatedAt);
-//        identified.copyDomainEventsFrom(this);
-//        return identified;
-//    }
-
     public static Organize reconstruct(OrganizeId id,
                                        OrganizeName name,
                                        String description,

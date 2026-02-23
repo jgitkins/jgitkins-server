@@ -1,6 +1,6 @@
-package io.jgitkins.server.infrastructure.config.security.filter;
+package io.jgitkins.server.infrastructure.config.filter;
 
-import io.jgitkins.server.application.service.GitRepositoryAccessService;
+import io.jgitkins.server.application.port.in.GitRepositoryAccessUseCase;
 import io.jgitkins.server.infrastructure.config.git.GitSmartHttpEvent;
 import io.jgitkins.server.infrastructure.config.git.GitSmartHttpEventParser;
 import jakarta.servlet.FilterChain;
@@ -18,11 +18,11 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class GitAuthChallengeFilter extends OncePerRequestFilter {
+public class GitSmartHttpAuthFilter extends OncePerRequestFilter {
 
     public static final String REPO_PUBLIC_ATTR = "jgitkins.repo.public";
 
-    private final GitRepositoryAccessService gitRepositoryAccessService;
+    private final GitRepositoryAccessUseCase gitRepositoryAccessUseCase;
 
     /***
      * smart http 요청 filter
@@ -43,7 +43,7 @@ public class GitAuthChallengeFilter extends OncePerRequestFilter {
         }
 
         // check visibility
-        Optional<Boolean> isPublic = gitRepositoryAccessService.resolveVisibility(null,
+        Optional<Boolean> isPublic = gitRepositoryAccessUseCase.resolveVisibility(null,
                                                                                   repoRequest.ownerName(),
                                                                                   repoRequest.repositoryName());
 

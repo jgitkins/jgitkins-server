@@ -1,4 +1,4 @@
-package io.jgitkins.server.infrastructure.config.git;
+package io.jgitkins.server.infrastructure.config.filter;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterChain;

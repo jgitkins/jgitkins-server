@@ -10,5 +10,4 @@ public class RunnerRegisterCommand {
     private final String description;
     private final RunnerScopeType scopeType;
     private final Long targetId;
-//    private final String ipAddress;
 }

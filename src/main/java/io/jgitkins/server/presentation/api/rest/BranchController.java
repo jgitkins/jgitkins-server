@@ -47,13 +47,11 @@ public class BranchController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<BranchSearchResult>>> getBranches(@PathVariable Long repositoryId) {
         return ApiResponse.ok(branchLoadUseCase.getBranches(repositoryId));
-//        return ResponseEntity.ok(branchLoadUseCase.getBranches(repositoryId));
     }
 
     @Operation(summary = "Get Branch")
     @GetMapping("/{branchName}")
     public ResponseEntity<ApiResponse<BranchSearchResult>> getBranch(@PathVariable Long repositoryId, @PathVariable String branchName) throws IOException {
-//        return ResponseEntity.ok(branchLoadUseCase.getBranch(repositoryId, branchName));
         return ApiResponse.ok(branchLoadUseCase.getBranch(repositoryId, branchName));
     }
 

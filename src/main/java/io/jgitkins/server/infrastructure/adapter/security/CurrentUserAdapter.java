@@ -1,4 +1,4 @@
-package io.jgitkins.server.infrastructure.config.security;
+package io.jgitkins.server.infrastructure.adapter.security;
 
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import java.util.Optional;

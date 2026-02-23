@@ -1,6 +1,7 @@
-package io.jgitkins.server.infrastructure.config.security;
+package io.jgitkins.server.infrastructure.adapter.security;
 
 import io.jgitkins.server.application.port.out.TokenIssuerPort;
+import io.jgitkins.server.infrastructure.config.security.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

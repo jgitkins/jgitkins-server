@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Objects;
 
 @Component
-//@RequiredArgsConstructor
 @Slf4j
 public class MergeJGitAdapter implements MergeGitPort {
 
@@ -32,7 +31,6 @@ public class MergeJGitAdapter implements MergeGitPort {
 
     public MergeJGitAdapter(@Value("${jgitkins.server.runtime.volume:${user.home}}")
                             String runtimeVolume) {
-//        this.rootPath = java.nio.file.Path.of(runtimeVolume, "tmptmp", "bare").toString();
         this.rootPath = runtimeVolume;
     }
 

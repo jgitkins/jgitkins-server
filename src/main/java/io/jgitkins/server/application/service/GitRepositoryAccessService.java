@@ -1,5 +1,6 @@
 package io.jgitkins.server.application.service;
 
+import io.jgitkins.server.application.port.in.GitRepositoryAccessUseCase;
 import io.jgitkins.server.application.port.out.OrganizeMemberPort;
 import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.RepositoryMemberPort;
@@ -26,7 +27,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class GitRepositoryAccessService {
+public class GitRepositoryAccessService implements GitRepositoryAccessUseCase {
 
     private final OrganizePort organizePort;
     private final RepositoryPort repositoryPort;
@@ -163,13 +164,4 @@ public class GitRepositoryAccessService {
         }
     }
 
-    public record RepositoryPermission(String role, boolean writable, boolean member) {
-        public static RepositoryPermission anonymous() {
-            return new RepositoryPermission("ANONYMOUS", false, false);
-        }
-
-        public static RepositoryPermission none() {
-            return new RepositoryPermission("NONE", false, false);
-        }
-    }
 }

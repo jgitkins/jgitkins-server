@@ -84,7 +84,6 @@ public class RepositoryMybatisAdapter implements RepositoryPort {
                 .stream()
                 .map(repositoryDomainMapper::toDomain)
                 .toList();
-//        return repositoryMapper.selectByConditionWithBLOBs(new RepositoryEntityCondition());
     }
 
     @Override

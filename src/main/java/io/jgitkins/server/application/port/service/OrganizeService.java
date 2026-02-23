@@ -30,7 +30,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OrganizeService implements OrganizeCreationUseCase,
                                         OrganizeLoadUseCase,
-//                                                       OrganizeUpdateUseCase,
                                         OrganizeDeletionUseCase {
 
     private final OrganizePort organizePort;
@@ -121,34 +120,6 @@ public class OrganizeService implements OrganizeCreationUseCase,
                             "Namespace already exists: " + organizeName.getValue());
                 });
     }
-
-//    @Override
-//    @Transactional
-//    public OrganizeCreationResult updateOrganize(Long organizeId, UpdateOrganizeCommand command) {
-//        Organize organize = organizePersistencePort.findById(OrganizeId.of(organizeId))
-//                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
-//                        "Organize not found: " + organizeId));
-//
-//        if (command.getName() != null) {
-//            OrganizeName newName = OrganizeName.from(command.getName());
-//            boolean changed = !organize.getName().equals(newName);
-//            if (changed) {
-//                organizePersistencePort.findByName(newName)
-//                        .ifPresent(existing -> {
-//                            throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS,
-//                                    "Organize name already exists: " + newName.getValue());
-//                        });
-//            }
-//        }
-//
-//        Organize updated = organize.updateMetadata(
-//                command.getName(),
-//                command.getOwnerId(),
-//                command.getDescription()
-//        );
-//        Organize persisted = organizePersistencePort.update(updated);
-//        return organizeApplicationMapper.toDto(persisted);
-//    }
 
     @Override
     @Transactional

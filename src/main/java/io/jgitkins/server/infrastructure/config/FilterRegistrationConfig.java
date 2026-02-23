@@ -1,6 +1,7 @@
-package io.jgitkins.server.infrastructure.config.filter;
+package io.jgitkins.server.infrastructure.config;
 
-import io.jgitkins.server.infrastructure.config.git.GitSmartHttpCanonicalRedirectFilter;
+import io.jgitkins.server.infrastructure.config.filter.GitSmartHttpCanonicalRedirectFilter;
+import io.jgitkins.server.infrastructure.config.filter.HttpLogFilter;
 import jakarta.servlet.DispatcherType;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -9,11 +10,12 @@ import org.springframework.context.annotation.Configuration;
 import java.util.EnumSet;
 
 @Configuration
-public class FilterOrderConfig {
+public class FilterRegistrationConfig {
 
     // 1순위 필터 (Security Filter Chain 이 -100)
     @Bean
     public HttpLogFilter httpLogFilter() {
+        // 필터 순서 제어를 위해 등록 경로를 단일화한다(컴포넌트 스캔 미사용).
         return new HttpLogFilter();
     }
 

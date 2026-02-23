@@ -1,6 +1,6 @@
-package io.jgitkins.server.infrastructure.config.security.filter;
+package io.jgitkins.server.infrastructure.config.filter;
 
-import io.jgitkins.server.infrastructure.config.security.JwtService;
+import io.jgitkins.server.infrastructure.adapter.security.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;

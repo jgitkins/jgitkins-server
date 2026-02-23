@@ -54,14 +54,6 @@ public class OrganizeController {
         return ApiResponse.ok(organizeLoadUseCase.getOrganize(organizeId));
     }
 
-//    @Operation(summary = "Update Organize")
-//    @PutMapping("/{organizeId}")
-//    public ResponseEntity<ApiResponse<OrganizeCreationResult>> updateOrganize(@PathVariable Long organizeId,
-//                                                                              @RequestBody UpdateOrganizeRequest request) {
-//        UpdateOrganizeCommand command = requestMapper.toCommand(request);
-//        return ResponseEntity.ok(ApiResponse.success(organizeUpdateUseCase.updateOrganize(organizeId, command)));
-//    }
-
     @Operation(summary = "Delete Organize")
     @DeleteMapping("/{organizeId}")
     public ResponseEntity<ApiResponse<Void>> deleteOrganize(@PathVariable Long organizeId) {

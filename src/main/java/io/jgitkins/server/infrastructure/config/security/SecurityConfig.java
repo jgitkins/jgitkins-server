@@ -2,8 +2,9 @@ package io.jgitkins.server.infrastructure.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jgitkins.server.application.port.in.OAuthLoginUseCase;
-import io.jgitkins.server.infrastructure.config.security.filter.GitAuthChallengeFilter;
-import io.jgitkins.server.infrastructure.config.security.filter.JwtAuthenticationFilter;
+import io.jgitkins.server.infrastructure.adapter.security.JwtService;
+import io.jgitkins.server.infrastructure.config.filter.GitSmartHttpAuthFilter;
+import io.jgitkins.server.infrastructure.config.filter.JwtAuthenticationFilter;
 import io.jgitkins.server.infrastructure.config.security.handler.ApiAccessDeniedHandler;
 import io.jgitkins.server.infrastructure.config.security.handler.ApiAnauthorizeHandler;
 import io.jgitkins.server.infrastructure.config.security.handler.OAuth2LoginSuccessHandler;
@@ -30,7 +31,7 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     SecurityFilterChain gitSecurityFilterChain(HttpSecurity http,
-                                               GitAuthChallengeFilter gitAuthChallengeFilter) throws Exception {
+                                               GitSmartHttpAuthFilter gitSmartHttpAuthFilter) throws Exception {
         http.securityMatcher(new OrRequestMatcher(
                 new AntPathRequestMatcher("/git/**"),
                 new AntPathRequestMatcher("/**/*.git"),
@@ -38,7 +39,7 @@ public class SecurityConfig {
         ));
         http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-        http.addFilterBefore(gitAuthChallengeFilter, BasicAuthenticationFilter.class);
+        http.addFilterBefore(gitSmartHttpAuthFilter, BasicAuthenticationFilter.class);
         return http.build();
     }
 
@@ -62,7 +63,6 @@ public class SecurityConfig {
                                  "/actuator/prometheus",
                                  "/v3/api-docs/**")
                         .permitAll()
-//                .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
         );
 

@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class RunnerExecutionConfig {
-//    private Map<String, String> files;
     private String runnerImageName;
     private String jenkinsPluginConfig;
 

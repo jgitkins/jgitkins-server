@@ -10,6 +10,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.PostReceiveHook;
 import org.eclipse.jgit.transport.ReceiveCommand;
 import org.eclipse.jgit.transport.ReceivePack;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.File;
 import java.util.Collection;
@@ -29,7 +31,8 @@ public class PushHook implements PostReceiveHook {
     @Override
     public void onPostReceive(ReceivePack receivePack, Collection<ReceiveCommand> commands) {
         Repository repository = receivePack.getRepository();
-        Long requesterId = 1L; // TODO: custom
+        // Push 인증 단계에서 채워진 SecurityContext를 우선 사용하고, 없으면 remoteUser를 fallback으로 사용한다.
+        Long requesterId = resolveRequesterId();
         log.debug("push event: user=[{}] ip=[{}] bare repo path=[{}]", request.getRemoteUser(), request.getRemoteAddr(), repository.getDirectory());
 
         // TODO: 저장소 도메인 로딩
@@ -64,7 +67,6 @@ public class PushHook implements PostReceiveHook {
                 .branchName(branchName)
                 .branchCreated(command.getType() == ReceiveCommand.Type.CREATE)
                 .commitHash(resolveCommitHash(command).orElse(null))
-//                .triggeredBy(resolveUserId(request.getRemoteUser()).orElse(null))
                 .triggeredBy(requesterId)
                 .build();
 
@@ -108,15 +110,26 @@ public class PushHook implements PostReceiveHook {
         return Optional.ofNullable(command.getNewId()).map(objectId -> objectId.getName());
     }
 
-    private Optional<Long> resolveUserId(String remoteUser) {
-        if (remoteUser == null || remoteUser.isBlank()) {
-            log.warn("job creation skipped: remote user not provided");
+    private Long resolveRequesterId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Optional<Long> fromSecurityContext = parseUserId(authentication.getName());
+            if (fromSecurityContext.isPresent()) {
+                return fromSecurityContext.get();
+            }
+        }
+        return parseUserId(request.getRemoteUser()).orElse(null);
+    }
+
+    private Optional<Long> parseUserId(String rawUserId) {
+        if (rawUserId == null || rawUserId.isBlank()) {
+            log.warn("job creation fallback skipped: user id is not provided");
             return Optional.empty();
         }
         try {
-            return Optional.of(Long.parseLong(remoteUser));
+            return Optional.of(Long.parseLong(rawUserId));
         } catch (NumberFormatException ex) {
-            log.warn("job creation skipped: unable to parse remote user to Long: {}", remoteUser);
+            log.warn("job creation fallback skipped: unable to parse user id: {}", rawUserId);
             return Optional.empty();
         }
     }

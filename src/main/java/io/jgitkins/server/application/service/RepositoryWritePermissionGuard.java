@@ -3,6 +3,7 @@ package io.jgitkins.server.application.service;
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.exception.UnprocessableException;
 import io.jgitkins.server.application.dto.RepositoryKey;
+import io.jgitkins.server.application.port.in.GitRepositoryAccessUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.domain.aggregate.Repository;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import org.springframework.util.StringUtils;
 public class RepositoryWritePermissionGuard {
 
     private final CurrentUserPort currentUserPort;
-    private final GitRepositoryAccessService gitRepositoryAccessService;
+    private final GitRepositoryAccessUseCase gitRepositoryAccessUseCase;
     private final RepositoryNamespaceResolver repositoryNamespaceResolver;
 
     public void assertCanWrite(Repository repository) {
@@ -43,7 +44,7 @@ public class RepositoryWritePermissionGuard {
         Long userId = currentUserPort.currentUserId()
                 .orElseThrow(() -> new UnprocessableException(ErrorCode.UNAUTHORIZED, "Unauthenticated"));
 
-        boolean allowed = gitRepositoryAccessService.canWrite(null, namespace.trim(), repoName.trim(), userId);
+        boolean allowed = gitRepositoryAccessUseCase.canWrite(null, namespace.trim(), repoName.trim(), userId);
         if (!allowed) {
             throw new UnprocessableException(
                     ErrorCode.FORBIDDEN,
