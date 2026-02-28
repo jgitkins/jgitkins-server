@@ -529,6 +529,16 @@
             "status": "pending",
             "dependencies": [],
             "parentTaskId": 2
+          },
+          {
+            "id": 11,
+            "title": "BranchService 리팩토링 (책임 분리/예외 정합성/트랜잭션 경계)",
+            "description": "BranchService 오케스트레이션 책임을 명확히 하고 검증/조회/권한/예외 매핑을 정리하여 유지보수성과 테스트 용이성을 개선한다.",
+            "details": "대상: src/main/java/io/jgitkins/server/application/port/service/BranchService.java 및 연관 validator/port/adapter. 핵심: 1) 입력/정책 검증 분리, 2) IOException 누수 제거 및 JgitkinsException 일원화, 3) 브랜치 생성/삭제 플로우에서 Git-DB 일관성 보강, 4) 중복 조회/중복 매핑 제거, 5) 단위/통합 테스트 보강.\n<info added on 2026-02-28T16:43:39.643Z>\nBranchService 리팩토링 사전 분석 및 계획 문서 작성이 완료됨. 참조 문서: .taskmaster/docs/task_2_11_plan.md. 핵심 이슈: 책임 과밀, IOException 시그니처 누수, Git-DB 불일치 리스크, BranchJGitAdapter 오류코드 정합성 문제. 단계별 실행안(Step1~4)과 DoD를 문서화함.\n</info added on 2026-02-28T16:43:39.643Z>",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "2"
           }
         ],
         "updatedAt": "2026-02-20T18:55:00+09:00"

@@ -7,6 +7,7 @@ import io.jgitkins.server.presentation.common.ApiResponse;
 import io.jgitkins.server.presentation.dto.UserUsernameUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class UserController {
 
     @Operation(summary = "Update my username")
     @PatchMapping("/me/username")
-    public ResponseEntity<ApiResponse<Void>> updateUsername(@RequestBody UserUsernameUpdateRequest request) {
+    public ResponseEntity<ApiResponse<Void>> updateUsername(@Valid @RequestBody UserUsernameUpdateRequest request) {
         userProfileUpdateUseCase.updateUsername(request.getUsername());
         return ApiResponse.ok();
     }

@@ -44,7 +44,7 @@ public class UserProfileService implements UserProfileUpdateUseCase {
 
     private User loadUser(Long userId) {
         return userPort.findById(userId)
-                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BAD_REQUEST, "User not found"));
+                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.USER_NOT_FOUND, "User not found"));
     }
 
     private User activateUser(User user, Username requested) {

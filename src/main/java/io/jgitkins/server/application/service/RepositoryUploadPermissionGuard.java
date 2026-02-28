@@ -1,17 +1,18 @@
 package io.jgitkins.server.application.service;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
+import org.springframework.stereotype.Component;
+
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.dto.RepositoryKey;
 import io.jgitkins.server.application.port.in.GitRepositoryAccessUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.aggregate.Repository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 @Component
 @RequiredArgsConstructor
-public class RepositoryWritePermissionGuard {
+public class RepositoryUploadPermissionGuard {
 
     private final CurrentUserPort currentUserPort;
     private final GitRepositoryAccessUseCase gitRepositoryAccessUseCase;
@@ -32,16 +33,17 @@ public class RepositoryWritePermissionGuard {
                     : repository.getName().getValue();
         }
 
-        assertCanWrite(namespace, repoName);
+        validCanUpload(namespace, repoName);
     }
 
-    public void assertCanWrite(String namespace, String repoName) {
-        if (!StringUtils.hasText(namespace) || !StringUtils.hasText(repoName)) {
-            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BAD_REQUEST, "Repository namespace/repoName is required.");
-        }
+    public void validCanUpload(String namespace, String repoName) {
+        // TODO: 해당 검증은 Presentation 에서 진행하므로 (중복) 제거
+        // if (!StringUtils.hasText(namespace) || !StringUtils.hasText(repoName)) {
+        //     throw new JgitkinsException(DomainErrorCode.RULE_VIOLATION, "Repository namespace/repoName is required.");
+        // }
 
         Long userId = currentUserPort.currentUserId()
-                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.UNAUTHORIZED, "Unauthenticated"));
+                .orElseThrow(() -> new JgitkinsException(ApplicationErrorCode.UNAUTHORIZED, "Unauthenticated"));
 
         boolean allowed = gitRepositoryAccessUseCase.canWrite(null, namespace.trim(), repoName.trim(), userId);
         if (!allowed) {

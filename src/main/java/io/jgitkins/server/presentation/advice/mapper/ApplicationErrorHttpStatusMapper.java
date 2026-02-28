@@ -28,6 +28,7 @@ public class ApplicationErrorHttpStatusMapper implements ErrorHttpStatusMapper {
             case FORBIDDEN -> HttpStatus.FORBIDDEN;
             case NOT_FOUND,
                  ORGANIZE_NOT_FOUND,
+                 USER_NOT_FOUND,
                  REPOSITORY_NOT_FOUND,
                  BRANCH_NOT_FOUND,
                  COMMIT_NOT_FOUND,

@@ -5,15 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
 import io.jgitkins.server.application.port.out.BranchPort;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.BranchName;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
-import java.io.IOException;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +28,7 @@ class BranchCreationValidatorTest {
     private BranchCreationValidator validator;
 
     @Test
-    void validateBranchDoesNotExist_throwsWhenBranchAlreadyExists() throws IOException {
+    void validateBranchDoesNotExist_throwsWhenBranchAlreadyExists() {
         when(branchPort.getBranch(1L, "feature")).thenReturn(Optional.of(Branch.create(1L, "feature")));
 
         assertThrows(JgitkinsException.class, () -> validator.validateBranchDoesNotExist(1L, "feature"));
@@ -46,7 +43,7 @@ class BranchCreationValidatorTest {
     }
 
     @Test
-    void resolveAndValidateSourceBranch_usesDefaultBranchWhenSourceMissing() throws IOException {
+    void resolveAndValidateSourceBranch_usesDefaultBranchWhenSourceMissing() {
         Repository repository = org.mockito.Mockito.mock(Repository.class);
         when(repository.getId()).thenReturn(RepositoryId.of(1L));
         when(repository.getDefaultBranch()).thenReturn(BranchName.of("main"));
@@ -64,7 +61,7 @@ class BranchCreationValidatorTest {
     }
 
     @Test
-    void resolveAndValidateSourceBranch_throwsWhenSourceBranchMissing() throws IOException {
+    void resolveAndValidateSourceBranch_throwsWhenSourceBranchMissing() {
         Repository repository = org.mockito.Mockito.mock(Repository.class);
         when(repository.getId()).thenReturn(RepositoryId.of(1L));
         when(branchPort.getBranch(1L, "dev")).thenReturn(Optional.empty());

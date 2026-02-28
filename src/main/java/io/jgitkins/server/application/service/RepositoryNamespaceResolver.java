@@ -41,7 +41,7 @@ public class RepositoryNamespaceResolver {
         }
         if (ownerType == OwnerType.USER) {
             String username = userPort.findById(ownerId.getValue())
-                    .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BAD_REQUEST,
+                    .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.USER_NOT_FOUND,
                             "User not found: " + ownerId.getValue()))
                     .getUsername();
             return RepositoryPathHelper.buildUserNamespace(username);

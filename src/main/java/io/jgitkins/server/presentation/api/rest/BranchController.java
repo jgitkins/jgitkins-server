@@ -15,7 +15,6 @@ import io.jgitkins.server.presentation.util.LocationUriBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class BranchController {
     @Operation(summary = "Create branch")
     @PostMapping
     public ResponseEntity<Void> create(@PathVariable Long repositoryId,
-                                       @RequestBody BranchCreateRequest request) throws IOException {
+                                       @RequestBody BranchCreateRequest request) {
 
         BranchCreateCommand createCommand = branchRequestMapper.toCommand(repositoryId, request);
         branchCreateUseCase.createBranch(createCommand);
@@ -51,14 +50,14 @@ public class BranchController {
 
     @Operation(summary = "Get Branch")
     @GetMapping("/{branchName}")
-    public ResponseEntity<ApiResponse<BranchSearchResult>> getBranch(@PathVariable Long repositoryId, @PathVariable String branchName) throws IOException {
+    public ResponseEntity<ApiResponse<BranchSearchResult>> getBranch(@PathVariable Long repositoryId, @PathVariable String branchName) {
         return ApiResponse.ok(branchLoadUseCase.getBranch(repositoryId, branchName));
     }
 
     @Operation(summary = "Delete branch")
     @DeleteMapping("/{branchName}")
     public ResponseEntity<ApiResponse<Void>> deleteBranch(@PathVariable Long repositoryId,
-                                                          @PathVariable String branchName) throws IOException {
+                                                          @PathVariable String branchName) {
 
         branchDeleteUseCase.deleteBranch(repositoryId, branchName);
         return ApiResponse.noContent();

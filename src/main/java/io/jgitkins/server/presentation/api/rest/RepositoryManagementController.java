@@ -13,6 +13,7 @@ import io.jgitkins.server.presentation.mapper.RepositoryRequestMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
@@ -29,6 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Repository Management", description = "저장소 관리")
 @RequestMapping("/api/repositories")
+@Validated
 public class RepositoryManagementController {
 
     private final RepositoryCreateUseCase repositoryCreateUseCase;
@@ -60,7 +63,7 @@ public class RepositoryManagementController {
 
     @Operation(summary = "Get User Repositories by Username")
     @GetMapping("/users/{username}")
-    public ResponseEntity<ApiResponse<List<RepositoryResult>>> getUserRepositories(@PathVariable("username") String username) {
+    public ResponseEntity<ApiResponse<List<RepositoryResult>>> getUserRepositories(@PathVariable("username") @NotBlank String username) {
         return ApiResponse.ok(repositoryLoadUseCase.getRepositoriesByUsername(username));
     }
 

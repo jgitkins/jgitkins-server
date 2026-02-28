@@ -2,7 +2,6 @@ package io.jgitkins.server.application.port.out;
 
 import io.jgitkins.server.domain.Branch;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +9,6 @@ public interface BranchPort {
     void create(Branch branch);
     void delete(Long repositoryId, String branchName);
 
-    Optional<Branch> getBranch(Long repositoryId, String branch) throws IOException;
+    Optional<Branch> getBranch(Long repositoryId, String branch);
     List<Branch> getBranches(Long repositoryId);
 }

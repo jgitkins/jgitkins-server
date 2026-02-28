@@ -13,12 +13,11 @@ import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.mapper.BranchApplicationMapper;
 import io.jgitkins.server.application.service.BranchCreationValidator;
 import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
-import io.jgitkins.server.application.service.RepositoryWritePermissionGuard;
+import io.jgitkins.server.application.service.RepositoryUploadPermissionGuard;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
-import java.io.IOException;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +36,7 @@ class BranchServiceTest {
     private BranchCreationValidator branchCreationValidator;
 
     @Mock
-    private RepositoryWritePermissionGuard repositoryWritePermissionGuard;
+    private RepositoryUploadPermissionGuard repositoryWritePermissionGuard;
 
     @Mock
     private BranchApplicationMapper branchApplicationMapper;
@@ -55,7 +54,7 @@ class BranchServiceTest {
     private BranchService service;
 
     @Test
-    void createBranch_createsBranchInGitAndPersistence() throws IOException {
+    void createBranch_createsBranchInGitAndPersistence() {
         Repository repository = org.mockito.Mockito.mock(Repository.class);
         when(repository.getName()).thenReturn(RepositoryName.from("repo"));
         when(repositoryPort.findById(RepositoryId.of(1L))).thenReturn(Optional.of(repository));
@@ -80,7 +79,7 @@ class BranchServiceTest {
     }
 
     @Test
-    void deleteBranch_deletesInGitAndPersistenceWhenNotDefaultBranch() throws IOException {
+    void deleteBranch_deletesInGitAndPersistenceWhenNotDefaultBranch() {
         Repository repository = org.mockito.Mockito.mock(Repository.class);
         Branch branch = Branch.create(1L, "feature");
 
@@ -98,7 +97,7 @@ class BranchServiceTest {
     }
 
     @Test
-    void getBranch_throwsWhenBranchMissing() throws IOException {
+    void getBranch_throwsWhenBranchMissing() {
         when(branchPort.getBranch(1L, "missing")).thenReturn(Optional.empty());
 
         assertThrows(JgitkinsException.class, () -> service.getBranch(1L, "missing"));

@@ -13,11 +13,10 @@ import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.mapper.BranchApplicationMapper;
 import io.jgitkins.server.application.service.BranchCreationValidator;
 import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
-import io.jgitkins.server.application.service.RepositoryWritePermissionGuard;
+import io.jgitkins.server.application.service.RepositoryUploadPermissionGuard;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +29,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
     private final RepositoryNamespaceResolver repositoryNamespaceResolver;
     private final BranchApplicationMapper branchApplicationMapper;
     private final BranchCreationValidator branchCreationValidator;
-    private final RepositoryWritePermissionGuard repositoryWritePermissionGuard;
+    private final RepositoryUploadPermissionGuard repositoryWritePermissionGuard;
 
     private final BranchGitPort branchGitPort;
     private final BranchPort branchPort;
@@ -45,7 +44,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
     }
 
     @Override
-    public BranchSearchResult getBranch(Long repositoryId, String branchName) throws IOException {
+    public BranchSearchResult getBranch(Long repositoryId, String branchName) {
         return branchPort.getBranch(repositoryId, branchName)
                 .map(branchApplicationMapper::toSearchResult)
                 .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BRANCH_NOT_FOUND,
@@ -53,10 +52,9 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
     }
 
     @Override
-    public void createBranch(BranchCreateCommand command) throws IOException {
-        Repository repository = loadRepository(command.getRepositoryId());
-        repositoryWritePermissionGuard.assertCanWrite(repository);
-        String namespace = repositoryNamespaceResolver.resolve(repository);
+    public void createBranch(BranchCreateCommand command) {
+        Repository repository = requireWritableRepository(command.getRepositoryId());
+        String namespace = resolveNamespace(repository);
 
         branchCreationValidator.validateRepositoryInitialized(repository);
         branchCreationValidator.validateBranchDoesNotExist(command.getRepositoryId(), command.getBranchName());
@@ -71,16 +69,13 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
     }
 
     @Override
-    public void deleteBranch(Long repositoryId, String branchName) throws IOException {
-        Repository repository = loadRepository(repositoryId);
-        repositoryWritePermissionGuard.assertCanWrite(repository);
-        String namespace = repositoryNamespaceResolver.resolve(repository);
+    public void deleteBranch(Long repositoryId, String branchName) {
+        Repository repository = requireWritableRepository(repositoryId);
+        String namespace = resolveNamespace(repository);
         Branch branch = loadBranch(repositoryId, branchName);
         branchCreationValidator.validateNotDefaultBranch(repository, branch);
 
-        branchGitPort.deleteBranch(namespace,
-                repository.getName().getValue(),
-                branchName);
+        branchGitPort.deleteBranch(namespace, repository.getName().getValue(), branchName);
         branchPort.delete(repositoryId, branchName);
     }
 
@@ -90,9 +85,19 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
                         "Repository not found: " + repositoryId));
     }
 
-    private Branch loadBranch(Long repositoryId, String branchName) throws IOException {
+    private Branch loadBranch(Long repositoryId, String branchName) {
         return branchPort.getBranch(repositoryId, branchName)
                 .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BRANCH_NOT_FOUND,
                         "Branch not found: " + branchName));
+    }
+
+    private Repository requireWritableRepository(Long repositoryId) {
+        Repository repository = loadRepository(repositoryId);
+        repositoryWritePermissionGuard.assertCanWrite(repository);
+        return repository;
+    }
+
+    private String resolveNamespace(Repository repository) {
+        return repositoryNamespaceResolver.resolve(repository);
     }
 }

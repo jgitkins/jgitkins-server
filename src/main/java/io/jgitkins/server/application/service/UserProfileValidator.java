@@ -3,10 +3,10 @@ package io.jgitkins.server.application.service;
 import org.springframework.stereotype.Component;
 
 import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.domain.error.DomainErrorCode;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
 import io.jgitkins.server.domain.model.vo.OwnerId;
 import io.jgitkins.server.domain.model.vo.OwnerType;
@@ -22,12 +22,7 @@ public class UserProfileValidator {
     private final RepositoryPort repositoryPort;
 
     public Username validateUsername(String username) {
-        try {
-            return Username.from(username);
-        } catch (IllegalArgumentException ex) {
-            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BAD_REQUEST,
-                    "Username allows only letters, numbers, dot, hyphen, or underscore.");
-        }
+        return Username.from(username);
     }
 
     public void validateUsernameNotTaken(Username requested, Long userId) {
@@ -51,7 +46,7 @@ public class UserProfileValidator {
     public void validateUserHasNoRepositories(Long userId) {
         long count = repositoryPort.countByOwner(OwnerType.USER, OwnerId.of(userId));
         if (count > 0) {
-            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BAD_REQUEST, "Cannot rename user with existing repositories");
+            throw new JgitkinsException(DomainErrorCode.RULE_VIOLATION, "Cannot rename user with existing repositories");
         }
     }
 }

@@ -1,6 +1,5 @@
 package io.jgitkins.server.presentation.advice;
 
-
 import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.common.error.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
@@ -26,12 +25,17 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 @Slf4j
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
+    private static final String SOURCE_PRESENTATION = "presentation";
+    private static final String SOURCE_APPLICATION = "application";
+    private static final String SOURCE_DOMAIN = "domain";
+    private static final String SOURCE_INFRASTRUCTURE = "infrastructure";
+
     private final CompositeErrorHttpStatusMapper statusMapper;
 
     @ExceptionHandler(JgitkinsException.class)
     public ResponseEntity<ApiResponse<Void>> handleJgitkinsException(JgitkinsException exception) {
         ErrorCode errorCode = exception.getErrorCode();
-        HttpStatus status = mapToStatus(errorCode);
+        HttpStatus status = statusMapper.map(errorCode);
         log.warn("Jgitkins exception errorCode=[{}], status=[{}], message=[{}]",
                 errorCode.getCode(),
                 status,
@@ -54,15 +58,12 @@ public class GlobalExceptionHandler {
         PresentationErrorCode requestErrorCode = mapPresentationErrorCode(exception);
         String message = extractValidationMessage(exception);
         log.warn("Bad request exception errorCode=[{}], message=[{}]", requestErrorCode.getCode(), message, exception);
-        return buildResponse(requestErrorCode,
-                HttpStatus.BAD_REQUEST,
-                message,
-                "presentation");
+        return buildResponse(requestErrorCode, HttpStatus.BAD_REQUEST, message, SOURCE_PRESENTATION);
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNoHandler(NoHandlerFoundException exception) {
-        return buildResponse(PresentationErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, exception.getMessage(), "presentation");
+        return buildResponse(PresentationErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, exception.getMessage(), SOURCE_PRESENTATION);
     }
 
     @ExceptionHandler(Exception.class)
@@ -70,12 +71,8 @@ public class GlobalExceptionHandler {
         log.error("Unexpected exception", exception);
         return buildResponse(ApplicationErrorCode.INTERNAL_SERVER_ERROR,
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                ApplicationErrorCode.INTERNAL_SERVER_ERROR.getDefaultMessage(),
-                "presentation");
-    }
-
-    private HttpStatus mapToStatus(ErrorCode errorCode) {
-        return statusMapper.map(errorCode);
+                null,
+                SOURCE_PRESENTATION);
     }
 
     private ResponseEntity<ApiResponse<Void>> buildResponse(ErrorCode errorCode,
@@ -112,18 +109,17 @@ public class GlobalExceptionHandler {
 
     private String inferSource(ErrorCode errorCode) {
         if (errorCode instanceof DomainErrorCode) {
-            return "domain";
+            return SOURCE_DOMAIN;
         }
         if (errorCode instanceof InfrastructureErrorCode) {
-            return "infrastructure";
+            return SOURCE_INFRASTRUCTURE;
         }
         if (errorCode instanceof ApplicationErrorCode) {
-            return "application";
+            return SOURCE_APPLICATION;
         }
         if (errorCode instanceof PresentationErrorCode) {
-            return "presentation";
+            return SOURCE_PRESENTATION;
         }
-        return "application";
+        return SOURCE_APPLICATION;
     }
-
 }

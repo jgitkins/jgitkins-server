@@ -4,8 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.application.port.in.GitRepositoryAccessUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,50 +15,50 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class RepositoryWritePermissionGuardTest {
+class RepositoryUploadPermissionGuardTest {
 
     @Mock
     private CurrentUserPort currentUserPort;
 
     @Mock
-    private GitRepositoryAccessService gitRepositoryAccessService;
+    private GitRepositoryAccessUseCase gitRepositoryAccessUseCase;
 
     @Mock
     private RepositoryNamespaceResolver repositoryNamespaceResolver;
 
-    private RepositoryWritePermissionGuard guard;
+    private RepositoryUploadPermissionGuard guard;
 
     @BeforeEach
     void setUp() {
-        guard = new RepositoryWritePermissionGuard(currentUserPort, gitRepositoryAccessService, repositoryNamespaceResolver);
+        guard = new RepositoryUploadPermissionGuard(currentUserPort, gitRepositoryAccessUseCase, repositoryNamespaceResolver);
     }
 
     @Test
-    void assertCanWrite_throwsUnauthorized_whenCurrentUserMissing() {
+    void validCanUpload_throwsUnauthorized_whenCurrentUserMissing() {
         when(currentUserPort.currentUserId()).thenReturn(Optional.empty());
 
-        ((JgitkinsException) ex) = assertThrows(JgitkinsException.class,
-                () -> guard.assertCanWrite("team", "repo"));
+        JgitkinsException ex = assertThrows(JgitkinsException.class,
+                () -> guard.validCanUpload("team", "repo"));
 
         org.junit.jupiter.api.Assertions.assertEquals("UNAUTHORIZED", ex.getErrorCode().getCode());
     }
 
     @Test
-    void assertCanWrite_throwsForbidden_whenWritePermissionDenied() {
+    void validCanUpload_throwsForbidden_whenWritePermissionDenied() {
         when(currentUserPort.currentUserId()).thenReturn(Optional.of(7L));
-        when(gitRepositoryAccessService.canWrite(null, "team", "repo", 7L)).thenReturn(false);
+        when(gitRepositoryAccessUseCase.canWrite(null, "team", "repo", 7L)).thenReturn(false);
 
-        ((JgitkinsException) ex) = assertThrows(JgitkinsException.class,
-                () -> guard.assertCanWrite("team", "repo"));
+        JgitkinsException ex = assertThrows(JgitkinsException.class,
+                () -> guard.validCanUpload("team", "repo"));
 
         org.junit.jupiter.api.Assertions.assertEquals("FORBIDDEN", ex.getErrorCode().getCode());
     }
 
     @Test
-    void assertCanWrite_allows_whenWritePermissionGranted() {
+    void validCanUpload_allows_whenWritePermissionGranted() {
         when(currentUserPort.currentUserId()).thenReturn(Optional.of(7L));
-        when(gitRepositoryAccessService.canWrite(null, "team", "repo", 7L)).thenReturn(true);
+        when(gitRepositoryAccessUseCase.canWrite(null, "team", "repo", 7L)).thenReturn(true);
 
-        assertDoesNotThrow(() -> guard.assertCanWrite("team", "repo"));
+        assertDoesNotThrow(() -> guard.validCanUpload("team", "repo"));
     }
 }

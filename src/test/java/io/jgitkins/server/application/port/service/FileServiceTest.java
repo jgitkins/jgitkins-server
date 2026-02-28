@@ -11,7 +11,7 @@ import io.jgitkins.server.application.dto.FileUploadInfo;
 import io.jgitkins.server.application.factory.CommitFileFactory;
 import io.jgitkins.server.application.port.out.CommitGitPort;
 import io.jgitkins.server.application.port.out.FileGitPort;
-import io.jgitkins.server.application.service.RepositoryWritePermissionGuard;
+import io.jgitkins.server.application.service.RepositoryUploadPermissionGuard;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -34,7 +34,7 @@ class FileServiceTest {
     private FileGitPort fileGitPort;
 
     @Mock
-    private RepositoryWritePermissionGuard repositoryWritePermissionGuard;
+    private RepositoryUploadPermissionGuard repositoryUploadPermissionGuard;
 
     @InjectMocks
     private FileService service;
@@ -51,7 +51,7 @@ class FileServiceTest {
 
         service.uploadFileToRepository("task", "repo", "main", file, request);
 
-        verify(repositoryWritePermissionGuard).assertCanWrite("task", "repo");
+        verify(repositoryUploadPermissionGuard).validCanUpload("task", "repo");
         verify(commitGitPort).commit(eq("task"), eq("repo"), eq("main"),
                 eq("msg"), eq("author"), eq("a@b.com"), eq(files));
     }
@@ -66,7 +66,7 @@ class FileServiceTest {
 
         service.uploadFileToRepository("task", "repo", "main", file, request);
 
-        verify(repositoryWritePermissionGuard).assertCanWrite("task", "repo");
+        verify(repositoryUploadPermissionGuard).validCanUpload("task", "repo");
         verify(commitGitPort).commit(eq("task"), eq("repo"), eq("main"),
                 eq("msg"), eq("jgitkins"), eq("no-reply@jgitkins.local"), eq(files));
     }

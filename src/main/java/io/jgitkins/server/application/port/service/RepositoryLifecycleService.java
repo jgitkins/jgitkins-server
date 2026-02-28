@@ -2,8 +2,6 @@ package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.common.event.DomainEventPublisher;
 import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.RepositoryCreationContext;
 import io.jgitkins.server.application.dto.command.RepositoryCreateCommand;
 import io.jgitkins.server.application.dto.result.RepositoryResult;
@@ -133,12 +131,13 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
 
     @Transactional(readOnly = true)
     public List<RepositoryResult> getRepositoriesByUsername(String username) {
-        if (username == null || username.isBlank()) {
-            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BAD_REQUEST, "username is required.");
+        String normalizedUsername = username == null ? null : username.trim();
+        if (normalizedUsername == null || normalizedUsername.isBlank()) {
+            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.USER_NOT_FOUND, "User not found");
         }
-        Long ownerId = userPort.findUserIdByUsername(username)
-                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.REPOSITORY_NOT_FOUND,
-                        "User not found: " + username));
+        Long ownerId = userPort.findUserIdByUsername(normalizedUsername)
+                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.USER_NOT_FOUND,
+                        "User not found: " + normalizedUsername));
 
         Optional<Long> requesterId = currentUserPort.currentUserId();
         List<Repository> repositories = repositoryPort.findAllByOwner(OwnerType.USER, OwnerId.of(ownerId));

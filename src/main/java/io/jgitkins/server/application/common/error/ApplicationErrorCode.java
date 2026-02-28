@@ -9,6 +9,7 @@ public enum ApplicationErrorCode implements ErrorCode {
     FORBIDDEN("FORBIDDEN", "Forbidden"),
     NOT_FOUND("NOT_FOUND", "Resource not found"),
     ORGANIZE_NOT_FOUND("ORGANIZE_NOT_FOUND", "Organize Not Found"),
+    USER_NOT_FOUND("USER_NOT_FOUND", "User Not Found"),
     REPOSITORY_NOT_FOUND("REPOSITORY_NOT_FOUND", "Source Repository Not Found"),
     BRANCH_NOT_FOUND("BRANCH_NOT_FOUND", "Branch Not Found"),
     COMMIT_NOT_FOUND("COMMIT_NOT_FOUND", "Commit Not Found"),
