@@ -13,7 +13,7 @@ import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.mapper.BranchApplicationMapper;
 import io.jgitkins.server.application.service.BranchCreationValidator;
 import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
-import io.jgitkins.server.application.service.RepositoryUploadPermissionGuard;
+import io.jgitkins.server.application.service.RepositoryUploadPermissionValidator;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
@@ -29,7 +29,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
     private final RepositoryNamespaceResolver repositoryNamespaceResolver;
     private final BranchApplicationMapper branchApplicationMapper;
     private final BranchCreationValidator branchCreationValidator;
-    private final RepositoryUploadPermissionGuard repositoryWritePermissionGuard;
+    private final RepositoryUploadPermissionValidator repositoryUploadPermissionValidator;
 
     private final BranchGitPort branchGitPort;
     private final BranchPort branchPort;
@@ -93,7 +93,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
 
     private Repository requireWritableRepository(Long repositoryId) {
         Repository repository = loadRepository(repositoryId);
-        repositoryWritePermissionGuard.assertCanWrite(repository);
+        repositoryUploadPermissionValidator.assertCanWrite(repository);
         return repository;
     }
 

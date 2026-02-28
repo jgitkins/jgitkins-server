@@ -13,7 +13,7 @@ import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.mapper.BranchApplicationMapper;
 import io.jgitkins.server.application.service.BranchCreationValidator;
 import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
-import io.jgitkins.server.application.service.RepositoryUploadPermissionGuard;
+import io.jgitkins.server.application.service.RepositoryUploadPermissionValidator;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
@@ -36,7 +36,7 @@ class BranchServiceTest {
     private BranchCreationValidator branchCreationValidator;
 
     @Mock
-    private RepositoryUploadPermissionGuard repositoryWritePermissionGuard;
+    private RepositoryUploadPermissionValidator repositoryUploadPermissionValidator;
 
     @Mock
     private BranchApplicationMapper branchApplicationMapper;
@@ -68,7 +68,7 @@ class BranchServiceTest {
 
         service.createBranch(command);
 
-        verify(repositoryWritePermissionGuard).assertCanWrite(repository);
+        verify(repositoryUploadPermissionValidator).assertCanWrite(repository);
         verify(branchGitPort).createBranch(any());
         ArgumentCaptor<io.jgitkins.server.domain.Branch> captor = ArgumentCaptor.forClass(
                 io.jgitkins.server.domain.Branch.class);
@@ -90,7 +90,7 @@ class BranchServiceTest {
 
         service.deleteBranch(1L, "feature");
 
-        verify(repositoryWritePermissionGuard).assertCanWrite(repository);
+        verify(repositoryUploadPermissionValidator).assertCanWrite(repository);
         verify(branchCreationValidator).validateNotDefaultBranch(repository, branch);
         verify(branchGitPort).deleteBranch("org", "repo", "feature");
         verify(branchPort).delete(1L, "feature");

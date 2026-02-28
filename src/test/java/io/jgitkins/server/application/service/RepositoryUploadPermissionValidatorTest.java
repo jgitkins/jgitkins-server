@@ -15,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class RepositoryUploadPermissionGuardTest {
+class RepositoryUploadPermissionValidatorTest {
 
     @Mock
     private CurrentUserPort currentUserPort;
@@ -26,39 +26,39 @@ class RepositoryUploadPermissionGuardTest {
     @Mock
     private RepositoryNamespaceResolver repositoryNamespaceResolver;
 
-    private RepositoryUploadPermissionGuard guard;
+    private RepositoryUploadPermissionValidator validator;
 
     @BeforeEach
     void setUp() {
-        guard = new RepositoryUploadPermissionGuard(currentUserPort, gitRepositoryAccessUseCase, repositoryNamespaceResolver);
+        validator = new RepositoryUploadPermissionValidator(currentUserPort, gitRepositoryAccessUseCase, repositoryNamespaceResolver);
     }
 
     @Test
-    void validCanUpload_throwsUnauthorized_whenCurrentUserMissing() {
+    void validateCanUpload_throwsUnauthorized_whenCurrentUserMissing() {
         when(currentUserPort.currentUserId()).thenReturn(Optional.empty());
 
         JgitkinsException ex = assertThrows(JgitkinsException.class,
-                () -> guard.validCanUpload("team", "repo"));
+                () -> validator.validateCanUpload("team", "repo"));
 
         org.junit.jupiter.api.Assertions.assertEquals("UNAUTHORIZED", ex.getErrorCode().getCode());
     }
 
     @Test
-    void validCanUpload_throwsForbidden_whenWritePermissionDenied() {
+    void validateCanUpload_throwsForbidden_whenWritePermissionDenied() {
         when(currentUserPort.currentUserId()).thenReturn(Optional.of(7L));
         when(gitRepositoryAccessUseCase.canWrite(null, "team", "repo", 7L)).thenReturn(false);
 
         JgitkinsException ex = assertThrows(JgitkinsException.class,
-                () -> guard.validCanUpload("team", "repo"));
+                () -> validator.validateCanUpload("team", "repo"));
 
         org.junit.jupiter.api.Assertions.assertEquals("FORBIDDEN", ex.getErrorCode().getCode());
     }
 
     @Test
-    void validCanUpload_allows_whenWritePermissionGranted() {
+    void validateCanUpload_allows_whenWritePermissionGranted() {
         when(currentUserPort.currentUserId()).thenReturn(Optional.of(7L));
         when(gitRepositoryAccessUseCase.canWrite(null, "team", "repo", 7L)).thenReturn(true);
 
-        assertDoesNotThrow(() -> guard.validCanUpload("team", "repo"));
+        assertDoesNotThrow(() -> validator.validateCanUpload("team", "repo"));
     }
 }

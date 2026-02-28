@@ -9,7 +9,7 @@ import io.jgitkins.server.application.port.in.FileTreeLoadUseCase;
 import io.jgitkins.server.application.port.in.FileUploadUseCase;
 import io.jgitkins.server.application.port.out.CommitGitPort;
 import io.jgitkins.server.application.port.out.FileGitPort;
-import io.jgitkins.server.application.service.RepositoryUploadPermissionGuard;
+import io.jgitkins.server.application.service.RepositoryUploadPermissionValidator;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
-public class FileService implements FileUploadUseCase,
-                                    FileTreeLoadUseCase,
-                                    FileLoadUseCase {
+public class RepositoryFileService implements FileUploadUseCase,
+                                              FileTreeLoadUseCase,
+                                              FileLoadUseCase {
 
     private static final String DEFAULT_AUTHOR_NAME = "jgitkins";
     private static final String DEFAULT_AUTHOR_EMAIL = "no-reply@jgitkins.local";
@@ -31,7 +31,7 @@ public class FileService implements FileUploadUseCase,
 
     private final CommitGitPort commitGitPort;
     private final FileGitPort fileGitPort;
-    private final RepositoryUploadPermissionGuard repositoryUploadPermissionGuard;
+    private final RepositoryUploadPermissionValidator repositoryUploadPermissionValidator;
 
     @Override
     @Transactional
@@ -40,7 +40,7 @@ public class FileService implements FileUploadUseCase,
                                        String branch,
                                        MultipartFile file,
                                        FileUploadInfo request) throws IOException {
-        repositoryUploadPermissionGuard.validCanUpload(taskCd, repoName);
+        repositoryUploadPermissionValidator.validateCanUpload(taskCd, repoName);
 
         List<CommitFile> files = commitFileFactory.prepareUploadFile(file, request);
 

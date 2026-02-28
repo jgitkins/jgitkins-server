@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class RepositoryUploadPermissionGuard {
+public class RepositoryUploadPermissionValidator {
 
     private final CurrentUserPort currentUserPort;
     private final GitRepositoryAccessUseCase gitRepositoryAccessUseCase;
@@ -33,10 +33,10 @@ public class RepositoryUploadPermissionGuard {
                     : repository.getName().getValue();
         }
 
-        validCanUpload(namespace, repoName);
+        validateCanUpload(namespace, repoName);
     }
 
-    public void validCanUpload(String namespace, String repoName) {
+    public void validateCanUpload(String namespace, String repoName) {
         // TODO: 해당 검증은 Presentation 에서 진행하므로 (중복) 제거
         // if (!StringUtils.hasText(namespace) || !StringUtils.hasText(repoName)) {
         //     throw new JgitkinsException(DomainErrorCode.RULE_VIOLATION, "Repository namespace/repoName is required.");
