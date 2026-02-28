@@ -6,6 +6,6 @@ import io.jgitkins.server.domain.error.DomainErrorCode;
 public class RunnerTokenMismatchException extends JgitkinsException {
 
     public RunnerTokenMismatchException() {
-        super(DomainErrorCode.DOM_RUNNER_TOKEN_INVALID, "Runner token does not match activation request");
+        super(DomainErrorCode.RUNNER_TOKEN_INVALID, "Runner token does not match activation request");
     }
 }

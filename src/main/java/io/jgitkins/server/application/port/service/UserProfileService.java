@@ -3,9 +3,6 @@ package io.jgitkins.server.application.port.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.jgitkins.server.application.common.ErrorCode;
-import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.port.in.UserProfileUpdateUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
@@ -42,19 +39,19 @@ public class UserProfileService implements UserProfileUpdateUseCase {
 
     private Long currentUserId() {
         return currentUserPort.currentUserId()
-                .orElseThrow(() -> new JgitkinsException(ErrorCode.UNAUTHORIZED, "Unauthenticated"));
+                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.UNAUTHORIZED, "Unauthenticated"));
     }
 
     private User loadUser(Long userId) {
         return userPort.findById(userId)
-                .orElseThrow(() -> new JgitkinsException(ErrorCode.BAD_REQUEST, "User not found"));
+                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BAD_REQUEST, "User not found"));
     }
 
     private User activateUser(User user, Username requested) {
         try {
             return user.activateWithUsername(requested);
         } catch (UsernameAlreadySetException ex) {
-            throw new JgitkinsException(DomainErrorCode.DOM_USERNAME_ALREADY_SET, ex.getMessage(), ex);
+            throw new JgitkinsException(DomainErrorCode.USERNAME_ALREADY_SET, ex.getMessage(), ex);
         }
     }
 }

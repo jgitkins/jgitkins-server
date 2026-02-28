@@ -4,8 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import io.jgitkins.server.application.common.ErrorCode;
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.common.error.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.presentation.advice.mapper.ApplicationErrorHttpStatusMapper;
 import io.jgitkins.server.presentation.advice.mapper.CompositeErrorHttpStatusMapper;
@@ -73,17 +72,17 @@ class GlobalExceptionHandlerTest {
 
         @GetMapping("/test-errors/unauthorized")
         public ResponseEntity<Void> unauthorized() {
-            throw new TestJgitkinsException(ErrorCode.UNAUTHORIZED, "token missing");
+            throw new TestJgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.UNAUTHORIZED, "token missing");
         }
 
         @GetMapping("/test-errors/forbidden")
         public ResponseEntity<Void> forbidden() {
-            throw new TestJgitkinsException(ErrorCode.FORBIDDEN, "not allowed");
+            throw new TestJgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.FORBIDDEN, "not allowed");
         }
 
         @GetMapping("/test-errors/not-found")
         public ResponseEntity<Void> notFound() {
-            throw new JgitkinsException(ErrorCode.REPOSITORY_NOT_FOUND, "repo missing");
+            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.REPOSITORY_NOT_FOUND, "repo missing");
         }
     }
 

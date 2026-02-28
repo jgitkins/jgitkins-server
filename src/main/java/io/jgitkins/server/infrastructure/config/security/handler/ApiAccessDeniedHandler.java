@@ -1,7 +1,6 @@
 package io.jgitkins.server.infrastructure.config.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.presentation.common.ApiResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +25,7 @@ public class ApiAccessDeniedHandler implements org.springframework.security.web.
         }
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json");
-        ApiResponse<Void> payload = ApiResponse.failure(ErrorCode.FORBIDDEN, "Forbidden");
+        ApiResponse<Void> payload = ApiResponse.failure(io.jgitkins.server.application.common.error.ApplicationErrorCode.FORBIDDEN, "Forbidden");
         response.getWriter().write(objectMapper.writeValueAsString(payload));
     }
 }

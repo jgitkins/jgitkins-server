@@ -1,6 +1,5 @@
 package io.jgitkins.server.infrastructure.adapter.git;
 
-import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.GitConstants;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.common.exception.JgitkinsException;
@@ -54,7 +53,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
 
             updateBranchRef(repo, branch, commitId, parentCommit);
         } catch (IOException e) {
-            throw new JgitkinsException(ErrorCode.COMMIT_CREATE_FAILED, String.format("Failed to commit to repo %s/%s", taskCd, repoName), e);
+            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.COMMIT_CREATE_FAILED, String.format("Failed to commit to repo %s/%s", taskCd, repoName), e);
         }
     }
 
@@ -64,7 +63,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
         try (Repository repo = repositoryResolver.openBareRepository(gitDir)) {
             ObjectId commitId = repo.resolve(commitHash);
             if (commitId == null) {
-                throw new JgitkinsException(ErrorCode.COMMIT_LOAD_FAILED,
+                throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.COMMIT_LOAD_FAILED,
                         String.format("Failed to load commit detail for repo %s/%s", taskCd, repoName));
             }
             try (RevWalk revWalk = new RevWalk(repo)) {
@@ -83,7 +82,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
                         .build();
             }
         } catch (IOException e) {
-            throw new JgitkinsException(ErrorCode.COMMIT_LOAD_FAILED,
+            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.COMMIT_LOAD_FAILED,
                     String.format("Failed to load commit detail for repo %s/%s", taskCd, repoName), e);
         }
     }
@@ -95,7 +94,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
         try (Repository repo = repositoryResolver.openBareRepository(gitDir)) {
             ObjectId branchId = resolveRef(repo, branch);
             if (branchId == null) {
-                throw new JgitkinsException(ErrorCode.BRANCH_NOT_FOUND, "Branch Not Found");
+                throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BRANCH_NOT_FOUND, "Branch Not Found");
             }
             try (RevWalk revWalk = new RevWalk(repo)) {
                 revWalk.markStart(revWalk.parseCommit(branchId));
@@ -115,7 +114,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
                 }
             }
         } catch (IOException e) {
-            throw new JgitkinsException(ErrorCode.COMMIT_LOAD_FAILED,
+            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.COMMIT_LOAD_FAILED,
                     String.format("Failed to retrieve branch commit histories for repo %s/%s", taskCd, repoName), e);
         }
         return histories;
@@ -213,7 +212,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
         ru.setExpectedOldObjectId(parentCommit != null ? parentCommit.getId() : ObjectId.zeroId());
         RefUpdate.Result updateResult = ru.update();
         if (updateResult == RefUpdate.Result.REJECTED || updateResult == RefUpdate.Result.LOCK_FAILURE) {
-            throw new JgitkinsException(ErrorCode.HEAD_POINT_FAILED, String.format("Failed to update originRef %s, %s", originRef, updateResult));
+            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.HEAD_POINT_FAILED, String.format("Failed to update originRef %s, %s", originRef, updateResult));
         }
     }
 

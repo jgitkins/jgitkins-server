@@ -1,6 +1,5 @@
 package io.jgitkins.server.application.service;
 
-import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.result.RunnerDetailResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
@@ -24,7 +23,7 @@ public class RunnerReadService implements RunnerLoadUseCase {
     @Transactional(readOnly = true)
     public RunnerDetailResult getRunner(Long runnerId) {
         Runner runner = runnerPort.findById(runnerId)
-                                       .orElseThrow(() -> new JgitkinsException(ErrorCode.RUNNER_NOT_FOUND));
+                                       .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.RUNNER_NOT_FOUND));
         return runnerApplicationMapper.toActivationResult(runner);
     }
 

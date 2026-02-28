@@ -10,7 +10,7 @@ public class RunnerAlreadyActiveException extends JgitkinsException {
     private final RunnerStatus currentStatus;
 
     public RunnerAlreadyActiveException(Long runnerId, RunnerStatus currentStatus) {
-        super(DomainErrorCode.DOM_RUNNER_ALREADY_ACTIVE,
+        super(DomainErrorCode.RUNNER_ALREADY_ACTIVE,
               "Runner " + runnerId + " is already " + currentStatus + " and cannot be activated again");
         this.runnerId = runnerId;
         this.currentStatus = currentStatus;

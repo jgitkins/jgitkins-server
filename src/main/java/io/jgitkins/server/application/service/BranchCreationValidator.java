@@ -1,6 +1,5 @@
 package io.jgitkins.server.application.service;
 
-import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.common.exception.JgitkinsException;
@@ -22,13 +21,13 @@ public class BranchCreationValidator {
     public void validateBranchDoesNotExist(Long repositoryId, String branchName) throws IOException {
         branchPort.getBranch(repositoryId, branchName)
                 .ifPresent(existing -> {
-                    throw new JgitkinsException(ErrorCode.BRANCH_ALREADY_EXISTS);
+                    throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BRANCH_ALREADY_EXISTS);
                 });
     }
 
     public void validateRepositoryInitialized(Repository repository) {
         if (!repository.isInitialized()) {
-            throw new JgitkinsException(ErrorCode.REPOSITORY_DOES_NOT_INITIALIZED, "Repository is not yet initialized. Initialize default branch before creating new branches.");
+            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.REPOSITORY_DOES_NOT_INITIALIZED, "Repository is not yet initialized. Initialize default branch before creating new branches.");
         }
     }
 
@@ -38,14 +37,14 @@ public class BranchCreationValidator {
                 : command.getSourceBranch();
 
         branchPort.getBranch(repository.getId().getValue(), sourceBranch)
-                .orElseThrow(() -> new JgitkinsException(ErrorCode.SOURCE_BRANCH_NOT_FOUND,
+                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.SOURCE_BRANCH_NOT_FOUND,
                         "Source branch not found or not initialized: " + sourceBranch));
         return sourceBranch;
     }
 
     public void validateNotDefaultBranch(Repository repository, Branch branch) {
         if (repository.getDefaultBranch().getValue().equals(branch.getName()) || branch.isDefaultBranch()) {
-            throw new JgitkinsException(ErrorCode.BRANCH_DELETE_FAILED,
+            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.BRANCH_DELETE_FAILED,
                     "Default branch cannot be deleted: " + branch.getName());
         }
     }

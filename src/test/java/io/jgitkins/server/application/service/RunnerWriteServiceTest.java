@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.RunnerRuntimeConfig;
@@ -74,7 +73,7 @@ class RunnerWriteServiceTest {
         assertThatThrownBy(() -> service.deleteRunner(99L))
                 .isInstanceOf(JgitkinsException.class)
                 .extracting(ex -> ((JgitkinsException) ex).getErrorCode())
-                .isEqualTo(ErrorCode.RUNNER_NOT_FOUND);
+                .isEqualTo(io.jgitkins.server.application.common.error.ApplicationErrorCode.RUNNER_NOT_FOUND);
     }
 
     @Test
@@ -114,6 +113,6 @@ class RunnerWriteServiceTest {
         assertThatThrownBy(() -> service.activate("RNR-TOKEN", "127.0.0.1"))
                 .isInstanceOf(JgitkinsException.class)
                 .extracting(ex -> ((JgitkinsException) ex).getErrorCode().getCode())
-                .isEqualTo("DOM_RUNNER_ALREADY_ACTIVE");
+                .isEqualTo("RUNNER_ALREADY_ACTIVE");
     }
 }

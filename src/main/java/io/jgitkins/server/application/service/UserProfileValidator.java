@@ -2,7 +2,6 @@ package io.jgitkins.server.application.service;
 
 import org.springframework.stereotype.Component;
 
-import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.port.out.OrganizePort;
@@ -26,7 +25,7 @@ public class UserProfileValidator {
         try {
             return Username.from(username);
         } catch (IllegalArgumentException ex) {
-            throw new JgitkinsException(ErrorCode.BAD_REQUEST,
+            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BAD_REQUEST,
                     "Username allows only letters, numbers, dot, hyphen, or underscore.");
         }
     }
@@ -35,7 +34,7 @@ public class UserProfileValidator {
         userPort.findByUsername(requested.getValue())
                 .filter(existing -> !existing.getId().equals(userId))
                 .ifPresent(existing -> {
-                    throw new JgitkinsException(ErrorCode.USERNAME_ALREADY_EXISTS, "Username already exists");
+                    throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.USERNAME_ALREADY_EXISTS, "Username already exists");
                 });
     }
 
@@ -45,14 +44,14 @@ public class UserProfileValidator {
         }
         organizePort.findByName(OrganizeName.from(requested.getValue()))
                 .ifPresent(existing -> {
-                    throw new JgitkinsException(ErrorCode.ORGANIZE_ALREADY_EXISTS, "Namespace already exists");
+                    throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.ORGANIZE_ALREADY_EXISTS, "Namespace already exists");
                 });
     }
 
     public void validateUserHasNoRepositories(Long userId) {
         long count = repositoryPort.countByOwner(OwnerType.USER, OwnerId.of(userId));
         if (count > 0) {
-            throw new JgitkinsException(ErrorCode.BAD_REQUEST, "Cannot rename user with existing repositories");
+            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BAD_REQUEST, "Cannot rename user with existing repositories");
         }
     }
 }

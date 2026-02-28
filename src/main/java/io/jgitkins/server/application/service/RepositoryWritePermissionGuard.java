@@ -1,6 +1,5 @@
 package io.jgitkins.server.application.service;
 
-import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.RepositoryKey;
 import io.jgitkins.server.application.port.in.GitRepositoryAccessUseCase;
@@ -38,16 +37,16 @@ public class RepositoryWritePermissionGuard {
 
     public void assertCanWrite(String namespace, String repoName) {
         if (!StringUtils.hasText(namespace) || !StringUtils.hasText(repoName)) {
-            throw new JgitkinsException(ErrorCode.BAD_REQUEST, "Repository namespace/repoName is required.");
+            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BAD_REQUEST, "Repository namespace/repoName is required.");
         }
 
         Long userId = currentUserPort.currentUserId()
-                .orElseThrow(() -> new JgitkinsException(ErrorCode.UNAUTHORIZED, "Unauthenticated"));
+                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.UNAUTHORIZED, "Unauthenticated"));
 
         boolean allowed = gitRepositoryAccessUseCase.canWrite(null, namespace.trim(), repoName.trim(), userId);
         if (!allowed) {
             throw new JgitkinsException(
-                    ErrorCode.FORBIDDEN,
+                    io.jgitkins.server.application.common.error.ApplicationErrorCode.FORBIDDEN,
                     String.format("Write access denied: %s/%s", namespace, repoName)
             );
         }

@@ -1,6 +1,5 @@
 package io.jgitkins.server.infrastructure.adapter.git;
 
-import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.GitConstants;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.common.exception.JgitkinsException;
@@ -40,7 +39,7 @@ public class RepositoryJGitFileAdapter implements FileGitPort {
             RevTree commitTree = resolveCommitTree(repo, branch);
             return collectTreeEntries(repo, commitTree, directory);
         } catch (IOException e) {
-            throw new JgitkinsException(ErrorCode.COMMIT_TREE_LOAD_FAILED,
+            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.COMMIT_TREE_LOAD_FAILED,
                     String.format("Failed to load tree for repo %s/%s", namespace, repoName), e);
         }
     }
@@ -53,7 +52,7 @@ public class RepositoryJGitFileAdapter implements FileGitPort {
             RevTree tree = resolveAllFilesTree(repo, ref);
             return collectAllFileEntries(repo, tree);
         } catch (IOException e) {
-            throw new JgitkinsException(ErrorCode.FILE_LOAD_FAILED,
+            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.FILE_LOAD_FAILED,
                     String.format("Failed to load files for repo %s/%s", taskCd, repoName), e);
         }
     }
@@ -81,7 +80,7 @@ public class RepositoryJGitFileAdapter implements FileGitPort {
 
     private RevTree resolveCommitTree(Repository repository, String branch) throws IOException {
         ObjectId branchId = Optional.ofNullable(resolveRef(repository, branch))
-                .orElseThrow(() -> new JgitkinsException(ErrorCode.COMMIT_TREE_NOT_FOUND, "Unknown ref: " + branch));
+                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.COMMIT_TREE_NOT_FOUND, "Unknown ref: " + branch));
         try (RevWalk revWalk = new RevWalk(repository)) {
             RevCommit commit = revWalk.parseCommit(branchId);
             return commit.getTree();
@@ -174,7 +173,7 @@ public class RepositoryJGitFileAdapter implements FileGitPort {
 
     private RevTree resolveAllFilesTree(Repository repository, String ref) throws IOException {
         ObjectId branchId = Optional.ofNullable(resolveRef(repository, ref))
-                .orElseThrow(() -> new JgitkinsException(ErrorCode.BRANCH_NOT_FOUND, "Branch Not Found: " + ref));
+                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BRANCH_NOT_FOUND, "Branch Not Found: " + ref));
         try (RevWalk revWalk = new RevWalk(repository)) {
             return revWalk.parseCommit(branchId).getTree();
         }

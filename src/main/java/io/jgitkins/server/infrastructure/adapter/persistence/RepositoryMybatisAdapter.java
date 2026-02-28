@@ -62,7 +62,7 @@ public class RepositoryMybatisAdapter implements RepositoryPort {
     public Repository update(Repository repository) {
         if (repository.getId() == null) {
             throw new JgitkinsException(
-                    InfrastructureErrorCode.INF_PERSISTENCE_OPERATION_FAILED,
+                    InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
                     "Repository ID required for update"
             );
         }

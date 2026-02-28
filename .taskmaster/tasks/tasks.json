@@ -520,6 +520,15 @@
             "parentTaskId": 2,
             "parentId": "2",
             "updatedAt": "2026-02-20T18:55:00+09:00"
+          },
+          {
+            "id": 10,
+            "title": "도메인 중심 예외 계층 구조 (Domain-Centric Exception Hierarchy)",
+            "description": "방법 2: 도메인 중심 예외 계층 구조 (Domain-Centric Exception Hierarchy) - 정의: 모든 예외를 비즈니스 규칙 위반(BusinessException)과 시스템 장애(SystemException)로 나누고, 각각에 고유한 ErrorCode를 부여합니다. - 장점: 비즈니스 로직과 인프라 장애를 명확히 분리할 수 있으며, 헥사고날 아키텍처의 핵심인 도메인 보호에 최적화되어 있습니다. - 단점: 초기 설계 시 많은 ErrorCode 정의가 필요합니다. 최종 선택: 방법 2 (도메인 중심 예외 계층 구조) + ApiResponse 통합 가장 모던하고 이상적인 방법으로 방법 2를 선택합니다. 여기에 Spring Boot 3의 기능을 결합하여 다음과 같이 구조화하겠습니다. 1. ErrorCode (Enum): 에러의 식별자, 메시지, HTTP 상태 코드를 관리합니다. 2. BaseException (Abstract): 모든 커스텀 예외의 최상위 클래스입니다. 3. Domain/Application Exception: 비즈니스 로직 에러 (4xx 계열). 4. Infrastructure/External Exception: 외부 API 호출 실패나 시스템 장애 (5xx 계열). 5. GlobalExceptionHandler: 모든 예외를 잡아 일관된 ApiResponse 형식으로 변환합니다. 6. RestClientResponseErrorHandler: 외부 API의 에러를 분석하여 적절한 내부 예외로 변환(Mapping)합니다",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2
           }
         ],
         "updatedAt": "2026-02-20T18:55:00+09:00"
@@ -617,7 +626,9 @@
       "tags": [
         "master"
       ],
-      "standard": "task-standard-v1"
+      "standard": "task-standard-v1",
+      "created": "2026-02-27T14:16:27.890Z",
+      "description": "Tasks for master context"
     }
   }
 }

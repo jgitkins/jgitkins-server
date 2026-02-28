@@ -46,7 +46,7 @@ public class JobMybatisAdapter implements JobPort {
         Long jobId = jobEntity.getId();
         if (jobId == null) {
             throw new JgitkinsException(
-                    InfrastructureErrorCode.INF_PERSISTENCE_OPERATION_FAILED,
+                    InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
                     "Generated job id is null after insert"
             );
         }

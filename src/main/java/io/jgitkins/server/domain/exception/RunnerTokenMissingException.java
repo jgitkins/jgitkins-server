@@ -6,6 +6,6 @@ import io.jgitkins.server.domain.error.DomainErrorCode;
 public class RunnerTokenMissingException extends JgitkinsException {
 
     public RunnerTokenMissingException() {
-        super(DomainErrorCode.DOM_RUNNER_TOKEN_INVALID, "Runner activation token is required");
+        super(DomainErrorCode.RUNNER_TOKEN_INVALID, "Runner activation token is required");
     }
 }

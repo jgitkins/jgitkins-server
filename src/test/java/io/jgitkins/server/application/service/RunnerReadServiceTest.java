@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.result.RunnerDetailResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
@@ -57,7 +56,7 @@ class RunnerReadServiceTest {
         assertThatThrownBy(() -> service.getRunner(99L))
                 .isInstanceOf(JgitkinsException.class)
                 .extracting(ex -> ((JgitkinsException) ex).getErrorCode())
-                .isEqualTo(ErrorCode.RUNNER_NOT_FOUND);
+                .isEqualTo(io.jgitkins.server.application.common.error.ApplicationErrorCode.RUNNER_NOT_FOUND);
     }
 
     @Test
