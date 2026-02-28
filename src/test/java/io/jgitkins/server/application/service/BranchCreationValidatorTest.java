@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.application.common.exception.ConflictException;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
-import io.jgitkins.server.application.common.exception.UnprocessableException;
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
 import io.jgitkins.server.application.port.out.BranchPort;
 import io.jgitkins.server.domain.Branch;
@@ -34,7 +34,7 @@ class BranchCreationValidatorTest {
     void validateBranchDoesNotExist_throwsWhenBranchAlreadyExists() throws IOException {
         when(branchPort.getBranch(1L, "feature")).thenReturn(Optional.of(Branch.create(1L, "feature")));
 
-        assertThrows(ConflictException.class, () -> validator.validateBranchDoesNotExist(1L, "feature"));
+        assertThrows(JgitkinsException.class, () -> validator.validateBranchDoesNotExist(1L, "feature"));
     }
 
     @Test
@@ -42,7 +42,7 @@ class BranchCreationValidatorTest {
         Repository repository = org.mockito.Mockito.mock(Repository.class);
         when(repository.isInitialized()).thenReturn(false);
 
-        assertThrows(UnprocessableException.class, () -> validator.validateRepositoryInitialized(repository));
+        assertThrows(JgitkinsException.class, () -> validator.validateRepositoryInitialized(repository));
     }
 
     @Test
@@ -75,7 +75,7 @@ class BranchCreationValidatorTest {
                 .sourceBranch("dev")
                 .build();
 
-        assertThrows(ResourceNotFoundException.class, () -> validator.resolveAndValidateSourceBranch(command, repository));
+        assertThrows(JgitkinsException.class, () -> validator.resolveAndValidateSourceBranch(command, repository));
     }
 
     @Test
@@ -84,6 +84,6 @@ class BranchCreationValidatorTest {
         Branch defaultBranch = Branch.create(1L, "main", false, false, true);
         when(repository.getDefaultBranch()).thenReturn(BranchName.of("main"));
 
-        assertThrows(ConflictException.class, () -> validator.validateNotDefaultBranch(repository, defaultBranch));
+        assertThrows(JgitkinsException.class, () -> validator.validateNotDefaultBranch(repository, defaultBranch));
     }
 }

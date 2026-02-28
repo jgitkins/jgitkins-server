@@ -1,7 +1,7 @@
 package io.jgitkins.server.application.event;
 
 import io.jgitkins.server.application.common.ErrorCode;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.CommitFile;
 import io.jgitkins.server.application.factory.CommitFileFactory;
 import io.jgitkins.server.application.port.out.*;
@@ -76,7 +76,7 @@ public class RepositoryProvisionedEventListener {
                                       RepositoryName repositoryName,
                                       String repoNameValue) {
         return repositoryPort.findByOwnerAndName(event.getOwnerType(), event.getOwnerId(), repositoryName)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.REPOSITORY_NOT_FOUND,
                         "Repository not found for event: " + repoNameValue));
     }
 

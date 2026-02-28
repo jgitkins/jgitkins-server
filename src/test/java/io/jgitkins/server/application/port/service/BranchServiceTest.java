@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
 import io.jgitkins.server.application.port.out.BranchGitPort;
 import io.jgitkins.server.application.port.out.BranchPort;
@@ -101,6 +101,6 @@ class BranchServiceTest {
     void getBranch_throwsWhenBranchMissing() throws IOException {
         when(branchPort.getBranch(1L, "missing")).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> service.getBranch(1L, "missing"));
+        assertThrows(JgitkinsException.class, () -> service.getBranch(1L, "missing"));
     }
 }

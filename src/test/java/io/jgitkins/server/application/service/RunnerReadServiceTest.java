@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.application.common.ErrorCode;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.result.RunnerDetailResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
 import io.jgitkins.server.application.port.out.RunnerPort;
@@ -55,8 +55,8 @@ class RunnerReadServiceTest {
         when(runnerPort.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getRunner(99L))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .extracting(ex -> ((ResourceNotFoundException) ex).getErrorCode())
+                .isInstanceOf(JgitkinsException.class)
+                .extracting(ex -> ((JgitkinsException) ex).getErrorCode())
                 .isEqualTo(ErrorCode.RUNNER_NOT_FOUND);
     }
 

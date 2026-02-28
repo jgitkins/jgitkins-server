@@ -1,7 +1,7 @@
 package io.jgitkins.server.presentation.api.rest;
 
 import io.jgitkins.server.application.common.ErrorCode;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.FileEntry;
 import io.jgitkins.server.application.dto.FileUploadInfo;
 import io.jgitkins.server.application.dto.FileUploadRequest;
@@ -87,7 +87,7 @@ public class RepositoryContentController {
             key = RepositoryKey.fromPath(repository.getPath());
         }
         if (key == null) {
-            throw new ResourceNotFoundException(
+            throw new JgitkinsException(
                     ErrorCode.REPOSITORY_NOT_FOUND,
                     "Repository path is invalid: " + repositoryId
             );

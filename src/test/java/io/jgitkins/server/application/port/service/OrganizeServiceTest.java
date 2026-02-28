@@ -8,8 +8,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.application.common.exception.ConflictException;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.command.OrganizeCreationCommand;
 import io.jgitkins.server.application.dto.result.OrganizeCreationResult;
 import io.jgitkins.server.application.mapper.OrganizeApplicationMapper;
@@ -80,7 +80,7 @@ class OrganizeServiceTest {
                 .build();
         when(organizePort.findByName(any(OrganizeName.class))).thenReturn(Optional.of(sampleOrganize(1L, "duplicate", 1L)));
 
-        assertThrows(ConflictException.class, () -> service.createOrganize(command));
+        assertThrows(JgitkinsException.class, () -> service.createOrganize(command));
         verify(organizePort, never()).save(any(Organize.class));
     }
 
@@ -94,7 +94,7 @@ class OrganizeServiceTest {
         when(organizePort.findByName(any(OrganizeName.class))).thenReturn(Optional.empty());
         when(userPort.findByUsername("alice")).thenReturn(Optional.of(org.mockito.Mockito.mock(io.jgitkins.server.domain.model.User.class)));
 
-        assertThrows(ConflictException.class, () -> service.createOrganize(command));
+        assertThrows(JgitkinsException.class, () -> service.createOrganize(command));
         verify(organizePort, never()).save(any(Organize.class));
     }
 
@@ -102,7 +102,7 @@ class OrganizeServiceTest {
     void getOrganize_throwsWhenNotFound() {
         when(organizePort.findById(OrganizeId.of(99L))).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> service.getOrganize(99L));
+        assertThrows(JgitkinsException.class, () -> service.getOrganize(99L));
     }
 
     @Test
@@ -150,7 +150,7 @@ class OrganizeServiceTest {
     void deleteOrganize_throwsWhenMissing() {
         when(organizePort.findById(OrganizeId.of(404L))).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> service.deleteOrganize(404L));
+        assertThrows(JgitkinsException.class, () -> service.deleteOrganize(404L));
         verify(organizePort, never()).delete(any(OrganizeId.class));
     }
 

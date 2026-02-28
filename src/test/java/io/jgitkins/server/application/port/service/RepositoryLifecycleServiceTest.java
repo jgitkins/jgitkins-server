@@ -9,7 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.application.common.exception.UnprocessableException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.result.RepositoryResult;
 import io.jgitkins.server.application.mapper.RepositoryApplicationMapper;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
@@ -86,7 +86,7 @@ class RepositoryLifecycleServiceTest {
                 .mainBranch("main")
                 .build();
 
-        assertThrows(UnprocessableException.class, () -> service.create(command));
+        assertThrows(JgitkinsException.class, () -> service.create(command));
         verify(repositoryPort, never()).save(any(Repository.class));
     }
 
@@ -102,7 +102,7 @@ class RepositoryLifecycleServiceTest {
         when(currentUserPort.currentUserId()).thenReturn(Optional.of(7L));
         when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(10L), UserId.of(7L))).thenReturn(false);
 
-        assertThrows(UnprocessableException.class, () -> service.create(command));
+        assertThrows(JgitkinsException.class, () -> service.create(command));
         verify(repositoryPort, never()).save(any(Repository.class));
     }
 
@@ -178,7 +178,7 @@ class RepositoryLifecycleServiceTest {
         when(repository.getOwnerId()).thenReturn(OwnerId.of(10L));
         when(currentUserPort.currentUserId()).thenReturn(Optional.of(20L));
 
-        assertThrows(UnprocessableException.class, () -> service.deleteRepository(1L));
+        assertThrows(JgitkinsException.class, () -> service.deleteRepository(1L));
 
         verify(repositoryGitPort, never()).delete(any(), any());
         verify(repositoryPort, never()).delete(any(RepositoryId.class));

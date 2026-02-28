@@ -1,7 +1,7 @@
 package io.jgitkins.server.infrastructure.support;
 
 import io.jgitkins.server.application.common.ErrorCode;
-import io.jgitkins.server.application.common.exception.ConflictException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import lombok.experimental.UtilityClass;
 import org.eclipse.jgit.lib.Repository;
@@ -14,7 +14,7 @@ public class RepositoryFileSystemHelper {
 
     public void createRepositoryDir(File gitDir) {
         if (gitDir.exists()) {
-            throw new ConflictException(ErrorCode.REPOSITORY_ALREADY_EXISTS,
+            throw new JgitkinsException(ErrorCode.REPOSITORY_ALREADY_EXISTS,
                     "Repository already exists: " + gitDir.getAbsolutePath());
         }
         if (!gitDir.mkdirs() && !gitDir.exists()) {

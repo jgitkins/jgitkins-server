@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.presentation.advice.mapper.ApplicationErrorHttpStatusMapper;
 import io.jgitkins.server.presentation.advice.mapper.CompositeErrorHttpStatusMapper;
 import io.jgitkins.server.presentation.advice.mapper.DomainErrorHttpStatusMapper;
@@ -83,7 +83,7 @@ class GlobalExceptionHandlerTest {
 
         @GetMapping("/test-errors/not-found")
         public ResponseEntity<Void> notFound() {
-            throw new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND, "repo missing");
+            throw new JgitkinsException(ErrorCode.REPOSITORY_NOT_FOUND, "repo missing");
         }
     }
 

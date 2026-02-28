@@ -1,8 +1,8 @@
 package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.common.ErrorCode;
-import io.jgitkins.server.application.common.exception.ConflictException;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.command.OrganizeCreationCommand;
 import io.jgitkins.server.application.dto.result.OrganizeCreationResult;
 import io.jgitkins.server.application.mapper.OrganizeApplicationMapper;
@@ -61,7 +61,7 @@ public class OrganizeService implements OrganizeCreationUseCase,
     @Transactional(readOnly = true)
     public OrganizeCreationResult getOrganize(Long organizeId) {
         Organize organize = organizePort.findById(OrganizeId.of(organizeId))
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.ORGANIZE_NOT_FOUND,
                         "Organize not found: " + organizeId));
         return organizeApplicationMapper.toDto(organize);
     }
@@ -108,7 +108,7 @@ public class OrganizeService implements OrganizeCreationUseCase,
     private void assertOrganizeNameAvailable(OrganizeName organizeName) {
         organizePort.findByName(organizeName)
                 .ifPresent(existing -> {
-                    throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS,
+                    throw new JgitkinsException(ErrorCode.ORGANIZE_ALREADY_EXISTS,
                             "Organize name already exists: " + organizeName.getValue());
                 });
     }
@@ -116,7 +116,7 @@ public class OrganizeService implements OrganizeCreationUseCase,
     private void assertNamespaceAvailable(OrganizeName organizeName) {
         userPort.findByUsername(organizeName.getValue())
                 .ifPresent(existing -> {
-                    throw new ConflictException(ErrorCode.ORGANIZE_ALREADY_EXISTS,
+                    throw new JgitkinsException(ErrorCode.ORGANIZE_ALREADY_EXISTS,
                             "Namespace already exists: " + organizeName.getValue());
                 });
     }
@@ -126,7 +126,7 @@ public class OrganizeService implements OrganizeCreationUseCase,
     public void deleteOrganize(Long organizeId) {
         OrganizeId id = OrganizeId.of(organizeId);
         organizePort.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.ORGANIZE_NOT_FOUND,
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.ORGANIZE_NOT_FOUND,
                         "Organize not found: " + organizeId));
         organizePort.delete(id);
     }

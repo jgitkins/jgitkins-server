@@ -1,7 +1,7 @@
 package io.jgitkins.server.application.service;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import io.jgitkins.server.application.common.exception.UnprocessableException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.port.out.UserPort;
@@ -32,7 +32,7 @@ class UserProfileValidatorTest {
 
     @Test
     void validateUsername_throwsWhenInvalid() {
-        assertThrows(UnprocessableException.class, () -> validator.validateUsername("bad name"));
+        assertThrows(JgitkinsException.class, () -> validator.validateUsername("bad name"));
     }
 
     @Test

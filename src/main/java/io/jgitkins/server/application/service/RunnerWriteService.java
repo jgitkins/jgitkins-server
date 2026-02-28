@@ -2,7 +2,7 @@ package io.jgitkins.server.application.service;
 
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.*;
 import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
 import io.jgitkins.server.application.dto.result.RunnerActivateResult;
@@ -49,7 +49,7 @@ public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeleteUs
     @Transactional
     public void deleteRunner(Long runnerId) {
         runnerPort.findById(runnerId)
-                       .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RUNNER_NOT_FOUND));
+                       .orElseThrow(() -> new JgitkinsException(ErrorCode.RUNNER_NOT_FOUND));
 
         try {
             runnerPort.deleteById(runnerId);
@@ -65,7 +65,7 @@ public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeleteUs
     @Transactional
     public RunnerActivateResult activate(String token, String remoteIp) {
         Runner runner = runnerPort.findByToken(token)
-                                       .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.RUNNER_NOT_FOUND));
+                                       .orElseThrow(() -> new JgitkinsException(ErrorCode.RUNNER_NOT_FOUND));
 
         Runner activatedInfo;
         try {

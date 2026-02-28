@@ -5,8 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
-import io.jgitkins.server.application.common.exception.UnprocessableException;
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.port.in.UserProfileUpdateUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.UserPort;
@@ -42,12 +42,12 @@ public class UserProfileService implements UserProfileUpdateUseCase {
 
     private Long currentUserId() {
         return currentUserPort.currentUserId()
-                .orElseThrow(() -> new UnprocessableException(ErrorCode.UNAUTHORIZED, "Unauthenticated"));
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.UNAUTHORIZED, "Unauthenticated"));
     }
 
     private User loadUser(Long userId) {
         return userPort.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.BAD_REQUEST, "User not found"));
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.BAD_REQUEST, "User not found"));
     }
 
     private User activateUser(User user, Username requested) {

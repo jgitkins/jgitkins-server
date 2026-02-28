@@ -2,9 +2,9 @@ package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.event.DomainEventPublisher;
-import io.jgitkins.server.application.common.exception.ConflictException;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
-import io.jgitkins.server.application.common.exception.UnprocessableException;
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.RepositoryCreationContext;
 import io.jgitkins.server.application.dto.command.RepositoryCreateCommand;
 import io.jgitkins.server.application.dto.result.RepositoryResult;
@@ -101,7 +101,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
     @Transactional(readOnly = true)
     public RepositoryResult getRepository(Long repositoryId) {
         Repository repository = repositoryPort.findById(RepositoryId.of(repositoryId))
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.REPOSITORY_NOT_FOUND,
                         "Repository not found: " + repositoryId));
         return repositoryApplicationMapper.toDto(repository);
     }
@@ -110,7 +110,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
     @Transactional(readOnly = true)
     public RepositoryResult getRepositoryByPath(String namespace, String repoName) {
         Repository repository = resolveRepositoryByPath(namespace, repoName)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new JgitkinsException(
                         ErrorCode.REPOSITORY_NOT_FOUND,
                         String.format("Repository not found: %s/%s", namespace, repoName)
                 ));
@@ -135,10 +135,10 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
     @Transactional(readOnly = true)
     public List<RepositoryResult> getRepositoriesByUsername(String username) {
         if (username == null || username.isBlank()) {
-            throw new UnprocessableException(ErrorCode.BAD_REQUEST, "username is required.");
+            throw new JgitkinsException(ErrorCode.BAD_REQUEST, "username is required.");
         }
         Long ownerId = userPort.findUserIdByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.REPOSITORY_NOT_FOUND,
                         "User not found: " + username));
 
         Optional<Long> requesterId = currentUserPort.currentUserId();
@@ -195,7 +195,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
         RepositoryId id = RepositoryId.of(repositoryId);
 
         Repository repository = repositoryPort.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.REPOSITORY_NOT_FOUND,
                         "Repository not found: " + repositoryId));
 
         enforceDeletionPermission(repository);
@@ -215,7 +215,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
     private void validateRepositoryNameUnique(OwnerType ownerType, OwnerId ownerId, RepositoryName name) {
         repositoryPort.findByOwnerAndName(ownerType, ownerId, name)
                 .ifPresent(existing -> {
-                    throw new ConflictException(ErrorCode.REPOSITORY_ALREADY_EXISTS,
+                    throw new JgitkinsException(ErrorCode.REPOSITORY_ALREADY_EXISTS,
                             "Repository name already exists for owner: " + name.getValue());
                 });
     }
@@ -256,7 +256,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
     private OwnerType requireOwnerType(RepositoryCreateCommand command) {
         OwnerType ownerType = OwnerType.from(command.getOwnerType());
         if (ownerType == null) {
-            throw new UnprocessableException(ErrorCode.BAD_REQUEST, "ownerType is required.");
+            throw new JgitkinsException(ErrorCode.BAD_REQUEST, "ownerType is required.");
         }
         return ownerType;
     }
@@ -265,7 +265,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
         // USER
         if (ownerType == OwnerType.USER) {
             if (command.getOrganizeId() != null) {
-                throw new UnprocessableException(ErrorCode.BAD_REQUEST,
+                throw new JgitkinsException(ErrorCode.BAD_REQUEST,
                         "organizeId must be null when ownerType is USER.");
             }
             requireCurrentUserId();
@@ -274,7 +274,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
 
         // ORGANIZE
         if (command.getOrganizeId() == null) {
-            throw new UnprocessableException(ErrorCode.BAD_REQUEST,
+            throw new JgitkinsException(ErrorCode.BAD_REQUEST,
                     "organizeId is required when ownerType is ORGANIZATION.");
         }
         assertOrganizeMembership(command.getOrganizeId());
@@ -287,9 +287,9 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
             return;
         }
         Long requesterId = currentUserPort.currentUserId()
-                .orElseThrow(() -> new UnprocessableException(ErrorCode.UNAUTHORIZED, "Unauthenticated"));
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.UNAUTHORIZED, "Unauthenticated"));
         if (!repository.getOwnerId().getValue().equals(requesterId)) {
-            throw new UnprocessableException(ErrorCode.FORBIDDEN, "Cannot delete another user's repository");
+            throw new JgitkinsException(ErrorCode.FORBIDDEN, "Cannot delete another user's repository");
         }
     }
 
@@ -299,7 +299,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
 
     private Long requireCurrentUserId() {
         return currentUserPort.currentUserId()
-                .orElseThrow(() -> new UnprocessableException(ErrorCode.UNAUTHORIZED, "Unauthenticated"));
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.UNAUTHORIZED, "Unauthenticated"));
     }
 
     private void assertOrganizeMembership(Long organizeId) {
@@ -307,7 +307,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
         boolean isMember = organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(organizeId),
                                                                       UserId.of(requesterId));
         if (!isMember) {
-            throw new UnprocessableException(ErrorCode.FORBIDDEN, "User is not a member of the organization.");
+            throw new JgitkinsException(ErrorCode.FORBIDDEN, "User is not a member of the organization.");
         }
     }
 

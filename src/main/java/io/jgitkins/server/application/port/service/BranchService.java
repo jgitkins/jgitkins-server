@@ -1,7 +1,7 @@
 package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.common.ErrorCode;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
 import io.jgitkins.server.application.dto.command.BranchCreationContext;
 import io.jgitkins.server.application.dto.result.BranchSearchResult;
@@ -49,7 +49,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
     public BranchSearchResult getBranch(Long repositoryId, String branchName) throws IOException {
         return branchPort.getBranch(repositoryId, branchName)
                 .map(branchApplicationMapper::toSearchResult)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND,
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.BRANCH_NOT_FOUND,
                         "Branch not found: " + branchName));
     }
 
@@ -87,13 +87,13 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
 
     private Repository loadRepository(Long repositoryId) {
         return repositoryPort.findById(RepositoryId.of(repositoryId))
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.REPOSITORY_NOT_FOUND,
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.REPOSITORY_NOT_FOUND,
                         "Repository not found: " + repositoryId));
     }
 
     private Branch loadBranch(Long repositoryId, String branchName) throws IOException {
         return branchPort.getBranch(repositoryId, branchName)
-                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND,
+                .orElseThrow(() -> new JgitkinsException(ErrorCode.BRANCH_NOT_FOUND,
                         "Branch not found: " + branchName));
     }
 }

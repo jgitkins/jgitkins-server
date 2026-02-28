@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.application.common.exception.UnprocessableException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +36,7 @@ class RepositoryWritePermissionGuardTest {
     void assertCanWrite_throwsUnauthorized_whenCurrentUserMissing() {
         when(currentUserPort.currentUserId()).thenReturn(Optional.empty());
 
-        UnprocessableException ex = assertThrows(UnprocessableException.class,
+        ((JgitkinsException) ex) = assertThrows(JgitkinsException.class,
                 () -> guard.assertCanWrite("team", "repo"));
 
         org.junit.jupiter.api.Assertions.assertEquals("UNAUTHORIZED", ex.getErrorCode().getCode());
@@ -47,7 +47,7 @@ class RepositoryWritePermissionGuardTest {
         when(currentUserPort.currentUserId()).thenReturn(Optional.of(7L));
         when(gitRepositoryAccessService.canWrite(null, "team", "repo", 7L)).thenReturn(false);
 
-        UnprocessableException ex = assertThrows(UnprocessableException.class,
+        ((JgitkinsException) ex) = assertThrows(JgitkinsException.class,
                 () -> guard.assertCanWrite("team", "repo"));
 
         org.junit.jupiter.api.Assertions.assertEquals("FORBIDDEN", ex.getErrorCode().getCode());

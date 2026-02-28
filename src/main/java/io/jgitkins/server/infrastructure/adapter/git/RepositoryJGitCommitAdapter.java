@@ -3,7 +3,7 @@ package io.jgitkins.server.infrastructure.adapter.git;
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.GitConstants;
 import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.CommitFile;
 import io.jgitkins.server.application.dto.CommitHistory;
 import io.jgitkins.server.application.port.out.CommitGitPort;
@@ -64,7 +64,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
         try (Repository repo = repositoryResolver.openBareRepository(gitDir)) {
             ObjectId commitId = repo.resolve(commitHash);
             if (commitId == null) {
-                throw new ResourceNotFoundException(ErrorCode.COMMIT_LOAD_FAILED,
+                throw new JgitkinsException(ErrorCode.COMMIT_LOAD_FAILED,
                         String.format("Failed to load commit detail for repo %s/%s", taskCd, repoName));
             }
             try (RevWalk revWalk = new RevWalk(repo)) {
@@ -95,7 +95,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
         try (Repository repo = repositoryResolver.openBareRepository(gitDir)) {
             ObjectId branchId = resolveRef(repo, branch);
             if (branchId == null) {
-                throw new ResourceNotFoundException(ErrorCode.BRANCH_NOT_FOUND, "Branch Not Found");
+                throw new JgitkinsException(ErrorCode.BRANCH_NOT_FOUND, "Branch Not Found");
             }
             try (RevWalk revWalk = new RevWalk(repo)) {
                 revWalk.markStart(revWalk.parseCommit(branchId));

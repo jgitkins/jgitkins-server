@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.RunnerRuntimeConfig;
 import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
 import io.jgitkins.server.application.dto.result.RunnerActivateResult;
@@ -72,8 +72,8 @@ class RunnerWriteServiceTest {
         when(runnerPort.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.deleteRunner(99L))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .extracting(ex -> ((ResourceNotFoundException) ex).getErrorCode())
+                .isInstanceOf(JgitkinsException.class)
+                .extracting(ex -> ((JgitkinsException) ex).getErrorCode())
                 .isEqualTo(ErrorCode.RUNNER_NOT_FOUND);
     }
 
