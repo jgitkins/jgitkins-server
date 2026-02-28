@@ -1,10 +1,8 @@
 package io.jgitkins.server.application.service;
 
 import io.jgitkins.server.application.common.ErrorCode;
-import io.jgitkins.server.application.common.exception.ConflictException;
-import io.jgitkins.server.application.common.exception.InternalServerErrorException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
-import io.jgitkins.server.application.common.exception.UnprocessableException;
 import io.jgitkins.server.application.dto.*;
 import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
 import io.jgitkins.server.application.dto.result.RunnerActivateResult;
@@ -16,6 +14,7 @@ import io.jgitkins.server.application.port.in.RunnerDeleteUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
 import io.jgitkins.server.application.port.out.RunnerPort;
 import io.jgitkins.server.domain.aggregate.Runner;
+import io.jgitkins.server.domain.error.DomainErrorCode;
 import io.jgitkins.server.domain.exception.RunnerAlreadyActiveException;
 import io.jgitkins.server.domain.exception.RunnerTokenMismatchException;
 import io.jgitkins.server.domain.exception.RunnerTokenMissingException;
@@ -56,7 +55,7 @@ public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeleteUs
             runnerPort.deleteById(runnerId);
         } catch (RuntimeException ex) {
             log.error("Runner deletion failed. runnerId={}", runnerId, ex);
-            throw new InternalServerErrorException(ErrorCode.RUNNER_DELETE_FAILED,
+            throw new JgitkinsException(ErrorCode.RUNNER_DELETE_FAILED,
                                                    "Runner deletion failed",
                                                    ex);
         }
@@ -72,9 +71,9 @@ public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeleteUs
         try {
             activatedInfo = runner.activate(token, remoteIp);
         } catch (RunnerAlreadyActiveException ex) {
-            throw new ConflictException(ErrorCode.RUNNER_ALREADY_ACTIVE, ex.getMessage(), ex);
+            throw new JgitkinsException(DomainErrorCode.DOM_RUNNER_ALREADY_ACTIVE, ex.getMessage(), ex);
         } catch (RunnerTokenMismatchException | RunnerTokenMissingException ex) {
-            throw new UnprocessableException(ErrorCode.RUNNER_INVALID_TOKEN, ex.getMessage(), ex);
+            throw new JgitkinsException(DomainErrorCode.DOM_RUNNER_TOKEN_INVALID, ex.getMessage(), ex);
         }
 
         try {
@@ -89,7 +88,7 @@ public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeleteUs
 
         } catch (RuntimeException ex) {
             log.error("Runner activation failed. runnerId={}", runner.getId(), ex);
-            throw new InternalServerErrorException(ErrorCode.RUNNER_ACTIVATION_FAILED, "Runner activation failed", ex);
+            throw new JgitkinsException(ErrorCode.RUNNER_ACTIVATION_FAILED, "Runner activation failed", ex);
         }
     }
 }

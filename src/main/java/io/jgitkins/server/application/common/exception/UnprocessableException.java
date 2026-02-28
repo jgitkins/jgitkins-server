@@ -1,8 +1,9 @@
 package io.jgitkins.server.application.common.exception;
 
-import io.jgitkins.server.application.common.ErrorCode;
+import io.jgitkins.server.common.error.ErrorCode;
+import io.jgitkins.server.common.exception.JgitkinsException;
 
-public class UnprocessableException extends ApplicationException {
+public class UnprocessableException extends JgitkinsException {
 
     public UnprocessableException(ErrorCode errorCode) {
         super(errorCode);

@@ -1,14 +1,17 @@
 package io.jgitkins.server.domain.exception;
 
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.domain.error.DomainErrorCode;
 import io.jgitkins.server.domain.model.vo.RunnerStatus;
 
-public class RunnerAlreadyActiveException extends DomainException {
+public class RunnerAlreadyActiveException extends JgitkinsException {
 
     private final Long runnerId;
     private final RunnerStatus currentStatus;
 
     public RunnerAlreadyActiveException(Long runnerId, RunnerStatus currentStatus) {
-        super("Runner " + runnerId + " is already " + currentStatus + " and cannot be activated again");
+        super(DomainErrorCode.DOM_RUNNER_ALREADY_ACTIVE,
+              "Runner " + runnerId + " is already " + currentStatus + " and cannot be activated again");
         this.runnerId = runnerId;
         this.currentStatus = currentStatus;
     }

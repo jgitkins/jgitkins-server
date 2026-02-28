@@ -7,6 +7,8 @@ import io.jgitkins.server.domain.model.vo.OwnerType;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.RepositoryPath;
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
 import io.jgitkins.server.infrastructure.mapper.RepositoryDomainMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.OrganizeEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.RepositoryEntityMbgMapper;
@@ -59,7 +61,10 @@ public class RepositoryMybatisAdapter implements RepositoryPort {
     @Override
     public Repository update(Repository repository) {
         if (repository.getId() == null) {
-            throw new IllegalArgumentException("Repository ID required for update");
+            throw new JgitkinsException(
+                    InfrastructureErrorCode.INF_PERSISTENCE_OPERATION_FAILED,
+                    "Repository ID required for update"
+            );
         }
         RepositoryEntity entity = repositoryDomainMapper.toEntity(repository);
         entity.setUpdatedAt(LocalDateTime.now());

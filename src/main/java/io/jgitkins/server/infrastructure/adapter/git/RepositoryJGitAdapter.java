@@ -2,7 +2,7 @@ package io.jgitkins.server.infrastructure.adapter.git;
 
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.GitConstants;
-import io.jgitkins.server.application.common.exception.InternalServerErrorException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.port.out.RepositoryGitPort;
 import io.jgitkins.server.infrastructure.support.RepositoryFileSystemHelper;
 import io.jgitkins.server.infrastructure.support.RepositoryResolver;
@@ -36,7 +36,7 @@ public class RepositoryJGitAdapter implements RepositoryGitPort {
             }
         } catch (IOException e) {
             log.error("Repository git create failed. namespace={}, repoName={}", namespace, repoName, e);
-            throw new InternalServerErrorException(ErrorCode.REPOSITORY_CREATE_FAILED, "Repository creation failed: " + gitDir.getAbsolutePath(), e);
+            throw new JgitkinsException(ErrorCode.REPOSITORY_CREATE_FAILED, "Repository creation failed: " + gitDir.getAbsolutePath(), e);
         }
     }
 
@@ -57,7 +57,7 @@ public class RepositoryJGitAdapter implements RepositoryGitPort {
                 }
             }
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.REPOSITORY_DELETE_FAILED,
+            throw new JgitkinsException(ErrorCode.REPOSITORY_DELETE_FAILED,
                                                     "Failed to delete repository directory: " + gitDir.getAbsolutePath(), e);
         }
     }
@@ -70,7 +70,7 @@ public class RepositoryJGitAdapter implements RepositoryGitPort {
             repo.updateRef(Constants.HEAD, true)
                     .link(mainRef);
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.HEAD_POINT_FAILED, String.format("Failed to link HEAD for repo %s/%s", taskCd, repoName), e);
+            throw new JgitkinsException(ErrorCode.HEAD_POINT_FAILED, String.format("Failed to link HEAD for repo %s/%s", taskCd, repoName), e);
         }
     }
 

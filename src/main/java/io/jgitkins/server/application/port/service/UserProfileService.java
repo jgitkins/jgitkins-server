@@ -4,15 +4,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.jgitkins.server.application.common.ErrorCode;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
 import io.jgitkins.server.application.common.exception.UnprocessableException;
 import io.jgitkins.server.application.port.in.UserProfileUpdateUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.application.service.UserProfileValidator;
+import io.jgitkins.server.domain.error.DomainErrorCode;
+import io.jgitkins.server.domain.exception.UsernameAlreadySetException;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.vo.Username;
-import io.jgitkins.server.domain.exception.UsernameAlreadySetException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -52,7 +54,7 @@ public class UserProfileService implements UserProfileUpdateUseCase {
         try {
             return user.activateWithUsername(requested);
         } catch (UsernameAlreadySetException ex) {
-            throw new UnprocessableException(ErrorCode.BAD_REQUEST, ex.getMessage());
+            throw new JgitkinsException(DomainErrorCode.DOM_USERNAME_ALREADY_SET, ex.getMessage(), ex);
         }
     }
 }

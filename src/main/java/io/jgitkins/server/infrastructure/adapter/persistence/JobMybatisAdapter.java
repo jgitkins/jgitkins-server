@@ -3,9 +3,11 @@ package io.jgitkins.server.infrastructure.adapter.persistence;
 import io.jgitkins.server.application.dto.PendingJob;
 import io.jgitkins.server.application.dto.RunnerAssignmentCandidate;
 import io.jgitkins.server.application.port.out.JobPort;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.model.JobHistory;
 import io.jgitkins.server.domain.model.vo.*;
+import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
 import io.jgitkins.server.infrastructure.mapper.JobDomainMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.JobEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.JobHistoryEntityMbgMapper;
@@ -43,7 +45,10 @@ public class JobMybatisAdapter implements JobPort {
 
         Long jobId = jobEntity.getId();
         if (jobId == null) {
-            throw new IllegalStateException("Generated job id is null after insert");
+            throw new JgitkinsException(
+                    InfrastructureErrorCode.INF_PERSISTENCE_OPERATION_FAILED,
+                    "Generated job id is null after insert"
+            );
         }
 
         job.getHistories()

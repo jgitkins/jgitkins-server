@@ -2,7 +2,7 @@ package io.jgitkins.server.infrastructure.adapter.git;
 
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.GitConstants;
-import io.jgitkins.server.application.common.exception.InternalServerErrorException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
 import io.jgitkins.server.application.dto.FileEntry;
 import io.jgitkins.server.application.port.out.FileGitPort;
@@ -40,7 +40,7 @@ public class RepositoryJGitFileAdapter implements FileGitPort {
             RevTree commitTree = resolveCommitTree(repo, branch);
             return collectTreeEntries(repo, commitTree, directory);
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.COMMIT_TREE_LOAD_FAILED,
+            throw new JgitkinsException(ErrorCode.COMMIT_TREE_LOAD_FAILED,
                     String.format("Failed to load tree for repo %s/%s", namespace, repoName), e);
         }
     }
@@ -53,7 +53,7 @@ public class RepositoryJGitFileAdapter implements FileGitPort {
             RevTree tree = resolveAllFilesTree(repo, ref);
             return collectAllFileEntries(repo, tree);
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.FILE_LOAD_FAILED,
+            throw new JgitkinsException(ErrorCode.FILE_LOAD_FAILED,
                     String.format("Failed to load files for repo %s/%s", taskCd, repoName), e);
         }
     }

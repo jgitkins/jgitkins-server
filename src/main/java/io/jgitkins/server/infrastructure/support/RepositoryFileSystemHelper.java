@@ -2,7 +2,7 @@ package io.jgitkins.server.infrastructure.support;
 
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.exception.ConflictException;
-import io.jgitkins.server.application.common.exception.InternalServerErrorException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import lombok.experimental.UtilityClass;
 import org.eclipse.jgit.lib.Repository;
 
@@ -18,7 +18,7 @@ public class RepositoryFileSystemHelper {
                     "Repository already exists: " + gitDir.getAbsolutePath());
         }
         if (!gitDir.mkdirs() && !gitDir.exists()) {
-            throw new InternalServerErrorException(ErrorCode.REPOSITORY_CREATE_FAILED,
+            throw new JgitkinsException(ErrorCode.REPOSITORY_CREATE_FAILED,
                     "Failed to create directories: " + gitDir.getAbsolutePath());
         }
     }

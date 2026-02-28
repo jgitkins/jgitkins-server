@@ -1,6 +1,7 @@
 package io.jgitkins.server.application.common;
 
-public enum ErrorCode {
+@Deprecated(forRemoval = false, since = "2026-03-01")
+public enum ErrorCode implements io.jgitkins.server.common.error.ErrorCode {
 
 
 
@@ -61,10 +62,12 @@ public enum ErrorCode {
         this.defaultMessage = defaultMessage;
     }
 
+    @Override
     public String getCode() {
         return code;
     }
 
+    @Override
     public String getDefaultMessage() {
         return defaultMessage;
     }

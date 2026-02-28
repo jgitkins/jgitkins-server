@@ -23,6 +23,10 @@ import io.jgitkins.server.application.port.in.RunnerLoadUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
 import io.jgitkins.server.domain.model.vo.RunnerScopeType;
 import io.jgitkins.server.presentation.advice.GlobalExceptionHandler;
+import io.jgitkins.server.presentation.advice.mapper.ApplicationErrorHttpStatusMapper;
+import io.jgitkins.server.presentation.advice.mapper.CompositeErrorHttpStatusMapper;
+import io.jgitkins.server.presentation.advice.mapper.DomainErrorHttpStatusMapper;
+import io.jgitkins.server.presentation.advice.mapper.InfrastructureErrorHttpStatusMapper;
 import io.jgitkins.server.presentation.dto.RunnerCreateRequest;
 import io.jgitkins.server.presentation.dto.RunnerResponse;
 import io.jgitkins.server.presentation.mapper.RunnerRequestMapper;
@@ -64,6 +68,13 @@ class RunnerControllerTest {
 
     @BeforeEach
     void setUp() {
+        CompositeErrorHttpStatusMapper statusMapper = new CompositeErrorHttpStatusMapper(
+                List.of(
+                        new DomainErrorHttpStatusMapper(),
+                        new ApplicationErrorHttpStatusMapper(),
+                        new InfrastructureErrorHttpStatusMapper()
+                )
+        );
         RunnerController controller = new RunnerController(
                 runnerRegisterUseCase,
                 runnerLoadUseCase,
@@ -74,7 +85,7 @@ class RunnerControllerTest {
         );
 
         this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
-                .setControllerAdvice(new GlobalExceptionHandler())
+                .setControllerAdvice(new GlobalExceptionHandler(statusMapper))
                 .build();
         this.objectMapper = new ObjectMapper();
     }

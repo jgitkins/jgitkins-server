@@ -2,7 +2,7 @@ package io.jgitkins.server.infrastructure.adapter.git;
 
 import io.jgitkins.server.application.common.ErrorCode;
 import io.jgitkins.server.application.common.GitConstants;
-import io.jgitkins.server.application.common.exception.InternalServerErrorException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
 import io.jgitkins.server.application.dto.command.BranchCreationContext;
 import io.jgitkins.server.application.port.out.BranchGitPort;
@@ -44,10 +44,10 @@ public class BranchJGitAdapter implements BranchGitPort {
 
             RefUpdate.Result result = update.update();
             if (result != RefUpdate.Result.NEW) {
-                throw new InternalServerErrorException(ErrorCode.BRANCH_CREATE_FAILED, String.format("Failed to create branch [%s]", context.getSourceBranch()));
+                throw new JgitkinsException(ErrorCode.BRANCH_CREATE_FAILED, String.format("Failed to create branch [%s]", context.getSourceBranch()));
             }
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.BRANCH_CREATE_FAILED, String.format("Failed to create branch [%s]", context.getSourceBranch()), e);
+            throw new JgitkinsException(ErrorCode.BRANCH_CREATE_FAILED, String.format("Failed to create branch [%s]", context.getSourceBranch()), e);
         }
     }
 
@@ -67,7 +67,7 @@ public class BranchJGitAdapter implements BranchGitPort {
             }
 
         } catch (IOException e) {
-            throw new InternalServerErrorException(ErrorCode.BRANCH_ALREADY_EXISTS, String.format("Failed to delete branch %s for repo %s/%s", branchName, taskCd, repoName), e);
+            throw new JgitkinsException(ErrorCode.BRANCH_ALREADY_EXISTS, String.format("Failed to delete branch %s for repo %s/%s", branchName, taskCd, repoName), e);
         }
     }
 

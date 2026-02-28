@@ -1,8 +1,9 @@
 package io.jgitkins.server.application.common.exception;
 
-import io.jgitkins.server.application.common.ErrorCode;
+import io.jgitkins.server.common.error.ErrorCode;
+import io.jgitkins.server.common.exception.JgitkinsException;
 
-public class ResourceNotFoundException extends ApplicationException {
+public class ResourceNotFoundException extends JgitkinsException {
 
     public ResourceNotFoundException(ErrorCode errorCode) {
         super(errorCode);

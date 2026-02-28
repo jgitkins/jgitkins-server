@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.application.common.ErrorCode;
-import io.jgitkins.server.application.common.exception.ConflictException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
 import io.jgitkins.server.application.dto.RunnerRuntimeConfig;
 import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
@@ -112,8 +112,8 @@ class RunnerWriteServiceTest {
         when(runnerPort.findByToken("RNR-TOKEN")).thenReturn(Optional.of(online));
 
         assertThatThrownBy(() -> service.activate("RNR-TOKEN", "127.0.0.1"))
-                .isInstanceOf(ConflictException.class)
-                .extracting(ex -> ((ConflictException) ex).getErrorCode())
-                .isEqualTo(ErrorCode.RUNNER_ALREADY_ACTIVE);
+                .isInstanceOf(JgitkinsException.class)
+                .extracting(ex -> ((JgitkinsException) ex).getErrorCode().getCode())
+                .isEqualTo("DOM_RUNNER_ALREADY_ACTIVE");
     }
 }

@@ -1,8 +1,11 @@
 package io.jgitkins.server.domain.exception;
 
-public class UsernameAlreadySetException extends DomainException {
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.domain.error.DomainErrorCode;
+
+public class UsernameAlreadySetException extends JgitkinsException {
 
     public UsernameAlreadySetException() {
-        super("Username already set");
+        super(DomainErrorCode.DOM_USERNAME_ALREADY_SET, "Username already set");
     }
 }

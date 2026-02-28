@@ -5,8 +5,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.jgitkins.server.application.common.ErrorCode;
-import io.jgitkins.server.application.common.exception.ApplicationException;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.common.exception.ResourceNotFoundException;
+import io.jgitkins.server.presentation.advice.mapper.ApplicationErrorHttpStatusMapper;
+import io.jgitkins.server.presentation.advice.mapper.CompositeErrorHttpStatusMapper;
+import io.jgitkins.server.presentation.advice.mapper.DomainErrorHttpStatusMapper;
+import io.jgitkins.server.presentation.advice.mapper.InfrastructureErrorHttpStatusMapper;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +26,15 @@ class GlobalExceptionHandlerTest {
 
     @BeforeEach
     void setUp() {
+        CompositeErrorHttpStatusMapper statusMapper = new CompositeErrorHttpStatusMapper(
+                List.of(
+                        new DomainErrorHttpStatusMapper(),
+                        new ApplicationErrorHttpStatusMapper(),
+                        new InfrastructureErrorHttpStatusMapper()
+                )
+        );
         mockMvc = MockMvcBuilders.standaloneSetup(new ExceptionThrowingController())
-                .setControllerAdvice(new GlobalExceptionHandler())
+                .setControllerAdvice(new GlobalExceptionHandler(statusMapper))
                 .build();
     }
 
@@ -32,7 +44,8 @@ class GlobalExceptionHandlerTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.data").doesNotExist())
                 .andExpect(jsonPath("$.error.code").value("UNAUTHORIZED"))
-                .andExpect(jsonPath("$.error.message").value("token missing"));
+                .andExpect(jsonPath("$.error.message").value("token missing"))
+                .andExpect(jsonPath("$.error.source").value("application"));
     }
 
     @Test
@@ -41,7 +54,8 @@ class GlobalExceptionHandlerTest {
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.data").doesNotExist())
                 .andExpect(jsonPath("$.error.code").value("FORBIDDEN"))
-                .andExpect(jsonPath("$.error.message").value("not allowed"));
+                .andExpect(jsonPath("$.error.message").value("not allowed"))
+                .andExpect(jsonPath("$.error.source").value("application"));
     }
 
     @Test
@@ -50,7 +64,8 @@ class GlobalExceptionHandlerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.data").doesNotExist())
                 .andExpect(jsonPath("$.error.code").value("REPOSITORY_NOT_FOUND"))
-                .andExpect(jsonPath("$.error.message").value("repo missing"));
+                .andExpect(jsonPath("$.error.message").value("repo missing"))
+                .andExpect(jsonPath("$.error.source").value("application"));
     }
 
     @RestController
@@ -58,12 +73,12 @@ class GlobalExceptionHandlerTest {
 
         @GetMapping("/test-errors/unauthorized")
         public ResponseEntity<Void> unauthorized() {
-            throw new TestApplicationException(ErrorCode.UNAUTHORIZED, "token missing");
+            throw new TestJgitkinsException(ErrorCode.UNAUTHORIZED, "token missing");
         }
 
         @GetMapping("/test-errors/forbidden")
         public ResponseEntity<Void> forbidden() {
-            throw new TestApplicationException(ErrorCode.FORBIDDEN, "not allowed");
+            throw new TestJgitkinsException(ErrorCode.FORBIDDEN, "not allowed");
         }
 
         @GetMapping("/test-errors/not-found")
@@ -72,8 +87,8 @@ class GlobalExceptionHandlerTest {
         }
     }
 
-    static class TestApplicationException extends ApplicationException {
-        TestApplicationException(ErrorCode errorCode, String message) {
+    static class TestJgitkinsException extends JgitkinsException {
+        TestJgitkinsException(ErrorCode errorCode, String message) {
             super(errorCode, message);
         }
     }
