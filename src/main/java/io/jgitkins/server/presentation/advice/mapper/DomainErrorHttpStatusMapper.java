@@ -19,11 +19,12 @@ public class DomainErrorHttpStatusMapper implements ErrorHttpStatusMapper {
     public HttpStatus map(ErrorCode errorCode) {
         DomainErrorCode domainErrorCode = (DomainErrorCode) errorCode;
         return switch (domainErrorCode) {
-            case RUNNER_ALREADY_ACTIVE -> HttpStatus.CONFLICT;
+            case ORGANIZE_MEMBER_INVALID,
+                 RULE_VIOLATION -> HttpStatus.BAD_REQUEST;
+            case ORGANIZE_MEMBER_ALREADY_EXISTS,
+                 RUNNER_ALREADY_ACTIVE -> HttpStatus.CONFLICT;
             case RUNNER_TOKEN_INVALID,
                  USERNAME_ALREADY_SET -> HttpStatus.UNPROCESSABLE_ENTITY;
-            case RULE_VIOLATION -> HttpStatus.BAD_REQUEST;
         };
     }
 }
-

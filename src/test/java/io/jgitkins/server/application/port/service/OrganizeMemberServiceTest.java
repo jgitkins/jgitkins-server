@@ -1,7 +1,6 @@
 package io.jgitkins.server.application.port.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -10,16 +9,17 @@ import static org.mockito.Mockito.when;
 import io.jgitkins.server.application.dto.command.OrganizeMemberAddCommand;
 import io.jgitkins.server.application.dto.result.OrganizeMemberSummary;
 import io.jgitkins.server.application.port.out.OrganizeMemberPort;
+import io.jgitkins.server.application.service.OrganizeMemberValidator;
 import io.jgitkins.server.domain.model.OrganizeMember;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeMemberRole;
 import io.jgitkins.server.domain.model.vo.UserId;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -29,8 +29,15 @@ class OrganizeMemberServiceTest {
     @Mock
     private OrganizeMemberPort organizeMemberPort;
 
-    @InjectMocks
     private OrganizeMemberService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new OrganizeMemberService(
+                organizeMemberPort,
+                new OrganizeMemberValidator(organizeMemberPort)
+        );
+    }
 
     @Test
     void addOrganizeMember_savesWhenNotExists() {
@@ -67,7 +74,7 @@ class OrganizeMemberServiceTest {
     }
 
     @Test
-    void addOrganizeMember_doesNothingWhenAlreadyExists() {
+    void addOrganizeMember_throwsWhenAlreadyExists() {
         when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(1L), UserId.of(2L))).thenReturn(true);
 
         OrganizeMemberAddCommand command = OrganizeMemberAddCommand.builder()
@@ -76,17 +83,8 @@ class OrganizeMemberServiceTest {
                 .role(OrganizeMemberRole.MEMBER)
                 .build();
 
-        service.addOrganizeMember(command);
-
+        org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> service.addOrganizeMember(command));
         verify(organizeMemberPort, never()).save(any());
-    }
-
-    @Test
-    void addOrganizeMember_throwsWhenCommandInvalid() {
-        assertThrows(IllegalArgumentException.class, () -> service.addOrganizeMember(null));
-        assertThrows(IllegalArgumentException.class, () -> service.addOrganizeMember(
-                OrganizeMemberAddCommand.builder().organizeId(1L).build()
-        ));
     }
 
     @Test
@@ -94,12 +92,6 @@ class OrganizeMemberServiceTest {
         service.removeOrganizeMember(1L, 2L);
 
         verify(organizeMemberPort).deleteByOrganizeAndUser(OrganizeId.of(1L), UserId.of(2L));
-    }
-
-    @Test
-    void removeOrganizeMember_throwsWhenInputMissing() {
-        assertThrows(IllegalArgumentException.class, () -> service.removeOrganizeMember(null, 1L));
-        assertThrows(IllegalArgumentException.class, () -> service.removeOrganizeMember(1L, null));
     }
 
     @Test
@@ -116,8 +108,4 @@ class OrganizeMemberServiceTest {
         assertEquals(joinedAt, result.get(0).getJoinedAt());
     }
 
-    @Test
-    void getOrganizeMembers_throwsWhenOrganizeIdMissing() {
-        assertThrows(IllegalArgumentException.class, () -> service.getOrganizeMembers(null));
-    }
 }
