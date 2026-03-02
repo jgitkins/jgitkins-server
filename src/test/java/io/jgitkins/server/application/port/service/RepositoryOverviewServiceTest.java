@@ -43,7 +43,7 @@ class RepositoryOverviewServiceTest {
     private RepositoryOverviewService service;
 
     @Test
-    void getOverview_usesDefaultBranchAndLoadsTree() throws IOException {
+    void getOverview_usesDefaultBranchAndLoadsTree() {
         RepositoryResult repository = RepositoryResult.builder()
                 .clonePath("org/repo.git")
                 .path("org/repo")

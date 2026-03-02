@@ -6,6 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 public interface FileUploadUseCase {
-    void uploadFileToRepository(String taskCd, String repoName, String branch, MultipartFile file, FileUploadInfo request) throws IOException;
+    void uploadFileToRepository(String taskCd, String repoName, String branch, MultipartFile file, FileUploadInfo request);
 }
 

@@ -2,6 +2,7 @@ package io.jgitkins.server.application.factory;
 
 import io.jgitkins.server.application.dto.CommitFile;
 import io.jgitkins.server.application.dto.FileUploadInfo;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -22,7 +23,7 @@ public class CommitFileFactory {
                 .build());
     }
 
-    public List<CommitFile> prepareUploadFile(MultipartFile file, FileUploadInfo request) throws IOException {
+    public List<CommitFile> prepareUploadFile(MultipartFile file, FileUploadInfo request) {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("File is empty");
         }
@@ -32,10 +33,15 @@ public class CommitFileFactory {
             throw new IllegalArgumentException("File path is missing");
         }
 
-        return List.of(CommitFile.builder()
-                .path(targetPath)
-                .content(file.getBytes())
-                .build());
+        try {
+            return List.of(CommitFile.builder()
+                    .path(targetPath)
+                    .content(file.getBytes())
+                    .build());
+        } catch (IOException e) {
+            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.FILESYSTEM_ACCESS_FAILED,
+                    "Failed to read upload file content", e);
+        }
     }
 
     private String stripGitSuffix(String name) {

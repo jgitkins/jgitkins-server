@@ -30,7 +30,7 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 	private final GitRepositoryAccessUseCase gitRepositoryAccessUseCase;
 
 	@Override
-	public RepositoryOverviewResult getOverview(Long repositoryId, String branch) throws IOException {
+	public RepositoryOverviewResult getOverview(Long repositoryId, String branch) {
 
 		RepositoryResult repository = repositoryLoadUseCase.getRepository(repositoryId);
 		RepositoryKey key = resolveRepositoryKey(repository);
@@ -51,7 +51,7 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 				.build();
 	}
 
-	private List<FileEntry> loadTree(RepositoryKey key, String selectedBranch) throws IOException {
+	private List<FileEntry> loadTree(RepositoryKey key, String selectedBranch) {
 		if (key == null || !StringUtils.hasText(selectedBranch)) {
 			return List.of();
 		}

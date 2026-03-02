@@ -16,6 +16,7 @@ public enum InfrastructureErrorCode implements ErrorCode {
     COMMIT_CREATE_FAILED("COMMIT_CREATE_FAILED", "Commit Create Found"),
     COMMIT_TREE_LOAD_FAILED("COMMIT_TREE_LOAD_FAILED", "Commit Tree Load Failed"),
     FILE_LOAD_FAILED("FILE_LOAD_FAILED", "File Load Failed"),
+    FILE_UPLOAD_FAILED("FILE_UPLOAD_FAILED", "File Upload Failed"),
     RUNNER_DELETE_FAILED("RUNNER_DELETE_FAILED", "Runner Delete Failed"),
     RUNNER_ACTIVATION_FAILED("RUNNER_ACTIVATION_FAILED", "Runner Activation Failed"),
     REPOSITORY_DELETE_FAILED("REPOSITORY_DELETE_FAILED", "Repository Delete Failed");

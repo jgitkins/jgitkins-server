@@ -64,7 +64,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
     }
 
     @Override
-    public CommitHistory getCommitHistory(String taskCd, String repoName, String commitHash) throws IOException {
+    public CommitHistory getCommitHistory(String taskCd, String repoName, String commitHash) {
         File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
         try (Repository repo = repositoryResolver.openBareRepository(gitDir)) {
             ObjectId commitId = repo.resolve(commitHash);
@@ -94,7 +94,7 @@ public class RepositoryJGitCommitAdapter implements CommitGitPort {
     }
 
     @Override
-    public List<CommitHistory> getCommitHistories(String taskCd, String repoName, String branch) throws IOException {
+    public List<CommitHistory> getCommitHistories(String taskCd, String repoName, String branch) {
         List<CommitHistory> histories = new ArrayList<>();
         File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
         try (Repository repo = repositoryResolver.openBareRepository(gitDir)) {

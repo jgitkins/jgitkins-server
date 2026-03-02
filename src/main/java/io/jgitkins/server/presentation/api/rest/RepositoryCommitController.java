@@ -27,7 +27,7 @@ public class RepositoryCommitController {
     @GetMapping("/{taskCd}/{repoName}/commits/{commitHash}")
     public ResponseEntity<ApiResponse<CommitHistory>> getCommitDetail(@PathVariable String taskCd,
                                                                       @PathVariable String repoName,
-                                                                      @PathVariable String commitHash) throws IOException {
+                                                                      @PathVariable String commitHash) {
 
         CommitHistory commitHistory = commitLoadUseCase.getCommit(taskCd, repoName, commitHash);
         return ApiResponse.ok(commitHistory);
@@ -37,7 +37,7 @@ public class RepositoryCommitController {
     @GetMapping("/{taskCd}/{repoName}/branches/{branch}/commits")
     public ResponseEntity<ApiResponse<List<CommitHistory>>> getBranchCommitHistories(@PathVariable String taskCd,
                                                                                      @PathVariable String repoName,
-                                                                                     @PathVariable String branch) throws IOException {
+                                                                                     @PathVariable String branch) {
 
         List<CommitHistory> commitHistories = commitLoadUseCase.getCommits(taskCd, repoName, branch);
         return ApiResponse.ok(commitHistories);

@@ -6,5 +6,5 @@ import java.io.IOException;
 import java.util.List;
 
 public interface FileTreeLoadUseCase {
-    List<FileEntry> getTree(String namespace, String repoName, String branch, String directory) throws IOException;
+    List<FileEntry> getTree(String namespace, String repoName, String branch, String directory);
 }

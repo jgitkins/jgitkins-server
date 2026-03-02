@@ -10,6 +10,7 @@ import io.jgitkins.server.application.port.in.FileUploadUseCase;
 import io.jgitkins.server.application.port.out.CommitGitPort;
 import io.jgitkins.server.application.port.out.FileGitPort;
 import io.jgitkins.server.application.service.RepositoryUploadPermissionValidator;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class RepositoryFileService implements FileUploadUseCase,
                                        String repoName,
                                        String branch,
                                        MultipartFile file,
-                                       FileUploadInfo request) throws IOException {
+                                       FileUploadInfo request) {
         repositoryUploadPermissionValidator.validateCanUpload(taskCd, repoName);
 
         List<CommitFile> files = commitFileFactory.prepareUploadFile(file, request);
@@ -58,7 +59,7 @@ public class RepositoryFileService implements FileUploadUseCase,
     public List<FileEntry> getTree(String namespace,
                                    String repoName,
                                    String branch,
-                                   String directory) throws IOException {
+                                   String directory) {
         return fileGitPort.getTree(namespace, repoName, branch, directory);
     }
 

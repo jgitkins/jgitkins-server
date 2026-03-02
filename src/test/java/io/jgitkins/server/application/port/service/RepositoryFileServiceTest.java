@@ -40,7 +40,7 @@ class RepositoryFileServiceTest {
     private RepositoryFileService service;
 
     @Test
-    void uploadFileToRepository_commitsPreparedFiles() throws IOException {
+    void uploadFileToRepository_commitsPreparedFiles() {
         MultipartFile file = org.mockito.Mockito.mock(MultipartFile.class);
         FileUploadInfo request = new FileUploadInfo();
         request.setCommitMessage("msg");
@@ -57,7 +57,7 @@ class RepositoryFileServiceTest {
     }
 
     @Test
-    void uploadFileToRepository_usesDefaultAuthorWhenMissing() throws IOException {
+    void uploadFileToRepository_usesDefaultAuthorWhenMissing() {
         MultipartFile file = org.mockito.Mockito.mock(MultipartFile.class);
         FileUploadInfo request = new FileUploadInfo();
         request.setCommitMessage("msg");
@@ -72,7 +72,7 @@ class RepositoryFileServiceTest {
     }
 
     @Test
-    void getTree_delegatesToFileGitPort() throws IOException {
+    void getTree_delegatesToFileGitPort() {
         when(fileGitPort.getTree("ns", "repo", "main", "src")).thenReturn(Collections.emptyList());
 
         service.getTree("ns", "repo", "main", "src");

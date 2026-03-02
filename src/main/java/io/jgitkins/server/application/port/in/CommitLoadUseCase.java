@@ -6,6 +6,6 @@ import java.io.IOException;
 import java.util.List;
 
 public interface CommitLoadUseCase {
-    CommitHistory getCommit(String taskCd, String repoName, String commitHash) throws IOException;
-    List<CommitHistory> getCommits(String taskCd, String repoName, String branch) throws IOException;
+    CommitHistory getCommit(String taskCd, String repoName, String commitHash);
+    List<CommitHistory> getCommits(String taskCd, String repoName, String branch);
 }

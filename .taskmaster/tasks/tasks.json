@@ -555,6 +555,16 @@
             "title": "RepositoryLifecycleService 리팩토링 및 책임 분리",
             "description": "거대해진 RepositoryLifecycleService의 검증, 조회, 가시성 정책을 분리하여 응집도를 높이고 도메인 중심 설계를 강화한다.",
             "details": "참조 문서: .taskmaster/docs/task_2_13_plan.md. 1) RepositoryValidator 도입으로 검증 로직 분리, 2) RepositoryLookupService 도입으로 복잡한 경로 해석 분리, 3) VO 우선 생성(Fast-Fail) 패턴 적용.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "2"
+          },
+          {
+            "id": 14,
+            "title": "RepositoryOverviewService 리팩토링 및 예외 처리 개선",
+            "description": "RepositoryOverviewService의 Checked Exception을 제거하고 오케스트레이션 로직을 정돈한다.",
+            "details": "참조 문서: .taskmaster/docs/task_2_14_plan.md. 1) UseCase 인터페이스에서 IOException 제거, 2) 예외 발생 시 JgitkinsException으로 통일, 3) 조회 및 브랜치 결정 로직 가독성 개선.",
             "status": "in-progress",
             "dependencies": [],
             "parentTaskId": 2,

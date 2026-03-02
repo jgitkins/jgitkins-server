@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.List;
 
 public interface CommitGitPort {
-    CommitHistory getCommitHistory(String taskCd, String repoName, String commitHash) throws IOException;
-    List<CommitHistory> getCommitHistories(String taskCd, String repoName, String branch) throws IOException;
+    CommitHistory getCommitHistory(String taskCd, String repoName, String commitHash);
+    List<CommitHistory> getCommitHistories(String taskCd, String repoName, String branch);
     void commit(String taskCd,
                 String repoName,
                 String branch,

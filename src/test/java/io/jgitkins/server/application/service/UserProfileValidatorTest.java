@@ -32,7 +32,7 @@ class UserProfileValidatorTest {
 
     @Test
     void validateUsername_throwsWhenInvalid() {
-        assertThrows(JgitkinsException.class, () -> validator.validateUsername("bad name"));
+        assertThrows(IllegalArgumentException.class, () -> validator.validateUsername("bad name"));
     }
 
     @Test

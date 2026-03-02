@@ -19,7 +19,7 @@ public class CommitService implements CommitLoadUseCase {
     @Transactional(readOnly = true)
     public CommitHistory getCommit(String taskCd,
                                    String repoName,
-                                   String commitHash) throws IOException {
+                                   String commitHash) {
         return commitGitPort.getCommitHistory(taskCd, repoName, commitHash);
     }
 
@@ -27,7 +27,7 @@ public class CommitService implements CommitLoadUseCase {
     @Transactional(readOnly = true)
     public List<CommitHistory> getCommits(String taskCd,
                                           String repoName,
-                                          String branch) throws IOException {
+                                          String branch) {
         return commitGitPort.getCommitHistories(taskCd, repoName, branch);
     }
 }

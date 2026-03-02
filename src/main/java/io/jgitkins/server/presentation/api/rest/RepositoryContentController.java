@@ -50,7 +50,7 @@ public class RepositoryContentController {
                                                           @PathVariable String branch,
                                                           @Parameter(schema = @Schema(type = "string", format = "binary"))
                                                           @RequestPart("file") MultipartFile file,
-                                                          @RequestPart("request") FileUploadInfo request) throws IOException {
+                                                          @RequestPart("request") FileUploadInfo request) {
         fileUploadUseCase.uploadFileToRepository(taskCd, repoName, branch, file, request);
         return ApiResponse.ok("File uploaded and committed.");
     }
@@ -62,7 +62,7 @@ public class RepositoryContentController {
                                                                         @RequestParam("path") String path,
                                                                         @RequestParam("message") String message,
                                                                         @Parameter(schema = @Schema(type = "string", format = "binary"))
-                                                                        @RequestPart("file") MultipartFile file) throws IOException {
+                                                                        @RequestPart("file") MultipartFile file) {
         RepositoryKey key = resolveRepositoryKey(repositoryId);
         FileUploadInfo request = new FileUploadInfo(path, message, null, null);
         fileUploadUseCase.uploadFileToRepository(key.namespace(), key.repoName(), branch, file, request);
@@ -74,7 +74,7 @@ public class RepositoryContentController {
     public ResponseEntity<ApiResponse<List<FileEntry>>> getTree(@PathVariable String taskCd,
                                                                 @PathVariable String repoName,
                                                                 @PathVariable String branch,
-                                                                @RequestParam(name = "dir", required = false, defaultValue = "") String dir) throws IOException {
+                                                                @RequestParam(name = "dir", required = false, defaultValue = "") String dir) {
         List<FileEntry> files = fileTreeLoadUseCase.getTree(taskCd, repoName, branch, dir);
         return ApiResponse.ok(files);
     }

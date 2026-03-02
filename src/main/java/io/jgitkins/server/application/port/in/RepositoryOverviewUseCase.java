@@ -5,5 +5,5 @@ import java.io.IOException;
 
 public interface RepositoryOverviewUseCase {
 
-	RepositoryOverviewResult getOverview(Long repositoryId, String branch) throws IOException;
+	RepositoryOverviewResult getOverview(Long repositoryId, String branch);
 }

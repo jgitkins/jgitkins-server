@@ -36,20 +36,20 @@
 ## 5. 단계별 실행 계획 (Subtasks)
 
 ### Step 1. RepositoryValidator 구현
-- [ ] 이름 중복 체크 및 권한 검증 메서드 추출.
-- [ ] `RepositoryLifecycleService`에서 검증 로직 위임.
+- [x] 이름 중복 체크 및 권한 검증 메서드 추출.
+- [x] `RepositoryLifecycleService`에서 검증 로직 위임.
 
 ### Step 2. RepositoryLookupService 구현
-- [ ] `resolveRepositoryByPath` 로직 이전 및 테스트 보강.
-- [ ] 가시성 정책(`isVisibleToRequester`) 캡슐화.
+- [x] `resolveRepositoryByPath` 로직 이전 및 테스트 보강.
+- [x] 가시성 정책(`isVisibleToRequester`) 캡슐화.
 
 ### Step 3. Create/Delete 흐름 리팩토링
-- [ ] VO 우선 생성(Fast-Fail) 적용.
-- [ ] `RepositoryLifecycleService`를 Orchestrator로 슬림화.
+- [x] VO 우선 생성(Fast-Fail) 적용.
+- [x] `RepositoryLifecycleService`를 Orchestrator로 슬림화.
 
 ### Step 4. 테스트 및 안정화
-- [ ] `RepositoryLifecycleServiceTest` 및 신규 컴포넌트 단위 테스트 수행.
-- [ ] 전체 회귀 테스트 실행.
+- [x] `RepositoryLifecycleServiceTest` 및 신규 컴포넌트 단위 테스트 수행.
+- [x] 전체 회귀 테스트 실행.
 
 ## 6. 완료 기준 (DoD)
 - `RepositoryLifecycleService` 클래스 라인 수가 50% 이상 감소함.
