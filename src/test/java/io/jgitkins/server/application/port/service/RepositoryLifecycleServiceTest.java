@@ -4,34 +4,36 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.application.dto.command.RepositoryCreateCommand;
 import io.jgitkins.server.application.dto.result.RepositoryResult;
 import io.jgitkins.server.application.mapper.RepositoryApplicationMapper;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.OrganizeMemberPort;
+import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.RepositoryGitPort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.service.RepositoryLookupService;
 import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
+import io.jgitkins.server.application.service.RepositoryValidator;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OwnerId;
 import io.jgitkins.server.domain.model.vo.OwnerType;
+import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.RepositoryVisibility;
-import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.UserId;
-import io.jgitkins.server.application.dto.command.RepositoryCreateCommand;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -40,30 +42,41 @@ class RepositoryLifecycleServiceTest {
 
     @Mock
     private RepositoryNamespaceResolver repositoryNamespaceResolver;
-
     @Mock
     private RepositoryApplicationMapper repositoryApplicationMapper;
-
     @Mock
     private io.jgitkins.server.application.common.event.DomainEventPublisher domainEventPublisher;
-
     @Mock
     private RepositoryGitPort repositoryGitPort;
-
     @Mock
     private RepositoryPort repositoryPort;
-
     @Mock
     private OrganizeMemberPort organizeMemberPort;
-
+    @Mock
+    private OrganizePort organizePort;
     @Mock
     private CurrentUserPort currentUserPort;
-
     @Mock
     private UserPort userPort;
 
-    @InjectMocks
     private RepositoryLifecycleService service;
+
+    @BeforeEach
+    void setUp() {
+        RepositoryValidator validator = new RepositoryValidator(repositoryPort, organizeMemberPort, currentUserPort);
+        RepositoryLookupService lookupService = new RepositoryLookupService(repositoryPort, userPort, organizePort, organizeMemberPort);
+        service = new RepositoryLifecycleService(
+                repositoryNamespaceResolver,
+                repositoryApplicationMapper,
+                domainEventPublisher,
+                repositoryGitPort,
+                repositoryPort,
+                currentUserPort,
+                userPort,
+                validator,
+                lookupService
+        );
+    }
 
     @Test
     void getRepository_returnsMappedResult() {
@@ -125,7 +138,6 @@ class RepositoryLifecycleServiceTest {
         when(repositoryPort.save(any(Repository.class))).thenReturn(saved);
         when(saved.getId()).thenReturn(RepositoryId.of(100L));
         when(saved.getDomainEvents()).thenReturn(List.of());
-        when(repositoryPort.findById(RepositoryId.of(100L))).thenReturn(Optional.of(saved));
         when(repositoryApplicationMapper.toDto(saved)).thenReturn(result);
 
         RepositoryResult response = service.create(command);

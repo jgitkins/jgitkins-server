@@ -535,7 +535,27 @@
             "title": "BranchService 리팩토링 (책임 분리/예외 정합성/트랜잭션 경계)",
             "description": "BranchService 오케스트레이션 책임을 명확히 하고 검증/조회/권한/예외 매핑을 정리하여 유지보수성과 테스트 용이성을 개선한다.",
             "details": "대상: src/main/java/io/jgitkins/server/application/port/service/BranchService.java 및 연관 validator/port/adapter. 핵심: 1) 입력/정책 검증 분리, 2) IOException 누수 제거 및 JgitkinsException 일원화, 3) 브랜치 생성/삭제 플로우에서 Git-DB 일관성 보강, 4) 중복 조회/중복 매핑 제거, 5) 단위/통합 테스트 보강.\n<info added on 2026-02-28T16:43:39.643Z>\nBranchService 리팩토링 사전 분석 및 계획 문서 작성이 완료됨. 참조 문서: .taskmaster/docs/task_2_11_plan.md. 핵심 이슈: 책임 과밀, IOException 시그니처 누수, Git-DB 불일치 리스크, BranchJGitAdapter 오류코드 정합성 문제. 단계별 실행안(Step1~4)과 DoD를 문서화함.\n</info added on 2026-02-28T16:43:39.643Z>",
-            "status": "pending",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "2"
+          },
+          {
+            "id": 12,
+            "title": "PushHook 리팩토링 및 헥사고날 아키텍처 적용",
+            "description": "JGit PushHook의 기술적 관심사와 비즈니스 로직을 분리하고 헥사고날 패턴을 적용한다.",
+            "details": "참조 문서: .taskmaster/docs/task_2_12_plan.md. 1) PushEventRequestResolver 도입으로 서블릿 의존성 제거, 2) RepositoryPort.findByPath 도입으로 경로 파싱 로직 인프라 위임, 3) PushEventHandleService 도메인 중심 오케스트레이션 구현 완료.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "2"
+          },
+          {
+            "id": 13,
+            "title": "RepositoryLifecycleService 리팩토링 및 책임 분리",
+            "description": "거대해진 RepositoryLifecycleService의 검증, 조회, 가시성 정책을 분리하여 응집도를 높이고 도메인 중심 설계를 강화한다.",
+            "details": "참조 문서: .taskmaster/docs/task_2_13_plan.md. 1) RepositoryValidator 도입으로 검증 로직 분리, 2) RepositoryLookupService 도입으로 복잡한 경로 해석 분리, 3) VO 우선 생성(Fast-Fail) 패턴 적용.",
+            "status": "in-progress",
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "2"
