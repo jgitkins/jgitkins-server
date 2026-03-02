@@ -24,14 +24,14 @@ public class Organize extends AbstractAggregateRoot<OrganizeId> {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public static Organize create(String name,
-                                  Long ownerId,
+    public static Organize create(OrganizeName name,
+                                  UserId ownerId,
                                   String description) {
         LocalDateTime now = LocalDateTime.now();
         Organize organize = new Organize(null,
-                                         OrganizeName.from(name),
+                                         name,
                                          normalizeDescription(description),
-                                         ownerId != null ? UserId.of(ownerId) : null,
+                                         ownerId,
                                          now,
                                          now);
 

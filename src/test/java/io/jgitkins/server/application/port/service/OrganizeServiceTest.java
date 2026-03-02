@@ -8,8 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.command.OrganizeCreationCommand;
 import io.jgitkins.server.application.dto.result.OrganizeCreationResult;
 import io.jgitkins.server.application.mapper.OrganizeApplicationMapper;
@@ -17,6 +15,8 @@ import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.OrganizeMemberPort;
 import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.service.OrganizeValidator;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
@@ -24,9 +24,9 @@ import io.jgitkins.server.domain.model.vo.UserId;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -48,8 +48,17 @@ class OrganizeServiceTest {
     @Mock
     private OrganizeApplicationMapper organizeApplicationMapper;
 
-    @InjectMocks
     private OrganizeService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new OrganizeService(
+                organizePort,
+                currentUserPort,
+                new OrganizeValidator(organizePort, userPort, organizeMemberPort),
+                organizeApplicationMapper
+        );
+    }
 
     @Test
     void createOrganize_savesWhenNameAndNamespaceAreAvailable() {
