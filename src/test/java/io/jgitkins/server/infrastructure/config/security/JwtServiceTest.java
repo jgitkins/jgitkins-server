@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.jgitkins.server.infrastructure.adapter.security.JwtService;
 import io.jsonwebtoken.Claims;
 import java.util.List;
 import org.junit.jupiter.api.Test;

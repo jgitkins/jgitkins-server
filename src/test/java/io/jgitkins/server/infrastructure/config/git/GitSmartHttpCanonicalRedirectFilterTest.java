@@ -2,6 +2,7 @@ package io.jgitkins.server.infrastructure.config.git;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.jgitkins.server.infrastructure.config.filter.GitSmartHttpCanonicalRedirectFilter;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;

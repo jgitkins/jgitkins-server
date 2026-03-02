@@ -114,6 +114,17 @@ public class RepositoryMybatisAdapter implements RepositoryPort {
     }
 
     @Override
+    public Optional<Repository> findByPath(String path) {
+        if (path == null || path.isBlank()) {
+            return Optional.empty();
+        }
+        RepositoryEntityCondition condition = new RepositoryEntityCondition();
+        condition.createCriteria().andPathEqualTo(path.trim());
+        List<RepositoryEntity> entities = repositoryEntityMbgMapper.selectByConditionWithBLOBs(condition);
+        return entities.stream().findFirst().map(repositoryDomainMapper::toDomain);
+    }
+
+    @Override
     public Optional<Repository> findByOwnerAndName(OwnerType ownerType, OwnerId ownerId, RepositoryName name) {
         RepositoryEntityCondition condition = new RepositoryEntityCondition();
         condition.createCriteria()

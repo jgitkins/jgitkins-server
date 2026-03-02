@@ -1,6 +1,8 @@
 package io.jgitkins.server.domain.aggregate;
 
 import io.jgitkins.server.domain.event.OrganizeCreatedEvent;
+import io.jgitkins.server.domain.model.vo.OrganizeName;
+import io.jgitkins.server.domain.model.vo.UserId;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,8 +13,8 @@ class OrganizeTest {
     @Test
     void shouldCreateOrganizeWhenNameIsValid() {
 
-        Organize organize = Organize.create("  dev_team  ",
-                                            42L,
+        Organize organize = Organize.create(OrganizeName.from("  dev_team  "),
+                                            UserId.of(42L),
                                             "  Leading the way  ");
 
         assertThat(organize.getName().getValue()).isEqualTo("dev_team");
@@ -29,7 +31,7 @@ class OrganizeTest {
 
     @Test
     void shouldRejectWhenNameContainsSpaces() {
-        assertThatThrownBy(() -> Organize.create("team space", 1L, "desc"))
+        assertThatThrownBy(() -> OrganizeName.from("team space"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Organize name");
     }
@@ -37,11 +39,8 @@ class OrganizeTest {
     // Allowed characters: A–Z, a–z, 0–9, '_' and '-'
     @Test
     void shouldRejectWhenNameContainsNotAllowedCharacters() {
-        assertThatThrownBy(() -> Organize.create("team space", 1L, "desc"))
+        assertThatThrownBy(() -> OrganizeName.from("team!space"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Organize name");
     }
-
-
-
 }

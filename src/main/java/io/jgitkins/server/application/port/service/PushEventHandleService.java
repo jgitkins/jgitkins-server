@@ -1,18 +1,15 @@
 package io.jgitkins.server.application.port.service;
 
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.dto.command.JobCreateCommand;
 import io.jgitkins.server.application.dto.command.PushEventCommand;
-import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
 import io.jgitkins.server.application.port.in.JobCreateUseCase;
+import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
 import io.jgitkins.server.application.port.out.BranchPort;
-import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.Branch;
-import io.jgitkins.server.domain.model.vo.OwnerType;
-import io.jgitkins.server.domain.model.vo.OrganizeName;
-import io.jgitkins.server.domain.model.vo.OwnerId;
-import java.util.Optional;
+import io.jgitkins.server.domain.aggregate.Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,97 +24,61 @@ public class PushEventHandleService implements PushEventHandleUseCase {
     private final RepositoryPort repositoryPort;
     private final BranchPort branchPort;
 
-    private final OrganizePort organizePort;
-    private final UserPort userPort;
-
     @Override
     @Transactional
     public void handle(PushEventCommand command) {
+        // 1. 저장소 로딩 (Port 활용하여 경로 기반 조회)
+        Repository repository = repositoryPort.findByPath(command.getGitDirPath())
+                .orElseThrow(() -> new JgitkinsException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
+                        "Repository not found for path: " + command.getGitDirPath()));
 
-        OwnerContext ownerContext = resolveOwnerContext(command.getNamespace());
-        if (ownerContext == null) {
-            log.warn("push event skipped: owner not resolved. namespace: [{}]", command.getNamespace());
-            return;
+        log.debug("Handling push event for repository: [{}]", repository.getName().getValue());
+
+        // 2. 브랜치 상태 영속화
+        updateBranchState(repository.getId().getValue(), command);
+
+        // 3. 후속 작업 트리거 (Job 생성 등)
+        if (shouldTriggerJob(command)) {
+            jobCreateUseCase.create(buildJobCommand(command, repository));
         }
-
-        Optional<Long> repositoryIdOptional = repositoryPort.findRepositoryId(ownerContext.ownerType(),
-                                                                              ownerContext.ownerId(),
-                                                                              command.getRepositoryName());
-        log.debug("repository: [{}]", repositoryIdOptional);
-
-        if (repositoryIdOptional.isEmpty()) {
-            log.warn("push event skipped: repository not registered. ownerType: [{}] namespace: [{}] repoName: [{}]",
-                    ownerContext.ownerType(), command.getNamespace(), command.getRepositoryName());
-            return;
-        }
-
-        Long repositoryId = repositoryIdOptional.get();
-        createBranchIfNeeded(repositoryId, command);
-
-        if (shouldSkipJob(command)) {
-            return;
-        }
-
-        jobCreateUseCase.create(buildJobCommand(command, repositoryId));
     }
 
-    private void createBranchIfNeeded(Long repositoryId, PushEventCommand command) {
-        if (!command.isBranchCreated()) {
-            return;
+    private void updateBranchState(Long repositoryId, PushEventCommand command) {
+        if (command.isBranchCreated()) {
+            log.info("Creating new branch [{}] for repository [{}]", command.getBranchName(), repositoryId);
+            branchPort.create(Branch.create(repositoryId, command.getBranchName()));
+        } else if (command.isBranchDeleted()) {
+            log.info("Deleting branch [{}] from repository [{}]", command.getBranchName(), repositoryId);
+            branchPort.delete(repositoryId, command.getBranchName());
         }
-        branchPort.create(Branch.create(repositoryId, command.getBranchName()));
+        // UPDATE(Push)의 경우 현재 로직에서는 별도의 Branch 엔티티 갱신이 필요 없음 (커밋 해시는 Job에 기록됨)
     }
 
-    private boolean shouldSkipJob(PushEventCommand command) {
+    private boolean shouldTriggerJob(PushEventCommand command) {
+        if (command.isBranchDeleted()) {
+            return false;
+        }
+
         if (command.getCommitHash() == null || command.getCommitHash().isBlank()) {
-            log.warn("push event skipped: missing commit hash for repo={} branch={}",
-                    command.getRepositoryName(), command.getBranchName());
-            return true;
+            log.warn("push event job skipped: missing commit hash for branch={}", command.getBranchName());
+            return false;
         }
 
         if (command.getTriggeredBy() == null) {
-            log.warn("push event skipped: unable to resolve triggering user for repo={} branch={}",
-                    command.getRepositoryName(), command.getBranchName());
-            return true;
+            log.warn("push event job skipped: unable to resolve triggering user for branch={}", command.getBranchName());
+            return false;
         }
-        return false;
+        return true;
     }
 
-    private JobCreateCommand buildJobCommand(PushEventCommand command, Long repositoryId) {
+    private JobCreateCommand buildJobCommand(PushEventCommand command, Repository repository) {
         return JobCreateCommand.builder()
-                .taskCd(command.getNamespace())
-                .repoName(command.getRepositoryName())
-                .repositoryId(repositoryId)
+                .taskCd(repository.getOwnerId().toString()) // Namespace 역할
+                .repoName(repository.getName().getValue())
+                .repositoryId(repository.getId().getValue())
                 .branchName(command.getBranchName())
                 .commitHash(command.getCommitHash())
                 .triggeredBy(command.getTriggeredBy())
                 .build();
     }
-
-    private OwnerContext resolveOwnerContext(String namespace) {
-        if (namespace == null || namespace.isBlank()) {
-            return null;
-        }
-        OwnerContext userOwner = userPort.findUserIdByUsername(namespace)
-                .map(userId -> new OwnerContext(OwnerType.USER, OwnerId.of(userId)))
-                .orElse(null);
-        OwnerContext organizeOwner = findOrganizeOwner(namespace);
-        if (userOwner != null && organizeOwner != null) {
-            log.warn("push event skipped: ambiguous namespace. namespace=[{}]", namespace);
-            return null;
-        }
-        return userOwner != null ? userOwner : organizeOwner;
-    }
-
-    private OwnerContext findOrganizeOwner(String namespace) {
-        try {
-            return organizePort.findByName(OrganizeName.from(namespace))
-                    .map(organize -> new OwnerContext(OwnerType.ORGANIZATION, OwnerId.of(organize.getId().getValue())))
-                    .orElse(null);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    private record OwnerContext(OwnerType ownerType, OwnerId ownerId) {}
 }
