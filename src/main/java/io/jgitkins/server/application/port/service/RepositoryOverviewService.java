@@ -1,5 +1,10 @@
 package io.jgitkins.server.application.port.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import io.jgitkins.server.application.dto.FileEntry;
 import io.jgitkins.server.application.dto.RepositoryKey;
 import io.jgitkins.server.application.dto.result.BranchSearchResult;
@@ -11,11 +16,7 @@ import io.jgitkins.server.application.port.in.GitRepositoryAccessUseCase;
 import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
 import io.jgitkins.server.application.port.in.RepositoryOverviewUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
-import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -33,11 +34,17 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 	public RepositoryOverviewResult getOverview(Long repositoryId, String branch) {
 
 		RepositoryResult repository = repositoryLoadUseCase.getRepository(repositoryId);
+
 		RepositoryKey key = resolveRepositoryKey(repository);
+
 		List<BranchSearchResult> branches = branchLoadUseCase.getBranches(repositoryId);
+
 		String selectedBranch = resolveBranch(branch, branches);
-		List<FileEntry> tree = loadTree(key, selectedBranch);
+
+		List<FileEntry> tree = fileTreeLoadUseCase.getTree(key.namespace(), key.repoName(), selectedBranch, ROOT_PATH);
+
 		Long userId = currentUserPort.currentUserId().orElse(null);
+
 		GitRepositoryAccessUseCase.RepositoryPermission permission =
 				gitRepositoryAccessUseCase.resolvePermission(null, key != null ? key.namespace() : null, key != null ? key.repoName() : null, userId);
 
@@ -51,12 +58,6 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 				.build();
 	}
 
-	private List<FileEntry> loadTree(RepositoryKey key, String selectedBranch) {
-		if (key == null || !StringUtils.hasText(selectedBranch)) {
-			return List.of();
-		}
-		return fileTreeLoadUseCase.getTree(key.namespace(), key.repoName(), selectedBranch, ROOT_PATH);
-	}
 
 	private String resolveBranch(String branch, List<BranchSearchResult> branches) {
 		if (StringUtils.hasText(branch)) {
