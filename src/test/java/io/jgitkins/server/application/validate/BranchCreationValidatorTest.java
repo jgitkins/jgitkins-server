@@ -1,4 +1,4 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.validate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

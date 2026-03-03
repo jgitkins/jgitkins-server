@@ -8,7 +8,7 @@ import io.jgitkins.server.application.port.in.OrganizeDeletionUseCase;
 import io.jgitkins.server.application.port.in.OrganizeLoadUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.OrganizePort;
-import io.jgitkins.server.application.service.OrganizeValidator;
+import io.jgitkins.server.application.validate.OrganizeValidator;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;

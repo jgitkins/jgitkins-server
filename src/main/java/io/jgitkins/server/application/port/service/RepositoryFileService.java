@@ -16,7 +16,7 @@ import io.jgitkins.server.application.port.in.FileTreeLoadUseCase;
 import io.jgitkins.server.application.port.in.FileUploadUseCase;
 import io.jgitkins.server.application.port.out.CommitGitPort;
 import io.jgitkins.server.application.port.out.FileGitPort;
-import io.jgitkins.server.application.service.RepositoryUploadPermissionValidator;
+import io.jgitkins.server.application.validate.RepositoryUploadPermissionValidator;
 import lombok.RequiredArgsConstructor;
 
 @Service

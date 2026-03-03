@@ -6,7 +6,7 @@ import io.jgitkins.server.application.port.in.OrganizeMemberAddUseCase;
 import io.jgitkins.server.application.port.in.OrganizeMemberQueryUseCase;
 import io.jgitkins.server.application.port.in.OrganizeMemberRemoveUseCase;
 import io.jgitkins.server.application.port.out.OrganizeMemberPort;
-import io.jgitkins.server.application.service.OrganizeMemberValidator;
+import io.jgitkins.server.application.validate.OrganizeMemberValidator;
 import io.jgitkins.server.domain.model.OrganizeMember;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.UserId;

@@ -7,7 +7,7 @@ import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.port.in.UserProfileUpdateUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.UserPort;
-import io.jgitkins.server.application.service.UserProfileValidator;
+import io.jgitkins.server.application.validate.UserProfileValidator;
 import io.jgitkins.server.domain.error.DomainErrorCode;
 import io.jgitkins.server.domain.exception.UsernameAlreadySetException;
 import io.jgitkins.server.domain.model.User;

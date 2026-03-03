@@ -1,4 +1,4 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.validate;
 
 import io.jgitkins.server.application.port.out.OrganizeMemberPort;
 import io.jgitkins.server.common.exception.JgitkinsException;

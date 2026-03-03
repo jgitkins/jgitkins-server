@@ -2,7 +2,7 @@ package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.UserPort;
-import io.jgitkins.server.application.service.UserProfileValidator;
+import io.jgitkins.server.application.validate.UserProfileValidator;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserStatus;
 import io.jgitkins.server.domain.model.vo.Username;

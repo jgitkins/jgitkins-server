@@ -1,4 +1,4 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.validate;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.application.port.in.GitRepositoryAccessUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
+import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;

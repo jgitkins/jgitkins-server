@@ -1,4 +1,4 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.validate;
 
 import org.springframework.stereotype.Component;
 

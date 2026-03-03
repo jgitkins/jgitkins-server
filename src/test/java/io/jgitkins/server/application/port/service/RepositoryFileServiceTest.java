@@ -11,7 +11,7 @@ import io.jgitkins.server.application.dto.FileUploadInfo;
 import io.jgitkins.server.application.factory.CommitFileFactory;
 import io.jgitkins.server.application.port.out.CommitGitPort;
 import io.jgitkins.server.application.port.out.FileGitPort;
-import io.jgitkins.server.application.service.RepositoryUploadPermissionValidator;
+import io.jgitkins.server.application.validate.RepositoryUploadPermissionValidator;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;

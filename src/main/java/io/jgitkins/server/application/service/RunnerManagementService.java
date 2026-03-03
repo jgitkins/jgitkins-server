@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RunnerWriteService implements RunnerRegisterUseCase, RunnerDeleteUseCase, RunnerActivateUseCase {
+public class RunnerManagementService implements RunnerRegisterUseCase, RunnerDeleteUseCase, RunnerActivateUseCase {
 
     private final RunnerPort runnerPort;
     private final RunnerApplicationMapper runnerApplicationMapper;

@@ -15,7 +15,7 @@ import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.application.service.RepositoryLookupService;
 import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
-import io.jgitkins.server.application.service.RepositoryValidator;
+import io.jgitkins.server.application.validate.RepositoryValidator;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.*;

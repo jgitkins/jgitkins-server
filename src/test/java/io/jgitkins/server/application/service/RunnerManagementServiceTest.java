@@ -27,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class RunnerWriteServiceTest {
+class RunnerManagementServiceTest {
 
     @Mock
     private RunnerPort runnerPort;
@@ -39,7 +39,7 @@ class RunnerWriteServiceTest {
     private RunnerRuntimeConfigProvider runtimeConfigProvider;
 
     @InjectMocks
-    private RunnerWriteService service;
+    private RunnerManagementService service;
 
     @Test
     void register_returnsMappedResult() {
