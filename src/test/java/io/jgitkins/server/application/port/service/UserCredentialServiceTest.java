@@ -1,4 +1,4 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.port.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -10,17 +10,19 @@ import static org.mockito.Mockito.when;
 import io.jgitkins.server.application.dto.command.UserCredentialIssueCommand;
 import io.jgitkins.server.application.dto.result.UserCredentialIssueResult;
 import io.jgitkins.server.application.dto.result.UserCredentialSummary;
+import io.jgitkins.server.application.mapper.UserCredentialApplicationMapper;
 import io.jgitkins.server.application.port.out.UserCredentialPort;
 import io.jgitkins.server.domain.model.UserCredential;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(MockitoExtension.class)
 class UserCredentialServiceTest {
@@ -31,8 +33,14 @@ class UserCredentialServiceTest {
     @Mock
     private PasswordEncoder encoder;
 
-    @InjectMocks
+    private UserCredentialApplicationMapper userCredentialApplicationMapper = Mappers.getMapper(UserCredentialApplicationMapper.class);
+
     private UserCredentialService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new UserCredentialService(port, encoder, userCredentialApplicationMapper);
+    }
 
     @Test
     void issueToken_issuesPlainTokenAndPersistsHashedCredential() {

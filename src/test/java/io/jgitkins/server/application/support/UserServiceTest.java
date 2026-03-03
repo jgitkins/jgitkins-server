@@ -3,16 +3,14 @@ package io.jgitkins.server.application.support;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.jgitkins.server.application.dto.command.UserLoginOrSignUpCommand;
 import io.jgitkins.server.application.port.out.UserIdentityPort;
 import io.jgitkins.server.application.port.out.UserPort;
-import io.jgitkins.server.application.support.UserProfileUpdater;
-import io.jgitkins.server.application.support.UsernameAllocator;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserIdentity;
 import io.jgitkins.server.domain.model.UserStatus;
@@ -26,8 +24,12 @@ class UserServiceTest {
         UserService service = new UserService(mock(UserPort.class), mock(UserIdentityPort.class),
                 mock(UsernameAllocator.class), new UserProfileUpdater());
 
+        UserLoginOrSignUpCommand command = UserLoginOrSignUpCommand.builder()
+                .providerSub("sub")
+                .build();
+
         assertThrows(IllegalArgumentException.class, () ->
-                service.loginOrSignUp(null, "sub", null, false, null, null));
+                service.loginOrSignUp(command));
     }
 
     @Test
@@ -47,7 +49,15 @@ class UserServiceTest {
 
         UserService service = new UserService(userPort, identityPort, allocator, updater);
 
-        User result = service.loginOrSignUp("google", "sub", "a@b.com", true, "User", null);
+        UserLoginOrSignUpCommand command = UserLoginOrSignUpCommand.builder()
+                .providerName("google")
+                .providerSub("sub")
+                .email("a@b.com")
+                .emailVerified(true)
+                .name("User")
+                .build();
+
+        User result = service.loginOrSignUp(command);
 
         assertEquals(1L, result.getId());
         verify(identityPort, never()).save(any(UserIdentity.class));
@@ -71,7 +81,15 @@ class UserServiceTest {
 
         UserService service = new UserService(userPort, identityPort, allocator, updater);
 
-        User result = service.loginOrSignUp("google", "sub", "a@b.com", true, "User", null);
+        UserLoginOrSignUpCommand command = UserLoginOrSignUpCommand.builder()
+                .providerName("google")
+                .providerSub("sub")
+                .email("a@b.com")
+                .emailVerified(true)
+                .name("User")
+                .build();
+
+        User result = service.loginOrSignUp(command);
 
         assertEquals(2L, result.getId());
         verify(identityPort).save(any(UserIdentity.class));

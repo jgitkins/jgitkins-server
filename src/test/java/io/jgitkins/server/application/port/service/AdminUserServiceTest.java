@@ -1,4 +1,4 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.port.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.application.dto.result.UserAdminDetail;
 import io.jgitkins.server.application.dto.result.UserAdminSummary;
+import io.jgitkins.server.application.dto.result.UserIdentitySummary;
+import io.jgitkins.server.application.mapper.UserApplicationMapper;
 import io.jgitkins.server.application.port.out.UserIdentityPort;
 import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.model.User;
@@ -17,9 +19,10 @@ import io.jgitkins.server.domain.model.UserStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -32,8 +35,14 @@ class AdminUserServiceTest {
     @Mock
     private UserIdentityPort userIdentityPort;
 
-    @InjectMocks
+    private UserApplicationMapper userApplicationMapper = Mappers.getMapper(UserApplicationMapper.class);
+
     private AdminUserService adminUserService;
+
+    @BeforeEach
+    void setUp() {
+        adminUserService = new AdminUserService(userPort, userIdentityPort, userApplicationMapper);
+    }
 
     @Test
     void getUsers_mapsDomainUsersToSummaries() {

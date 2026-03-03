@@ -1,20 +1,20 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.dto.result.UserAdminDetail;
 import io.jgitkins.server.application.dto.result.UserAdminSummary;
 import io.jgitkins.server.application.dto.result.UserIdentitySummary;
+import io.jgitkins.server.application.mapper.UserApplicationMapper;
 import io.jgitkins.server.application.port.in.AdminUserQueryUseCase;
 import io.jgitkins.server.application.port.in.AdminUserUpdateUseCase;
 import io.jgitkins.server.application.port.out.UserIdentityPort;
 import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserStatus;
+import java.util.List;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -29,20 +29,14 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
 
     private final UserPort userPort;
     private final UserIdentityPort userIdentityPort;
+    private final UserApplicationMapper userApplicationMapper;
 
     @Override
     @Transactional(readOnly = true)
     public List<UserAdminSummary> getUsers() {
         return userPort.findAll()
                 .stream()
-                .map(user -> new UserAdminSummary(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getDisplayName(),
-                        user.getStatus().name(),
-                        user.getLastLoginAt()
-                ))
+                .map(userApplicationMapper::toAdminSummary)
                 .toList();
     }
 
@@ -51,29 +45,13 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
     public UserAdminDetail getUser(Long userId) {
         User user = userPort.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        
         List<UserIdentitySummary> identities = userIdentityPort.findAllByUserId(userId)
                 .stream()
-                .map(identity -> new UserIdentitySummary(
-                        identity.getProviderName(),
-                        identity.getProviderSub(),
-                        identity.getEmail(),
-                        identity.isEmailVerified(),
-                        identity.getName(),
-                        identity.getAvatarUrl()
-                ))
+                .map(userApplicationMapper::toIdentitySummary)
                 .toList();
-        return new UserAdminDetail(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getDisplayName(),
-                user.getAvatarUrl(),
-                user.getStatus().name(),
-                user.getLastLoginAt(),
-                user.getCreatedAt(),
-                user.getUpdatedAt(),
-                identities
-        );
+        
+        return userApplicationMapper.toAdminDetail(user, identities);
     }
 
     @Override

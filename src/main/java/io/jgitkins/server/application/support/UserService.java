@@ -1,9 +1,8 @@
 package io.jgitkins.server.application.support;
 
+import io.jgitkins.server.application.dto.command.UserLoginOrSignUpCommand;
 import io.jgitkins.server.application.port.out.UserIdentityPort;
 import io.jgitkins.server.application.port.out.UserPort;
-import io.jgitkins.server.application.support.UserProfileUpdater;
-import io.jgitkins.server.application.support.UsernameAllocator;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserIdentity;
 import io.jgitkins.server.domain.model.UserStatus;
@@ -21,36 +20,28 @@ public class UserService {
     private final UsernameAllocator usernameAllocator;
     private final UserProfileUpdater userProfileUpdater;
 
-    public User loginOrSignUp(String providerName,
-                              String providerSub,
-                              String email,
-                              boolean emailVerified,
-                              String name,
-                              String avatarUrl) {
+    public User loginOrSignUp(UserLoginOrSignUpCommand command) {
 
         LocalDateTime loginAt = LocalDateTime.now();
 
-        if (!isProviderIdentityReady(providerName, providerSub)) {
+        if (!isProviderIdentityReady(command.getProviderName(), command.getProviderSub())) {
             throw new IllegalArgumentException("Provider identity is required");
         }
 
-        return userIdentityPort.findByProvider(providerName, providerSub)
-                .map(identity -> signin(identity, email, emailVerified, name, avatarUrl, loginAt))
-                .orElseGet(() -> signinWithSignUp(providerName, providerSub, email, emailVerified, name, avatarUrl, loginAt));
+        return userIdentityPort.findByProvider(command.getProviderName(), command.getProviderSub())
+                .map(identity -> signin(identity, command, loginAt))
+                .orElseGet(() -> signinWithSignUp(command, loginAt));
     }
 
     private User signin(UserIdentity identity,
-                        String email,
-                        boolean emailVerified,
-                        String name,
-                        String avatarUrl,
+                        UserLoginOrSignUpCommand command,
                         LocalDateTime loginAt) {
 
         User user = userPort.findById(identity.getUserId())
                 .orElseThrow(() -> new IllegalStateException("User not found for identity"));
 
-        User persistedUser = persistUserWithUpdates(user, email, name, avatarUrl, loginAt); // 데이터가 변경된 부분이 있다면, 업데이트를 진행
-        UserIdentity updatedIdentity = userProfileUpdater.updateIdentityIfChanged(identity, email, emailVerified, name, avatarUrl);
+        User persistedUser = persistUserWithUpdates(user, command.getEmail(), command.getName(), command.getAvatarUrl(), loginAt);
+        UserIdentity updatedIdentity = userProfileUpdater.updateIdentityIfChanged(identity, command.getEmail(), command.isEmailVerified(), command.getName(), command.getAvatarUrl());
         if (updatedIdentity != identity) {
             userIdentityPort.save(updatedIdentity);
         }
@@ -58,25 +49,20 @@ public class UserService {
         return persistedUser;
     }
 
-    private User signinWithSignUp(String providerName,
-                                   String providerSub,
-                                   String email,
-                                   boolean emailVerified,
-                                   String name,
-                                   String avatarUrl,
+    private User signinWithSignUp(UserLoginOrSignUpCommand command,
                                    LocalDateTime loginAt) {
 
-        User user = findOrCreateUserForIdentity(email, name, avatarUrl, providerName, providerSub);
-        User persisted = persistUserWithUpdates(user, email, name, avatarUrl, loginAt);
+        User user = findOrCreateUserForIdentity(command.getEmail(), command.getName(), command.getAvatarUrl(), command.getProviderName(), command.getProviderSub());
+        User persisted = persistUserWithUpdates(user, command.getEmail(), command.getName(), command.getAvatarUrl(), loginAt);
 
         UserIdentity identity = UserIdentity.create(
                 persisted.getId(),
-                providerName,
-                providerSub,
-                email,
-                emailVerified,
-                name,
-                avatarUrl
+                command.getProviderName(),
+                command.getProviderSub(),
+                command.getEmail(),
+                command.isEmailVerified(),
+                command.getName(),
+                command.getAvatarUrl()
         );
         userIdentityPort.save(identity);
 

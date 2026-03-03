@@ -1,8 +1,9 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.dto.command.UserCredentialIssueCommand;
 import io.jgitkins.server.application.dto.result.UserCredentialIssueResult;
 import io.jgitkins.server.application.dto.result.UserCredentialSummary;
+import io.jgitkins.server.application.mapper.UserCredentialApplicationMapper;
 import io.jgitkins.server.application.port.in.UserCredentialIssueUseCase;
 import io.jgitkins.server.application.port.in.UserCredentialQueryUseCase;
 import io.jgitkins.server.application.port.in.UserCredentialRevokeUseCase;
@@ -26,6 +27,7 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
 
     private final UserCredentialPort userCredentialPort;
     private final PasswordEncoder passwordEncoder;
+    private final UserCredentialApplicationMapper userCredentialApplicationMapper;
 
     @Override
     public UserCredentialIssueResult issueToken(UserCredentialIssueCommand command) {
@@ -50,14 +52,7 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
     public List<UserCredentialSummary> getPatList(Long userId) {
         return userCredentialPort.findAllByUserIdAndProvider(userId, "PAT")
                 .stream()
-                .map(credential -> new UserCredentialSummary(
-                        credential.getId(),
-                        credential.getProvider(),
-                        credential.getName(),
-                        credential.getDescription(),
-                        credential.getCreatedAt(),
-                        credential.getUpdatedAt()
-                ))
+                .map(userCredentialApplicationMapper::toSummary)
                 .toList();
     }
 

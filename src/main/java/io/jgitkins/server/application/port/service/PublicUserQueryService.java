@@ -1,6 +1,7 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.port.service;
 
 import io.jgitkins.server.application.dto.result.UserSummary;
+import io.jgitkins.server.application.mapper.UserApplicationMapper;
 import io.jgitkins.server.application.port.in.PublicUserQueryUseCase;
 import io.jgitkins.server.application.port.out.UserPort;
 import java.util.List;
@@ -12,18 +13,13 @@ import org.springframework.stereotype.Service;
 public class PublicUserQueryService implements PublicUserQueryUseCase {
 
     private final UserPort userPort;
+    private final UserApplicationMapper userApplicationMapper;
 
     @Override
     public List<UserSummary> getUsers() {
         return userPort.findAll()
                 .stream()
-                .map(user -> new UserSummary(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getDisplayName(),
-                        user.getAvatarUrl(),
-                        user.getCreatedAt()
-                ))
+                .map(userApplicationMapper::toUserSummary)
                 .toList();
     }
 }
