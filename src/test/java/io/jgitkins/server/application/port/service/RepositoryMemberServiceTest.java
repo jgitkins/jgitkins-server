@@ -1,4 +1,4 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.port.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -10,16 +10,18 @@ import static org.mockito.Mockito.when;
 import io.jgitkins.server.application.dto.command.RepositoryMemberAddCommand;
 import io.jgitkins.server.application.dto.result.RepositoryMemberSummary;
 import io.jgitkins.server.application.port.out.RepositoryMemberPort;
+import io.jgitkins.server.application.validate.RepositoryMemberValidator;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.model.RepositoryMember;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryMemberRole;
 import io.jgitkins.server.domain.model.vo.UserId;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -29,8 +31,13 @@ class RepositoryMemberServiceTest {
     @Mock
     private RepositoryMemberPort repositoryMemberPort;
 
-    @InjectMocks
     private RepositoryMemberService service;
+
+    @BeforeEach
+    void setUp() {
+        RepositoryMemberValidator validator = new RepositoryMemberValidator(repositoryMemberPort);
+        service = new RepositoryMemberService(repositoryMemberPort, validator);
+    }
 
     @Test
     void addRepositoryMember_savesWithRequestedRoleWhenNotExists() {
@@ -82,8 +89,8 @@ class RepositoryMemberServiceTest {
 
     @Test
     void addRepositoryMember_throwsWhenCommandInvalid() {
-        assertThrows(IllegalArgumentException.class, () -> service.addRepositoryMember(null));
-        assertThrows(IllegalArgumentException.class, () -> service.addRepositoryMember(
+        assertThrows(JgitkinsException.class, () -> service.addRepositoryMember(null));
+        assertThrows(JgitkinsException.class, () -> service.addRepositoryMember(
                 RepositoryMemberAddCommand.builder().repositoryId(1L).build()
         ));
     }
@@ -97,8 +104,8 @@ class RepositoryMemberServiceTest {
 
     @Test
     void removeRepositoryMember_throwsWhenInputMissing() {
-        assertThrows(IllegalArgumentException.class, () -> service.removeRepositoryMember(null, 2L));
-        assertThrows(IllegalArgumentException.class, () -> service.removeRepositoryMember(1L, null));
+        assertThrows(JgitkinsException.class, () -> service.removeRepositoryMember(null, 2L));
+        assertThrows(JgitkinsException.class, () -> service.removeRepositoryMember(1L, null));
     }
 
     @Test
@@ -122,6 +129,6 @@ class RepositoryMemberServiceTest {
 
     @Test
     void getRepositoryMembers_throwsWhenRepositoryIdMissing() {
-        assertThrows(IllegalArgumentException.class, () -> service.getRepositoryMembers(null));
+        assertThrows(JgitkinsException.class, () -> service.getRepositoryMembers(null));
     }
 }

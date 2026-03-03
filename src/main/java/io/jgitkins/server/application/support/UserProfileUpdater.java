@@ -1,4 +1,4 @@
-package io.jgitkins.server.application.service.support;
+package io.jgitkins.server.application.support;
 
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserIdentity;

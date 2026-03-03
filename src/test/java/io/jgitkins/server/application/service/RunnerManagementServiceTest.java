@@ -14,7 +14,7 @@ import io.jgitkins.server.application.dto.result.RunnerActivateResult;
 import io.jgitkins.server.application.dto.result.RunnerRegistrationResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
 import io.jgitkins.server.application.port.out.RunnerPort;
-import io.jgitkins.server.application.service.support.RunnerRuntimeConfigProvider;
+import io.jgitkins.server.application.support.RunnerRuntimeConfigProvider;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.vo.RunnerScopeType;
 import io.jgitkins.server.domain.model.vo.RunnerStatus;

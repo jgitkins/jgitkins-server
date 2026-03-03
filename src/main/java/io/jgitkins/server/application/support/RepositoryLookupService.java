@@ -1,4 +1,4 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.support;
 
 import java.util.Map;
 import java.util.Optional;

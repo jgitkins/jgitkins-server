@@ -12,7 +12,7 @@ import io.jgitkins.server.application.port.out.BranchPort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.mapper.BranchApplicationMapper;
 import io.jgitkins.server.application.validate.BranchCreationValidator;
-import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
+import io.jgitkins.server.application.support.RepositoryNamespaceResolver;
 import io.jgitkins.server.application.validate.RepositoryUploadPermissionValidator;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;

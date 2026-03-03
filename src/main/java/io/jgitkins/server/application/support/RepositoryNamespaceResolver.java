@@ -1,4 +1,4 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.support;
 
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.port.out.OrganizePort;

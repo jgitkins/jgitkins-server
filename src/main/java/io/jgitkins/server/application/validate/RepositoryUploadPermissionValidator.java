@@ -6,7 +6,7 @@ import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.dto.RepositoryKey;
 import io.jgitkins.server.application.port.in.GitRepositoryAccessUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
-import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
+import io.jgitkins.server.application.support.RepositoryNamespaceResolver;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.aggregate.Repository;
 import lombok.RequiredArgsConstructor;

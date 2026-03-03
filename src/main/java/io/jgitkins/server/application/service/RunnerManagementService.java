@@ -6,7 +6,7 @@ import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
 import io.jgitkins.server.application.dto.result.RunnerActivateResult;
 import io.jgitkins.server.application.dto.result.RunnerRegistrationResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
-import io.jgitkins.server.application.service.support.RunnerRuntimeConfigProvider;
+import io.jgitkins.server.application.support.RunnerRuntimeConfigProvider;
 import io.jgitkins.server.application.port.in.RunnerActivateUseCase;
 import io.jgitkins.server.application.port.in.RunnerDeleteUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;

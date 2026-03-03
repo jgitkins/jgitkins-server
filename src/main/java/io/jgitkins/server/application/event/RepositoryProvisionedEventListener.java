@@ -4,7 +4,7 @@ import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.CommitFile;
 import io.jgitkins.server.application.factory.CommitFileFactory;
 import io.jgitkins.server.application.port.out.*;
-import io.jgitkins.server.application.service.RepositoryNamespaceResolver;
+import io.jgitkins.server.application.support.RepositoryNamespaceResolver;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.event.RepositoryProvisionedEvent;

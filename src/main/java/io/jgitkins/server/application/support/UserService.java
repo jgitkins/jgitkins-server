@@ -1,9 +1,9 @@
-package io.jgitkins.server.application.service;
+package io.jgitkins.server.application.support;
 
 import io.jgitkins.server.application.port.out.UserIdentityPort;
 import io.jgitkins.server.application.port.out.UserPort;
-import io.jgitkins.server.application.service.support.UserProfileUpdater;
-import io.jgitkins.server.application.service.support.UsernameAllocator;
+import io.jgitkins.server.application.support.UserProfileUpdater;
+import io.jgitkins.server.application.support.UsernameAllocator;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserIdentity;
 import io.jgitkins.server.domain.model.UserStatus;

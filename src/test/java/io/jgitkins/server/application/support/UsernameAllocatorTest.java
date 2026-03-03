@@ -1,4 +1,4 @@
-package io.jgitkins.server.application.service.support;
+package io.jgitkins.server.application.support;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
