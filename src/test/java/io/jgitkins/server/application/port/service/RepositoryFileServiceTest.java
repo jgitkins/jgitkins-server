@@ -4,15 +4,14 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
-
 import io.jgitkins.server.application.dto.CommitFile;
+import io.jgitkins.server.application.dto.FileEntry;
 import io.jgitkins.server.application.dto.FileUploadInfo;
 import io.jgitkins.server.application.factory.CommitFileFactory;
 import io.jgitkins.server.application.port.out.CommitGitPort;
 import io.jgitkins.server.application.port.out.FileGitPort;
-import io.jgitkins.server.application.validate.RepositoryUploadPermissionValidator;
-import java.io.IOException;
+import io.jgitkins.server.application.validate.RepositoryAccessValidator;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +33,7 @@ class RepositoryFileServiceTest {
     private FileGitPort fileGitPort;
 
     @Mock
-    private RepositoryUploadPermissionValidator repositoryUploadPermissionValidator;
+    private RepositoryAccessValidator repositoryAccessValidator;
 
     @InjectMocks
     private RepositoryFileService service;
@@ -51,7 +50,7 @@ class RepositoryFileServiceTest {
 
         service.uploadFileToRepository("task", "repo", "main", file, request);
 
-        verify(repositoryUploadPermissionValidator).validateCanUpload("task", "repo");
+        verify(repositoryAccessValidator).validateCanCommit("task", "repo");
         verify(commitGitPort).commit(eq("task"), eq("repo"), eq("main"),
                 eq("msg"), eq("author"), eq("a@b.com"), eq(files));
     }
@@ -66,7 +65,7 @@ class RepositoryFileServiceTest {
 
         service.uploadFileToRepository("task", "repo", "main", file, request);
 
-        verify(repositoryUploadPermissionValidator).validateCanUpload("task", "repo");
+        verify(repositoryAccessValidator).validateCanCommit("task", "repo");
         verify(commitGitPort).commit(eq("task"), eq("repo"), eq("main"),
                 eq("msg"), eq("jgitkins"), eq("no-reply@jgitkins.local"), eq(files));
     }

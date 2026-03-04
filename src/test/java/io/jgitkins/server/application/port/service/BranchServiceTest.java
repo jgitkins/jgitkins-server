@@ -1,23 +1,26 @@
 package io.jgitkins.server.application.port.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
+import io.jgitkins.server.application.mapper.BranchApplicationMapper;
 import io.jgitkins.server.application.port.out.BranchGitPort;
 import io.jgitkins.server.application.port.out.BranchPort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
-import io.jgitkins.server.application.mapper.BranchApplicationMapper;
-import io.jgitkins.server.application.validate.BranchCreationValidator;
 import io.jgitkins.server.application.support.RepositoryNamespaceResolver;
-import io.jgitkins.server.application.validate.RepositoryUploadPermissionValidator;
+import io.jgitkins.server.application.validate.BranchCreationValidator;
+import io.jgitkins.server.application.validate.RepositoryAccessValidator;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +39,7 @@ class BranchServiceTest {
     private BranchCreationValidator branchCreationValidator;
 
     @Mock
-    private RepositoryUploadPermissionValidator repositoryUploadPermissionValidator;
+    private RepositoryAccessValidator repositoryAccessValidator;
 
     @Mock
     private BranchApplicationMapper branchApplicationMapper;
@@ -68,14 +71,13 @@ class BranchServiceTest {
 
         service.createBranch(command);
 
-        verify(repositoryUploadPermissionValidator).assertCanWrite(repository);
+        verify(repositoryAccessValidator).validateCanCommit("org", "repo");
         verify(branchGitPort).createBranch(any());
-        ArgumentCaptor<io.jgitkins.server.domain.Branch> captor = ArgumentCaptor.forClass(
-                io.jgitkins.server.domain.Branch.class);
+        ArgumentCaptor<Branch> captor = ArgumentCaptor.forClass(Branch.class);
         verify(branchPort).create(captor.capture());
-        io.jgitkins.server.domain.Branch created = captor.getValue();
-        org.junit.jupiter.api.Assertions.assertEquals(1L, created.getRepositoryId());
-        org.junit.jupiter.api.Assertions.assertEquals("feature", created.getName());
+        Branch created = captor.getValue();
+        assertEquals(1L, created.getRepositoryId());
+        assertEquals("feature", created.getName());
     }
 
     @Test
@@ -90,7 +92,7 @@ class BranchServiceTest {
 
         service.deleteBranch(1L, "feature");
 
-        verify(repositoryUploadPermissionValidator).assertCanWrite(repository);
+        verify(repositoryAccessValidator).validateCanCommit("org", "repo");
         verify(branchCreationValidator).validateNotDefaultBranch(repository, branch);
         verify(branchGitPort).deleteBranch("org", "repo", "feature");
         verify(branchPort).delete(1L, "feature");

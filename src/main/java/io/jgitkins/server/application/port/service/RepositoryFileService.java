@@ -1,12 +1,5 @@
 package io.jgitkins.server.application.port.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
-
 import io.jgitkins.server.application.dto.CommitFile;
 import io.jgitkins.server.application.dto.FileEntry;
 import io.jgitkins.server.application.dto.FileUploadInfo;
@@ -16,23 +9,28 @@ import io.jgitkins.server.application.port.in.FileTreeLoadUseCase;
 import io.jgitkins.server.application.port.in.FileUploadUseCase;
 import io.jgitkins.server.application.port.out.CommitGitPort;
 import io.jgitkins.server.application.port.out.FileGitPort;
-import io.jgitkins.server.application.validate.RepositoryUploadPermissionValidator;
+import io.jgitkins.server.application.validate.RepositoryAccessValidator;
+import io.jgitkins.server.common.exception.JgitkinsException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
 public class RepositoryFileService implements FileUploadUseCase,
-                                              FileTreeLoadUseCase,
-                                              FileLoadUseCase {
+                                       FileLoadUseCase,
+                                       FileTreeLoadUseCase {
 
     private static final String DEFAULT_AUTHOR_NAME = "jgitkins";
     private static final String DEFAULT_AUTHOR_EMAIL = "no-reply@jgitkins.local";
 
     private final CommitFileFactory commitFileFactory;
-
     private final CommitGitPort commitGitPort;
     private final FileGitPort fileGitPort;
-    private final RepositoryUploadPermissionValidator repositoryUploadPermissionValidator;
+    private final RepositoryAccessValidator repositoryAccessValidator;
 
     @Override
     @Transactional
@@ -41,7 +39,7 @@ public class RepositoryFileService implements FileUploadUseCase,
                                        String branch,
                                        MultipartFile file,
                                        FileUploadInfo request) {
-        repositoryUploadPermissionValidator.validateCanUpload(taskCd, repoName);
+        repositoryAccessValidator.validateCanCommit(taskCd, repoName);
 
         List<CommitFile> files = commitFileFactory.prepareUploadFile(file, request);
 
@@ -65,9 +63,7 @@ public class RepositoryFileService implements FileUploadUseCase,
 
     @Override
     @Transactional(readOnly = true)
-    public List<FileEntry> getAllFiles(String taskCd,
-                                       String repoName,
-                                       String reference) {
+    public List<FileEntry> getAllFiles(String taskCd, String repoName, String reference) {
         return fileGitPort.getAllFiles(taskCd, repoName, reference);
     }
 
