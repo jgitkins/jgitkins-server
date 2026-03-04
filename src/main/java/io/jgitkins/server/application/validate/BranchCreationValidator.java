@@ -1,8 +1,8 @@
 package io.jgitkins.server.application.validate;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
 import io.jgitkins.server.application.port.out.BranchPort;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.error.DomainErrorCode;
@@ -14,6 +14,15 @@ import org.springframework.stereotype.Component;
 public class BranchCreationValidator {
 
     private final BranchPort branchPort;
+
+    /**
+     * 브랜치 생성에 필요한 모든 비즈니스 규칙을 검증하고 소스 브랜치를 결정합니다.
+     */
+    public String validateAndResolveSource(BranchCreateCommand command, Repository repository) {
+        validateRepositoryInitialized(repository);
+        validateBranchDoesNotExist(command.getRepositoryId(), command.getBranchName());
+        return resolveAndValidateSourceBranch(command, repository);
+    }
 
     public void validateBranchDoesNotExist(Long repositoryId, String branchName) {
         branchPort.getBranch(repositoryId, branchName)

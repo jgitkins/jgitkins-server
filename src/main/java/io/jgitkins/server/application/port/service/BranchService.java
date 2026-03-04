@@ -55,9 +55,8 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
         Repository repository = loadRepositoryWithWriteAccess(command.getRepositoryId());
         String namespace = repositoryNamespaceResolver.resolve(repository);
 
-        branchCreationValidator.validateRepositoryInitialized(repository);
-        branchCreationValidator.validateBranchDoesNotExist(command.getRepositoryId(), command.getBranchName());
-        String resolvedSourceBranch = branchCreationValidator.resolveAndValidateSourceBranch(command, repository);
+        // 검증 및 소스 브랜치 결정 (Validator 위임)
+        String resolvedSourceBranch = branchCreationValidator.validateAndResolveSource(command, repository);
 
         Branch newBranch = Branch.create(command.getRepositoryId(), command.getBranchName());
         BranchCreationContext context = BranchCreationContext.of(command, namespace, repository, resolvedSourceBranch);
