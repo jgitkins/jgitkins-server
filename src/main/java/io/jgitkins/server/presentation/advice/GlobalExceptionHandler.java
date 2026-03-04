@@ -1,5 +1,14 @@
 package io.jgitkins.server.presentation.advice;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
 import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.common.error.ErrorCode;
 import io.jgitkins.server.common.exception.JgitkinsException;
@@ -11,15 +20,6 @@ import io.jgitkins.server.presentation.common.error.PresentationErrorCode;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice
 @Slf4j
@@ -32,42 +32,37 @@ public class GlobalExceptionHandler {
 
     private final CompositeErrorHttpStatusMapper statusMapper;
 
+    // Application, Damain, Infrastructure
     @ExceptionHandler(JgitkinsException.class)
     public ResponseEntity<ApiResponse<Void>> handleJgitkinsException(JgitkinsException exception) {
         ErrorCode errorCode = exception.getErrorCode();
         HttpStatus status = statusMapper.map(errorCode);
-        log.warn("Jgitkins exception errorCode=[{}], status=[{}], message=[{}]",
-                errorCode.getCode(),
-                status,
-                exception.getMessage(),
-                exception);
-        return buildResponse(errorCode,
-                status,
-                exception.getMessage(),
-                inferSource(errorCode));
+        log.warn("Jgitkins exception errorCode=[{}], status=[{}], message=[{}]", errorCode.getCode(), status, exception.getMessage(), exception);
+        return buildResponse(errorCode, status, exception.getMessage(), inferSource(errorCode));
     }
 
+    // Presentation
     @ExceptionHandler({
-            ConstraintViolationException.class,
-            IllegalArgumentException.class,
-            MethodArgumentNotValidException.class,
-            HttpMessageNotReadableException.class,
-            MethodArgumentTypeMismatchException.class
+            ConstraintViolationException.class, // @PathVariable 위반
+            MethodArgumentNotValidException.class, // @Valid 위반
+            HttpMessageNotReadableException.class,  // @RequestBody Broken
+            MethodArgumentTypeMismatchException.class // Type Mismatch
     })
-    public ResponseEntity<ApiResponse<Void>> handleBadRequest(Exception exception) {
+    public ResponseEntity<ApiResponse<Void>> handlePresentationException(Exception exception) {
         PresentationErrorCode requestErrorCode = mapPresentationErrorCode(exception);
         String message = extractValidationMessage(exception);
         log.warn("Bad request exception errorCode=[{}], message=[{}]", requestErrorCode.getCode(), message, exception);
         return buildResponse(requestErrorCode, HttpStatus.BAD_REQUEST, message, SOURCE_PRESENTATION);
     }
 
-    @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNoHandler(NoHandlerFoundException exception) {
-        return buildResponse(PresentationErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, exception.getMessage(), SOURCE_PRESENTATION);
-    }
+    // @ExceptionHandler(NoHandlerFoundException.class)
+    // public ResponseEntity<ApiResponse<Void>> handleNoHandler(NoHandlerFoundException exception) {
+    //     return buildResponse(PresentationErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, exception.getMessage(), SOURCE_PRESENTATION);
+    // }
 
+    // Others
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception exception) {
+    public ResponseEntity<ApiResponse<Void>> handleUnexpectedException(Exception exception) {
         log.error("Unexpected exception", exception);
         return buildResponse(ApplicationErrorCode.INTERNAL_SERVER_ERROR,
                 HttpStatus.INTERNAL_SERVER_ERROR,
