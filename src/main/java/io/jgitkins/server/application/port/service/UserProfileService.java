@@ -39,7 +39,7 @@ public class UserProfileService implements UserProfileUpdateUseCase {
 
     private Long currentUserId() {
         return currentUserPort.currentUserId()
-                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.UNAUTHORIZED, "Unauthenticated"));
+                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.presentation.common.error.PresentationErrorCode.UNAUTHORIZED, "Unauthenticated"));
     }
 
     private User loadUser(Long userId) {

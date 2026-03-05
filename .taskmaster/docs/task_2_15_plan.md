@@ -54,15 +54,15 @@
 ## 5. 단계별 실행 계획 (Subtasks)
 
 ### Step 1. 매핑 컴포넌트 구현
-- [ ] `HttpStatusMapper` 인터페이스 및 계층별 구현체(`DomainHttpStatusMapper` 등) 작성.
-- [ ] `GlobalExceptionHandler`에서 매퍼를 사용하도록 리팩토링.
+- [x] `HttpStatusMapper` 인터페이스 및 계층별 구현체(`DomainHttpStatusMapper` 등) 작성.
+- [x] `GlobalExceptionHandler`에서 매퍼를 사용하도록 리팩토링.
 
 ### Step 2. ErrorCode 및 예외 발생 지점 정비
-- [ ] `Infrastructure` 어댑터들에서 `IOException` 등을 `JgitkinsException(InfrastructureErrorCode.*)`로 래핑하여 던지도록 수정.
-- [ ] 불필요한 Prefix 제거 및 중복 코드 정리.
+- [x] `Infrastructure` 어댑터들에서 `IOException` 등을 `JgitkinsException(InfrastructureErrorCode.*)`로 래핑하여 던지도록 수정.
+- [x] 불필요한 Prefix 제거 및 중복 코드 정리.
 
 ### Step 3. 예외 번역(Translation) 적용
-- [ ] 서비스 계층에서 특정 `INF` 에러를 사용자에게 친숙한 `APP` 에러로 바꾸는 지점 적용.
+- [x] 서비스 계층에서 특정 `INF` 에러를 사용자에게 친숙한 `APP` 에러로 바꾸는 지점 적용.
 
 ## 6. 완료 기준 (DoD)
 - 모든 `JgitkinsException`이 `GlobalExceptionHandler`를 통해 일관된 `ApiResponse`로 변환됨.

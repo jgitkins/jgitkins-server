@@ -22,7 +22,7 @@ public class DomainErrorHttpStatusMapper implements ErrorHttpStatusMapper {
             case ORGANIZE_MEMBER_INVALID,
                  RULE_VIOLATION -> HttpStatus.BAD_REQUEST;
             case ORGANIZE_MEMBER_ALREADY_EXISTS,
-                 RUNNER_ALREADY_ACTIVE -> HttpStatus.CONFLICT;
+                 RUNNER_ALREADY_ACTIVED -> HttpStatus.CONFLICT;
             case RUNNER_TOKEN_INVALID,
                  USERNAME_ALREADY_SET -> HttpStatus.UNPROCESSABLE_ENTITY;
         };

@@ -10,6 +10,8 @@ import io.jgitkins.server.presentation.advice.mapper.ApplicationErrorHttpStatusM
 import io.jgitkins.server.presentation.advice.mapper.CompositeErrorHttpStatusMapper;
 import io.jgitkins.server.presentation.advice.mapper.DomainErrorHttpStatusMapper;
 import io.jgitkins.server.presentation.advice.mapper.InfrastructureErrorHttpStatusMapper;
+import io.jgitkins.server.presentation.advice.mapper.PresentationErrorHttpStatusMapper;
+import io.jgitkins.server.presentation.common.error.PresentationErrorCode;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,8 @@ class GlobalExceptionHandlerTest {
                 List.of(
                         new DomainErrorHttpStatusMapper(),
                         new ApplicationErrorHttpStatusMapper(),
-                        new InfrastructureErrorHttpStatusMapper()
+                        new InfrastructureErrorHttpStatusMapper(),
+                        new PresentationErrorHttpStatusMapper()
                 )
         );
         mockMvc = MockMvcBuilders.standaloneSetup(new ExceptionThrowingController())
@@ -44,7 +47,7 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.data").doesNotExist())
                 .andExpect(jsonPath("$.error.code").value("UNAUTHORIZED"))
                 .andExpect(jsonPath("$.error.message").value("token missing"))
-                .andExpect(jsonPath("$.error.source").value("application"));
+                .andExpect(jsonPath("$.error.source").value("presentation"));
     }
 
     @Test
@@ -52,7 +55,7 @@ class GlobalExceptionHandlerTest {
         mockMvc.perform(get("/test-errors/forbidden"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.data").doesNotExist())
-                .andExpect(jsonPath("$.error.code").value("FORBIDDEN"))
+                .andExpect(jsonPath("$.error.code").value("ACCESS_DENIED"))
                 .andExpect(jsonPath("$.error.message").value("not allowed"))
                 .andExpect(jsonPath("$.error.source").value("application"));
     }
@@ -72,23 +75,17 @@ class GlobalExceptionHandlerTest {
 
         @GetMapping("/test-errors/unauthorized")
         public ResponseEntity<Void> unauthorized() {
-            throw new TestJgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.UNAUTHORIZED, "token missing");
+            throw new JgitkinsException(PresentationErrorCode.UNAUTHORIZED, "token missing");
         }
 
         @GetMapping("/test-errors/forbidden")
         public ResponseEntity<Void> forbidden() {
-            throw new TestJgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.FORBIDDEN, "not allowed");
+            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.ACCESS_DENIED, "not allowed");
         }
 
         @GetMapping("/test-errors/not-found")
         public ResponseEntity<Void> notFound() {
             throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.REPOSITORY_NOT_FOUND, "repo missing");
-        }
-    }
-
-    static class TestJgitkinsException extends JgitkinsException {
-        TestJgitkinsException(ErrorCode errorCode, String message) {
-            super(errorCode, message);
         }
     }
 }

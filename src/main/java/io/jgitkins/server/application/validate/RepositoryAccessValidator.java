@@ -7,6 +7,7 @@ import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.support.RepositoryNamespaceResolver;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.aggregate.Repository;
+import io.jgitkins.server.presentation.common.error.PresentationErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -38,12 +39,12 @@ public class RepositoryAccessValidator {
 
     public void validateCanCommit(String namespace, String repoName) {
         Long userId = currentUserPort.currentUserId()
-                .orElseThrow(() -> new JgitkinsException(ApplicationErrorCode.UNAUTHORIZED, "Unauthenticated"));
+                .orElseThrow(() -> new JgitkinsException(PresentationErrorCode.UNAUTHORIZED, "Unauthenticated"));
 
         boolean allowed = gitRepositoryAccessUseCase.canWrite(null, namespace.trim(), repoName.trim(), userId);
         if (!allowed) {
             throw new JgitkinsException(
-                    ApplicationErrorCode.FORBIDDEN,
+                    ApplicationErrorCode.REPOSITORY_ACCESS_DENIED,
                     String.format("Write access denied: %s/%s", namespace, repoName)
             );
         }

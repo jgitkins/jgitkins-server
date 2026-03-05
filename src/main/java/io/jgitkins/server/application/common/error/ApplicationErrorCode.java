@@ -3,11 +3,12 @@ package io.jgitkins.server.application.common.error;
 import io.jgitkins.server.common.error.ErrorCode;
 
 public enum ApplicationErrorCode implements ErrorCode {
-    BAD_REQUEST("BAD_REQUEST", "Bad request"),
-    RUNNER_INVALID_TOKEN("RUNNER_INVALID_TOKEN", "Runner token is invalid"),
-    UNAUTHORIZED("UNAUTHORIZED", "Unauthorized"),
-    FORBIDDEN("FORBIDDEN", "Forbidden"),
-    NOT_FOUND("NOT_FOUND", "Resource not found"),
+    // 403 Forbidden
+    ACCESS_DENIED("ACCESS_DENIED", "Access denied"),
+    REPOSITORY_ACCESS_DENIED("REPOSITORY_ACCESS_DENIED", "You do not have access to this repository"),
+    ORGANIZE_ACCESS_DENIED("ORGANIZE_ACCESS_DENIED", "You are not a member of this organization"),
+
+    // 404 Not Found
     ORGANIZE_NOT_FOUND("ORGANIZE_NOT_FOUND", "Organize Not Found"),
     USER_NOT_FOUND("USER_NOT_FOUND", "User Not Found"),
     REPOSITORY_NOT_FOUND("REPOSITORY_NOT_FOUND", "Source Repository Not Found"),
@@ -16,15 +17,18 @@ public enum ApplicationErrorCode implements ErrorCode {
     SOURCE_BRANCH_NOT_FOUND("SOURCE_BRANCH_NOT_FOUND", "Source Branch Not Found"),
     COMMIT_TREE_NOT_FOUND("COMMIT_TREE_NOT_FOUND", "Commit Tree Not Found"),
     RUNNER_NOT_FOUND("RUNNER_NOT_FOUND", "Runner Not Found"),
-    CONFLICT("CONFLICT", "Conflict"),
+
+    // 409 Conflict
     REPOSITORY_ALREADY_EXISTS("REPOSITORY_ALREADY_EXISTS", "Repository Already Exists"),
     BRANCH_ALREADY_EXISTS("BRANCH_ALREADY_EXISTS", "Branch Already Exists"),
-    RUNNER_ALREADY_ACTIVE("RUNNER_ALREADY_ACTIVE", "Runner Already Active"),
     ORGANIZE_ALREADY_EXISTS("ORGANIZE_ALREADY_EXISTS", "Organize Already Exists"),
     USERNAME_ALREADY_EXISTS("USERNAME_ALREADY_EXISTS", "Username Already Exists"),
-    UNPROCESSABLE("UNPROCESSABLE", "Unprocessable request"),
-    REPOSITORY_DOES_NOT_INITIALIZED("REPOSITORY_DOES_NOT_INITIALIZED", "Repository Does Not Initialized"),
-    INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "Internal server error");
+    RUNNER_ALREADY_ACTIVED("RUNNER_ALREADY_ACTIVED", "Runner Already Active"),
+
+    // 422 Unprocessable Entity (Logical/Semantic Errors)
+    INVALID_OWNER_CONTEXT("INVALID_OWNER_CONTEXT", "Invalid owner type or ID combination"),
+    MEMBER_IDENTIFIER_REQUIRED("MEMBER_IDENTIFIER_REQUIRED", "Member identifier (User ID or Repository ID) is missing"),
+    REPOSITORY_NOT_INITIALIZED("REPOSITORY_NOT_INITIALIZED", "Repository is not yet initialized");
 
     private final String code;
     private final String defaultMessage;

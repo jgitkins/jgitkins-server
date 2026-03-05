@@ -17,19 +17,19 @@ public class RepositoryMemberValidator {
 
     public void validateAddCommand(RepositoryMemberAddCommand command) {
         if (command == null || command.getRepositoryId() == null || command.getUserId() == null) {
-            throw new JgitkinsException(ApplicationErrorCode.BAD_REQUEST, "RepositoryId and UserId are required to add a repository member");
+            throw new JgitkinsException(ApplicationErrorCode.MEMBER_IDENTIFIER_REQUIRED, "RepositoryId and UserId are required to add a repository member");
         }
     }
 
     public void validateRepositoryId(Long repositoryId) {
         if (repositoryId == null) {
-            throw new JgitkinsException(ApplicationErrorCode.BAD_REQUEST, "RepositoryId is required");
+            throw new JgitkinsException(ApplicationErrorCode.MEMBER_IDENTIFIER_REQUIRED, "RepositoryId is required");
         }
     }
 
     public void validateMemberIdentifiers(Long repositoryId, Long userId) {
         if (repositoryId == null || userId == null) {
-            throw new JgitkinsException(ApplicationErrorCode.BAD_REQUEST, "RepositoryId and UserId are required");
+            throw new JgitkinsException(ApplicationErrorCode.MEMBER_IDENTIFIER_REQUIRED, "RepositoryId and UserId are required");
         }
     }
 

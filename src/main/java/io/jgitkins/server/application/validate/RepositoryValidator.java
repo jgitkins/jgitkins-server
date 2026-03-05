@@ -11,6 +11,7 @@ import io.jgitkins.server.domain.model.vo.OwnerId;
 import io.jgitkins.server.domain.model.vo.OwnerType;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.UserId;
+import io.jgitkins.server.presentation.common.error.PresentationErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +40,7 @@ public class RepositoryValidator {
     public void validateOwnership(OwnerType ownerType, Long organizeId) {
         if (ownerType == OwnerType.USER) {
             if (organizeId != null) {
-                throw new JgitkinsException(ApplicationErrorCode.BAD_REQUEST,
+                throw new JgitkinsException(ApplicationErrorCode.INVALID_OWNER_CONTEXT,
                         "organizeId must be null when ownerType is USER.");
             }
             requireCurrentUserId();
@@ -47,7 +48,7 @@ public class RepositoryValidator {
         }
 
         if (organizeId == null) {
-            throw new JgitkinsException(ApplicationErrorCode.BAD_REQUEST,
+            throw new JgitkinsException(ApplicationErrorCode.INVALID_OWNER_CONTEXT,
                     "organizeId is required when ownerType is ORGANIZATION.");
         }
         assertOrganizeMembership(organizeId);
@@ -61,13 +62,13 @@ public class RepositoryValidator {
         }
         Long requesterId = requireCurrentUserId();
         if (!repository.getOwnerId().getValue().equals(requesterId)) {
-            throw new JgitkinsException(ApplicationErrorCode.FORBIDDEN, "Cannot delete another user's repository");
+            throw new JgitkinsException(ApplicationErrorCode.REPOSITORY_ACCESS_DENIED, "Cannot delete another user's repository");
         }
     }
 
     public Long requireCurrentUserId() {
         return currentUserPort.currentUserId()
-                .orElseThrow(() -> new JgitkinsException(ApplicationErrorCode.UNAUTHORIZED, "Unauthenticated"));
+                .orElseThrow(() -> new JgitkinsException(PresentationErrorCode.UNAUTHORIZED, "Unauthenticated"));
     }
 
     private void assertOrganizeMembership(Long organizeId) {
@@ -75,7 +76,7 @@ public class RepositoryValidator {
         boolean isMember = organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(organizeId),
                                                                       UserId.of(requesterId));
         if (!isMember) {
-            throw new JgitkinsException(ApplicationErrorCode.FORBIDDEN, "User is not a member of the organization.");
+            throw new JgitkinsException(ApplicationErrorCode.ORGANIZE_ACCESS_DENIED, "User is not a member of the organization.");
         }
     }
 

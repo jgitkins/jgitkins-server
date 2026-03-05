@@ -22,12 +22,10 @@ public class ApplicationErrorHttpStatusMapper implements ErrorHttpStatusMapper {
 
     private HttpStatus mapApplication(ApplicationErrorCode errorCode) {
         return switch (errorCode) {
-            case BAD_REQUEST,
-                 RUNNER_INVALID_TOKEN -> HttpStatus.BAD_REQUEST;
-            case UNAUTHORIZED -> HttpStatus.UNAUTHORIZED;
-            case FORBIDDEN -> HttpStatus.FORBIDDEN;
-            case NOT_FOUND,
-                 ORGANIZE_NOT_FOUND,
+            case ACCESS_DENIED,
+                 REPOSITORY_ACCESS_DENIED,
+                 ORGANIZE_ACCESS_DENIED -> HttpStatus.FORBIDDEN;
+            case ORGANIZE_NOT_FOUND,
                  USER_NOT_FOUND,
                  REPOSITORY_NOT_FOUND,
                  BRANCH_NOT_FOUND,
@@ -35,15 +33,14 @@ public class ApplicationErrorHttpStatusMapper implements ErrorHttpStatusMapper {
                  SOURCE_BRANCH_NOT_FOUND,
                  COMMIT_TREE_NOT_FOUND,
                  RUNNER_NOT_FOUND -> HttpStatus.NOT_FOUND;
-            case CONFLICT,
-                 REPOSITORY_ALREADY_EXISTS,
+            case REPOSITORY_ALREADY_EXISTS,
                  BRANCH_ALREADY_EXISTS,
-                 RUNNER_ALREADY_ACTIVE,
                  ORGANIZE_ALREADY_EXISTS,
-                 USERNAME_ALREADY_EXISTS -> HttpStatus.CONFLICT;
-            case UNPROCESSABLE,
-                 REPOSITORY_DOES_NOT_INITIALIZED -> HttpStatus.UNPROCESSABLE_ENTITY;
-            case INTERNAL_SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+                 USERNAME_ALREADY_EXISTS,
+                 RUNNER_ALREADY_ACTIVED -> HttpStatus.CONFLICT;
+            case INVALID_OWNER_CONTEXT,
+                 MEMBER_IDENTIFIER_REQUIRED,
+                 REPOSITORY_NOT_INITIALIZED -> HttpStatus.UNPROCESSABLE_ENTITY;
         };
     }
 

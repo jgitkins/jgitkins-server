@@ -2,31 +2,28 @@ package io.jgitkins.server.infrastructure.config.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jgitkins.server.presentation.common.ApiResponse;
-import jakarta.servlet.ServletException;
+import io.jgitkins.server.presentation.common.error.PresentationErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
+@Component
+@RequiredArgsConstructor
 public class ApiAnauthorizeHandler implements AuthenticationEntryPoint {
 
     private final ObjectMapper objectMapper;
 
-    public ApiAnauthorizeHandler(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
-
     @Override
-    public void commence(HttpServletRequest request,
-                         HttpServletResponse response,
-                         AuthenticationException authException) throws IOException, ServletException {
-        if (response.isCommitted()) {
-            return;
-        }
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+        ApiResponse<Void> payload = ApiResponse.failure(PresentationErrorCode.UNAUTHORIZED, "Unauthorized");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        ApiResponse<Void> payload = ApiResponse.failure(io.jgitkins.server.application.common.error.ApplicationErrorCode.UNAUTHORIZED, "Unauthorized");
-        response.getWriter().write(objectMapper.writeValueAsString(payload));
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        objectMapper.writeValue(response.getWriter(), payload);
     }
 }

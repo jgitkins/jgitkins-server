@@ -52,7 +52,7 @@ class RepositoryAccessValidatorTest {
         JgitkinsException ex = assertThrows(JgitkinsException.class,
                 () -> validator.validateCanCommit("team", "repo"));
 
-        org.junit.jupiter.api.Assertions.assertEquals("FORBIDDEN", ex.getErrorCode().getCode());
+        org.junit.jupiter.api.Assertions.assertEquals("REPOSITORY_ACCESS_DENIED", ex.getErrorCode().getCode());
     }
 
     @Test

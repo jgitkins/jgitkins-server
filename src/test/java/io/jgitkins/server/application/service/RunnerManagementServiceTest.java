@@ -113,6 +113,6 @@ class RunnerManagementServiceTest {
         assertThatThrownBy(() -> service.activate("RNR-TOKEN", "127.0.0.1"))
                 .isInstanceOf(JgitkinsException.class)
                 .extracting(ex -> ((JgitkinsException) ex).getErrorCode().getCode())
-                .isEqualTo("RUNNER_ALREADY_ACTIVE");
+                .isEqualTo("RUNNER_ALREADY_ACTIVED");
     }
 }

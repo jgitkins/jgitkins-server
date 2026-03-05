@@ -69,7 +69,7 @@ public class RunnerManagementService implements RunnerRegisterUseCase, RunnerDel
         try {
             activatedInfo = runner.activate(token, remoteIp);
         } catch (RunnerAlreadyActiveException ex) {
-            throw new JgitkinsException(DomainErrorCode.RUNNER_ALREADY_ACTIVE, ex.getMessage(), ex);
+            throw new JgitkinsException(DomainErrorCode.RUNNER_ALREADY_ACTIVED, ex.getMessage(), ex);
         } catch (RunnerTokenMismatchException | RunnerTokenMissingException ex) {
             throw new JgitkinsException(DomainErrorCode.RUNNER_TOKEN_INVALID, ex.getMessage(), ex);
         }

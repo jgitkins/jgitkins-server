@@ -33,7 +33,7 @@ public class BranchCreationValidator {
 
     public void validateRepositoryInitialized(Repository repository) {
         if (!repository.isInitialized()) {
-            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.REPOSITORY_DOES_NOT_INITIALIZED, "Repository is not yet initialized. Initialize default branch before creating new branches.");
+            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.REPOSITORY_NOT_INITIALIZED, "Repository is not yet initialized. Initialize default branch before creating new branches.");
         }
     }
 

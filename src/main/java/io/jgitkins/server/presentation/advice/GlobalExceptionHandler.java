@@ -1,5 +1,16 @@
 package io.jgitkins.server.presentation.advice;
 
+import io.jgitkins.server.common.error.ErrorCode;
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.domain.error.DomainErrorCode;
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
+import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
+import io.jgitkins.server.presentation.advice.mapper.CompositeErrorHttpStatusMapper;
+import io.jgitkins.server.presentation.common.ApiResponse;
+import io.jgitkins.server.presentation.common.error.PresentationErrorCode;
+import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -8,18 +19,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
-import io.jgitkins.server.application.common.error.ApplicationErrorCode;
-import io.jgitkins.server.common.error.ErrorCode;
-import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.domain.error.DomainErrorCode;
-import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
-import io.jgitkins.server.presentation.advice.mapper.CompositeErrorHttpStatusMapper;
-import io.jgitkins.server.presentation.common.ApiResponse;
-import io.jgitkins.server.presentation.common.error.PresentationErrorCode;
-import jakarta.validation.ConstraintViolationException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice
 @Slf4j
@@ -37,34 +37,43 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleJgitkinsException(JgitkinsException exception) {
         ErrorCode errorCode = exception.getErrorCode();
         HttpStatus status = statusMapper.map(errorCode);
-        log.warn("Jgitkins exception errorCode=[{}], status=[{}], message=[{}]", errorCode.getCode(), status, exception.getMessage(), exception);
-        return buildResponse(errorCode, status, exception.getMessage(), inferSource(errorCode));
+        String source = inferSource(errorCode);
+
+        if (SOURCE_INFRASTRUCTURE.equals(source)) {
+            log.error("Infrastructure exception errorCode=[{}], status=[{}], message=[{}]",
+                    errorCode.getCode(), status, exception.getMessage(), exception);
+        } else {
+            log.warn("{} exception errorCode=[{}], status=[{}], message=[{}]",
+                    source, errorCode.getCode(), status, exception.getMessage());
+        }
+
+        return buildResponse(errorCode, status, exception.getMessage(), source);
     }
 
-    // Presentation
+    // Presentation (Spring MVC / Validation specific)
     @ExceptionHandler({
-            ConstraintViolationException.class, // @PathVariable 위반
-            MethodArgumentNotValidException.class, // @Valid 위반
-            HttpMessageNotReadableException.class,  // @RequestBody Broken
-            MethodArgumentTypeMismatchException.class // Type Mismatch
+            ConstraintViolationException.class,
+            MethodArgumentNotValidException.class,
+            HttpMessageNotReadableException.class,
+            MethodArgumentTypeMismatchException.class
     })
     public ResponseEntity<ApiResponse<Void>> handlePresentationException(Exception exception) {
-        PresentationErrorCode requestErrorCode = mapPresentationErrorCode(exception);
         String message = extractValidationMessage(exception);
-        log.warn("Bad request exception errorCode=[{}], message=[{}]", requestErrorCode.getCode(), message, exception);
-        return buildResponse(requestErrorCode, HttpStatus.BAD_REQUEST, message, SOURCE_PRESENTATION);
+        log.warn("Presentation exception errorCode=[{}], message=[{}]", PresentationErrorCode.BAD_REQUEST.getCode(), message);
+        return buildResponse(PresentationErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, message, SOURCE_PRESENTATION);
     }
 
-    // @ExceptionHandler(NoHandlerFoundException.class)
-    // public ResponseEntity<ApiResponse<Void>> handleNoHandler(NoHandlerFoundException exception) {
-    //     return buildResponse(PresentationErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, exception.getMessage(), SOURCE_PRESENTATION);
-    // }
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoHandler(NoHandlerFoundException exception) {
+        // 정의되지 않은 엔드포인트 요청에 대해 404 상태코드와 BAD_REQUEST 코드를 반환합니다.
+        return buildResponse(PresentationErrorCode.BAD_REQUEST, HttpStatus.NOT_FOUND, exception.getMessage(), SOURCE_PRESENTATION);
+    }
 
     // Others
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleUnexpectedException(Exception exception) {
         log.error("Unexpected exception", exception);
-        return buildResponse(ApplicationErrorCode.INTERNAL_SERVER_ERROR,
+        return buildResponse(InfrastructureErrorCode.INTERNAL_ERROR,
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 null,
                 SOURCE_PRESENTATION);
@@ -86,20 +95,6 @@ public class GlobalExceptionHandler {
             }
         }
         return exception.getMessage();
-    }
-
-    private PresentationErrorCode mapPresentationErrorCode(Exception exception) {
-        if (exception instanceof MethodArgumentNotValidException
-                || exception instanceof ConstraintViolationException) {
-            return PresentationErrorCode.VALIDATION_FAILED;
-        }
-        if (exception instanceof HttpMessageNotReadableException) {
-            return PresentationErrorCode.MALFORMED_JSON;
-        }
-        if (exception instanceof MethodArgumentTypeMismatchException) {
-            return PresentationErrorCode.TYPE_MISMATCH;
-        }
-        return PresentationErrorCode.BAD_REQUEST;
     }
 
     private String inferSource(ErrorCode errorCode) {

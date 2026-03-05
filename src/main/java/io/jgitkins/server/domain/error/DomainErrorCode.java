@@ -6,7 +6,7 @@ public enum DomainErrorCode implements ErrorCode {
     RULE_VIOLATION("RULE_VIOLATION", "Domain rule violation"),
     ORGANIZE_MEMBER_INVALID("ORGANIZE_MEMBER_INVALID", "Organize member payload is invalid"),
     ORGANIZE_MEMBER_ALREADY_EXISTS("ORGANIZE_MEMBER_ALREADY_EXISTS", "Organize member already exists"),
-    RUNNER_ALREADY_ACTIVE("RUNNER_ALREADY_ACTIVE", "Runner already active"),
+    RUNNER_ALREADY_ACTIVED("RUNNER_ALREADY_ACTIVED", "Runner already active"),
     RUNNER_TOKEN_INVALID("RUNNER_TOKEN_INVALID", "Runner token is invalid"),
     USERNAME_ALREADY_SET("USERNAME_ALREADY_SET", "Username already set");
 
