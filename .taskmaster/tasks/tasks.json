@@ -577,13 +577,14 @@
             "title": "계층별 ErrorCode 핸들링 전략 수립 및 리팩토링",
             "description": "헥사고날 아키텍처 각 계층에서 발생하는 오류코드의 상호작용 규칙을 정의하고 정합성을 맞춘다.",
             "details": "참조 문서: .taskmaster/docs/task_2_15_plan.md. 1) 계층별 ErrorCode(DOM/APP/INF/PRE)의 책임 정의, 2) 하위 계층 예외의 상위 계층 전파/번역 규칙 수립, 3) GlobalExceptionHandler의 통합 처리 로직 개선.",
-            "status": "in-progress",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2,
-            "parentId": "2"
+            "parentId": "2",
+            "updatedAt": "2026-03-05T06:51:23.101Z"
           }
         ],
-        "updatedAt": "2026-03-04T12:51:50.002Z"
+        "updatedAt": "2026-03-05T06:51:23.101Z"
       },
       {
         "id": "3",
@@ -672,7 +673,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-04T12:51:50.003Z",
+      "lastModified": "2026-03-05T06:51:23.103Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [
