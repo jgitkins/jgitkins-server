@@ -1,4 +1,4 @@
-package com.jgitkins.server.config;
+package io.jgitkins.server.infrastructure.config;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
@@ -18,11 +18,9 @@ public class SopsEnvironmentPostProcessor implements EnvironmentPostProcessor, O
     @Override
     public void postProcessEnvironment(
             ConfigurableEnvironment environment,
-            SpringApplication application
-    ) {
+            SpringApplication application) {
         String profile = Optional.ofNullable(
-                environment.getProperty("spring.profiles.active")
-        ).orElse("local");
+                environment.getProperty("spring.profiles.active")).orElse("local");
 
         String encPath = "secrets/app." + profile + ".enc.yaml";
         File encFile = new File(encPath);
@@ -34,8 +32,7 @@ public class SopsEnvironmentPostProcessor implements EnvironmentPostProcessor, O
 
         try {
             Process process = new ProcessBuilder(
-                    "sops", "-d", encPath
-            ).redirectErrorStream(true).start();
+                    "sops", "-d", encPath).redirectErrorStream(true).start();
 
             String decrypted;
             try (InputStream is = process.getInputStream()) {
@@ -56,12 +53,10 @@ public class SopsEnvironmentPostProcessor implements EnvironmentPostProcessor, O
             Map<String, Object> values = (Map<String, Object>) loaded;
 
             environment.getPropertySources().addFirst(
-                    new MapPropertySource("sops:" + encPath, values)
-            );
+                    new MapPropertySource("sops:" + encPath, values));
         } catch (Exception e) {
             throw new IllegalStateException(
-                    "Failed to load SOPS secrets: " + encPath, e
-            );
+                    "Failed to load SOPS secrets: " + encPath, e);
         }
     }
 
