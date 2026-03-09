@@ -659,13 +659,14 @@
             "title": "로깅 설정 변경",
             "description": "Java 기반 Configuration 으로 수정 (from .xml)",
             "details": "- 로깅 레벨별 Color 부여",
-            "status": "pending",
+            "status": "in-progress",
             "dependencies": [],
             "parentTaskId": 2,
-            "parentId": "2"
+            "parentId": "2",
+            "updatedAt": "2026-03-09T04:58:56.470Z"
           }
         ],
-        "updatedAt": "2026-03-05T07:02:55.246Z"
+        "updatedAt": "2026-03-09T04:58:56.470Z"
       },
       {
         "id": "3",
@@ -754,7 +755,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-05T07:02:55.247Z",
+      "lastModified": "2026-03-09T04:58:56.472Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [

@@ -111,7 +111,6 @@ public class LoggingConfigurator implements ApplicationListener<ApplicationEnvir
 
 ### 5.2. `spring.factories`를 활용한 리스너 자동 등록
 Spring Boot가 로깅 프레임워크를 초기화하는 시점은 컨텍스트가 띄워지기 전이므로 빈(Bean) 등록 방식이 아닌, `spring.factories`나 서비스 로더 등을 활용해야 합니다.
-
 **파일 경로:** `src/main/resources/META-INF/spring.factories`
 ```properties
 org.springframework.context.ApplicationListener=\
