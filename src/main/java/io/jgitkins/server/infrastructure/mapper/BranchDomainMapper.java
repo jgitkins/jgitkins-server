@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface BranchDomainMapper {
 
     BranchDomainMapper INSTANCE = Mappers.getMapper(BranchDomainMapper.class);
@@ -27,7 +27,6 @@ public interface BranchDomainMapper {
                 branchEntity.getName(),
                 Boolean.TRUE.equals(branchEntity.getIsLocked()),
                 Boolean.TRUE.equals(branchEntity.getIsCi()),
-                Boolean.TRUE.equals(branchEntity.getIsDefault())
-        );
+                Boolean.TRUE.equals(branchEntity.getIsDefault()));
     }
 }

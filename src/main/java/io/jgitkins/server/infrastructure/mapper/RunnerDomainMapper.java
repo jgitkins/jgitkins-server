@@ -7,7 +7,7 @@ import io.jgitkins.server.infrastructure.persistence.model.RunnerEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface RunnerDomainMapper {
 
     @Mapping(target = "status", expression = "java(runner.getStatus().name())")
@@ -16,13 +16,13 @@ public interface RunnerDomainMapper {
 
     default Runner toDomain(RunnerEntity entity, RunnerScopeType scopeType, Long scopeTargetId) {
         return Runner.restore(entity.getId(),
-                              entity.getToken(),
-                              entity.getDescription(),
-                              RunnerStatus.valueOf(entity.getStatus()),
-                              scopeType,
-                              scopeTargetId,
-                              entity.getIpAddress(),
-                              entity.getLastHeartbeatAt(),
-                              entity.getCreatedAt());
+                entity.getToken(),
+                entity.getDescription(),
+                RunnerStatus.valueOf(entity.getStatus()),
+                scopeType,
+                scopeTargetId,
+                entity.getIpAddress(),
+                entity.getLastHeartbeatAt(),
+                entity.getCreatedAt());
     }
 }

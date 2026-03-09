@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface JobDomainMapper {
 
     Logger LOG = LoggerFactory.getLogger(JobDomainMapper.class);

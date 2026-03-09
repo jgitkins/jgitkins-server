@@ -5,7 +5,7 @@ import io.jgitkins.server.infrastructure.persistence.model.RunnerAssignmentEntit
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface RunnerAssignmentDomainMapper {
 
     @Mapping(target = "runnerId", expression = "java(runner.getId())")

@@ -8,7 +8,7 @@ import io.jgitkins.server.infrastructure.persistence.model.RepositoryMemberEntit
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface RepositoryMemberDomainMapper {
 
     @Mapping(target = "repositoryId", source = "repositoryId.value")
@@ -24,7 +24,6 @@ public interface RepositoryMemberDomainMapper {
                 RepositoryId.of(entity.getRepositoryId()),
                 UserId.of(entity.getUserId()),
                 RepositoryMemberRole.valueOf(entity.getRole()),
-                entity.getAddedAt()
-        );
+                entity.getAddedAt());
     }
 }

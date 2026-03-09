@@ -639,34 +639,36 @@
             "title": "Dead code 인벤토리 작성",
             "description": "참조 그래프, 빈 주입 여부, 테스트 사용 여부를 기준으로 미사용 클래스/메서드/설정/테스트를 후보로 식별하고 삭제 리스크를 분류한다.",
             "details": "",
-            "status": "pending",
+            "status": "in-progress",
             "dependencies": [],
             "parentTaskId": 2,
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2026-03-09T05:29:07.980Z"
           },
           {
             "id": 24,
             "title": "미사용 코드 제거 및 빌드 검증",
             "description": "인벤토리 결과를 기반으로 dead code를 제거하고 컴파일/테스트로 회귀를 확인한다.",
             "details": "",
-            "status": "pending",
+            "status": "in-progress",
             "dependencies": [],
             "parentTaskId": 2,
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2026-03-09T05:29:07.988Z"
           },
           {
             "id": 25,
             "title": "로깅 설정 변경",
             "description": "Java 기반 Configuration 으로 수정 (from .xml)",
             "details": "- 로깅 레벨별 Color 부여",
-            "status": "in-progress",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "2",
-            "updatedAt": "2026-03-09T04:58:56.470Z"
+            "updatedAt": "2026-03-09T05:28:40.582Z"
           }
         ],
-        "updatedAt": "2026-03-09T04:58:56.470Z"
+        "updatedAt": "2026-03-09T05:29:07.988Z"
       },
       {
         "id": "3",
@@ -755,7 +757,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-09T04:58:56.472Z",
+      "lastModified": "2026-03-09T05:29:07.988Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [

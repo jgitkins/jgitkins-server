@@ -4,7 +4,7 @@ import io.jgitkins.server.domain.model.UserIdentity;
 import io.jgitkins.server.infrastructure.persistence.model.UserIdentitiesEntity;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface UserIdentityDomainMapper {
 
     UserIdentitiesEntity toEntity(UserIdentity identity);
@@ -23,7 +23,6 @@ public interface UserIdentityDomainMapper {
                 entity.getName(),
                 entity.getAvatarUrl(),
                 entity.getCreatedAt(),
-                entity.getUpdatedAt()
-        );
+                entity.getUpdatedAt());
     }
 }
