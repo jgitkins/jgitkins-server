@@ -515,21 +515,22 @@
             "title": "[R9] 미사용 코드 제거 및 헥사고날 경계 정렬",
             "description": "서버 모듈의 dead code를 제거하고 포트/어댑터 경계를 기준으로 헥사고날 위배 지점을 정리한다.",
             "details": "1) 사용되지 않는 서비스/유틸/설정/테스트 코드 제거, 2) 애플리케이션 계층에서 인프라 세부 구현 의존 제거, 3) inbound/outbound adapter 책임 재정렬, 4) 예외/권한/매핑 로직의 계층 위치 재검증, 5) 리팩토링 후 회귀 테스트 보강.",
-            "status": "pending",
+            "status": "cancelled",
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "2",
-            "updatedAt": "2026-02-20T18:55:00+09:00"
+            "updatedAt": "2026-03-05T07:02:48.900Z"
           },
           {
             "id": 10,
             "title": "도메인 중심 예외 계층 구조 (Domain-Centric Exception Hierarchy)",
             "description": "방법 2: 도메인 중심 예외 계층 구조 (Domain-Centric Exception Hierarchy) - 정의: 모든 예외를 비즈니스 규칙 위반(BusinessException)과 시스템 장애(SystemException)로 나누고, 각각에 고유한 ErrorCode를 부여합니다. - 장점: 비즈니스 로직과 인프라 장애를 명확히 분리할 수 있으며, 헥사고날 아키텍처의 핵심인 도메인 보호에 최적화되어 있습니다. - 단점: 초기 설계 시 많은 ErrorCode 정의가 필요합니다. 최종 선택: 방법 2 (도메인 중심 예외 계층 구조) + ApiResponse 통합 가장 모던하고 이상적인 방법으로 방법 2를 선택합니다. 여기에 Spring Boot 3의 기능을 결합하여 다음과 같이 구조화하겠습니다. 1. ErrorCode (Enum): 에러의 식별자, 메시지, HTTP 상태 코드를 관리합니다. 2. BaseException (Abstract): 모든 커스텀 예외의 최상위 클래스입니다. 3. Domain/Application Exception: 비즈니스 로직 에러 (4xx 계열). 4. Infrastructure/External Exception: 외부 API 호출 실패나 시스템 장애 (5xx 계열). 5. GlobalExceptionHandler: 모든 예외를 잡아 일관된 ApiResponse 형식으로 변환합니다. 6. RestClientResponseErrorHandler: 외부 API의 에러를 분석하여 적절한 내부 예외로 변환(Mapping)합니다",
             "details": "",
-            "status": "pending",
+            "status": "cancelled",
             "dependencies": [],
             "parentTaskId": 2,
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2026-03-05T07:02:55.246Z"
           },
           {
             "id": 11,
@@ -582,9 +583,89 @@
             "parentTaskId": 2,
             "parentId": "2",
             "updatedAt": "2026-03-05T06:51:23.101Z"
+          },
+          {
+            "id": 18,
+            "title": "Application→Infrastructure 직접 의존 제거",
+            "description": "Application 계층에서 인프라 구현체/패키지를 직접 참조하는 지점을 Port 인터페이스 경유로 치환한다.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "undefined"
+          },
+          {
+            "id": 19,
+            "title": "Inbound/Outbound Adapter 책임 재배치",
+            "description": "요청 파싱/인증 컨텍스트/외부 I/O 책임이 섞인 지점을 어댑터 경계 기준으로 분리한다.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "undefined"
+          },
+          {
+            "id": 20,
+            "title": "리팩토링 회귀 테스트 세트 확정",
+            "description": "핵심 시나리오 기반 최소 회귀 세트를 정의하고 CI 기준선을 업데이트한다.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "undefined"
+          },
+          {
+            "id": 21,
+            "title": "GlobalExceptionHandler/Mapper 일원화 검증",
+            "description": "예외→ErrorCode→HttpStatus 변환 규칙의 중복/누락을 점검하고 단일 경로를 강제한다.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "undefined"
+          },
+          {
+            "id": 22,
+            "title": "외부 응답 마스킹 및 내부 관측성 기준 확정",
+            "description": "외부 응답 메시지 노출 범위를 제한하고, 내부 로그/메트릭에 에러코드·예외타입·어댑터명을 표준 필드로 남긴다.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "undefined"
+          },
+          {
+            "id": 23,
+            "title": "Dead code 인벤토리 작성",
+            "description": "참조 그래프, 빈 주입 여부, 테스트 사용 여부를 기준으로 미사용 클래스/메서드/설정/테스트를 후보로 식별하고 삭제 리스크를 분류한다.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "undefined"
+          },
+          {
+            "id": 24,
+            "title": "미사용 코드 제거 및 빌드 검증",
+            "description": "인벤토리 결과를 기반으로 dead code를 제거하고 컴파일/테스트로 회귀를 확인한다.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "undefined"
+          },
+          {
+            "id": 25,
+            "title": "로깅 설정 변경",
+            "description": "Java 기반 Configuration 으로 수정 (from .xml)",
+            "details": "- 로깅 레벨별 Color 부여",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "2"
           }
         ],
-        "updatedAt": "2026-03-05T06:51:23.101Z"
+        "updatedAt": "2026-03-05T07:02:55.246Z"
       },
       {
         "id": "3",
@@ -673,7 +754,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-05T06:51:23.103Z",
+      "lastModified": "2026-03-05T07:02:55.247Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [
