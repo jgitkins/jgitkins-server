@@ -24,8 +24,7 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
             UserStatus.ACTIVE,
             UserStatus.BLOCKED,
             UserStatus.DELETED,
-            UserStatus.PENDING
-    );
+            UserStatus.PENDING);
 
     private final UserPort userPort;
     private final UserIdentityPort userIdentityPort;
@@ -44,28 +43,30 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
     @Transactional(readOnly = true)
     public UserAdminDetail getUser(Long userId) {
         User user = userPort.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        
+                .orElseThrow(() -> new IllegalArgumentException("User not found")); // TODO: 도메인 예외 throw
+
         List<UserIdentitySummary> identities = userIdentityPort.findAllByUserId(userId)
                 .stream()
                 .map(userApplicationMapper::toIdentitySummary)
                 .toList();
-        
+
         return userApplicationMapper.toAdminDetail(user, identities);
     }
 
     @Override
     @Transactional
     public void updateUserStatus(Long userId, String status) {
-        if (userId == null) {
-            throw new IllegalArgumentException("UserId is required");
-        }
+
+        // TODO: Presentation 계층으로 이관 (Validator 통해 처리하기)
+        // userId null check done at presentation layer
         UserStatus normalized = normalizeStatus(status);
+        // TODO: 중복 제거 및 도메인 예외 변환
         if (!SUPPORTED_STATUSES.contains(normalized)) {
+            // Validator 단계에서 처리 권장
             throw new IllegalArgumentException("Unsupported status: " + status);
         }
         User user = userPort.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found")); // TODO: 도메인 예외 throw
         User updated = User.rehydrate(
                 user.getId(),
                 user.getUsername(),
@@ -76,16 +77,13 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
                 normalized,
                 user.getLastLoginAt(),
                 user.getCreatedAt(),
-                user.getUpdatedAt()
-        );
+                user.getUpdatedAt());
         userPort.save(updated);
     }
 
     private UserStatus normalizeStatus(String status) {
-        if (status == null || status.isBlank()) {
-            throw new IllegalArgumentException("Status is required");
-        }
-        String normalized = status.trim().toUpperCase(Locale.ROOT);
+        // TODO: Presentation 계층으로 이관 (Validator 통해 처리하기)
+        String normalized = status != null ? status.trim().toUpperCase(Locale.ROOT) : "";
         if ("PENDING_USERNAME".equals(normalized)) {
             return UserStatus.PENDING;
         }

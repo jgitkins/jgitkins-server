@@ -24,9 +24,8 @@ public class UserService {
 
         LocalDateTime loginAt = LocalDateTime.now();
 
-        if (!isProviderIdentityReady(command.getProviderName(), command.getProviderSub())) {
-            throw new IllegalArgumentException("Provider identity is required");
-        }
+        // TODO: Presentation 계층으로 이관 (Validator 통해 처리하기)
+        // param validation must be enforced in the entry point.
 
         return userIdentityPort.findByProvider(command.getProviderName(), command.getProviderSub())
                 .map(identity -> signin(identity, command, loginAt))
@@ -34,14 +33,16 @@ public class UserService {
     }
 
     private User signin(UserIdentity identity,
-                        UserLoginOrSignUpCommand command,
-                        LocalDateTime loginAt) {
+            UserLoginOrSignUpCommand command,
+            LocalDateTime loginAt) {
 
         User user = userPort.findById(identity.getUserId())
                 .orElseThrow(() -> new IllegalStateException("User not found for identity"));
 
-        User persistedUser = persistUserWithUpdates(user, command.getEmail(), command.getName(), command.getAvatarUrl(), loginAt);
-        UserIdentity updatedIdentity = userProfileUpdater.updateIdentityIfChanged(identity, command.getEmail(), command.isEmailVerified(), command.getName(), command.getAvatarUrl());
+        User persistedUser = persistUserWithUpdates(user, command.getEmail(), command.getName(), command.getAvatarUrl(),
+                loginAt);
+        UserIdentity updatedIdentity = userProfileUpdater.updateIdentityIfChanged(identity, command.getEmail(),
+                command.isEmailVerified(), command.getName(), command.getAvatarUrl());
         if (updatedIdentity != identity) {
             userIdentityPort.save(updatedIdentity);
         }
@@ -50,10 +51,12 @@ public class UserService {
     }
 
     private User signinWithSignUp(UserLoginOrSignUpCommand command,
-                                   LocalDateTime loginAt) {
+            LocalDateTime loginAt) {
 
-        User user = findOrCreateUserForIdentity(command.getEmail(), command.getName(), command.getAvatarUrl(), command.getProviderName(), command.getProviderSub());
-        User persisted = persistUserWithUpdates(user, command.getEmail(), command.getName(), command.getAvatarUrl(), loginAt);
+        User user = findOrCreateUserForIdentity(command.getEmail(), command.getName(), command.getAvatarUrl(),
+                command.getProviderName(), command.getProviderSub());
+        User persisted = persistUserWithUpdates(user, command.getEmail(), command.getName(), command.getAvatarUrl(),
+                loginAt);
 
         UserIdentity identity = UserIdentity.create(
                 persisted.getId(),
@@ -62,18 +65,17 @@ public class UserService {
                 command.getEmail(),
                 command.isEmailVerified(),
                 command.getName(),
-                command.getAvatarUrl()
-        );
+                command.getAvatarUrl());
         userIdentityPort.save(identity);
 
         return persisted;
     }
 
     private User findOrCreateUserForIdentity(String email,
-                                           String name,
-                                           String avatarUrl,
-                                           String providerName,
-                                           String providerSub) {
+            String name,
+            String avatarUrl,
+            String providerName,
+            String providerSub) {
         return findExistingUserByEmail(email)
                 .orElseGet(() -> createPendingUser(email, name, avatarUrl, providerName, providerSub));
     }
@@ -85,16 +87,11 @@ public class UserService {
         return userPort.findByEmail(email.trim());
     }
 
-    private boolean isProviderIdentityReady(String providerName, String providerSub) {
-        return providerName != null && !providerName.isBlank()
-                && providerSub != null && !providerSub.isBlank();
-    }
-
     private User createPendingUser(String email,
-                                   String name,
-                                   String avatarUrl,
-                                   String providerName,
-                                   String providerSub) {
+            String name,
+            String avatarUrl,
+            String providerName,
+            String providerSub) {
 
         String baseUsername = usernameAllocator.deriveBaseUsername(email, providerName, providerSub);
         String username = usernameAllocator.allocateUniqueUsername(baseUsername, providerSub);
@@ -102,10 +99,10 @@ public class UserService {
     }
 
     private User persistUserWithUpdates(User user,
-                                        String email,
-                                        String name,
-                                        String avatarUrl,
-                                        LocalDateTime loginAt) {
+            String email,
+            String name,
+            String avatarUrl,
+            LocalDateTime loginAt) {
         User updatedUser = userProfileUpdater.applyUserUpdates(user, email, name, avatarUrl, loginAt);
         return userPort.save(updatedUser);
     }

@@ -639,22 +639,22 @@
             "title": "Dead code 인벤토리 작성",
             "description": "참조 그래프, 빈 주입 여부, 테스트 사용 여부를 기준으로 미사용 클래스/메서드/설정/테스트를 후보로 식별하고 삭제 리스크를 분류한다.",
             "details": "",
-            "status": "in-progress",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "undefined",
-            "updatedAt": "2026-03-09T05:29:07.980Z"
+            "updatedAt": "2026-03-09T07:04:15.416Z"
           },
           {
             "id": 24,
             "title": "미사용 코드 제거 및 빌드 검증",
             "description": "인벤토리 결과를 기반으로 dead code를 제거하고 컴파일/테스트로 회귀를 확인한다.",
             "details": "",
-            "status": "in-progress",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "undefined",
-            "updatedAt": "2026-03-09T05:29:07.988Z"
+            "updatedAt": "2026-03-09T07:04:15.424Z"
           },
           {
             "id": 25,
@@ -666,9 +666,20 @@
             "parentTaskId": 2,
             "parentId": "2",
             "updatedAt": "2026-03-09T05:28:40.582Z"
+          },
+          {
+            "id": 26,
+            "title": "Application 서비스 로직 일관화",
+            "description": "모든 Application 서비스들을 참조해서 코드흐름 일관성을 유지하도록 변경",
+            "details": "1. Input validating 모두 제거 및 Presentation 계층 이관 주석 (TODO) 추가\n2. Application Validator 캡슐화 도입 (데이터 정합성 검증)",
+            "status": "in-progress",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "2",
+            "updatedAt": "2026-03-09T07:05:54.266Z"
           }
         ],
-        "updatedAt": "2026-03-09T05:29:07.988Z"
+        "updatedAt": "2026-03-09T07:05:54.266Z"
       },
       {
         "id": "3",
@@ -757,7 +768,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-09T05:29:07.988Z",
+      "lastModified": "2026-03-09T07:05:54.267Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [
