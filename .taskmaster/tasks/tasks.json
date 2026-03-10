@@ -670,16 +670,29 @@
           {
             "id": 26,
             "title": "Application 서비스 로직 일관화",
-            "description": "모든 Application 서비스들을 참조해서 코드흐름 일관성을 유지하도록 변경",
-            "details": "1. Input validating 모두 제거 및 Presentation 계층 이관 주석 (TODO) 추가\n2. Application Validator 캡슐화 도입 (데이터 정합성 검증)",
-            "status": "in-progress",
+            "description": "모든 Application 서비스들을 참조해서 코드흐름 일관성을 유지하도록 변경 [Updated: 3/10/2026]",
+            "details": "1. Input validating 모두 제거 및 Presentation 계층 이관 주석 (TODO) 추가\n2. Application Validator 캡슐화 도입 (데이터 정합성 검증)\n<info added on 2026-03-10T04:50:08.281Z>\nInput Validation 이관 작업이 완료되었습니다. `jgitkins-server` 프로젝트의 `src/main/java/jgitkins/server/api/dto` 패키지 내 Request DTO (예: `UserRequestDto.java`)들에 `@NotBlank`, `@NotNull`, `@Pattern`, `@Size` 등의 Jakarta Validation 어노테이션을 적용했습니다. 또한, 해당 DTO를 사용하는 `jgitkins.server.api.controller` 패키지 내 Controller 메서드 파라미터에 `@Valid`를 추가하여 Presentation 계층에서 유효성 검사를 수행하도록 로직을 이관하고, 기존 서비스/애플리케이션 계층의 유효성 검사 로직은 모두 제거되었습니다.\n</info added on 2026-03-10T04:50:08.281Z>",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "2",
-            "updatedAt": "2026-03-09T07:05:54.266Z"
+            "updatedAt": "2026-03-10T04:50:13.067Z"
+          },
+          {
+            "id": 27,
+            "title": "Support 클래스 재분류 및 패키지 통일",
+            "description": "UseCase 가 아닌 내부 서비스 용도로 사용되는 메서드/클래스들을 도출하여 Support 클래스로 강등하고, 패키지 구조 및 빈 어노테이션을 정비한다.",
+            "details": "1. UseCase 인터페이스 강등 검토: 외부(Presentation/Infrastructure) 어댑터에서 직접 사용되지 않는 UseCase 인터페이스(예: GitRepositoryAccessUseCase)를 식별하여, Application 내부 Support 클래스로 재분류한다.\n2. 서비스 패키지 통일: application.port.service 패키지에 있는 모든 Service 클래스를 application.service 패키지로 이관하여 패키지 구조를 단일화한다.\n3. Support 패키지 빈 어노테이션 변경: application.support 패키지 내 @Service 어노테이션을 @Component 로 일괄 변경한다 (대상: UserService, RepositoryLookupService, RepositoryNamespaceResolver 등).\n참조 문서: .taskmaster/docs/task_2_27_plan.md",
+            "status": "done",
+            "dependencies": [
+              26
+            ],
+            "parentTaskId": 2,
+            "parentId": "2",
+            "updatedAt": "2026-03-10T05:14:23.491Z"
           }
         ],
-        "updatedAt": "2026-03-09T07:05:54.266Z"
+        "updatedAt": "2026-03-10T05:14:23.491Z"
       },
       {
         "id": "3",
@@ -768,7 +781,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-09T07:05:54.267Z",
+      "lastModified": "2026-03-10T05:14:23.494Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [

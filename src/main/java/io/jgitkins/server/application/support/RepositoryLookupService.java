@@ -3,7 +3,7 @@ package io.jgitkins.server.application.support;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import io.jgitkins.server.application.port.out.OrganizeMemberPort;
 import io.jgitkins.server.application.port.out.OrganizePort;
@@ -22,7 +22,7 @@ import io.jgitkins.server.infrastructure.support.RepositoryPathHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Service
+@Component
 @RequiredArgsConstructor
 @Slf4j
 public class RepositoryLookupService {
