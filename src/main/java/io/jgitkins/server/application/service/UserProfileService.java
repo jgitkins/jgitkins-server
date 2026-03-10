@@ -4,34 +4,34 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.application.port.in.UserProfileUpdateUseCase;
+import io.jgitkins.server.application.port.in.SignupUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.UserPort;
-import io.jgitkins.server.application.validate.UserProfileValidator;
+import io.jgitkins.server.application.validate.ActivationValidator;
 import io.jgitkins.server.domain.error.DomainErrorCode;
-import io.jgitkins.server.domain.exception.UsernameAlreadySetException;
+import io.jgitkins.server.domain.exception.UserAlreadyActivatedException;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.vo.Username;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class UserProfileService implements UserProfileUpdateUseCase {
+public class UserProfileService implements SignupUseCase {
 
     private final CurrentUserPort currentUserPort;
     private final UserPort userPort;
-    private final UserProfileValidator userProfileValidator;
+    private final ActivationValidator activationValidator;
 
     @Override
     @Transactional
-    public void updateUsername(String username) {
-        Username requested = userProfileValidator.validateUsername(username);
+    public void activate(String username) {
+        Username requested = activationValidator.validateUsername(username);
         Long userId = currentUserId();
         User user = loadUser(userId);
 
-        userProfileValidator.validateUsernameNotTaken(requested, userId);
-        userProfileValidator.validateOrganizeNameNotTakenIfCompatible(requested);
-        userProfileValidator.validateUserHasNoRepositories(userId);
+        activationValidator.validateUsernameNotTaken(requested, userId);
+        activationValidator.validateOrganizeNameNotTakenIfCompatible(requested);
+        activationValidator.validateUserHasNoRepositories(userId);
 
         User updated = activateUser(user, requested);
         userPort.save(updated);
@@ -50,8 +50,8 @@ public class UserProfileService implements UserProfileUpdateUseCase {
     private User activateUser(User user, Username requested) {
         try {
             return user.activateWithUsername(requested);
-        } catch (UsernameAlreadySetException ex) {
-            throw new JgitkinsException(DomainErrorCode.USERNAME_ALREADY_SET, ex.getMessage(), ex);
+        } catch (UserAlreadyActivatedException ex) {
+            throw new JgitkinsException(DomainErrorCode.USER_ALREADY_ACTIVATED, ex.getMessage(), ex);
         }
     }
 }

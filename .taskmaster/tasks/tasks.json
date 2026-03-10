@@ -691,9 +691,20 @@
             "parentTaskId": 2,
             "parentId": "2",
             "updatedAt": "2026-03-10T05:14:23.491Z"
+          },
+          {
+            "id": 28,
+            "title": "Signup activate 유즈케이스 분리 및 웹 연동 정리",
+            "description": "AdminUserService.updateUserStatus 와 UserProfileService.updateUsername 의미를 signup activate 유즈케이스로 재분류하고, 서버 SignupController/SignupUseCase/SignupService 및 jgitkins-web 호출 경로를 함께 정리한다.",
+            "status": "done",
+            "dependencies": [],
+            "details": "참조 문서: .taskmaster/docs/task_2_28_plan.md. 1) 서버는 기존 UserProfileService.updateUsername 로직을 SignupService.activate 로 재배치하거나 rename 한다. 2) AdminUserService.updateUserStatus 는 signup 책임에서 분리하고, 관리자 상태 변경이 필요하면 별도 유즈케이스로 유지한다. 3) SignupController 와 signup activate API 를 신설하고, 기존 /api/users/me/username 경로는 호환 필요 시 thin endpoint 로 유지 여부를 검토한다. 4) 웹 모듈 UsernameSetupController, UserPort/JGitkinsServerAdapter/JGitkinsServerClient 도 signup activate 의미로 rename 및 경로 변경한다. 5) username 관련 3개 검증은 inner class 대신 별도 SignupActivationValidator/Policy 로 묶는 방향을 우선 검토한다.",
+            "testStrategy": "",
+            "updatedAt": "2026-03-10T07:29:52.302Z",
+            "parentId": "undefined"
           }
         ],
-        "updatedAt": "2026-03-10T06:10:44.662Z"
+        "updatedAt": "2026-03-10T07:29:52.302Z"
       },
       {
         "id": "3",
@@ -782,7 +793,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-10T06:10:44.667Z",
+      "lastModified": "2026-03-10T07:29:52.302Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [

@@ -1,9 +1,9 @@
 package io.jgitkins.server.application.factory;
 
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.dto.CommitFile;
 import io.jgitkins.server.application.dto.FileUploadInfo;
 import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,7 +41,7 @@ public class CommitFileFactory {
                     .content(file.getBytes())
                     .build());
         } catch (IOException e) {
-            throw new JgitkinsException(InfrastructureErrorCode.FILESYSTEM_ACCESS_FAILED, "Failed to read upload file content", e);
+            throw new JgitkinsException(ApplicationErrorCode.FILE_READ_FAILED, "Failed to read upload file content", e);
         }
     }
 

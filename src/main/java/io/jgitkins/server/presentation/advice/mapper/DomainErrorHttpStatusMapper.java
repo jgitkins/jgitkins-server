@@ -24,7 +24,7 @@ public class DomainErrorHttpStatusMapper implements ErrorHttpStatusMapper {
             case ORGANIZE_MEMBER_ALREADY_EXISTS,
                  RUNNER_ALREADY_ACTIVED -> HttpStatus.CONFLICT;
             case RUNNER_TOKEN_INVALID,
-                 USERNAME_ALREADY_SET -> HttpStatus.UNPROCESSABLE_ENTITY;
+                 USER_ALREADY_ACTIVATED -> HttpStatus.UNPROCESSABLE_ENTITY;
         };
     }
 }

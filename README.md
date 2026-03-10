@@ -61,7 +61,7 @@ _No tasks found._
 | ID | Title | Status | Priority | Subtasks |
 | --- | --- | --- | --- | --- |
 | 1 | 신규기능 | in-progress | high | 23 |
-| 2 | 리팩토링 | in-progress | high | 25 |
+| 2 | 리팩토링 | in-progress | high | 26 |
 | 3 | 보안 | in-progress | high | 3 |
 | 4 | 운영/인프라 | pending | high | 0 |
 | 5 | 버그/핫픽스 | pending | high | 0 |

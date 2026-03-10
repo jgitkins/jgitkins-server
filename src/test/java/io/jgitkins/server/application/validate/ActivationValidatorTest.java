@@ -1,7 +1,8 @@
 package io.jgitkins.server.application.validate;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import io.jgitkins.server.common.exception.JgitkinsException;
+import static org.mockito.Mockito.when;
+
 import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.port.out.UserPort;
@@ -13,10 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
-class UserProfileValidatorTest {
+class ActivationValidatorTest {
 
     @Mock
     private UserPort userPort;
@@ -28,7 +27,7 @@ class UserProfileValidatorTest {
     private RepositoryPort repositoryPort;
 
     @InjectMocks
-    private UserProfileValidator validator;
+    private ActivationValidator validator;
 
     @Test
     void validateUsername_throwsWhenInvalid() {

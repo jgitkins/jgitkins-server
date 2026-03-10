@@ -1,10 +1,11 @@
 package io.jgitkins.server.domain.model;
 
 import java.time.LocalDateTime;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import io.jgitkins.server.domain.exception.UsernameAlreadySetException;
+import io.jgitkins.server.domain.exception.UserAlreadyActivatedException;
 import io.jgitkins.server.domain.model.vo.Username;
 
 @Getter
@@ -94,7 +95,7 @@ public class User {
             throw new IllegalArgumentException("Username is required");
         }
         if (status != UserStatus.PENDING) {
-            throw new UsernameAlreadySetException();
+            throw new UserAlreadyActivatedException();
         }
         return new User(id,
                         username.getValue(),

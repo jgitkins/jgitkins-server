@@ -8,7 +8,7 @@ public enum DomainErrorCode implements ErrorCode {
     ORGANIZE_MEMBER_ALREADY_EXISTS("ORGANIZE_MEMBER_ALREADY_EXISTS", "Organize member already exists"),
     RUNNER_ALREADY_ACTIVED("RUNNER_ALREADY_ACTIVED", "Runner already active"),
     RUNNER_TOKEN_INVALID("RUNNER_TOKEN_INVALID", "Runner token is invalid"),
-    USERNAME_ALREADY_SET("USERNAME_ALREADY_SET", "Username already set");
+    USER_ALREADY_ACTIVATED("USERNAME_ALREADY_SET", "Username already set");
 
     private final String code;
     private final String defaultMessage;

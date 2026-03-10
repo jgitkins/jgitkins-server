@@ -1,8 +1,10 @@
 package io.jgitkins.server.application.service;
 
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.domain.error.DomainErrorCode;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.UserPort;
-import io.jgitkins.server.application.validate.UserProfileValidator;
+import io.jgitkins.server.application.validate.ActivationValidator;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserStatus;
 import io.jgitkins.server.domain.model.vo.Username;
@@ -15,7 +17,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,13 +34,13 @@ class UserProfileServiceTest {
     private UserPort userPort;
 
     @Mock
-    private UserProfileValidator validator;
+    private ActivationValidator validator;
 
     @InjectMocks
     private UserProfileService service;
 
     @Test
-    void updateUsername_activatesAndSavesUser() {
+    void activate_activatesAndSavesUser() {
         Username requested = Username.from("new_name");
         when(validator.validateUsername("new_name")).thenReturn(requested);
         when(currentUserPort.currentUserId()).thenReturn(Optional.of(1L));
@@ -43,7 +48,7 @@ class UserProfileServiceTest {
         when(userPort.findById(1L)).thenReturn(Optional.of(pending));
         when(userPort.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        service.updateUsername("new_name");
+        service.activate("new_name");
 
         verify(validator).validateUsernameNotTaken(requested, 1L);
         verify(validator).validateOrganizeNameNotTakenIfCompatible(requested);
@@ -57,4 +62,17 @@ class UserProfileServiceTest {
         assertEquals(UserStatus.ACTIVE, saved.getStatus());
     }
 
+    @Test
+    void activate_translatesAlreadyActivatedDomainException() {
+        Username requested = Username.from("new_name");
+        when(validator.validateUsername("new_name")).thenReturn(requested);
+        when(currentUserPort.currentUserId()).thenReturn(Optional.of(1L));
+        User activeUser = User.createWithStatus("active_user", "a@b.com", "User", null, UserStatus.ACTIVE).withId(1L);
+        when(userPort.findById(1L)).thenReturn(Optional.of(activeUser));
+
+        JgitkinsException exception = assertThrows(JgitkinsException.class, () -> service.activate("new_name"));
+
+        assertSame(DomainErrorCode.USER_ALREADY_ACTIVATED, exception.getErrorCode());
+        verify(userPort, never()).save(any(User.class));
+    }
 }
