@@ -589,10 +589,11 @@
             "title": "Application→Infrastructure 직접 의존 제거",
             "description": "Application 계층에서 인프라 구현체/패키지를 직접 참조하는 지점을 Port 인터페이스 경유로 치환한다.",
             "details": "",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2,
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2026-03-10T06:10:44.662Z"
           },
           {
             "id": 19,
@@ -692,7 +693,7 @@
             "updatedAt": "2026-03-10T05:14:23.491Z"
           }
         ],
-        "updatedAt": "2026-03-10T05:14:23.491Z"
+        "updatedAt": "2026-03-10T06:10:44.662Z"
       },
       {
         "id": "3",
@@ -781,7 +782,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-10T05:14:23.494Z",
+      "lastModified": "2026-03-10T06:10:44.667Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [

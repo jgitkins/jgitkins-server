@@ -1,4 +1,4 @@
-package io.jgitkins.server.infrastructure.support;
+package io.jgitkins.server.application.common;
 
 import lombok.experimental.UtilityClass;
 
@@ -17,10 +17,10 @@ public class RepositoryPathHelper {
     public String buildUserNamespace(String ownerName) {
         return trimSlashes(ownerName);
     }
+
     public String buildOrganizeNamespace(String ownerName) {
         return trimSlashes(ownerName);
     }
-
 
     private String trimSlashes(String value) {
         if (value == null) {

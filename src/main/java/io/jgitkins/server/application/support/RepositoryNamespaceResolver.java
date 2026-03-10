@@ -1,5 +1,6 @@
 package io.jgitkins.server.application.support;
 
+import io.jgitkins.server.application.common.RepositoryPathHelper;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.UserPort;
@@ -7,7 +8,6 @@ import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OwnerId;
 import io.jgitkins.server.domain.model.vo.OwnerType;
-import io.jgitkins.server.infrastructure.support.RepositoryPathHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

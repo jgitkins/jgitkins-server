@@ -6,10 +6,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.application.common.CloneUrlBuilder;
 import io.jgitkins.server.application.dto.RunnerAssignmentCandidate;
 import io.jgitkins.server.application.port.out.JobPort;
 import io.jgitkins.server.application.port.out.RunnerPort;
+import io.jgitkins.server.application.support.CloneUrlBuilder;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.vo.RunnerScopeType;
 import io.jgitkins.server.domain.model.vo.RunnerStatus;

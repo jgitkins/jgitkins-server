@@ -1,12 +1,12 @@
 package io.jgitkins.server.application.service;
 
-import io.jgitkins.server.application.common.CloneUrlBuilder;
 import io.jgitkins.server.application.dto.JobDispatchMessage;
 import io.jgitkins.server.application.dto.PendingJob;
 import io.jgitkins.server.application.dto.RunnerAssignmentCandidate;
 import io.jgitkins.server.application.port.in.JobDispatchUseCase;
 import io.jgitkins.server.application.port.out.JobPort;
 import io.jgitkins.server.application.port.out.RunnerPort;
+import io.jgitkins.server.application.support.CloneUrlBuilder;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.JobHistory;

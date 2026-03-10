@@ -1,6 +1,6 @@
 package io.jgitkins.server.application.service;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.dto.*;
 import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
 import io.jgitkins.server.application.dto.result.RunnerActivateResult;
@@ -16,6 +16,8 @@ import io.jgitkins.server.domain.error.DomainErrorCode;
 import io.jgitkins.server.domain.exception.RunnerAlreadyActiveException;
 import io.jgitkins.server.domain.exception.RunnerTokenMismatchException;
 import io.jgitkins.server.domain.exception.RunnerTokenMissingException;
+import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -53,9 +55,7 @@ public class RunnerManagementService implements RunnerRegisterUseCase, RunnerDel
             runnerPort.deleteById(runnerId);
         } catch (RuntimeException ex) {
             log.error("Runner deletion failed. runnerId={}", runnerId, ex);
-            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.RUNNER_DELETE_FAILED,
-                                                   "Runner deletion failed",
-                                                   ex);
+            throw new JgitkinsException(InfrastructureErrorCode.RUNNER_DELETE_FAILED, "Runner deletion failed", ex);
         }
     }
 
@@ -86,7 +86,10 @@ public class RunnerManagementService implements RunnerRegisterUseCase, RunnerDel
 
         } catch (RuntimeException ex) {
             log.error("Runner activation failed. runnerId={}", runner.getId(), ex);
-            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.RUNNER_ACTIVATION_FAILED, "Runner activation failed", ex);
+            throw new JgitkinsException(ApplicationErrorCode.RUNNER_ACTIVATION_FAILED, "Runner activation failed", ex);
+            // TODO: 예외는 직접 사용하면안되는가?
+            //  왜냐하면 Adapter 에서 예외처리를 했는데 어떤 유즈케이스에서는 예외처리안한 케이스가 필요할 수 있는데..
+            //  메서드를 두개를 만들어야 함
         }
     }
 }

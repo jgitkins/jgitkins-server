@@ -41,6 +41,9 @@ public class ApplicationErrorHttpStatusMapper implements ErrorHttpStatusMapper {
             case INVALID_OWNER_CONTEXT,
                  MEMBER_IDENTIFIER_REQUIRED,
                  REPOSITORY_NOT_INITIALIZED -> HttpStatus.UNPROCESSABLE_ENTITY;
+            case FILE_READ_FAILED,
+                 RUNNER_DELETE_FAILED,
+                 RUNNER_ACTIVATION_FAILED -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }
 

@@ -35,8 +35,8 @@ public class WebRepositoryController {
 	@Operation(summary = "Get Repository Overview by Namespace/Repo (Web)")
 	@GetMapping("/{namespace}/{repoName}/overview")
 	public ResponseEntity<ApiResponse<io.jgitkins.server.application.dto.result.RepositoryOverviewResult>> getRepositoryOverviewByPath(
-			@PathVariable String namespace,
-			@PathVariable String repoName,
+			@PathVariable String namespace, // TODO: valid 추가
+			@PathVariable String repoName, // TODO: valid 추가
 			@org.springframework.web.bind.annotation.RequestParam(name = "branch", required = false) String branch
 	) throws java.io.IOException {
 		RepositoryResult repository = repositoryLoadUseCase.getRepositoryByPath(namespace, repoName);

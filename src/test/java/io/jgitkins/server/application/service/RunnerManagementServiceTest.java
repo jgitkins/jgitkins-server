@@ -3,11 +3,11 @@ package io.jgitkins.server.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.dto.RunnerRuntimeConfig;
 import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
 import io.jgitkins.server.application.dto.result.RunnerActivateResult;
@@ -15,6 +15,7 @@ import io.jgitkins.server.application.dto.result.RunnerRegistrationResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
 import io.jgitkins.server.application.port.out.RunnerPort;
 import io.jgitkins.server.application.support.RunnerRuntimeConfigProvider;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.vo.RunnerScopeType;
 import io.jgitkins.server.domain.model.vo.RunnerStatus;
@@ -73,7 +74,20 @@ class RunnerManagementServiceTest {
         assertThatThrownBy(() -> service.deleteRunner(99L))
                 .isInstanceOf(JgitkinsException.class)
                 .extracting(ex -> ((JgitkinsException) ex).getErrorCode())
-                .isEqualTo(io.jgitkins.server.application.common.error.ApplicationErrorCode.RUNNER_NOT_FOUND);
+                .isEqualTo(ApplicationErrorCode.RUNNER_NOT_FOUND);
+    }
+
+    @Test
+    void deleteRunner_mapsRuntimeFailureToApplicationError() {
+        Runner runner = Runner.restore(99L, "RNR-TOKEN", "runner", RunnerStatus.OFFLINE,
+                RunnerScopeType.GLOBAL, null, null, LocalDateTime.now(), LocalDateTime.now());
+        when(runnerPort.findById(99L)).thenReturn(Optional.of(runner));
+        doThrow(new RuntimeException("delete failed")).when(runnerPort).deleteById(99L);
+
+        assertThatThrownBy(() -> service.deleteRunner(99L))
+                .isInstanceOf(JgitkinsException.class)
+                .extracting(ex -> ((JgitkinsException) ex).getErrorCode())
+                .isEqualTo(ApplicationErrorCode.RUNNER_DELETE_FAILED);
     }
 
     @Test
@@ -114,5 +128,19 @@ class RunnerManagementServiceTest {
                 .isInstanceOf(JgitkinsException.class)
                 .extracting(ex -> ((JgitkinsException) ex).getErrorCode().getCode())
                 .isEqualTo("RUNNER_ALREADY_ACTIVED");
+    }
+
+    @Test
+    void activate_mapsPersistenceFailureToApplicationError() {
+        Runner offline = Runner.restore(1L, "RNR-TOKEN", "runner", RunnerStatus.OFFLINE,
+                RunnerScopeType.GLOBAL, null, null, LocalDateTime.now(), LocalDateTime.now());
+
+        when(runnerPort.findByToken("RNR-TOKEN")).thenReturn(Optional.of(offline));
+        when(runnerPort.save(any(Runner.class))).thenThrow(new RuntimeException("save failed"));
+
+        assertThatThrownBy(() -> service.activate("RNR-TOKEN", "127.0.0.1"))
+                .isInstanceOf(JgitkinsException.class)
+                .extracting(ex -> ((JgitkinsException) ex).getErrorCode())
+                .isEqualTo(ApplicationErrorCode.RUNNER_ACTIVATION_FAILED);
     }
 }

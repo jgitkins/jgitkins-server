@@ -1,7 +1,7 @@
 package io.jgitkins.server.application.support;
 
 import io.jgitkins.server.application.dto.RunnerRuntimeConfig;
-import io.jgitkins.server.infrastructure.config.RunnerRuntimeProperties;
+import io.jgitkins.server.application.port.out.RuntimeConfigPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -9,19 +9,17 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RunnerRuntimeConfigProvider {
 
-    private final RunnerRuntimeProperties properties;
+    private final RuntimeConfigPort runtimeConfigPort;
 
     public RunnerRuntimeConfig createConfig() {
         return RunnerRuntimeConfig.builder()
-                .serviceHost(properties.getServiceHost())
-                .restScheme(properties.getRestScheme())
-//                .restHost(properties.getRestHost())
-                .restPort(properties.getRestPort())
-                .restBasePath(properties.getRestBasePath())
-//                .grpcHost(properties.getGrpcHost())
-                .grpcPort(properties.getGrpcPort())
-                .pollIntervalMs(properties.getPollIntervalMs())
-                .busyWaitIntervalMs(properties.getBusyWaitIntervalMs())
+                .serviceHost(runtimeConfigPort.serviceHost())
+                .restScheme(runtimeConfigPort.restScheme())
+                .restPort(runtimeConfigPort.restPort())
+                .restBasePath(runtimeConfigPort.restBasePath())
+                .grpcPort(runtimeConfigPort.grpcPort())
+                .pollIntervalMs(runtimeConfigPort.pollIntervalMs())
+                .busyWaitIntervalMs(runtimeConfigPort.busyWaitIntervalMs())
                 .build();
     }
 }

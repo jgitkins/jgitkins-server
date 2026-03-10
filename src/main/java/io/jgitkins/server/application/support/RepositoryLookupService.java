@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import io.jgitkins.server.application.common.RepositoryPathHelper;
 import io.jgitkins.server.application.port.out.OrganizeMemberPort;
 import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
@@ -18,7 +19,6 @@ import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.RepositoryPath;
 import io.jgitkins.server.domain.model.vo.RepositoryVisibility;
 import io.jgitkins.server.domain.model.vo.UserId;
-import io.jgitkins.server.infrastructure.support.RepositoryPathHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +33,6 @@ public class RepositoryLookupService {
     private final OrganizeMemberPort organizeMemberPort;
 
     public Optional<Repository> findByPath(String namespace, String repoName) {
-        // TODO: 문자열 기본 검증 책임은 호출자(Controller 또는 상위 Service)로 이전
 
         String normalizedNamespace = namespace.trim().replaceAll("^/+", "").replaceAll("/+$", "");
         String normalizedRepo = repoName.trim().replaceAll("^/+", "").replaceAll("/+$", "");

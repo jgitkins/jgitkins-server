@@ -28,7 +28,10 @@ public enum ApplicationErrorCode implements ErrorCode {
     // 422 Unprocessable Entity (Logical/Semantic Errors)
     INVALID_OWNER_CONTEXT("INVALID_OWNER_CONTEXT", "Invalid owner type or ID combination"),
     MEMBER_IDENTIFIER_REQUIRED("MEMBER_IDENTIFIER_REQUIRED", "Member identifier (User ID or Repository ID) is missing"),
-    REPOSITORY_NOT_INITIALIZED("REPOSITORY_NOT_INITIALIZED", "Repository is not yet initialized");
+    REPOSITORY_NOT_INITIALIZED("REPOSITORY_NOT_INITIALIZED", "Repository is not yet initialized"),
+    FILE_READ_FAILED("FILE_READ_FAILED", "Failed to read file content"),
+    RUNNER_DELETE_FAILED("RUNNER_DELETE_FAILED", "Runner Delete Failed"),
+    RUNNER_ACTIVATION_FAILED("RUNNER_ACTIVATION_FAILED", "Runner Activation Failed");
 
     private final String code;
     private final String defaultMessage;
