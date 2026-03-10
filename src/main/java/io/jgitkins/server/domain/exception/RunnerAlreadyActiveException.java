@@ -1,10 +1,9 @@
 package io.jgitkins.server.domain.exception;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.error.DomainErrorCode;
 import io.jgitkins.server.domain.model.vo.RunnerStatus;
 
-public class RunnerAlreadyActiveException extends JgitkinsException {
+public class RunnerAlreadyActiveException extends DomainException {
 
     private final Long runnerId;
     private final RunnerStatus currentStatus;

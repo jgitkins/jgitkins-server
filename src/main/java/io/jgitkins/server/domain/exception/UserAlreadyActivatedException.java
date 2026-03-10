@@ -1,8 +1,10 @@
 package io.jgitkins.server.domain.exception;
 
-public class UserAlreadyActivatedException extends RuntimeException {
+import io.jgitkins.server.domain.error.DomainErrorCode;
+
+public class UserAlreadyActivatedException extends DomainException {
 
     public UserAlreadyActivatedException() {
-        super("User is already activated");
+        super(DomainErrorCode.USER_ALREADY_ACTIVATED, "User is already activated");
     }
 }
