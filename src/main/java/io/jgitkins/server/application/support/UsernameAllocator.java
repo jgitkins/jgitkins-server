@@ -16,16 +16,14 @@ public class UsernameAllocator {
 	private final OrganizePort organizePort;
 
 	public String deriveBaseUsername(String email, String providerName, String providerSub) {
-		if (email != null && !email.isBlank()) {
-			String local = email.split("@")[0];
-			return sanitize(local.toLowerCase());
-		}
-		String seed = providerName + "-" + providerSub;
-		return sanitize(seed.toLowerCase());
+		// TODO: email 등 문자열 기본 검증 책임은 호출자(Controller 또는 상위 Service)로 이전
+		String base = (email != null && !email.isBlank()) ? email.split("@")[0] : providerName + "-" + providerSub;
+		return sanitize(base.toLowerCase());
 	}
 
 	public String allocateUniqueUsername(String baseUsername, String providerSub) {
-		String providerSuffix = providerSub == null ? "user" : providerSub.substring(Math.max(0, providerSub.length() - 6));
+		String providerSuffix = providerSub == null ? "user"
+				: providerSub.substring(Math.max(0, providerSub.length() - 6));
 		String randomSuffix = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
 
 		String[] candidates = new String[] {

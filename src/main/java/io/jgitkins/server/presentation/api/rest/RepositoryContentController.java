@@ -22,7 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 @RestController
@@ -37,20 +38,13 @@ public class RepositoryContentController {
 
     @Operation(summary = "File Upload")
     @PostMapping(value = "/{taskCd}/{repoName}/files/{branch}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @RequestBody(
-            required = true,
-            content = @Content(
-                    mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-                    schema = @Schema(implementation = FileUploadRequest.class),
-                    encoding = @Encoding(name = "request", contentType = "application/json")
-            )
-    )
-    public ResponseEntity<ApiResponse<String>> uploadFile(@PathVariable String taskCd,
-                                                          @PathVariable String repoName,
-                                                          @PathVariable String branch,
-                                                          @Parameter(schema = @Schema(type = "string", format = "binary"))
-                                                          @RequestPart("file") MultipartFile file,
-                                                          @RequestPart("request") FileUploadInfo request) {
+    @RequestBody(required = true, content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(implementation = FileUploadRequest.class), encoding = @Encoding(name = "request", contentType = "application/json")))
+    public ResponseEntity<ApiResponse<String>> uploadFile(@PathVariable @NotBlank String taskCd,
+            @PathVariable @NotBlank String repoName,
+            @PathVariable @NotBlank String branch,
+            @Parameter(schema = @Schema(type = "string", format = "binary")) @RequestPart("file") MultipartFile file,
+            @Valid @RequestPart("request") FileUploadInfo request) {
+        // Presentation 계층에서 null, 빈 문자열 등을 방어하도록 이관 (@Valid, @NotBlank 등 활용)
         fileUploadUseCase.uploadFileToRepository(taskCd, repoName, branch, file, request);
         return ApiResponse.ok("File uploaded and committed.");
     }
@@ -58,11 +52,10 @@ public class RepositoryContentController {
     @Operation(summary = "File Upload (Web Compat)")
     @PostMapping(value = "/{repositoryId}/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<String>> uploadFileByRepositoryId(@PathVariable Long repositoryId,
-                                                                        @RequestParam("branch") String branch,
-                                                                        @RequestParam("path") String path,
-                                                                        @RequestParam("message") String message,
-                                                                        @Parameter(schema = @Schema(type = "string", format = "binary"))
-                                                                        @RequestPart("file") MultipartFile file) {
+            @RequestParam("branch") @NotBlank String branch,
+            @RequestParam("path") @NotBlank String path,
+            @RequestParam("message") @NotBlank String message,
+            @Parameter(schema = @Schema(type = "string", format = "binary")) @RequestPart("file") MultipartFile file) {
         RepositoryKey key = resolveRepositoryKey(repositoryId);
         FileUploadInfo request = new FileUploadInfo(path, message, null, null);
         fileUploadUseCase.uploadFileToRepository(key.namespace(), key.repoName(), branch, file, request);
@@ -72,9 +65,9 @@ public class RepositoryContentController {
     @Operation(summary = "View File Tree", description = "트리 조회")
     @GetMapping("/{taskCd}/{repoName}/refs/{branch}/tree")
     public ResponseEntity<ApiResponse<List<FileEntry>>> getTree(@PathVariable String taskCd,
-                                                                @PathVariable String repoName,
-                                                                @PathVariable String branch,
-                                                                @RequestParam(name = "dir", required = false, defaultValue = "") String dir) {
+            @PathVariable String repoName,
+            @PathVariable String branch,
+            @RequestParam(name = "dir", required = false, defaultValue = "") String dir) {
         List<FileEntry> files = fileTreeLoadUseCase.getTree(taskCd, repoName, branch, dir);
         return ApiResponse.ok(files);
     }
@@ -88,8 +81,7 @@ public class RepositoryContentController {
         if (key == null) {
             throw new JgitkinsException(
                     io.jgitkins.server.application.common.error.ApplicationErrorCode.REPOSITORY_NOT_FOUND,
-                    "Repository path is invalid: " + repositoryId
-            );
+                    "Repository path is invalid: " + repositoryId);
         }
         return key;
     }

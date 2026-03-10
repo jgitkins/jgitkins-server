@@ -33,13 +33,11 @@ public class RepositoryLookupService {
     private final OrganizeMemberPort organizeMemberPort;
 
     public Optional<Repository> findByPath(String namespace, String repoName) {
-        if (namespace == null || namespace.isBlank() || repoName == null || repoName.isBlank()) {
-            return Optional.empty();
-        }
+        // TODO: 문자열 기본 검증 책임은 호출자(Controller 또는 상위 Service)로 이전
 
         String normalizedNamespace = namespace.trim().replaceAll("^/+", "").replaceAll("/+$", "");
         String normalizedRepo = repoName.trim().replaceAll("^/+", "").replaceAll("/+$", "");
-        
+
         // 1. Clone Path 기반 조회 (Fastest)
         String clonePath = RepositoryPathHelper.buildClonePath(normalizedNamespace, normalizedRepo);
         Optional<Repository> byClonePath = repositoryPort.findByClonePath(clonePath);
@@ -52,29 +50,31 @@ public class RepositoryLookupService {
                 .flatMap(user -> repositoryPort.findByOwnerAndName(
                         OwnerType.USER,
                         OwnerId.of(user.getId()),
-                        RepositoryName.from(normalizedRepo)
-                ));
+                        RepositoryName.from(normalizedRepo)));
 
         Optional<Repository> organizeRepository = findOrganizeByNamespace(normalizedNamespace)
                 .flatMap(organize -> repositoryPort.findByOwnerAndPath(
                         OwnerType.ORGANIZATION,
                         OwnerId.of(organize.getId().getValue()),
-                        RepositoryPath.from(normalizedRepo)
-                ));
+                        RepositoryPath.from(normalizedRepo)));
 
         if (userRepository.isPresent() && organizeRepository.isPresent()) {
-            log.warn("Ambiguous repository path. namespace={}, repoName={}. Prefer USER-owned repository.", namespace, repoName);
+            log.warn("Ambiguous repository path. namespace={}, repoName={}. Prefer USER-owned repository.", namespace,
+                    repoName);
             return userRepository;
         }
         return userRepository.isPresent() ? userRepository : organizeRepository;
     }
 
     public boolean isVisibleToRequester(Repository repository,
-                                         Optional<Long> requesterId,
-                                         Map<OrganizeId, Boolean> membershipCache) {
-        if (repository == null) return false;
-        if (repository.getVisibility() == RepositoryVisibility.PUBLIC) return true;
-        if (requesterId.isEmpty()) return false;
+            Optional<Long> requesterId,
+            Map<OrganizeId, Boolean> membershipCache) {
+        if (repository == null)
+            return false;
+        if (repository.getVisibility() == RepositoryVisibility.PUBLIC)
+            return true;
+        if (requesterId.isEmpty())
+            return false;
 
         Long userId = requesterId.get();
         if (repository.getOwnerType() == OwnerType.USER) {
@@ -89,10 +89,12 @@ public class RepositoryLookupService {
     }
 
     public boolean isVisibleToUserOwner(Repository repository,
-                                         Optional<Long> requesterId,
-                                         Long ownerId) {
-        if (repository == null) return false;
-        if (repository.getVisibility() == RepositoryVisibility.PUBLIC) return true;
+            Optional<Long> requesterId,
+            Long ownerId) {
+        if (repository == null)
+            return false;
+        if (repository.getVisibility() == RepositoryVisibility.PUBLIC)
+            return true;
         return requesterId.isPresent() && ownerId != null && ownerId.equals(requesterId.get());
     }
 

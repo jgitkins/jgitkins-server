@@ -20,12 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateUseCase {
 
-    private static final List<UserStatus> SUPPORTED_STATUSES = List.of(
-            UserStatus.ACTIVE,
-            UserStatus.BLOCKED,
-            UserStatus.DELETED,
-            UserStatus.PENDING);
-
     private final UserPort userPort;
     private final UserIdentityPort userIdentityPort;
     private final UserApplicationMapper userApplicationMapper;
@@ -57,14 +51,8 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
     @Transactional
     public void updateUserStatus(Long userId, String status) {
 
-        // TODO: Presentation 계층으로 이관 (Validator 통해 처리하기)
-        // userId null check done at presentation layer
+        // TODO: 상태에 대한 순수 유효성 검증은 API (@Valid) 단으로 이관
         UserStatus normalized = normalizeStatus(status);
-        // TODO: 중복 제거 및 도메인 예외 변환
-        if (!SUPPORTED_STATUSES.contains(normalized)) {
-            // Validator 단계에서 처리 권장
-            throw new IllegalArgumentException("Unsupported status: " + status);
-        }
         User user = userPort.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found")); // TODO: 도메인 예외 throw
         User updated = User.rehydrate(
@@ -82,7 +70,6 @@ public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateU
     }
 
     private UserStatus normalizeStatus(String status) {
-        // TODO: Presentation 계층으로 이관 (Validator 통해 처리하기)
         String normalized = status != null ? status.trim().toUpperCase(Locale.ROOT) : "";
         if ("PENDING_USERNAME".equals(normalized)) {
             return UserStatus.PENDING;

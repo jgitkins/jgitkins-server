@@ -31,41 +31,43 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @ExtendWith(MockitoExtension.class)
 class RepositoryContentControllerTest {
 
-    @Mock
-    private FileUploadUseCase fileUploadUseCase;
+        @Mock
+        private FileUploadUseCase fileUploadUseCase;
 
-    @Mock
-    private FileTreeLoadUseCase fileTreeLoadUseCase;
+        @Mock
+        private FileTreeLoadUseCase fileTreeLoadUseCase;
 
-    @Mock
-    private RepositoryLoadUseCase repositoryLoadUseCase;
+        @Mock
+        private RepositoryLoadUseCase repositoryLoadUseCase;
 
-    private MockMvc mockMvc;
-    private ObjectMapper objectMapper;
+        private MockMvc mockMvc;
+        private ObjectMapper objectMapper;
 
-    @BeforeEach
-    void setUp() {
-        CompositeErrorHttpStatusMapper statusMapper = new CompositeErrorHttpStatusMapper(
-                List.of(
-                        new DomainErrorHttpStatusMapper(),
-                        new ApplicationErrorHttpStatusMapper(),
-                        new InfrastructureErrorHttpStatusMapper()
-                )
-        );
-        RepositoryContentController controller = new RepositoryContentController(
-                fileUploadUseCase,
-                fileTreeLoadUseCase,
-                repositoryLoadUseCase
-        );
-        this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
-                .setControllerAdvice(new GlobalExceptionHandler(statusMapper))
-                .build();
-        this.objectMapper = new ObjectMapper();
-    }
+        @BeforeEach
+        void setUp() {
+                CompositeErrorHttpStatusMapper statusMapper = new CompositeErrorHttpStatusMapper(
+                                List.of(
+                                                new DomainErrorHttpStatusMapper(),
+                                                new ApplicationErrorHttpStatusMapper(),
+                                                new InfrastructureErrorHttpStatusMapper()));
+                RepositoryContentController controller = new RepositoryContentController(
+                                fileUploadUseCase,
+                                fileTreeLoadUseCase,
+                                repositoryLoadUseCase);
+                LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
+                validator.afterPropertiesSet();
+
+                this.mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                                .setControllerAdvice(new GlobalExceptionHandler(statusMapper))
+                                .setValidator(validator)
+                                .build();
+                this.objectMapper = new ObjectMapper();
+        }
 
     @Test
     void getTree_returnsWrappedEntries() throws Exception {
@@ -141,35 +143,33 @@ class RepositoryContentControllerTest {
                 .andExpect(jsonPath("$.error.code").value("REPOSITORY_NOT_FOUND"));
     }
 
-    @Test
-    void uploadFile_withRequestPart_delegatesToUseCase() throws Exception {
-        MockMultipartFile filePart = new MockMultipartFile(
-                "file",
-                "hello.txt",
-                MediaType.TEXT_PLAIN_VALUE,
-                "hello".getBytes()
-        );
-        FileUploadInfo info = new FileUploadInfo("docs/hello.txt", "add", "alice", "alice@test.com");
-        MockMultipartFile requestPart = new MockMultipartFile(
-                "request",
-                "",
-                MediaType.APPLICATION_JSON_VALUE,
-                objectMapper.writeValueAsBytes(info)
-        );
+        @Test
+        void uploadFile_withRequestPart_delegatesToUseCase() throws Exception {
+                MockMultipartFile filePart = new MockMultipartFile(
+                                "file",
+                                "hello.txt",
+                                MediaType.TEXT_PLAIN_VALUE,
+                                "hello".getBytes());
+                FileUploadInfo info = new FileUploadInfo("docs/hello.txt", "add", "alice", "alice@test.com");
+                MockMultipartFile requestPart = new MockMultipartFile(
+                                "request",
+                                "",
+                                MediaType.APPLICATION_JSON_VALUE,
+                                objectMapper.writeValueAsBytes(info));
 
-        mockMvc.perform(multipart("/api/repositories/{taskCd}/{repoName}/files/{branch}", "alice", "sample-repo", "main")
-                        .file(filePart)
-                        .file(requestPart)
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").value("File uploaded and committed."));
+                mockMvc.perform(multipart("/api/repositories/{taskCd}/{repoName}/files/{branch}", "alice",
+                                "sample-repo", "main")
+                                .file(filePart)
+                                .file(requestPart)
+                                .contentType(MediaType.MULTIPART_FORM_DATA))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.data").value("File uploaded and committed."));
 
-        verify(fileUploadUseCase).uploadFileToRepository(
-                eq("alice"),
-                eq("sample-repo"),
-                eq("main"),
-                any(),
-                any(FileUploadInfo.class)
-        );
-    }
+                verify(fileUploadUseCase).uploadFileToRepository(
+                                eq("alice"),
+                                eq("sample-repo"),
+                                eq("main"),
+                                any(),
+                                any(FileUploadInfo.class));
+        }
 }

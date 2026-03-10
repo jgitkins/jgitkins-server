@@ -1,6 +1,5 @@
 package io.jgitkins.server.presentation.api.rest;
 
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -42,8 +41,7 @@ class UserControllerTest {
     void listUsers_returnsApiResponseWithUserSummaries() throws Exception {
         List<UserSummary> users = List.of(
                 new UserSummary(1L, "alice", "Alice", "https://img/a.png", LocalDateTime.of(2026, 1, 1, 0, 0)),
-                new UserSummary(2L, "bob", "Bob", null, LocalDateTime.of(2026, 1, 2, 0, 0))
-        );
+                new UserSummary(2L, "bob", "Bob", null, LocalDateTime.of(2026, 1, 2, 0, 0)));
         when(publicUserQueryUseCase.getUsers()).thenReturn(users);
 
         mockMvc.perform(get("/api/users"))
@@ -60,8 +58,8 @@ class UserControllerTest {
         String body = objectMapper.writeValueAsString(java.util.Map.of("username", "new_name"));
 
         mockMvc.perform(patch("/api/users/me/username")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.error").doesNotExist());
 
@@ -69,12 +67,10 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUsername_withMissingField_stillCallsUseCaseWithNull_currentBehavior() throws Exception {
+    void updateUsername_withMissingField_returnsBadRequest() throws Exception {
         mockMvc.perform(patch("/api/users/me/username")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isOk());
-
-        verify(userProfileUpdateUseCase).updateUsername(isNull());
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}"))
+                .andExpect(status().isBadRequest());
     }
 }

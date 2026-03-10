@@ -45,8 +45,8 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 
 		Long userId = currentUserPort.currentUserId().orElse(null);
 
-		GitRepositoryAccessUseCase.RepositoryPermission permission =
-				gitRepositoryAccessUseCase.resolvePermission(null, key != null ? key.namespace() : null, key != null ? key.repoName() : null, userId);
+		GitRepositoryAccessUseCase.RepositoryPermission permission = gitRepositoryAccessUseCase.resolvePermission(null,
+				key != null ? key.namespace() : null, key != null ? key.repoName() : null, userId);
 
 		return RepositoryOverviewResult.builder()
 				.repository(repository)
@@ -57,7 +57,6 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 				.writable(permission.writable())
 				.build();
 	}
-
 
 	private String resolveBranch(String branch, List<BranchSearchResult> branches) {
 		if (StringUtils.hasText(branch)) {
@@ -72,9 +71,7 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 	}
 
 	private RepositoryKey resolveRepositoryKey(RepositoryResult repository) {
-		if (repository == null) {
-			return null;
-		}
+		// TODO: repository 필수 값 여부는 상위 계층 호출 전 혹은 Controller 검증 단에서 처리
 		RepositoryKey key = RepositoryKey.fromPath(repository.getClonePath());
 		return key != null ? key : RepositoryKey.fromPath(repository.getPath());
 	}
