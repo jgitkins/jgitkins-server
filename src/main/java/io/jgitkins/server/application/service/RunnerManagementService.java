@@ -5,6 +5,7 @@ import io.jgitkins.server.application.dto.*;
 import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
 import io.jgitkins.server.application.dto.result.RunnerActivateResult;
 import io.jgitkins.server.application.dto.result.RunnerRegistrationResult;
+import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
 import io.jgitkins.server.application.support.RunnerRuntimeConfigProvider;
 import io.jgitkins.server.application.port.in.RunnerActivateUseCase;
@@ -12,11 +13,6 @@ import io.jgitkins.server.application.port.in.RunnerDeleteUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
 import io.jgitkins.server.application.port.out.RunnerPort;
 import io.jgitkins.server.domain.aggregate.Runner;
-import io.jgitkins.server.domain.error.DomainErrorCode;
-import io.jgitkins.server.domain.exception.RunnerAlreadyActiveException;
-import io.jgitkins.server.domain.exception.RunnerTokenMismatchException;
-import io.jgitkins.server.domain.exception.RunnerTokenMissingException;
-import io.jgitkins.server.common.exception.JgitkinsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,11 +31,9 @@ public class RunnerManagementService implements RunnerRegisterUseCase, RunnerDel
     @Transactional
     public RunnerRegistrationResult register(RunnerRegisterCommand command) {
         Runner runner = Runner.create(command.getDescription(),
-                                      command.getScopeType(),
-                                      command.getTargetId());
-
+                command.getScopeType(),
+                command.getTargetId());
         Runner savedRunner = runnerPort.save(runner);
-
         log.info("Runner registered. runnerId={}", savedRunner.getId());
         return runnerApplicationMapper.toRegistrationResult(savedRunner);
     }
@@ -48,13 +42,16 @@ public class RunnerManagementService implements RunnerRegisterUseCase, RunnerDel
     @Transactional
     public void deleteRunner(Long runnerId) {
         runnerPort.findById(runnerId)
-                       .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.RUNNER_NOT_FOUND));
+                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.RUNNER_NOT_FOUND));
 
         try {
             runnerPort.deleteById(runnerId);
         } catch (RuntimeException ex) {
             log.error("Runner deletion failed. runnerId={}", runnerId, ex);
-            throw new JgitkinsException(ApplicationErrorCode.RUNNER_DELETE_FAILED, "Runner deletion failed", ex);
+            // Infrastructure 어댑터에서 InfrastructureException으로 감싸지 않은 경우
+            // ApplicationException으로 처리
+            // TODO: 어댑터에서 Infrastructure 예외던질것
+            throw new ApplicationException(ApplicationErrorCode.RUNNER_DELETE_FAILED, "Runner deletion failed", ex);
         }
     }
 
@@ -62,30 +59,27 @@ public class RunnerManagementService implements RunnerRegisterUseCase, RunnerDel
     @Transactional
     public RunnerActivateResult activate(String token, String remoteIp) {
         Runner runner = runnerPort.findByToken(token)
-                                       .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.RUNNER_NOT_FOUND));
+                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.RUNNER_NOT_FOUND));
 
-        Runner activatedInfo;
-        try {
-            activatedInfo = runner.activate(token, remoteIp);
-        } catch (RunnerAlreadyActiveException ex) {
-            throw new JgitkinsException(DomainErrorCode.RUNNER_ALREADY_ACTIVED, ex.getMessage(), ex);
-        } catch (RunnerTokenMismatchException | RunnerTokenMissingException ex) {
-            throw new JgitkinsException(DomainErrorCode.RUNNER_TOKEN_INVALID, ex.getMessage(), ex);
-        }
+        // DomainException(RunnerAlreadyActiveException, RunnerTokenMismatchException,
+        // RunnerTokenMissingException)은
+        // 재포장 없이 그대로 전파 → GlobalExceptionHandler.handleDomainException 처리
+        Runner activatedInfo = runner.activate(token, remoteIp);
 
         try {
-
             Runner persisted = runnerPort.save(activatedInfo);
             log.info("Runner activated. runnerId={}", persisted.getId());
-
             return RunnerActivateResult.builder()
                     .executionConfig(RunnerExecutionConfig.defaultConfig())
                     .runtimeConfig(runtimeConfigProvider.createConfig())
                     .build();
-
         } catch (RuntimeException ex) {
             log.error("Runner activation failed. runnerId={}", runner.getId(), ex);
-            throw new JgitkinsException(ApplicationErrorCode.RUNNER_ACTIVATION_FAILED, "Runner activation failed", ex);
+            // Infrastructure 어댑터에서 InfrastructureException으로 감싸지 않은 경우
+            // ApplicationException으로 처리
+            // TODO: 어댑터에서 Infrastructure 예외던질것
+            throw new ApplicationException(ApplicationErrorCode.RUNNER_ACTIVATION_FAILED,
+                    "Runner activation persistence failed", ex);
         }
     }
 }

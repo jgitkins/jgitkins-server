@@ -16,9 +16,4 @@ public class InfrastructureException extends JgitkinsException {
     public InfrastructureException(ErrorCode errorCode, String message, Throwable cause) {
         super(errorCode, message, cause);
     }
-
-    @Override
-    public ErrorCode getErrorCode() {
-        return super.getErrorCode();
-    }
 }

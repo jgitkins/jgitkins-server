@@ -16,9 +16,4 @@ public class ApplicationException extends JgitkinsException {
     public ApplicationException(ErrorCode errorCode, String message, Throwable cause) {
         super(errorCode, message, cause);
     }
-
-    @Override
-    public ErrorCode getErrorCode() {
-        return super.getErrorCode();
-    }
 }

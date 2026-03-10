@@ -16,9 +16,4 @@ public class DomainException extends JgitkinsException {
     public DomainException(ErrorCode errorCode, String message, Throwable cause) {
         super(errorCode, message, cause);
     }
-
-    @Override
-    public ErrorCode getErrorCode() {
-        return super.getErrorCode();
-    }
 }

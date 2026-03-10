@@ -3,15 +3,15 @@ package io.jgitkins.server.application.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.application.port.in.SignupUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.application.validate.ActivationValidator;
-import io.jgitkins.server.domain.error.DomainErrorCode;
-import io.jgitkins.server.domain.exception.UserAlreadyActivatedException;
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.vo.Username;
+import io.jgitkins.server.presentation.common.error.PresentationErrorCode;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,25 +33,18 @@ public class UserProfileService implements SignupUseCase {
         activationValidator.validateOrganizeNameNotTakenIfCompatible(requested);
         activationValidator.validateUserHasNoRepositories(userId);
 
-        User updated = activateUser(user, requested);
+        // DomainException(UserAlreadyActivatedException)은 재포장 없이 그대로 전파
+        User updated = user.activateWithUsername(requested);
         userPort.save(updated);
     }
 
     private Long currentUserId() {
         return currentUserPort.currentUserId()
-                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.presentation.common.error.PresentationErrorCode.UNAUTHORIZED, "Unauthenticated"));
+                .orElseThrow(() -> new ApplicationException(PresentationErrorCode.UNAUTHORIZED, "Unauthenticated"));
     }
 
     private User loadUser(Long userId) {
         return userPort.findById(userId)
-                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.USER_NOT_FOUND, "User not found"));
-    }
-
-    private User activateUser(User user, Username requested) {
-        try {
-            return user.activateWithUsername(requested);
-        } catch (UserAlreadyActivatedException ex) {
-            throw new JgitkinsException(DomainErrorCode.USER_ALREADY_ACTIVATED, ex.getMessage(), ex);
-        }
+                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.USER_NOT_FOUND, "User not found"));
     }
 }
