@@ -7,7 +7,7 @@ import io.jgitkins.server.application.port.in.JobCreateUseCase;
 import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
 import io.jgitkins.server.application.port.out.BranchPort;
 import io.jgitkins.server.application.port.out.RepositoryPort;
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ public class PushEventHandleService implements PushEventHandleUseCase {
     public void handle(PushEventCommand command) {
         // 1. 저장소 로딩 (Port 활용하여 경로 기반 조회)
         Repository repository = repositoryPort.findByPath(command.getGitDirPath())
-                .orElseThrow(() -> new JgitkinsException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
+                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
                         "Repository not found for path: " + command.getGitDirPath()));
 
         log.debug("Handling push event for repository: [{}]", repository.getName().getValue());

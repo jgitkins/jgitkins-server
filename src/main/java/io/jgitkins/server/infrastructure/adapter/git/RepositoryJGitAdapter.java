@@ -1,8 +1,9 @@
 package io.jgitkins.server.infrastructure.adapter.git;
 
 import io.jgitkins.server.application.common.GitConstants;
-import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.port.out.RepositoryGitPort;
+import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
+import io.jgitkins.server.infrastructure.exception.InfrastructureException;
 import io.jgitkins.server.infrastructure.support.RepositoryFileSystemHelper;
 import io.jgitkins.server.infrastructure.support.RepositoryResolver;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class RepositoryJGitAdapter implements RepositoryGitPort {
             }
         } catch (IOException e) {
             log.error("Repository git create failed. namespace={}, repoName={}", namespace, repoName, e);
-            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.REPOSITORY_CREATE_FAILED, "Repository creation failed: " + gitDir.getAbsolutePath(), e);
+            throw new InfrastructureException(InfrastructureErrorCode.REPOSITORY_CREATE_FAILED, "Repository creation failed: " + gitDir.getAbsolutePath(), e);
         }
     }
 
@@ -56,20 +57,18 @@ public class RepositoryJGitAdapter implements RepositoryGitPort {
                 }
             }
         } catch (IOException e) {
-            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.REPOSITORY_DELETE_FAILED,
-                                                    "Failed to delete repository directory: " + gitDir.getAbsolutePath(), e);
+            throw new InfrastructureException(InfrastructureErrorCode.REPOSITORY_DELETE_FAILED, "Failed to delete repository directory: " + gitDir.getAbsolutePath(), e);
         }
     }
 
     @Override
     public void updateHeadReference(String taskCd, String repoName, String branch) {
-
         try (Repository repo = repositoryResolver.openBareRepository(taskCd, repoName)) {
             String mainRef = GitConstants.REFS_HEADS_PREFIX + branch;
             repo.updateRef(Constants.HEAD, true)
                     .link(mainRef);
         } catch (IOException e) {
-            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.HEAD_POINT_FAILED, String.format("Failed to link HEAD for repo %s/%s", taskCd, repoName), e);
+            throw new InfrastructureException(InfrastructureErrorCode.HEAD_POINT_FAILED, String.format("Failed to link HEAD for repo %s/%s", taskCd, repoName), e);
         }
     }
 

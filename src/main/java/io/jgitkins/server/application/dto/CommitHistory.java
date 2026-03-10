@@ -13,12 +13,16 @@ import java.time.LocalDateTime;
 @Getter
 public class CommitHistory {
     private String id;
+    private String hash;
+    private String shortHash;
     private String authorName;
     private String authorEmail;
     private String committerName;
     private String committerEmail;
+    private String message;
     private String shortMessage;
     private String fullMessage;
+    private LocalDateTime committedAt;
     private LocalDateTime commitTime;
     private String parentId;
 }

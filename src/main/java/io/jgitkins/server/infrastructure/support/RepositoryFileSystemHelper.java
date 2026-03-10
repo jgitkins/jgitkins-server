@@ -1,7 +1,9 @@
 package io.jgitkins.server.infrastructure.support;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
+import io.jgitkins.server.application.exception.ApplicationException;
+import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
+import io.jgitkins.server.infrastructure.exception.InfrastructureException;
 import lombok.experimental.UtilityClass;
 import org.eclipse.jgit.lib.Repository;
 
@@ -11,14 +13,13 @@ import java.io.IOException;
 @UtilityClass
 public class RepositoryFileSystemHelper {
 
+    // TODO: refactor
     public void createRepositoryDir(File gitDir) {
         if (gitDir.exists()) {
-            throw new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.REPOSITORY_ALREADY_EXISTS,
-                    "Repository already exists: " + gitDir.getAbsolutePath());
+            throw new ApplicationException(ApplicationErrorCode.REPOSITORY_ALREADY_EXISTS, "Repository already exists: " + gitDir.getAbsolutePath());
         }
         if (!gitDir.mkdirs() && !gitDir.exists()) {
-            throw new JgitkinsException(io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode.REPOSITORY_CREATE_FAILED,
-                    "Failed to create directories: " + gitDir.getAbsolutePath());
+            throw new InfrastructureException(InfrastructureErrorCode.REPOSITORY_CREATE_FAILED, "Failed to create directories: " + gitDir.getAbsolutePath());
         }
     }
 

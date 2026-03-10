@@ -1,12 +1,13 @@
 package io.jgitkins.server.presentation.api.rest;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.dto.FileEntry;
 import io.jgitkins.server.application.dto.FileUploadInfo;
 import io.jgitkins.server.application.dto.FileUploadRequest;
 import io.jgitkins.server.application.dto.RepositoryKey;
-import io.jgitkins.server.application.port.in.FileUploadUseCase;
+import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.application.port.in.FileTreeLoadUseCase;
+import io.jgitkins.server.application.port.in.FileUploadUseCase;
 import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
 import io.jgitkins.server.presentation.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,14 +17,14 @@ import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 
 @RestController
@@ -44,7 +45,6 @@ public class RepositoryContentController {
             @PathVariable @NotBlank String branch,
             @Parameter(schema = @Schema(type = "string", format = "binary")) @RequestPart("file") MultipartFile file,
             @Valid @RequestPart("request") FileUploadInfo request) {
-        // Presentation 계층에서 null, 빈 문자열 등을 방어하도록 이관 (@Valid, @NotBlank 등 활용)
         fileUploadUseCase.uploadFileToRepository(taskCd, repoName, branch, file, request);
         return ApiResponse.ok("File uploaded and committed.");
     }
@@ -57,7 +57,10 @@ public class RepositoryContentController {
             @RequestParam("message") @NotBlank String message,
             @Parameter(schema = @Schema(type = "string", format = "binary")) @RequestPart("file") MultipartFile file) {
         RepositoryKey key = resolveRepositoryKey(repositoryId);
-        FileUploadInfo request = new FileUploadInfo(path, message, null, null);
+        FileUploadInfo request = FileUploadInfo.builder()
+                .filePath(path)
+                .commitMessage(message)
+                .build();
         fileUploadUseCase.uploadFileToRepository(key.namespace(), key.repoName(), branch, file, request);
         return ApiResponse.ok("File uploaded and committed.");
     }
@@ -79,8 +82,8 @@ public class RepositoryContentController {
             key = RepositoryKey.fromPath(repository.getPath());
         }
         if (key == null) {
-            throw new JgitkinsException(
-                    io.jgitkins.server.application.common.error.ApplicationErrorCode.REPOSITORY_NOT_FOUND,
+            throw new ApplicationException(
+                    ApplicationErrorCode.REPOSITORY_NOT_FOUND,
                     "Repository path is invalid: " + repositoryId);
         }
         return key;

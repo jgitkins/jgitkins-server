@@ -11,10 +11,11 @@ import lombok.NoArgsConstructor;
 @Getter
 public class FileEntry {
 
-    String id;
-    String name;
-    String path;
-    String type;
-    String mode;
-    Long size;
+    private String id;
+    private String name;
+    private String path;
+    private String type; // e.g. "FILE", "DIRECTORY"
+    private String mode;
+    private Long size;
+    private boolean isDirectory;
 }

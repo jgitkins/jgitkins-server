@@ -1,5 +1,6 @@
 package io.jgitkins.server.application.service;
 
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
 import io.jgitkins.server.application.dto.command.BranchCreationContext;
 import io.jgitkins.server.application.dto.result.BranchSearchResult;
@@ -13,7 +14,7 @@ import io.jgitkins.server.application.port.out.RepositoryPort;
 import io.jgitkins.server.application.support.RepositoryNamespaceResolver;
 import io.jgitkins.server.application.validate.BranchCreationValidator;
 import io.jgitkins.server.application.validate.RepositoryAccessValidator;
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
@@ -46,8 +47,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
     public BranchSearchResult getBranch(Long repositoryId, String branchName) {
         return branchPort.getBranch(repositoryId, branchName)
                 .map(branchApplicationMapper::toSearchResult)
-                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BRANCH_NOT_FOUND,
-                        "Branch not found: " + branchName));
+                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.BRANCH_NOT_FOUND, "Branch not found: " + branchName));
     }
 
     @Override
@@ -79,13 +79,12 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
 
     private Branch loadBranch(Long repositoryId, String branchName) {
         return branchPort.getBranch(repositoryId, branchName)
-                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.BRANCH_NOT_FOUND,
-                        "Branch not found: " + branchName));
+                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.BRANCH_NOT_FOUND, "Branch not found: " + branchName));
     }
 
     private Repository loadRepositoryWithWriteAccess(Long repositoryId) {
         Repository repository = repositoryPort.findById(RepositoryId.of(repositoryId))
-                        .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.REPOSITORY_NOT_FOUND, "Repository not found: " + repositoryId));
+                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.REPOSITORY_NOT_FOUND, "Repository not found: " + repositoryId));
 
         String namespace = repositoryNamespaceResolver.resolve(repository);
         repositoryAccessValidator.validateCanCommit(namespace, repository.getName().getValue());

@@ -19,6 +19,7 @@ public enum InfrastructureErrorCode implements ErrorCode {
     FILE_UPLOAD_FAILED("FILE_UPLOAD_FAILED", "File Upload Failed"),
     RUNNER_DELETE_FAILED("RUNNER_DELETE_FAILED", "Runner Delete Failed"),
     RUNNER_ACTIVATION_FAILED("RUNNER_ACTIVATION_FAILED", "Runner Activation Failed"),
+    COMMIT_FAILED("COMMIT_FAILED", "Commit failed"),
     REPOSITORY_DELETE_FAILED("REPOSITORY_DELETE_FAILED", "Repository Delete Failed");
 
     private final String code;

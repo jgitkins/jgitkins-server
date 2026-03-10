@@ -1,6 +1,6 @@
 package io.jgitkins.server.domain.model;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.domain.exception.DomainException;
 import io.jgitkins.server.domain.error.DomainErrorCode;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeMemberRole;
@@ -24,11 +24,11 @@ public class OrganizeMember {
     private final LocalDateTime joinedAt;
 
     public static OrganizeMember create(OrganizeId organizeId,
-                                        UserId userId,
-                                        OrganizeMemberRole role,
-                                        LocalDateTime joinedAt) {
+            UserId userId,
+            OrganizeMemberRole role,
+            LocalDateTime joinedAt) {
         if (organizeId == null || userId == null || role == null) {
-            throw new JgitkinsException(DomainErrorCode.ORGANIZE_MEMBER_INVALID,
+            throw new DomainException(DomainErrorCode.ORGANIZE_MEMBER_INVALID,
                     "OrganizeMember requires organizeId, userId and role");
         }
         return new OrganizeMember(organizeId, userId, role, joinedAt != null ? joinedAt : LocalDateTime.now());

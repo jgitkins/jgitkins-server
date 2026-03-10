@@ -7,18 +7,14 @@ import io.jgitkins.server.domain.model.vo.OwnerType;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.RepositoryPath;
-import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
+import io.jgitkins.server.infrastructure.exception.InfrastructureException;
 import io.jgitkins.server.infrastructure.mapper.RepositoryDomainMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.OrganizeEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.RepositoryEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.UserEntityMbgMapper;
-import io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity;
-import io.jgitkins.server.infrastructure.persistence.model.OrganizeEntityCondition;
 import io.jgitkins.server.infrastructure.persistence.model.RepositoryEntity;
 import io.jgitkins.server.infrastructure.persistence.model.RepositoryEntityCondition;
-import io.jgitkins.server.infrastructure.persistence.model.UserEntity;
-import io.jgitkins.server.infrastructure.persistence.model.UserEntityCondition;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -60,12 +56,12 @@ public class RepositoryMybatisAdapter implements RepositoryPort {
 
     @Override
     public Repository update(Repository repository) {
-        if (repository.getId() == null) {
-            throw new JgitkinsException(
-                    InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
-                    "Repository ID required for update"
-            );
-        }
+        // TODO: 삭제 > 의미없음
+//        if (repository.getId() == null) {
+//            throw new InfrastructureException(
+//                    InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+//                    "Repository ID required for update");
+//        }
         RepositoryEntity entity = repositoryDomainMapper.toEntity(repository);
         entity.setUpdatedAt(LocalDateTime.now());
         repositoryEntityMbgMapper.updateByPrimaryKeySelective(entity);

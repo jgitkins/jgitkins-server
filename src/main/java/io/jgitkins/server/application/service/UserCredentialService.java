@@ -9,7 +9,8 @@ import io.jgitkins.server.application.port.in.UserCredentialIssueUseCase;
 import io.jgitkins.server.application.port.in.UserCredentialQueryUseCase;
 import io.jgitkins.server.application.port.in.UserCredentialRevokeUseCase;
 import io.jgitkins.server.application.port.out.UserCredentialPort;
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
+import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.domain.model.UserCredential;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -21,8 +22,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserCredentialService implements UserCredentialIssueUseCase,
-                                               UserCredentialQueryUseCase,
-                                               UserCredentialRevokeUseCase {
+        UserCredentialQueryUseCase,
+        UserCredentialRevokeUseCase {
 
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final int TOKEN_BYTES = 32;
@@ -44,8 +45,7 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
                 userId,
                 command.getName(),
                 command.getDescription(),
-                hash
-        );
+                hash);
 
         UserCredential saved = userCredentialPort.save(credential);
 
@@ -69,8 +69,8 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
 
     private Long currentUserId() {
         return currentUserPort.currentUserId()
-                .orElseThrow(() -> new JgitkinsException(
-                        io.jgitkins.server.presentation.common.error.PresentationErrorCode.UNAUTHORIZED,
+                .orElseThrow(() -> new ApplicationException(
+                        ApplicationErrorCode.UNAUTHENTICATED,
                         "Unauthenticated"));
     }
 

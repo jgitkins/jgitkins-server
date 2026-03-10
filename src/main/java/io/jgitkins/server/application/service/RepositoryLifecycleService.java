@@ -16,7 +16,7 @@ import io.jgitkins.server.application.common.RepositoryPathHelper;
 import io.jgitkins.server.application.support.RepositoryLookupService;
 import io.jgitkins.server.application.support.RepositoryNamespaceResolver;
 import io.jgitkins.server.application.validate.RepositoryValidator;
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.*;
 import lombok.RequiredArgsConstructor;
@@ -95,7 +95,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
         @Transactional(readOnly = true)
         public RepositoryResult getRepository(Long repositoryId) {
                 Repository repository = repositoryPort.findById(RepositoryId.of(repositoryId))
-                                .orElseThrow(() -> new JgitkinsException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
+                                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
                                                 "Repository not found: " + repositoryId));
                 return repositoryApplicationMapper.toDto(repository);
         }
@@ -104,7 +104,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
         @Transactional(readOnly = true)
         public RepositoryResult getRepositoryByPath(String namespace, String repoName) {
                 Repository repository = repositoryLookupService.findByPath(namespace, repoName)
-                                .orElseThrow(() -> new JgitkinsException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
+                                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
                                                 String.format("Repository not found: %s/%s", namespace, repoName)));
                 return repositoryApplicationMapper.toDto(repository);
         }
@@ -129,7 +129,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
                 String normalizedUsername = username != null ? username.trim() : "";
 
                 Long ownerId = userPort.findUserIdByUsername(normalizedUsername)
-                                .orElseThrow(() -> new JgitkinsException(ApplicationErrorCode.USER_NOT_FOUND,
+                                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.USER_NOT_FOUND,
                                                 "User not found: " + normalizedUsername));
 
                 Optional<Long> requesterId = currentUserPort.currentUserId();
@@ -145,7 +145,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
         public void deleteRepository(Long repositoryId) {
                 RepositoryId id = RepositoryId.of(repositoryId);
                 Repository repository = repositoryPort.findById(id)
-                                .orElseThrow(() -> new JgitkinsException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
+                                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
                                                 "Repository not found: " + repositoryId));
 
                 repositoryValidator.enforceDeletionPermission(repository);

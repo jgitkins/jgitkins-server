@@ -1,6 +1,6 @@
 package io.jgitkins.server.application.event;
 
-import io.jgitkins.server.common.exception.JgitkinsException;
+import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.application.dto.CommitFile;
 import io.jgitkins.server.application.factory.CommitFileFactory;
 import io.jgitkins.server.application.port.out.*;
@@ -35,7 +35,6 @@ public class RepositoryProvisionedEventListener {
     private final CommitGitPort commitGitPort;
     private final RepositoryGitPort repositoryGitPort;
 
-
     // post progressing
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT) // contain require_new
     @Transactional(propagation = REQUIRES_NEW)
@@ -49,21 +48,21 @@ public class RepositoryProvisionedEventListener {
 
         // 기본 브랜치 엔트리를 미리 생성해 애플리케이션 상태를 일관되게 유지한다.
         Branch defaultBranch = Branch.create(repository.getId().getValue(),
-                                             branchName,
-                                             false,
-                                             true,
-                                             true);
+                branchName,
+                false,
+                true,
+                true);
         branchPort.create(defaultBranch);
 
         if (event.getInitialCommitOptions() != null && event.getInitialCommitOptions().requiresInitialContent()) {
             List<CommitFile> files = commitFileFactory.prepareInitialFile(repoNameValue);
             commitGitPort.commit(namespace,
-                                 repoNameValue,
-                                 branchName,
-                                 event.getInitialCommitOptions().commitMessage(),
-                                 event.getInitialCommitOptions().authorName(),
-                                 event.getInitialCommitOptions().authorEmail(),
-                                 files);
+                    repoNameValue,
+                    branchName,
+                    event.getInitialCommitOptions().commitMessage(),
+                    event.getInitialCommitOptions().authorName(),
+                    event.getInitialCommitOptions().authorEmail(),
+                    files);
             repositoryGitPort.updateHeadReference(namespace, repoNameValue, branchName);
             log.info("repository has initialized with readme");
 
@@ -72,10 +71,11 @@ public class RepositoryProvisionedEventListener {
     }
 
     private Repository loadRepository(RepositoryProvisionedEvent event,
-                                      RepositoryName repositoryName,
-                                      String repoNameValue) {
+            RepositoryName repositoryName,
+            String repoNameValue) {
         return repositoryPort.findByOwnerAndName(event.getOwnerType(), event.getOwnerId(), repositoryName)
-                .orElseThrow(() -> new JgitkinsException(io.jgitkins.server.application.common.error.ApplicationErrorCode.REPOSITORY_NOT_FOUND,
+                .orElseThrow(() -> new ApplicationException(
+                        io.jgitkins.server.application.common.error.ApplicationErrorCode.REPOSITORY_NOT_FOUND,
                         "Repository not found for event: " + repoNameValue));
     }
 

@@ -34,50 +34,6 @@ public class GlobalExceptionHandler {
 
     private final CompositeErrorHttpStatusMapper statusMapper;
 
-    @ExceptionHandler(DomainException.class)
-    public ResponseEntity<ApiResponse<Void>> handleDomainException(DomainException ex) {
-        ErrorCode errorCode = ex.getErrorCode();
-        HttpStatus status = statusMapper.map(errorCode);
-        log.warn("Domain exception errorCode=[{}], status=[{}], message=[{}]",
-                errorCode.getCode(), status, ex.getMessage());
-        return buildResponse(errorCode, status, ex.getMessage(), SOURCE_DOMAIN);
-    }
-
-    @ExceptionHandler(ApplicationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleApplicationException(ApplicationException ex) {
-        ErrorCode errorCode = ex.getErrorCode();
-        HttpStatus status = statusMapper.map(errorCode);
-        log.warn("Application exception errorCode=[{}], status=[{}], message=[{}]",
-                errorCode.getCode(), status, ex.getMessage());
-        return buildResponse(errorCode, status, ex.getMessage(), SOURCE_APPLICATION);
-    }
-
-    @ExceptionHandler(InfrastructureException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInfrastructureException(InfrastructureException ex) {
-        ErrorCode errorCode = ex.getErrorCode();
-        HttpStatus status = statusMapper.map(errorCode);
-        log.error("Infrastructure exception errorCode=[{}], status=[{}], message=[{}]",
-                errorCode.getCode(), status, ex.getMessage(), ex);
-        return buildResponse(errorCode, status, ex.getMessage(), SOURCE_INFRASTRUCTURE);
-    }
-
-    // fallback: JgitkinsException 직접 사용 지점 (점진적으로 줄여나갈 대상)
-    @ExceptionHandler(JgitkinsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleJgitkinsException(JgitkinsException ex) {
-        ErrorCode errorCode = ex.getErrorCode();
-        HttpStatus status = statusMapper.map(errorCode);
-        String source = inferSourceFallback(errorCode);
-
-        if (SOURCE_INFRASTRUCTURE.equals(source)) {
-            log.error("Infrastructure exception (fallback) errorCode=[{}], status=[{}], message=[{}]",
-                    errorCode.getCode(), status, ex.getMessage(), ex);
-        } else {
-            log.warn("{} exception (fallback) errorCode=[{}], status=[{}], message=[{}]",
-                    source, errorCode.getCode(), status, ex.getMessage());
-        }
-        return buildResponse(errorCode, status, ex.getMessage(), source);
-    }
-
     // Presentation (Spring MVC / Validation specific)
     @ExceptionHandler({
             ConstraintViolationException.class,
@@ -91,6 +47,34 @@ public class GlobalExceptionHandler {
                 PresentationErrorCode.BAD_REQUEST.getCode(), message);
         return buildResponse(PresentationErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, message, SOURCE_PRESENTATION);
     }
+
+    @ExceptionHandler(ApplicationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleApplicationException(ApplicationException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        HttpStatus status = statusMapper.map(errorCode);
+        log.warn("Application exception errorCode=[{}], status=[{}], message=[{}]",
+                errorCode.getCode(), status, ex.getMessage());
+        return buildResponse(errorCode, status, ex.getMessage(), SOURCE_APPLICATION);
+    }
+
+    @ExceptionHandler(DomainException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDomainException(DomainException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        HttpStatus status = statusMapper.map(errorCode);
+        log.warn("Domain exception errorCode=[{}], status=[{}], message=[{}]",
+                errorCode.getCode(), status, ex.getMessage());
+        return buildResponse(errorCode, status, ex.getMessage(), SOURCE_DOMAIN);
+    }
+
+    @ExceptionHandler(InfrastructureException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInfrastructureException(InfrastructureException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        HttpStatus status = statusMapper.map(errorCode);
+        log.error("Infrastructure exception errorCode=[{}], status=[{}], message=[{}]",
+                errorCode.getCode(), status, ex.getMessage(), ex);
+        return buildResponse(errorCode, status, ex.getMessage(), SOURCE_INFRASTRUCTURE);
+    }
+
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNoHandler(NoHandlerFoundException ex) {
@@ -129,20 +113,4 @@ public class GlobalExceptionHandler {
         return ex.getMessage();
     }
 
-    /**
-     * fallback용: JgitkinsException을 직접 throw하는 레거시 코드에서만 사용.
-     * 계층별 예외로 치환이 완료되면 이 메서드는 제거한다.
-     */
-    private String inferSourceFallback(ErrorCode errorCode) {
-        String className = errorCode.getClass().getSimpleName();
-        if (className.startsWith("Domain"))
-            return SOURCE_DOMAIN;
-        if (className.startsWith("Infrastructure"))
-            return SOURCE_INFRASTRUCTURE;
-        if (className.startsWith("Application"))
-            return SOURCE_APPLICATION;
-        if (className.startsWith("Presentation"))
-            return SOURCE_PRESENTATION;
-        return SOURCE_APPLICATION;
-    }
 }
