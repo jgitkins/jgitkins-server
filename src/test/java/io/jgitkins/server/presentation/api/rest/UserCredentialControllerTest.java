@@ -25,8 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -57,17 +55,16 @@ class UserCredentialControllerTest {
     }
 
     @Test
-    void issuePat_returnsCreated() throws Exception {
+    void issue_returnsCreated() throws Exception {
         UserCredentialIssueRequest request = new UserCredentialIssueRequest();
         request.setName("my-pat");
         request.setDescription("for ci");
         request.setExpiration("2026-12-31");
 
-        when(userCredentialIssueUseCase.issueToken(any()))
+        when(userCredentialIssueUseCase.issueCredential(any()))
                 .thenReturn(new UserCredentialIssueResult(10L, "token-value"));
 
         mockMvc.perform(post("/api/auth/pats")
-                        .principal(principal("7"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(request)))
                 .andExpect(status().isCreated())
@@ -75,32 +72,28 @@ class UserCredentialControllerTest {
                 .andExpect(jsonPath("$.data.credentialId").value(10L))
                 .andExpect(jsonPath("$.data.token").value("token-value"));
 
-        verify(userCredentialIssueUseCase).issueToken(any());
+        verify(userCredentialIssueUseCase).issueCredential(any());
     }
 
     @Test
     void getPatList_returnsList() throws Exception {
-        when(userCredentialQueryUseCase.getPatList(7L)).thenReturn(List.of(
+        when(userCredentialQueryUseCase.getCredentials()).thenReturn(List.of(
                 new UserCredentialSummary(1L, "PAT", "my-pat", "desc", LocalDateTime.now(), LocalDateTime.now())
         ));
 
-        mockMvc.perform(get("/api/auth/pats").principal(principal("7")))
+        mockMvc.perform(get("/api/auth/pats"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].id").value(1L))
                 .andExpect(jsonPath("$.data[0].name").value("my-pat"));
 
-        verify(userCredentialQueryUseCase).getPatList(7L);
+        verify(userCredentialQueryUseCase).getCredentials();
     }
 
     @Test
     void revokePat_returnsNoContent() throws Exception {
-        mockMvc.perform(delete("/api/auth/pats/15").principal(principal("7")))
+        mockMvc.perform(delete("/api/auth/pats/15"))
                 .andExpect(status().isNoContent());
 
-        verify(userCredentialRevokeUseCase).revokePat(7L, 15L);
-    }
-
-    private Authentication principal(String name) {
-        return new UsernamePasswordAuthenticationToken(name, "N/A");
+        verify(userCredentialRevokeUseCase).removeCredential(15L);
     }
 }

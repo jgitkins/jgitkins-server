@@ -4,10 +4,12 @@ import io.jgitkins.server.application.dto.command.UserCredentialIssueCommand;
 import io.jgitkins.server.application.dto.result.UserCredentialIssueResult;
 import io.jgitkins.server.application.dto.result.UserCredentialSummary;
 import io.jgitkins.server.application.mapper.UserCredentialApplicationMapper;
+import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.in.UserCredentialIssueUseCase;
 import io.jgitkins.server.application.port.in.UserCredentialQueryUseCase;
 import io.jgitkins.server.application.port.in.UserCredentialRevokeUseCase;
 import io.jgitkins.server.application.port.out.UserCredentialPort;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.model.UserCredential;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -25,19 +27,21 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final int TOKEN_BYTES = 32;
 
+    private final CurrentUserPort currentUserPort;
     private final UserCredentialPort userCredentialPort;
     private final PasswordEncoder passwordEncoder;
     private final UserCredentialApplicationMapper userCredentialApplicationMapper;
 
     @Override
-    public UserCredentialIssueResult issueToken(UserCredentialIssueCommand command) {
+    public UserCredentialIssueResult issueCredential(UserCredentialIssueCommand command) {
+        Long userId = currentUserId();
 
         String token = generateToken();
 
         String hash = passwordEncoder.encode(token);
 
-        UserCredential credential = UserCredential.issuePat(
-                command.getUserId(),
+        UserCredential credential = UserCredential.issue(
+                userId,
                 command.getName(),
                 command.getDescription(),
                 hash
@@ -49,7 +53,8 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
     }
 
     @Override
-    public List<UserCredentialSummary> getPatList(Long userId) {
+    public List<UserCredentialSummary> getCredentials() {
+        Long userId = currentUserId();
         return userCredentialPort.findAllByUserIdAndProvider(userId, "PAT")
                 .stream()
                 .map(userCredentialApplicationMapper::toSummary)
@@ -57,8 +62,16 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
     }
 
     @Override
-    public void revokePat(Long userId, Long credentialId) {
+    public void removeCredential(Long credentialId) {
+        Long userId = currentUserId();
         userCredentialPort.deleteByIdAndUserId(credentialId, userId);
+    }
+
+    private Long currentUserId() {
+        return currentUserPort.currentUserId()
+                .orElseThrow(() -> new JgitkinsException(
+                        io.jgitkins.server.presentation.common.error.PresentationErrorCode.UNAUTHORIZED,
+                        "Unauthenticated"));
     }
 
     private String generateToken() {

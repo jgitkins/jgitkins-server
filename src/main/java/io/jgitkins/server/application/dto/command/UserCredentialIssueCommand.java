@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class UserCredentialIssueCommand {
-    private final Long userId;
     private final String name;
     private final String description;
     private final String expiration;

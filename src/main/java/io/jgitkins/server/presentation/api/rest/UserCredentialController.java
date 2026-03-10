@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,27 +33,22 @@ public class UserCredentialController {
 
     @Operation(summary = "Issue personal access token")
     @PostMapping("/pats")
-    public ResponseEntity<ApiResponse<UserCredentialIssueResult>> issuePat(Authentication authentication,
-                                                                           @Valid @RequestBody UserCredentialIssueRequest request) {
-        Long userId = Long.valueOf(authentication.getName());
-        UserCredentialIssueCommand command = new UserCredentialIssueCommand(userId, request.getName(), request.getDescription(), request.getExpiration());
-        UserCredentialIssueResult result = userCredentialIssueUseCase.issueToken(command);
+    public ResponseEntity<ApiResponse<UserCredentialIssueResult>> issuePat(@Valid @RequestBody UserCredentialIssueRequest request) {
+        UserCredentialIssueCommand command = new UserCredentialIssueCommand(request.getName(), request.getDescription(), request.getExpiration());
+        UserCredentialIssueResult result = userCredentialIssueUseCase.issueCredential(command);
         return ApiResponse.created(result.getCredentialId(), result);
     }
 
     @Operation(summary = "List personal access tokens")
     @GetMapping("/pats")
-    public ResponseEntity<ApiResponse<java.util.List<UserCredentialSummary>>> getPatList(Authentication authentication) {
-        Long userId = Long.valueOf(authentication.getName());
-        return ApiResponse.ok(userCredentialQueryUseCase.getPatList(userId));
+    public ResponseEntity<ApiResponse<java.util.List<UserCredentialSummary>>> getPatList() {
+        return ApiResponse.ok(userCredentialQueryUseCase.getCredentials());
     }
 
     @Operation(summary = "Revoke personal access token")
     @DeleteMapping("/pats/{credentialId}")
-    public ResponseEntity<ApiResponse<Void>> revokePat(Authentication authentication,
-                                                       @PathVariable Long credentialId) {
-        Long userId = Long.valueOf(authentication.getName());
-        userCredentialRevokeUseCase.revokePat(userId, credentialId);
+    public ResponseEntity<ApiResponse<Void>> revokePat(@PathVariable Long credentialId) {
+        userCredentialRevokeUseCase.removeCredential(credentialId);
         return ApiResponse.noContent();
     }
 }

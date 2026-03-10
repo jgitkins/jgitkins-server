@@ -2,6 +2,8 @@ package io.jgitkins.server.application.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -11,10 +13,14 @@ import io.jgitkins.server.application.dto.command.UserCredentialIssueCommand;
 import io.jgitkins.server.application.dto.result.UserCredentialIssueResult;
 import io.jgitkins.server.application.dto.result.UserCredentialSummary;
 import io.jgitkins.server.application.mapper.UserCredentialApplicationMapper;
+import io.jgitkins.server.application.port.out.CurrentUserPort;
+import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.port.out.UserCredentialPort;
+import io.jgitkins.server.presentation.common.error.PresentationErrorCode;
 import io.jgitkins.server.domain.model.UserCredential;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +37,9 @@ class UserCredentialServiceTest {
     private UserCredentialPort port;
 
     @Mock
+    private CurrentUserPort currentUserPort;
+
+    @Mock
     private PasswordEncoder encoder;
 
     private UserCredentialApplicationMapper userCredentialApplicationMapper = Mappers.getMapper(UserCredentialApplicationMapper.class);
@@ -39,18 +48,19 @@ class UserCredentialServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new UserCredentialService(port, encoder, userCredentialApplicationMapper);
+        service = new UserCredentialService(currentUserPort, port, encoder, userCredentialApplicationMapper);
     }
 
     @Test
-    void issueToken_issuesPlainTokenAndPersistsHashedCredential() {
+    void issueToken_issuesPlainCredentialAndPersistsHashedCredential() {
+        when(currentUserPort.currentUserId()).thenReturn(Optional.of(1L));
         when(encoder.encode(any())).thenReturn("hashed");
         when(port.save(any(UserCredential.class))).thenAnswer(invocation -> {
             UserCredential credential = invocation.getArgument(0);
             return credential.withId(10L);
         });
 
-        UserCredentialIssueResult result = service.issueToken(new UserCredentialIssueCommand(1L, "token", "desc", null));
+        UserCredentialIssueResult result = service.issueCredential(new UserCredentialIssueCommand("token", "desc", null));
 
         assertNotNull(result.getToken());
         assertTrue(result.getToken().startsWith("jkpat_"));
@@ -69,13 +79,14 @@ class UserCredentialServiceTest {
     }
 
     @Test
-    void getPatList_mapsToSummary() {
+    void getCredentials_mapsToSummary() {
         LocalDateTime createdAt = LocalDateTime.of(2024, 1, 1, 0, 0);
         LocalDateTime updatedAt = LocalDateTime.of(2024, 1, 2, 0, 0);
         UserCredential credential = UserCredential.rehydrate(7L, 2L, "PAT", "n", "d", "hash", createdAt, updatedAt);
 
+        when(currentUserPort.currentUserId()).thenReturn(Optional.of(2L));
         when(port.findAllByUserIdAndProvider(2L, "PAT")).thenReturn(List.of(credential));
-        List<UserCredentialSummary> result = service.getPatList(2L);
+        List<UserCredentialSummary> result = service.getCredentials();
 
         assertEquals(1, result.size());
         UserCredentialSummary summary = result.get(0);
@@ -88,9 +99,20 @@ class UserCredentialServiceTest {
     }
 
     @Test
-    void revokePat_deletesByCredentialIdAndUserId() {
-        service.revokePat(3L, 9L);
+    void removeCredential_deletesByCredentialIdAndUserId() {
+        when(currentUserPort.currentUserId()).thenReturn(Optional.of(3L));
+
+        service.removeCredential(9L);
 
         verify(port).deleteByIdAndUserId(9L, 3L);
+    }
+
+    @Test
+    void getCredentials_throwsUnauthorizedWhenCurrentUserMissing() {
+        when(currentUserPort.currentUserId()).thenReturn(Optional.empty());
+
+        JgitkinsException exception = assertThrows(JgitkinsException.class, () -> service.getCredentials());
+
+        assertSame(PresentationErrorCode.UNAUTHORIZED, exception.getErrorCode());
     }
 }

@@ -18,7 +18,7 @@ public class UserCredential {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    public static UserCredential issuePat(Long userId, String name, String description, String passwordHash) {
+    public static UserCredential issue(Long userId, String name, String description, String passwordHash) {
         if (userId == null || userId <= 0) {
             throw new IllegalArgumentException("userId is required");
         }

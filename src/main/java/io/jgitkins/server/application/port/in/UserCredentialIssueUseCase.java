@@ -4,5 +4,5 @@ import io.jgitkins.server.application.dto.command.UserCredentialIssueCommand;
 import io.jgitkins.server.application.dto.result.UserCredentialIssueResult;
 
 public interface UserCredentialIssueUseCase {
-    UserCredentialIssueResult issueToken(UserCredentialIssueCommand command);
+    UserCredentialIssueResult issueCredential(UserCredentialIssueCommand command);
 }
