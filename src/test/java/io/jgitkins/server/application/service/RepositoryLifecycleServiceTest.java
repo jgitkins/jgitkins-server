@@ -112,8 +112,8 @@ class RepositoryLifecycleServiceTest {
                 .mainBranch("main")
                 .build();
 
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(7L));
-        when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(10L), UserId.of(7L))).thenReturn(false);
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(7L));
+        when(organizeMemberPort.existsByOrganizeIdAndUserId(OrganizeId.of(10L), UserId.of(7L))).thenReturn(false);
 
         assertThrows(JgitkinsException.class, () -> service.create(command));
         verify(repositoryPort, never()).save(any(Repository.class));
@@ -131,7 +131,7 @@ class RepositoryLifecycleServiceTest {
         Repository saved = org.mockito.Mockito.mock(Repository.class);
         RepositoryResult result = RepositoryResult.builder().id(100L).name("sample-repo").build();
 
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(7L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(7L));
         when(repositoryPort.findByOwnerAndName(OwnerType.USER, OwnerId.of(7L), RepositoryName.from("sample-repo")))
                 .thenReturn(Optional.empty());
         when(repositoryNamespaceResolver.resolve(OwnerType.USER, OwnerId.of(7L))).thenReturn("alice");
@@ -143,7 +143,7 @@ class RepositoryLifecycleServiceTest {
         RepositoryResult response = service.create(command);
 
         assertEquals(100L, response.getId());
-        verify(repositoryGitPort).create("alice", "sample-repo");
+        verify(repositoryGitPort).initialize("alice", "sample-repo");
         verify(domainEventPublisher).publish(anyList());
     }
 
@@ -168,9 +168,9 @@ class RepositoryLifecycleServiceTest {
         when(notVisibleRepo.getOwnerType()).thenReturn(OwnerType.USER);
         when(notVisibleRepo.getOwnerId()).thenReturn(OwnerId.of(99L));
 
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(7L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(7L));
         when(repositoryPort.findAll()).thenReturn(List.of(publicRepo, myPrivateRepo, orgPrivateRepo, notVisibleRepo));
-        when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(10L), UserId.of(7L))).thenReturn(true);
+        when(organizeMemberPort.existsByOrganizeIdAndUserId(OrganizeId.of(10L), UserId.of(7L))).thenReturn(true);
 
         when(repositoryApplicationMapper.toDto(publicRepo)).thenReturn(RepositoryResult.builder().id(1L).name("public").build());
         when(repositoryApplicationMapper.toDto(myPrivateRepo)).thenReturn(RepositoryResult.builder().id(2L).name("mine").build());
@@ -188,12 +188,12 @@ class RepositoryLifecycleServiceTest {
         when(repositoryPort.findById(RepositoryId.of(1L))).thenReturn(Optional.of(repository));
         when(repository.getOwnerType()).thenReturn(OwnerType.USER);
         when(repository.getOwnerId()).thenReturn(OwnerId.of(10L));
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(20L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(20L));
 
         assertThrows(JgitkinsException.class, () -> service.deleteRepository(1L));
 
-        verify(repositoryGitPort, never()).delete(any(), any());
-        verify(repositoryPort, never()).delete(any(RepositoryId.class));
+        verify(repositoryGitPort, never()).deleteRepository(any(), any());
+        verify(repositoryPort, never()).deleteById(any(RepositoryId.class));
     }
 
     @Test
@@ -206,8 +206,8 @@ class RepositoryLifecycleServiceTest {
 
         service.deleteRepository(1L);
 
-        verify(repositoryGitPort).delete("team-a", "sample-repo");
-        verify(repositoryPort).delete(RepositoryId.of(1L));
+        verify(repositoryGitPort).deleteRepository("team-a", "sample-repo");
+        verify(repositoryPort).deleteById(RepositoryId.of(1L));
     }
 
     @Test
@@ -216,7 +216,7 @@ class RepositoryLifecycleServiceTest {
         Repository privateRepo = org.mockito.Mockito.mock(Repository.class);
 
         when(userPort.findUserIdByUsername("alice")).thenReturn(Optional.of(7L));
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(9L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(9L));
         when(repositoryPort.findAllByOwner(OwnerType.USER, OwnerId.of(7L))).thenReturn(List.of(publicRepo, privateRepo));
         when(publicRepo.getVisibility()).thenReturn(RepositoryVisibility.PUBLIC);
         when(privateRepo.getVisibility()).thenReturn(RepositoryVisibility.PRIVATE);

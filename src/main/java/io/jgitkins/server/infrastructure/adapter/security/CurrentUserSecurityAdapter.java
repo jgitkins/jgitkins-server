@@ -11,7 +11,7 @@ public class CurrentUserSecurityAdapter implements CurrentUserPort {
 
     // loading an authentication info about specific request
     @Override
-    public Optional<Long> currentUserId() {
+    public Optional<Long> resolveCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             return Optional.empty();

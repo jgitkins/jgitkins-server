@@ -748,14 +748,14 @@
             "id": 33,
             "title": "Port, Adapter 내 메서드명 Renaming (Modernly, BestPracticeful)",
             "description": "Port 및 Adapter 내의 메서드명을 현대적이고 모범적인 사례에 맞게 변경하여 의도를 명확히 함.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "2",
-            "updatedAt": "2026-03-11T17:33:00.000Z"
+            "updatedAt": "2026-03-11T12:35:54.675Z"
           }
         ],
-        "updatedAt": "2026-03-11T12:07:48.569Z"
+        "updatedAt": "2026-03-11T12:35:54.675Z"
       },
       {
         "id": "3",
@@ -844,7 +844,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-11T12:07:48.570Z",
+      "lastModified": "2026-03-11T12:35:54.675Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [

@@ -37,7 +37,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
 
     @Override
     public List<BranchSearchResult> getBranches(Long repositoryId) {
-        return branchPort.getBranches(repositoryId)
+        return branchPort.findAllByRepositoryId(repositoryId)
                 .stream()
                 .map(branchApplicationMapper::toSearchResult)
                 .toList();
@@ -45,7 +45,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
 
     @Override
     public BranchSearchResult getBranch(Long repositoryId, String branchName) {
-        return branchPort.getBranch(repositoryId, branchName)
+        return branchPort.findByRepositoryIdAndName(repositoryId, branchName)
                 .map(branchApplicationMapper::toSearchResult)
                 .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.BRANCH_NOT_FOUND, "Branch not found: " + branchName));
     }
@@ -63,7 +63,7 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
 
         branchGitPort.createBranch(context);
 
-        branchPort.create(newBranch);
+        branchPort.save(newBranch);
     }
 
     @Override
@@ -74,11 +74,11 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
         branchCreationValidator.validateNotDefaultBranch(repository, branch);
 
         branchGitPort.deleteBranch(namespace, repository.getName().getValue(), branchName);
-        branchPort.delete(repositoryId, branchName);
+        branchPort.deleteByRepositoryIdAndName(repositoryId, branchName);
     }
 
     private Branch loadBranch(Long repositoryId, String branchName) {
-        return branchPort.getBranch(repositoryId, branchName)
+        return branchPort.findByRepositoryIdAndName(repositoryId, branchName)
                 .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.BRANCH_NOT_FOUND, "Branch not found: " + branchName));
     }
 

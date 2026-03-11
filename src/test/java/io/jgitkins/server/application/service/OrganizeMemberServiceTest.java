@@ -41,7 +41,7 @@ class OrganizeMemberServiceTest {
 
     @Test
     void addOrganizeMember_savesWhenNotExists() {
-        when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(1L), UserId.of(2L))).thenReturn(false);
+        when(organizeMemberPort.existsByOrganizeIdAndUserId(OrganizeId.of(1L), UserId.of(2L))).thenReturn(false);
 
         OrganizeMemberAddCommand command = OrganizeMemberAddCommand.builder()
                 .organizeId(1L)
@@ -58,7 +58,7 @@ class OrganizeMemberServiceTest {
 
     @Test
     void addOrganizeMember_usesMemberRoleWhenRoleIsMissing() {
-        when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(1L), UserId.of(2L))).thenReturn(false);
+        when(organizeMemberPort.existsByOrganizeIdAndUserId(OrganizeId.of(1L), UserId.of(2L))).thenReturn(false);
 
         OrganizeMemberAddCommand command = OrganizeMemberAddCommand.builder()
                 .organizeId(1L)
@@ -75,7 +75,7 @@ class OrganizeMemberServiceTest {
 
     @Test
     void addOrganizeMember_throwsWhenAlreadyExists() {
-        when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(1L), UserId.of(2L))).thenReturn(true);
+        when(organizeMemberPort.existsByOrganizeIdAndUserId(OrganizeId.of(1L), UserId.of(2L))).thenReturn(true);
 
         OrganizeMemberAddCommand command = OrganizeMemberAddCommand.builder()
                 .organizeId(1L)
@@ -91,14 +91,14 @@ class OrganizeMemberServiceTest {
     void removeOrganizeMember_deletesByOrganizeAndUser() {
         service.removeOrganizeMember(1L, 2L);
 
-        verify(organizeMemberPort).deleteByOrganizeAndUser(OrganizeId.of(1L), UserId.of(2L));
+        verify(organizeMemberPort).deleteByOrganizeIdAndUserId(OrganizeId.of(1L), UserId.of(2L));
     }
 
     @Test
     void getOrganizeMembers_mapsDomainToSummary() {
         LocalDateTime joinedAt = LocalDateTime.of(2026, 1, 1, 0, 0);
         OrganizeMember member = OrganizeMember.create(OrganizeId.of(1L), UserId.of(2L), OrganizeMemberRole.OWNER, joinedAt);
-        when(organizeMemberPort.findAllByOrganize(OrganizeId.of(1L))).thenReturn(List.of(member));
+        when(organizeMemberPort.findAllByOrganizeId(OrganizeId.of(1L))).thenReturn(List.of(member));
 
         List<OrganizeMemberSummary> result = service.getOrganizeMembers(1L);
 

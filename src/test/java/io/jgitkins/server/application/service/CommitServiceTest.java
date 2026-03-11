@@ -24,7 +24,7 @@ class CommitServiceTest {
     @Test
     void getCommit_delegatesToPort() throws IOException {
         CommitHistory history = new CommitHistory();
-        when(commitGitPort.getCommitHistory("task", "repo", "hash")).thenReturn(history);
+        when(commitGitPort.loadCommit("task", "repo", "hash")).thenReturn(history);
 
         CommitHistory result = service.getCommit("task", "repo", "hash");
 

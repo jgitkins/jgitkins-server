@@ -43,7 +43,7 @@ class UserProfileServiceTest {
     void activate_activatesAndSavesUser() {
         Username requested = Username.from("new_name");
         when(validator.validateUsername("new_name")).thenReturn(requested);
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(1L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(1L));
         User pending = User.createWithStatus("temp", "a@b.com", "User", null, UserStatus.PENDING).withId(1L);
         when(userPort.findById(1L)).thenReturn(Optional.of(pending));
         when(userPort.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -66,7 +66,7 @@ class UserProfileServiceTest {
     void activate_translatesAlreadyActivatedDomainException() {
         Username requested = Username.from("new_name");
         when(validator.validateUsername("new_name")).thenReturn(requested);
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(1L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(1L));
         User activeUser = User.createWithStatus("active_user", "a@b.com", "User", null, UserStatus.ACTIVE).withId(1L);
         when(userPort.findById(1L)).thenReturn(Optional.of(activeUser));
 

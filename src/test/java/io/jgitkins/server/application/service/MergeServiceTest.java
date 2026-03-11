@@ -25,7 +25,7 @@ class MergeServiceTest {
     @Test
     void checkMergeability_delegatesToPort() throws IOException {
         MergeResult result = MergeResult.builder().build();
-        when(mergeGitPort.checkCanMerge("task", "repo", "src", "dst")).thenReturn(result);
+        when(mergeGitPort.previewMerge("task", "repo", "src", "dst")).thenReturn(result);
 
         MergeResult response = service.checkMergeability("task", "repo", "src", "dst");
 

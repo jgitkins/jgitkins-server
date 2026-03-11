@@ -20,7 +20,7 @@ public class OrganizeMemberValidator {
     }
 
     public void validateMemberNotExists(OrganizeId organizeId, UserId userId) {
-        if (organizeMemberPort.existsByOrganizeAndUser(organizeId, userId)) {
+        if (organizeMemberPort.existsByOrganizeIdAndUserId(organizeId, userId)) {
             throw new ApplicationException(DomainErrorCode.ORGANIZE_MEMBER_ALREADY_EXISTS,
                     String.format("Organize member already exists: organizeId=%s, userId=%s",
                             organizeId.getValue(), userId.getValue()));

@@ -52,7 +52,7 @@ public class RepositoryProvisionedEventListener {
                 false,
                 true,
                 true);
-        branchPort.create(defaultBranch);
+        branchPort.save(defaultBranch);
 
         if (event.getInitialCommitOptions() != null && event.getInitialCommitOptions().requiresInitialContent()) {
             List<CommitFile> files = commitFileFactory.prepareInitialFile(repoNameValue);

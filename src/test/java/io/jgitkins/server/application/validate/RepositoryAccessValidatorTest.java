@@ -38,7 +38,7 @@ class RepositoryAccessValidatorTest {
 
     @Test
     void validateCanCommit_throwsUnauthorized_whenCurrentUserMissing() {
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.empty());
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.empty());
 
         JgitkinsException ex = assertThrows(JgitkinsException.class,
                 () -> validator.validateCanCommit("team", "repo"));
@@ -48,7 +48,7 @@ class RepositoryAccessValidatorTest {
 
     @Test
     void validateCanCommit_throwsForbidden_whenWritePermissionDenied() {
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(7L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(7L));
         when(gitRepositoryAccessUseCase.canWrite(null, "team", "repo", 7L)).thenReturn(false);
 
         JgitkinsException ex = assertThrows(JgitkinsException.class,
@@ -59,7 +59,7 @@ class RepositoryAccessValidatorTest {
 
     @Test
     void validateCanCommit_allows_whenWritePermissionGranted() {
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(7L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(7L));
         when(gitRepositoryAccessUseCase.canWrite(null, "team", "repo", 7L)).thenReturn(true);
 
         assertDoesNotThrow(() -> validator.validateCanCommit("team", "repo"));

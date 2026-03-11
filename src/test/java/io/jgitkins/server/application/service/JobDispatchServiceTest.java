@@ -75,12 +75,12 @@ class JobDispatchServiceTest {
         );
 
         when(runnerPort.findByToken("token")).thenReturn(Optional.of(runner));
-        when(jobPort.fetchPendingJobFor(any(RunnerAssignmentCandidate.class))).thenReturn(Optional.empty());
+        when(jobPort.findPendingByCandidate(any(RunnerAssignmentCandidate.class))).thenReturn(Optional.empty());
 
         Optional<?> result = service.fetchJob(request);
 
         assertThat(result).isEmpty();
         verify(runnerPort).findByToken("token");
-        verify(jobPort).fetchPendingJobFor(any(RunnerAssignmentCandidate.class));
+        verify(jobPort).findPendingByCandidate(any(RunnerAssignmentCandidate.class));
     }
 }

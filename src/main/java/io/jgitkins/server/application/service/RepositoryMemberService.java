@@ -46,7 +46,7 @@ public class RepositoryMemberService implements RepositoryMemberAddUseCase,
     @Transactional
     public void removeRepositoryMember(Long repositoryId, Long userId) {
         repositoryMemberValidator.validateMemberIdentifiers(repositoryId, userId);
-        repositoryMemberPort.deleteByRepositoryAndUser(RepositoryId.of(repositoryId), UserId.of(userId));
+        repositoryMemberPort.deleteByRepositoryIdAndUserId(RepositoryId.of(repositoryId), UserId.of(userId));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class RepositoryMemberService implements RepositoryMemberAddUseCase,
     public List<RepositoryMemberSummary> getRepositoryMembers(Long repositoryId) {
         repositoryMemberValidator.validateRepositoryId(repositoryId);
         
-        return repositoryMemberPort.findAllByRepository(RepositoryId.of(repositoryId))
+        return repositoryMemberPort.findAllByRepositoryId(RepositoryId.of(repositoryId))
                 .stream()
                 .map(member -> new RepositoryMemberSummary(
                         member.getUserId().getValue(),

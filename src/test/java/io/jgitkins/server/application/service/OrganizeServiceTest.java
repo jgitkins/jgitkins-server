@@ -97,7 +97,7 @@ class OrganizeServiceTest {
 
     @Test
     void getAccessibleOrganizes_returnsEmptyWhenCurrentUserMissing() {
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.empty());
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.empty());
 
         List<OrganizeCreationResult> results = service.getAccessibleOrganizes();
 
@@ -111,10 +111,10 @@ class OrganizeServiceTest {
         Organize member = sampleOrganize(11L, "member", 20L);
         Organize other = sampleOrganize(12L, "other", 30L);
 
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(7L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(7L));
         when(organizePort.findAll()).thenReturn(List.of(owned, member, other));
-        when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(11L), UserId.of(7L))).thenReturn(true);
-        when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(12L), UserId.of(7L))).thenReturn(false);
+        when(organizeMemberPort.existsByOrganizeIdAndUserId(OrganizeId.of(11L), UserId.of(7L))).thenReturn(true);
+        when(organizeMemberPort.existsByOrganizeIdAndUserId(OrganizeId.of(12L), UserId.of(7L))).thenReturn(false);
         when(organizeApplicationMapper.toDto(owned))
                 .thenReturn(OrganizeCreationResult.builder().id(10L).name("owned").build());
         when(organizeApplicationMapper.toDto(member))
@@ -124,8 +124,8 @@ class OrganizeServiceTest {
 
         assertEquals(2, results.size());
         assertEquals(List.of("owned", "member"), results.stream().map(OrganizeCreationResult::getName).toList());
-        verify(organizeMemberPort).existsByOrganizeAndUser(eq(OrganizeId.of(11L)), eq(UserId.of(7L)));
-        verify(organizeMemberPort).existsByOrganizeAndUser(eq(OrganizeId.of(12L)), eq(UserId.of(7L)));
+        verify(organizeMemberPort).existsByOrganizeIdAndUserId(eq(OrganizeId.of(11L)), eq(UserId.of(7L)));
+        verify(organizeMemberPort).existsByOrganizeIdAndUserId(eq(OrganizeId.of(12L)), eq(UserId.of(7L)));
     }
 
     @Test
@@ -135,7 +135,7 @@ class OrganizeServiceTest {
 
         service.deleteOrganize(3L);
 
-        verify(organizePort).delete(OrganizeId.of(3L));
+        verify(organizePort).deleteById(OrganizeId.of(3L));
     }
 
     @Test
@@ -143,7 +143,7 @@ class OrganizeServiceTest {
         when(organizePort.findById(OrganizeId.of(404L))).thenReturn(Optional.empty());
 
         assertThrows(JgitkinsException.class, () -> service.deleteOrganize(404L));
-        verify(organizePort, never()).delete(any(OrganizeId.class));
+        verify(organizePort, never()).deleteById(any(OrganizeId.class));
     }
 
     private Organize sampleOrganize(Long id, String name, Long ownerId) {

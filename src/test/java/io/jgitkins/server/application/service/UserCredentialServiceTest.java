@@ -53,7 +53,7 @@ class UserCredentialServiceTest {
 
     @Test
     void issueToken_issuesPlainCredentialAndPersistsHashedCredential() {
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(1L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(1L));
         when(encoder.encode(any())).thenReturn("hashed");
         when(port.save(any(UserCredential.class))).thenAnswer(invocation -> {
             UserCredential credential = invocation.getArgument(0);
@@ -84,7 +84,7 @@ class UserCredentialServiceTest {
         LocalDateTime updatedAt = LocalDateTime.of(2024, 1, 2, 0, 0);
         UserCredential credential = UserCredential.rehydrate(7L, 2L, "PAT", "n", "d", "hash", createdAt, updatedAt);
 
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(2L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(2L));
         when(port.findAllByUserIdAndProvider(2L, "PAT")).thenReturn(List.of(credential));
         List<UserCredentialSummary> result = service.getCredentials();
 
@@ -100,7 +100,7 @@ class UserCredentialServiceTest {
 
     @Test
     void removeCredential_deletesByCredentialIdAndUserId() {
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(3L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(3L));
 
         service.removeCredential(9L);
 
@@ -109,7 +109,7 @@ class UserCredentialServiceTest {
 
     @Test
     void getCredentials_throwsUnauthorizedWhenCurrentUserMissing() {
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.empty());
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.empty());
 
         JgitkinsException exception = assertThrows(JgitkinsException.class, () -> service.getCredentials());
 

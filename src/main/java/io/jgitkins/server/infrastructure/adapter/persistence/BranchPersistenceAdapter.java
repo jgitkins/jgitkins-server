@@ -22,7 +22,7 @@ public class BranchPersistenceAdapter implements BranchPersistencePort {
     private final BranchEntityMbgMapper branchEntityMbgMapper;
 
     @Override
-    public void create(Branch branch) {
+    public void save(Branch branch) {
         try {
             BranchEntity branchEntity = branchDomainMapper.toEntity(branch);
             branchEntityMbgMapper.insertSelective(branchEntity);
@@ -33,7 +33,7 @@ public class BranchPersistenceAdapter implements BranchPersistencePort {
     }
 
     @Override
-    public void delete(Long repositoryId, String branchName) {
+    public void deleteByRepositoryIdAndName(Long repositoryId, String branchName) {
         try {
             BranchEntityCondition condition = new BranchEntityCondition();
             condition.createCriteria()
@@ -50,12 +50,12 @@ public class BranchPersistenceAdapter implements BranchPersistencePort {
      * query
      */
     @Override
-    public Optional<Branch> getBranch(Long repositoryId, String branch) {
+    public Optional<Branch> findByRepositoryIdAndName(Long repositoryId, String branchName) {
         try {
             BranchEntityCondition condition = new BranchEntityCondition();
             condition.createCriteria()
                     .andRepositoryIdEqualTo(repositoryId)
-                    .andNameEqualTo(branch);
+                    .andNameEqualTo(branchName);
 
             return branchEntityMbgMapper.selectByCondition(condition)
                     .stream()
@@ -68,7 +68,7 @@ public class BranchPersistenceAdapter implements BranchPersistencePort {
     }
 
     @Override
-    public List<Branch> getBranches(Long repositoryId) {
+    public List<Branch> findAllByRepositoryId(Long repositoryId) {
         try {
             BranchEntityCondition condition = new BranchEntityCondition();
             condition.createCriteria()

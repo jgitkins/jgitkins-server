@@ -72,19 +72,19 @@ class RepositoryFileServiceTest {
 
     @Test
     void getTree_delegatesToFileGitPort() {
-        when(fileGitPort.getTree("ns", "repo", "main", "src")).thenReturn(Collections.emptyList());
+        when(fileGitPort.listTree("ns", "repo", "main", "src")).thenReturn(Collections.emptyList());
 
         service.getTree("ns", "repo", "main", "src");
 
-        verify(fileGitPort).getTree("ns", "repo", "main", "src");
+        verify(fileGitPort).listTree("ns", "repo", "main", "src");
     }
 
     @Test
     void getAllFiles_delegatesToFileGitPort() {
-        when(fileGitPort.getAllFiles("ns", "repo", "main")).thenReturn(Collections.emptyList());
+        when(fileGitPort.listAllFiles("ns", "repo", "main")).thenReturn(Collections.emptyList());
 
         service.getAllFiles("ns", "repo", "main");
 
-        verify(fileGitPort).getAllFiles("ns", "repo", "main");
+        verify(fileGitPort).listAllFiles("ns", "repo", "main");
     }
 }

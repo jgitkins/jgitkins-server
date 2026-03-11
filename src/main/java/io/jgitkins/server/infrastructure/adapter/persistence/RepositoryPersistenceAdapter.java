@@ -73,7 +73,7 @@ public class RepositoryPersistenceAdapter implements RepositoryPersistencePort {
     }
 
     @Override
-    public void delete(RepositoryId id) {
+    public void deleteById(RepositoryId id) {
         try {
             repositoryEntityMbgMapper.deleteByPrimaryKey(id.getValue());
         } catch (Exception e) {
@@ -171,7 +171,7 @@ public class RepositoryPersistenceAdapter implements RepositoryPersistencePort {
     }
 
     @Override
-    public Optional<Long> findRepositoryId(OwnerType ownerType, OwnerId ownerId, String repoName) {
+    public Optional<Long> findIdByOwnerAndName(OwnerType ownerType, OwnerId ownerId, String repoName) {
         try {
             RepositoryEntityCondition repositoryCondition = new RepositoryEntityCondition();
             repositoryCondition.createCriteria()

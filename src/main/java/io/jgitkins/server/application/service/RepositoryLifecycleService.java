@@ -80,7 +80,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
                                 command.getCredentialId(), initialCommitOptions);
 
                 Repository saved = repositoryPort.save(repository);
-                repositoryGitPort.create(namespace, repositoryName.getValue());
+                repositoryGitPort.initialize(namespace, repositoryName.getValue());
 
                 publishDomainEvents(saved);
 
@@ -112,7 +112,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
         @Override
         @Transactional(readOnly = true)
         public List<RepositoryResult> getRepositories() {
-                Optional<Long> requesterId = currentUserPersistencePort.currentUserId();
+                Optional<Long> requesterId = currentUserPersistencePort.resolveCurrentUserId();
                 Map<OrganizeId, Boolean> membershipCache = new HashMap<>();
 
                 return repositoryPort.findAll().stream()
@@ -132,7 +132,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
                                 .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.USER_NOT_FOUND,
                                                 "User not found: " + normalizedUsername));
 
-                Optional<Long> requesterId = currentUserPersistencePort.currentUserId();
+                Optional<Long> requesterId = currentUserPersistencePort.resolveCurrentUserId();
                 return repositoryPort.findAllByOwner(OwnerType.USER, OwnerId.of(ownerId)).stream()
                                 .filter(repo -> repositoryLookupService.isVisibleToUserOwner(repo, requesterId,
                                                 ownerId))
@@ -151,9 +151,9 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
                 repositoryValidator.enforceDeletionPermission(repository);
 
                 String namespace = repositoryNamespaceResolver.resolve(repository);
-                repositoryGitPort.delete(namespace, repository.getName().getValue());
+                repositoryGitPort.deleteRepository(namespace, repository.getName().getValue());
 
-                repositoryPort.delete(id);
+                repositoryPort.deleteById(id);
         }
 
         private OwnerId resolveOwnerId(OwnerType ownerType, Long organizeId) {

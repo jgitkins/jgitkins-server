@@ -26,7 +26,7 @@ public class RepositoryAccessValidator {
 //    }
 
     public void validateReadAccess(Repository repository) {
-        Long userId = currentUserPersistencePort.currentUserId().orElse(null);
+        Long userId = currentUserPersistencePort.resolveCurrentUserId().orElse(null);
         boolean allowed = gitRepositoryAccessUseCase.canRead(null, null, null, userId); // TODO: implement correct check
         if (!allowed) {
             throw new ApplicationException(
@@ -36,7 +36,7 @@ public class RepositoryAccessValidator {
     }
 
     public void validateCanCommit(String namespace, String repoName) {
-        Long userId = currentUserPersistencePort.currentUserId()
+        Long userId = currentUserPersistencePort.resolveCurrentUserId()
                 .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.UNAUTHENTICATED, "Unauthenticated"));
 
         boolean allowed = gitRepositoryAccessUseCase.canWrite(null, namespace.trim(), repoName.trim(), userId);

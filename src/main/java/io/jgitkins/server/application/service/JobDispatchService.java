@@ -38,7 +38,7 @@ public class JobDispatchService implements JobDispatchUseCase {
         }
 
         RunnerAssignmentCandidate candidate = candidateOptional.get();
-        Optional<PendingJob> pendingJob = jobPort.fetchPendingJobFor(candidate);
+        Optional<PendingJob> pendingJob = jobPort.findPendingByCandidate(candidate);
         if (pendingJob.isEmpty()) {
             return Optional.empty();
         }
@@ -69,7 +69,7 @@ public class JobDispatchService implements JobDispatchUseCase {
         RunnerId runnerId = RunnerId.of(String.valueOf(candidate.getRunnerId()));
         job.publish(runnerId);
 
-        Optional<Long> historyId = jobPort.persistHistory(job, previousHistory);
+        Optional<Long> historyId = jobPort.saveHistory(job, previousHistory);
         if (historyId.isEmpty()) {
             log.debug("Job {} was already processed by another dispatcher", job.getId().getValue());
             return Optional.empty();

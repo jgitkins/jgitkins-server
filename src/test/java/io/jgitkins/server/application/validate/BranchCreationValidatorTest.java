@@ -29,7 +29,7 @@ class BranchCreationValidatorTest {
 
     @Test
     void validateBranchDoesNotExist_throwsWhenBranchAlreadyExists() {
-        when(branchPort.getBranch(1L, "feature")).thenReturn(Optional.of(Branch.create(1L, "feature")));
+        when(branchPort.findByRepositoryIdAndName(1L, "feature")).thenReturn(Optional.of(Branch.create(1L, "feature")));
 
         assertThrows(JgitkinsException.class, () -> validator.validateBranchDoesNotExist(1L, "feature"));
     }
@@ -47,7 +47,7 @@ class BranchCreationValidatorTest {
         Repository repository = org.mockito.Mockito.mock(Repository.class);
         when(repository.getId()).thenReturn(RepositoryId.of(1L));
         when(repository.getDefaultBranch()).thenReturn(BranchName.of("main"));
-        when(branchPort.getBranch(1L, "main")).thenReturn(Optional.of(Branch.create(1L, "main")));
+        when(branchPort.findByRepositoryIdAndName(1L, "main")).thenReturn(Optional.of(Branch.create(1L, "main")));
 
         BranchCreateCommand command = BranchCreateCommand.builder()
                 .repositoryId(1L)
@@ -64,7 +64,7 @@ class BranchCreationValidatorTest {
     void resolveAndValidateSourceBranch_throwsWhenSourceBranchMissing() {
         Repository repository = org.mockito.Mockito.mock(Repository.class);
         when(repository.getId()).thenReturn(RepositoryId.of(1L));
-        when(branchPort.getBranch(1L, "dev")).thenReturn(Optional.empty());
+        when(branchPort.findByRepositoryIdAndName(1L, "dev")).thenReturn(Optional.empty());
 
         BranchCreateCommand command = BranchCreateCommand.builder()
                 .repositoryId(1L)

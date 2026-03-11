@@ -35,7 +35,7 @@ public class OrganizeMemberPersistenceAdapter implements OrganizeMemberPersisten
     }
 
     @Override
-    public boolean existsByOrganizeAndUser(OrganizeId organizeId, UserId userId) {
+    public boolean existsByOrganizeIdAndUserId(OrganizeId organizeId, UserId userId) {
         try {
             OrganizeMemberEntityCondition condition = new OrganizeMemberEntityCondition();
             condition.createCriteria()
@@ -49,7 +49,7 @@ public class OrganizeMemberPersistenceAdapter implements OrganizeMemberPersisten
     }
 
     @Override
-    public Optional<OrganizeMember> findByOrganizeAndUser(OrganizeId organizeId, UserId userId) {
+    public Optional<OrganizeMember> findByOrganizeIdAndUserId(OrganizeId organizeId, UserId userId) {
         try {
             if (organizeId == null || userId == null) {
                 return Optional.empty();
@@ -69,7 +69,7 @@ public class OrganizeMemberPersistenceAdapter implements OrganizeMemberPersisten
     }
 
     @Override
-    public void deleteByOrganizeAndUser(OrganizeId organizeId, UserId userId) {
+    public void deleteByOrganizeIdAndUserId(OrganizeId organizeId, UserId userId) {
         try {
             OrganizeMemberEntityCondition condition = new OrganizeMemberEntityCondition();
             condition.createCriteria()
@@ -83,7 +83,7 @@ public class OrganizeMemberPersistenceAdapter implements OrganizeMemberPersisten
     }
 
     @Override
-    public java.util.List<OrganizeMember> findAllByOrganize(OrganizeId organizeId) {
+    public java.util.List<OrganizeMember> findAllByOrganizeId(OrganizeId organizeId) {
         try {
             OrganizeMemberEntityCondition condition = new OrganizeMemberEntityCondition();
             condition.createCriteria().andOrganizeIdEqualTo(organizeId.getValue());

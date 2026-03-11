@@ -31,7 +31,7 @@ public class RepositoryGitCommitAdapter implements CommitGitPort {
     private final RepositoryResolver repositoryResolver;
 
     @Override
-    public CommitHistory getCommitHistory(String taskCd, String repoName, String commitHash) {
+    public CommitHistory loadCommit(String taskCd, String repoName, String commitHash) {
         try (Repository repository = repositoryResolver.openBareRepository(taskCd, repoName)) {
             ObjectId commitId = repository.resolve(commitHash);
             // TODO: refactor do not known ApplicationException from adpater
@@ -51,7 +51,7 @@ public class RepositoryGitCommitAdapter implements CommitGitPort {
     }
 
     @Override
-    public List<CommitHistory> getCommitHistories(String taskCd, String repoName, String branch) {
+    public List<CommitHistory> listCommitHistory(String taskCd, String repoName, String branch) {
         try (Repository repository = repositoryResolver.openBareRepository(taskCd, repoName)) {
             Git git = new Git(repository);
             Iterable<RevCommit> logs = git.log().add(repository.resolve(branch)).call();

@@ -71,7 +71,7 @@ class PushEventHandleServiceTest {
 
         service.handle(command);
 
-        verify(branchPort).create(any());
+        verify(branchPort).save(any());
 
         ArgumentCaptor<JobCreateCommand> captor = ArgumentCaptor.forClass(JobCreateCommand.class);
         verify(jobCreateUseCase).create(captor.capture());

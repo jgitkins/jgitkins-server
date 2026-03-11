@@ -9,11 +9,11 @@ public interface OrganizeMemberPersistencePort {
 
     OrganizeMember save(OrganizeMember member);
 
-    boolean existsByOrganizeAndUser(OrganizeId organizeId, UserId userId);
+    boolean existsByOrganizeIdAndUserId(OrganizeId organizeId, UserId userId);
 
-    Optional<OrganizeMember> findByOrganizeAndUser(OrganizeId organizeId, UserId userId);
+    Optional<OrganizeMember> findByOrganizeIdAndUserId(OrganizeId organizeId, UserId userId);
 
-    void deleteByOrganizeAndUser(OrganizeId organizeId, UserId userId);
+    void deleteByOrganizeIdAndUserId(OrganizeId organizeId, UserId userId);
 
-    java.util.List<OrganizeMember> findAllByOrganize(OrganizeId organizeId);
+    java.util.List<OrganizeMember> findAllByOrganizeId(OrganizeId organizeId);
 }

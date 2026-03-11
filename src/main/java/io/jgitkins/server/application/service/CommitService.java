@@ -20,7 +20,7 @@ public class CommitService implements CommitLoadUseCase {
     public CommitHistory getCommit(String taskCd,
                                    String repoName,
                                    String commitHash) {
-        return commitGitPort.getCommitHistory(taskCd, repoName, commitHash);
+        return commitGitPort.loadCommit(taskCd, repoName, commitHash);
     }
 
     @Override
@@ -28,6 +28,6 @@ public class CommitService implements CommitLoadUseCase {
     public List<CommitHistory> getCommits(String taskCd,
                                           String repoName,
                                           String branch) {
-        return commitGitPort.getCommitHistories(taskCd, repoName, branch);
+        return commitGitPort.listCommitHistory(taskCd, repoName, branch);
     }
 }

@@ -89,7 +89,7 @@ public class GitRepositoryAccessService implements GitRepositoryAccessUseCase {
             return new RepositoryPermission("OWNER", true, true);
         }
 
-        Optional<RepositoryMember> repositoryMember = repositoryMemberPort.findByRepositoryAndUser(repo.getId(), uid);
+        Optional<RepositoryMember> repositoryMember = repositoryMemberPort.findByRepositoryIdAndUserId(repo.getId(), uid);
         if (repositoryMember.isPresent()) {
             var role = repositoryMember.get().getRole();
             boolean writable = role == io.jgitkins.server.domain.model.vo.RepositoryMemberRole.WRITER
@@ -98,7 +98,7 @@ public class GitRepositoryAccessService implements GitRepositoryAccessUseCase {
         }
 
         if (repo.getOwnerType() == OwnerType.ORGANIZATION && repo.getOwnerId() != null) {
-            Optional<OrganizeMember> organizeMember = organizeMemberPort.findByOrganizeAndUser(
+            Optional<OrganizeMember> organizeMember = organizeMemberPort.findByOrganizeIdAndUserId(
                     OrganizeId.of(repo.getOwnerId().getValue()),
                     uid
             );

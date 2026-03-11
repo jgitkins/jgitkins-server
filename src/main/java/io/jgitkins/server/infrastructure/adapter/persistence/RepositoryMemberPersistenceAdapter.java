@@ -22,7 +22,7 @@ public class RepositoryMemberPersistenceAdapter implements RepositoryMemberPersi
     private final RepositoryMemberDomainMapper repositoryMemberDomainMapper;
 
     @Override
-    public boolean existsByRepositoryAndUser(RepositoryId repositoryId, UserId userId) {
+    public boolean existsByRepositoryIdAndUserId(RepositoryId repositoryId, UserId userId) {
         try {
             if (repositoryId == null || userId == null) {
                 return false;
@@ -39,7 +39,7 @@ public class RepositoryMemberPersistenceAdapter implements RepositoryMemberPersi
     }
 
     @Override
-    public Optional<RepositoryMember> findByRepositoryAndUser(RepositoryId repositoryId, UserId userId) {
+    public Optional<RepositoryMember> findByRepositoryIdAndUserId(RepositoryId repositoryId, UserId userId) {
         try {
             if (repositoryId == null || userId == null) {
                 return Optional.empty();
@@ -71,7 +71,7 @@ public class RepositoryMemberPersistenceAdapter implements RepositoryMemberPersi
     }
 
     @Override
-    public void deleteByRepositoryAndUser(RepositoryId repositoryId, UserId userId) {
+    public void deleteByRepositoryIdAndUserId(RepositoryId repositoryId, UserId userId) {
         try {
             RepositoryMemberEntityCondition condition = new RepositoryMemberEntityCondition();
             condition.createCriteria()
@@ -85,7 +85,7 @@ public class RepositoryMemberPersistenceAdapter implements RepositoryMemberPersi
     }
 
     @Override
-    public java.util.List<RepositoryMember> findAllByRepository(RepositoryId repositoryId) {
+    public java.util.List<RepositoryMember> findAllByRepositoryId(RepositoryId repositoryId) {
         try {
             RepositoryMemberEntityCondition condition = new RepositoryMemberEntityCondition();
             condition.createCriteria().andRepositoryIdEqualTo(repositoryId.getValue());

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public interface MergeGitPort {
     MergeResult merge(String taskCd, String repoName, MergeRequest request) throws IOException;
-    MergeResult checkCanMerge(String taskCd, String repoName, String sourceBranch, String targetBranch) throws IOException;
+    MergeResult previewMerge(String taskCd, String repoName, String sourceBranch, String targetBranch) throws IOException;
 
 }
 

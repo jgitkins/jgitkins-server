@@ -55,7 +55,7 @@ class RepositoryOverviewServiceTest {
 
         List<FileEntry> tree = List.of(FileEntry.builder().name("README.md").build());
         when(fileTreeLoadUseCase.getTree("org", "repo", "main", "")).thenReturn(tree);
-        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(1L));
+        when(currentUserPersistencePort.resolveCurrentUserId()).thenReturn(Optional.of(1L));
         when(gitRepositoryAccessService.resolvePermission(null, "org", "repo", 1L))
                 .thenReturn(new GitRepositoryAccessService.RepositoryPermission("OWNER", true, true));
 

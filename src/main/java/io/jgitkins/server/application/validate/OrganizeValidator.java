@@ -31,6 +31,6 @@ public class OrganizeValidator {
 
     public boolean isAccessible(Organize organize, UserId userId) {
         return userId.equals(organize.getOwnerId()) ||
-                organizeMemberPort.existsByOrganizeAndUser(organize.getId(), userId);
+                organizeMemberPort.existsByOrganizeIdAndUserId(organize.getId(), userId);
     }
 }

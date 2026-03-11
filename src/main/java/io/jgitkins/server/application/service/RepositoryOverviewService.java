@@ -43,7 +43,7 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 
 		List<FileEntry> tree = fileTreeLoadUseCase.getTree(key.namespace(), key.repoName(), selectedBranch, ROOT_PATH);
 
-		Long userId = currentUserPersistencePort.currentUserId().orElse(null);
+		Long userId = currentUserPersistencePort.resolveCurrentUserId().orElse(null);
 
 		GitRepositoryAccessUseCase.RepositoryPermission permission = gitRepositoryAccessUseCase.resolvePermission(null,
 				key != null ? key.namespace() : null, key != null ? key.repoName() : null, userId);

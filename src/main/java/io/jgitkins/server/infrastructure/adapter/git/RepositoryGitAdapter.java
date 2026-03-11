@@ -23,7 +23,7 @@ public class RepositoryGitAdapter implements RepositoryGitPort {
     private final RepositoryResolver repositoryResolver;
 
     @Override
-    public void create(String namespace, String repoName) {
+    public void initialize(String namespace, String repoName) {
         File gitDir = repositoryResolver.resolveGitDir(namespace, repoName);
         long startedAt = System.nanoTime();
         log.info("Repository git create started. namespace={}, repoName={}", namespace, repoName);
@@ -41,7 +41,7 @@ public class RepositoryGitAdapter implements RepositoryGitPort {
     }
 
     @Override
-    public void delete(String taskCd, String repoName) {
+    public void deleteRepository(String taskCd, String repoName) {
         File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
         if (!gitDir.exists()) {
             log.info("Skip repository delete. repo not found path={}, task={}", gitDir.getAbsolutePath(), taskCd);

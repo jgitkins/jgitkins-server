@@ -88,7 +88,7 @@ public class OrganizePersistenceAdapter implements OrganizePersistencePort {
     }
 
     @Override
-    public void delete(OrganizeId organizeId) {
+    public void deleteById(OrganizeId organizeId) {
         try {
             organizeEntityMbgMapper.deleteByPrimaryKey(organizeId.getValue());
         } catch (Exception e) {

@@ -25,7 +25,7 @@ public class BranchCreationValidator {
     }
 
     public void validateBranchDoesNotExist(Long repositoryId, String branchName) {
-        branchPort.getBranch(repositoryId, branchName)
+        branchPort.findByRepositoryIdAndName(repositoryId, branchName)
                 .ifPresent(existing -> {
                     throw new ApplicationException(ApplicationErrorCode.BRANCH_ALREADY_EXISTS);
                 });
@@ -43,7 +43,7 @@ public class BranchCreationValidator {
                 ? repository.getDefaultBranch().getValue()
                 : command.getSourceBranch();
 
-        branchPort.getBranch(repository.getId().getValue(), sourceBranch)
+        branchPort.findByRepositoryIdAndName(repository.getId().getValue(), sourceBranch)
                 .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.SOURCE_BRANCH_NOT_FOUND,
                         "Source branch not found or not initialized: " + sourceBranch));
         return sourceBranch;

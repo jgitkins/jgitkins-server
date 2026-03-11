@@ -8,9 +8,9 @@ import io.jgitkins.server.domain.model.JobHistory;
 import java.util.Optional;
 
 public interface JobPersistencePort {
-    void create(Job job);
+    void save(Job job);
 
-    Optional<PendingJob> fetchPendingJobFor(RunnerAssignmentCandidate candidate);
-    Optional<Long> persistHistory(Job job, JobHistory previousHistory);
-    Optional<Job> loadJob(Long jobId);
+    Optional<PendingJob> findPendingByCandidate(RunnerAssignmentCandidate candidate);
+    Optional<Long> saveHistory(Job job, JobHistory previousHistory);
+    Optional<Job> findById(Long jobId);
 }

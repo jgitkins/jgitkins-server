@@ -12,7 +12,7 @@ public interface RepositoryPersistencePort {
 
     Repository update(Repository repository);
 
-    void delete(RepositoryId id);
+    void deleteById(RepositoryId id);
 
     Optional<Repository> findById(RepositoryId id);
 
@@ -25,7 +25,7 @@ public interface RepositoryPersistencePort {
 
     Optional<Repository> findByOwnerAndName(OwnerType ownerType, OwnerId ownerId, RepositoryName name);
 
-    Optional<Long> findRepositoryId(OwnerType ownerType, OwnerId ownerId, String repoName);
+    Optional<Long> findIdByOwnerAndName(OwnerType ownerType, OwnerId ownerId, String repoName);
 
     List<Repository> findAllByOwner(OwnerType ownerType, OwnerId ownerId);
 

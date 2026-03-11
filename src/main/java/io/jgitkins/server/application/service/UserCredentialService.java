@@ -68,7 +68,7 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
     }
 
     private Long currentUserId() {
-        return currentUserPersistencePort.currentUserId()
+        return currentUserPersistencePort.resolveCurrentUserId()
                 .orElseThrow(() -> new ApplicationException(
                         ApplicationErrorCode.UNAUTHENTICATED,
                         "Unauthenticated"));

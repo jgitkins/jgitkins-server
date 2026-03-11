@@ -8,12 +8,12 @@ import java.util.Optional;
 public interface RepositoryMemberPersistencePort {
     RepositoryMember save(RepositoryMember member);
 
-    boolean existsByRepositoryAndUser(RepositoryId repositoryId, UserId userId);
+    boolean existsByRepositoryIdAndUserId(RepositoryId repositoryId, UserId userId);
 
-    Optional<RepositoryMember> findByRepositoryAndUser(RepositoryId repositoryId, UserId userId);
+    Optional<RepositoryMember> findByRepositoryIdAndUserId(RepositoryId repositoryId, UserId userId);
 
-    void deleteByRepositoryAndUser(RepositoryId repositoryId, UserId userId);
+    void deleteByRepositoryIdAndUserId(RepositoryId repositoryId, UserId userId);
 
-    java.util.List<RepositoryMember> findAllByRepository(RepositoryId repositoryId);
+    java.util.List<RepositoryMember> findAllByRepositoryId(RepositoryId repositoryId);
 
 }

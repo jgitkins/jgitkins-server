@@ -17,7 +17,7 @@ public class MergeService implements MergeabilityCheckUseCase, MergeUseCase {
 
     @Override
     public MergeResult checkMergeability(String taskCd, String repoName, String sourceBranch, String targetBranch) throws IOException {
-        return mergeGitPort.checkCanMerge(taskCd, repoName, sourceBranch, targetBranch);
+        return mergeGitPort.previewMerge(taskCd, repoName, sourceBranch, targetBranch);
     }
 
     @Override

@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.util.List;
 
 public interface FileGitPort {
-    List<FileEntry> getTree(String taskCd, String repoName, String branch, String directory);
-    List<FileEntry> getAllFiles(String taskCd, String repoName, String reference);
+    List<FileEntry> listTree(String taskCd, String repoName, String branch, String directory);
+    List<FileEntry> listAllFiles(String taskCd, String repoName, String reference);
 
     boolean exists(String taskCd, String repoName, String commitHash, String filePath);
 }

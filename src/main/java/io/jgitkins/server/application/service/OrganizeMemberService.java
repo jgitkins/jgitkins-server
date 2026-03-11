@@ -44,13 +44,13 @@ public class OrganizeMemberService implements OrganizeMemberAddUseCase,
     @Override
     @Transactional
     public void removeOrganizeMember(Long organizeId, Long userId) {
-        organizeMemberPort.deleteByOrganizeAndUser(OrganizeId.of(organizeId), UserId.of(userId));
+        organizeMemberPort.deleteByOrganizeIdAndUserId(OrganizeId.of(organizeId), UserId.of(userId));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<OrganizeMemberSummary> getOrganizeMembers(Long organizeId) {
-        return organizeMemberPort.findAllByOrganize(OrganizeId.of(organizeId))
+        return organizeMemberPort.findAllByOrganizeId(OrganizeId.of(organizeId))
                 .stream()
                 .map(member -> new OrganizeMemberSummary(
                         member.getUserId().getValue(),

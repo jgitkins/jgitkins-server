@@ -29,7 +29,7 @@ public class RepositoryGitFileAdapter implements FileGitPort {
     private final RepositoryResolver repositoryResolver;
 
     @Override
-    public List<FileEntry> getTree(String taskCd, String repoName, String branch, String directory) {
+    public List<FileEntry> listTree(String taskCd, String repoName, String branch, String directory) {
         try (Repository repository = repositoryResolver.openBareRepository(taskCd, repoName)) {
             RevTree commitTree = resolveCommitTree(repository, branch);
             return listFiles(repository, commitTree, directory);
@@ -39,7 +39,7 @@ public class RepositoryGitFileAdapter implements FileGitPort {
     }
 
     @Override
-    public List<FileEntry> getAllFiles(String taskCd, String repoName, String branch) {
+    public List<FileEntry> listAllFiles(String taskCd, String repoName, String branch) {
         try (Repository repository = repositoryResolver.openBareRepository(taskCd, repoName)) {
             RevTree tree = resolveCommitTree(repository, branch);
             return collectAllFileEntries(repository, tree);

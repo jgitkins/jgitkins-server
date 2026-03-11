@@ -41,6 +41,6 @@ public class RepositoryMemberValidator {
     }
 
     public boolean isAlreadyMember(RepositoryId repositoryId, UserId userId) {
-        return repositoryMemberPort.existsByRepositoryAndUser(repositoryId, userId);
+        return repositoryMemberPort.existsByRepositoryIdAndUserId(repositoryId, userId);
     }
 }

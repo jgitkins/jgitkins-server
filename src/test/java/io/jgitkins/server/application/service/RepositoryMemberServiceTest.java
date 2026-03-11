@@ -41,7 +41,7 @@ class RepositoryMemberServiceTest {
 
     @Test
     void addRepositoryMember_savesWithRequestedRoleWhenNotExists() {
-        when(repositoryMemberPort.existsByRepositoryAndUser(RepositoryId.of(1L), UserId.of(2L))).thenReturn(false);
+        when(repositoryMemberPort.existsByRepositoryIdAndUserId(RepositoryId.of(1L), UserId.of(2L))).thenReturn(false);
 
         RepositoryMemberAddCommand command = RepositoryMemberAddCommand.builder()
                 .repositoryId(1L)
@@ -58,7 +58,7 @@ class RepositoryMemberServiceTest {
 
     @Test
     void addRepositoryMember_usesReaderRoleWhenRoleMissing() {
-        when(repositoryMemberPort.existsByRepositoryAndUser(RepositoryId.of(1L), UserId.of(2L))).thenReturn(false);
+        when(repositoryMemberPort.existsByRepositoryIdAndUserId(RepositoryId.of(1L), UserId.of(2L))).thenReturn(false);
 
         RepositoryMemberAddCommand command = RepositoryMemberAddCommand.builder()
                 .repositoryId(1L)
@@ -74,7 +74,7 @@ class RepositoryMemberServiceTest {
 
     @Test
     void addRepositoryMember_doesNothingWhenAlreadyExists() {
-        when(repositoryMemberPort.existsByRepositoryAndUser(RepositoryId.of(1L), UserId.of(2L))).thenReturn(true);
+        when(repositoryMemberPort.existsByRepositoryIdAndUserId(RepositoryId.of(1L), UserId.of(2L))).thenReturn(true);
 
         RepositoryMemberAddCommand command = RepositoryMemberAddCommand.builder()
                 .repositoryId(1L)
@@ -99,7 +99,7 @@ class RepositoryMemberServiceTest {
     void removeRepositoryMember_deletesByRepositoryAndUser() {
         service.removeRepositoryMember(1L, 2L);
 
-        verify(repositoryMemberPort).deleteByRepositoryAndUser(RepositoryId.of(1L), UserId.of(2L));
+        verify(repositoryMemberPort).deleteByRepositoryIdAndUserId(RepositoryId.of(1L), UserId.of(2L));
     }
 
     @Test
@@ -117,7 +117,7 @@ class RepositoryMemberServiceTest {
                 RepositoryMemberRole.WRITER,
                 addedAt
         );
-        when(repositoryMemberPort.findAllByRepository(RepositoryId.of(1L))).thenReturn(List.of(member));
+        when(repositoryMemberPort.findAllByRepositoryId(RepositoryId.of(1L))).thenReturn(List.of(member));
 
         List<RepositoryMemberSummary> result = service.getRepositoryMembers(1L);
 

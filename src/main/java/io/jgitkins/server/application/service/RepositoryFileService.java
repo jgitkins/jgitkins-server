@@ -56,13 +56,13 @@ public class RepositoryFileService implements FileUploadUseCase,
             String repoName,
             String branch,
             String directory) {
-        return fileGitPort.getTree(namespace, repoName, branch, directory);
+        return fileGitPort.listTree(namespace, repoName, branch, directory);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<FileEntry> getAllFiles(String taskCd, String repoName, String reference) {
-        return fileGitPort.getAllFiles(taskCd, repoName, reference);
+        return fileGitPort.listAllFiles(taskCd, repoName, reference);
     }
 
     private String resolveAuthorName(FileUploadInfo request) {

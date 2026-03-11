@@ -46,7 +46,7 @@ public class JobService implements JobCreateUseCase {
                              BranchName.of(command.getBranchName()),
                              UserId.of(command.getTriggeredBy()));
 
-        jobPort.create(job);
+        jobPort.save(job);
 
         log.info("Job created successfully. JobId: {}", job.getId());
 

@@ -62,7 +62,7 @@ public class OrganizeService implements OrganizeCreationUseCase,
     @Override
     @Transactional(readOnly = true)
     public List<OrganizeCreationResult> getAccessibleOrganizes() {
-        return currentUserPersistencePort.currentUserId()
+        return currentUserPersistencePort.resolveCurrentUserId()
                 .map(id -> {
                     UserId userId = UserId.of(id);
                     return organizePort.findAll().stream()
@@ -77,6 +77,6 @@ public class OrganizeService implements OrganizeCreationUseCase,
     @Transactional
     public void deleteOrganize(Long organizeId) {
         organizeValidator.findByIdOrThrow(organizeId);
-        organizePort.delete(OrganizeId.of(organizeId));
+        organizePort.deleteById(OrganizeId.of(organizeId));
     }
 }

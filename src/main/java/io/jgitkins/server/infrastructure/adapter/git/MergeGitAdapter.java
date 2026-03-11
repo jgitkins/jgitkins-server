@@ -35,7 +35,7 @@ public class MergeGitAdapter implements MergeGitPort {
     }
 
     @Override
-    public MergeResult checkCanMerge(String taskCd, String repoName, String sourceBranch, String targetBranch) throws IOException {
+    public MergeResult previewMerge(String taskCd, String repoName, String sourceBranch, String targetBranch) throws IOException {
         File bareRepositoryPath = new File(rootPath + "/" + taskCd + "/" + repoName + ".git");
 
         try (Repository repo = new FileRepositoryBuilder()

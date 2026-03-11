@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BranchPersistencePort {
-    void create(Branch branch);
-    void delete(Long repositoryId, String branchName);
+    void save(Branch branch);
+    void deleteByRepositoryIdAndName(Long repositoryId, String branchName);
 
-    Optional<Branch> getBranch(Long repositoryId, String branch);
-    List<Branch> getBranches(Long repositoryId);
+    Optional<Branch> findByRepositoryIdAndName(Long repositoryId, String branchName);
+    List<Branch> findAllByRepositoryId(Long repositoryId);
 }

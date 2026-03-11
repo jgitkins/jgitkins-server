@@ -18,5 +18,5 @@ public interface OrganizePersistencePort {
 
     List<Organize> findAll();
 
-    void delete(OrganizeId organizeId);
+    void deleteById(OrganizeId organizeId);
 }

@@ -33,7 +33,7 @@ public class JobPersistenceAdapter implements JobPersistencePort {
 
     @Override
     @Transactional
-    public void create(Job job) {
+    public void save(Job job) {
         try {
             JobEntity entity = jobDomainMapper.toEntity(job);
             jobEntityMbgMapper.insertSelective(entity);
@@ -50,7 +50,7 @@ public class JobPersistenceAdapter implements JobPersistencePort {
     }
 
     @Override
-    public Optional<Job> loadJob(Long jobId) {
+    public Optional<Job> findById(Long jobId) {
         try {
             JobEntity entity = jobEntityMbgMapper.selectByPrimaryKey(jobId);
             if (entity == null) {
@@ -74,7 +74,7 @@ public class JobPersistenceAdapter implements JobPersistencePort {
 
     @Override
     @Transactional
-    public Optional<PendingJob> fetchPendingJobFor(RunnerAssignmentCandidate candidate) {
+    public Optional<PendingJob> findPendingByCandidate(RunnerAssignmentCandidate candidate) {
         try {
             // 1. Find jobs with PENDING status.
             // Simplified: find jobs where the latest history is PENDING.
@@ -122,7 +122,7 @@ public class JobPersistenceAdapter implements JobPersistencePort {
 
     @Override
     @Transactional
-    public Optional<Long> persistHistory(Job job, JobHistory previousHistory) {
+    public Optional<Long> saveHistory(Job job, JobHistory previousHistory) {
         try {
             // Optimistic locking: check if the previous history is still the latest
             Long jobIdLong = Long.parseLong(job.getId().getValue());

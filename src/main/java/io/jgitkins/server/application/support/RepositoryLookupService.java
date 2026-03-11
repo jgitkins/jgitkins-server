@@ -82,7 +82,7 @@ public class RepositoryLookupService {
         if (repository.getOwnerType() == OwnerType.ORGANIZATION && repository.getOwnerId() != null) {
             OrganizeId organizeId = OrganizeId.of(repository.getOwnerId().getValue());
             return membershipCache.computeIfAbsent(organizeId,
-                    id -> organizeMemberPort.existsByOrganizeAndUser(id, UserId.of(userId)));
+                    id -> organizeMemberPort.existsByOrganizeIdAndUserId(id, UserId.of(userId)));
         }
         return false;
     }

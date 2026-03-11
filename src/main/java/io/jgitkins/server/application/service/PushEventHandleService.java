@@ -46,10 +46,10 @@ public class PushEventHandleService implements PushEventHandleUseCase {
     private void updateBranchState(Long repositoryId, PushEventCommand command) {
         if (command.isBranchCreated()) {
             log.info("Creating new branch [{}] for repository [{}]", command.getBranchName(), repositoryId);
-            branchPort.create(Branch.create(repositoryId, command.getBranchName()));
+            branchPort.save(Branch.create(repositoryId, command.getBranchName()));
         } else if (command.isBranchDeleted()) {
             log.info("Deleting branch [{}] from repository [{}]", command.getBranchName(), repositoryId);
-            branchPort.delete(repositoryId, command.getBranchName());
+            branchPort.deleteByRepositoryIdAndName(repositoryId, command.getBranchName());
         }
         // UPDATE(Push)의 경우 현재 로직에서는 별도의 Branch 엔티티 갱신이 필요 없음 (커밋 해시는 Job에 기록됨)
     }

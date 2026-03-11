@@ -70,13 +70,13 @@ public class RepositoryValidator {
         // 인증 실패는 ApplicationException으로 처리 - presentation 계층(Spring Security)에서 이미
         // 필터링하지만
         // 서비스 내부에서 currentUserId 조회 실패는 application 정책 위반으로 간주
-        return currentUserPersistencePort.currentUserId()
+        return currentUserPersistencePort.resolveCurrentUserId()
                 .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.ACCESS_DENIED, "Unauthenticated"));
     }
 
     private void assertOrganizeMembership(Long organizeId) {
         Long requesterId = requireCurrentUserId();
-        boolean isMember = organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(organizeId),
+        boolean isMember = organizeMemberPort.existsByOrganizeIdAndUserId(OrganizeId.of(organizeId),
                 UserId.of(requesterId));
         if (!isMember) {
             throw new ApplicationException(ApplicationErrorCode.ORGANIZE_ACCESS_DENIED,

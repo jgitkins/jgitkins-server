@@ -39,7 +39,7 @@ public class UserProfileService implements SignupUseCase {
     }
 
     private Long currentUserId() {
-        return currentUserPersistencePort.currentUserId()
+        return currentUserPersistencePort.resolveCurrentUserId()
                 .orElseThrow(() -> new ApplicationException(PresentationErrorCode.UNAUTHORIZED, "Unauthenticated"));
     }
 

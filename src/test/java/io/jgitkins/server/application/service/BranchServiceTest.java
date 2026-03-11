@@ -73,7 +73,7 @@ class BranchServiceTest {
         verify(repositoryAccessValidator).validateCanCommit("org", "repo");
         verify(branchGitPort).createBranch(any());
         ArgumentCaptor<Branch> captor = ArgumentCaptor.forClass(Branch.class);
-        verify(branchPort).create(captor.capture());
+        verify(branchPort).save(captor.capture());
         Branch created = captor.getValue();
         assertEquals(1L, created.getRepositoryId());
         assertEquals("feature", created.getName());
@@ -87,19 +87,19 @@ class BranchServiceTest {
         when(repository.getName()).thenReturn(RepositoryName.from("repo"));
         when(repositoryPort.findById(RepositoryId.of(1L))).thenReturn(Optional.of(repository));
         when(repositoryNamespaceResolver.resolve(repository)).thenReturn("org");
-        when(branchPort.getBranch(1L, "feature")).thenReturn(Optional.of(branch));
+        when(branchPort.findByRepositoryIdAndName(1L, "feature")).thenReturn(Optional.of(branch));
 
         service.deleteBranch(1L, "feature");
 
         verify(repositoryAccessValidator).validateCanCommit("org", "repo");
         verify(branchCreationValidator).validateNotDefaultBranch(repository, branch);
         verify(branchGitPort).deleteBranch("org", "repo", "feature");
-        verify(branchPort).delete(1L, "feature");
+        verify(branchPort).deleteByRepositoryIdAndName(1L, "feature");
     }
 
     @Test
     void getBranch_throwsWhenBranchMissing() {
-        when(branchPort.getBranch(1L, "missing")).thenReturn(Optional.empty());
+        when(branchPort.findByRepositoryIdAndName(1L, "missing")).thenReturn(Optional.empty());
 
         assertThrows(JgitkinsException.class, () -> service.getBranch(1L, "missing"));
     }
