@@ -9,8 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.application.dto.command.UserLoginOrSignUpCommand;
-import io.jgitkins.server.application.port.out.UserIdentityPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.UserIdentityPersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserIdentity;
 import io.jgitkins.server.domain.model.UserStatus;
@@ -21,7 +21,7 @@ class UserServiceTest {
 
     @Test
     void loginOrSignUp_throwsWhenProviderIdentityMissing() {
-        UserService service = new UserService(mock(UserPort.class), mock(UserIdentityPort.class),
+        UserService service = new UserService(mock(UserPersistencePort.class), mock(UserIdentityPersistencePort.class),
                 mock(UsernameAllocator.class), new UserProfileUpdater());
 
         UserLoginOrSignUpCommand command = UserLoginOrSignUpCommand.builder()
@@ -34,8 +34,8 @@ class UserServiceTest {
 
     @Test
     void loginOrSignUp_signsInExistingIdentity() {
-        UserPort userPort = mock(UserPort.class);
-        UserIdentityPort identityPort = mock(UserIdentityPort.class);
+        UserPersistencePort userPort = mock(UserPersistencePort.class);
+        UserIdentityPersistencePort identityPort = mock(UserIdentityPersistencePort.class);
         UsernameAllocator allocator = mock(UsernameAllocator.class);
         UserProfileUpdater updater = new UserProfileUpdater();
 
@@ -65,8 +65,8 @@ class UserServiceTest {
 
     @Test
     void loginOrSignUp_signsUpWhenIdentityMissing() {
-        UserPort userPort = mock(UserPort.class);
-        UserIdentityPort identityPort = mock(UserIdentityPort.class);
+        UserPersistencePort userPort = mock(UserPersistencePort.class);
+        UserIdentityPersistencePort identityPort = mock(UserIdentityPersistencePort.class);
         UsernameAllocator allocator = mock(UsernameAllocator.class);
         UserProfileUpdater updater = new UserProfileUpdater();
 

@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.OrganizePort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class OrganizeMybatisAdapter implements OrganizePort {
+public class OrganizePersistenceAdapter implements OrganizePersistencePort {
 
     private final OrganizeEntityMbgMapper organizeEntityMbgMapper;
 

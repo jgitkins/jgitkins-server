@@ -5,7 +5,7 @@ import io.jgitkins.server.application.dto.result.OrganizeMemberSummary;
 import io.jgitkins.server.application.port.in.OrganizeMemberAddUseCase;
 import io.jgitkins.server.application.port.in.OrganizeMemberQueryUseCase;
 import io.jgitkins.server.application.port.in.OrganizeMemberRemoveUseCase;
-import io.jgitkins.server.application.port.out.OrganizeMemberPort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
 import io.jgitkins.server.application.validate.OrganizeMemberValidator;
 import io.jgitkins.server.domain.model.OrganizeMember;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
@@ -21,7 +21,7 @@ public class OrganizeMemberService implements OrganizeMemberAddUseCase,
                                                OrganizeMemberRemoveUseCase,
                                                OrganizeMemberQueryUseCase {
 
-    private final OrganizeMemberPort organizeMemberPort;
+    private final OrganizeMemberPersistencePort organizeMemberPort;
     private final OrganizeMemberValidator organizeMemberValidator;
 
     @Override

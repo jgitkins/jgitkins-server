@@ -5,7 +5,7 @@ import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.UserId;
 import java.util.Optional;
 
-public interface RepositoryMemberPort {
+public interface RepositoryMemberPersistencePort {
     RepositoryMember save(RepositoryMember member);
 
     boolean existsByRepositoryAndUser(RepositoryId repositoryId, UserId userId);

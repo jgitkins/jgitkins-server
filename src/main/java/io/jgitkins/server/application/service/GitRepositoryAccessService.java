@@ -1,11 +1,11 @@
 package io.jgitkins.server.application.service;
 
 import io.jgitkins.server.application.port.in.GitRepositoryAccessUseCase;
-import io.jgitkins.server.application.port.out.OrganizeMemberPort;
-import io.jgitkins.server.application.port.out.OrganizePort;
-import io.jgitkins.server.application.port.out.RepositoryMemberPort;
-import io.jgitkins.server.application.port.out.RepositoryPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryMemberPersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.OrganizeMember;
@@ -29,11 +29,11 @@ import java.util.Optional;
 @Slf4j
 public class GitRepositoryAccessService implements GitRepositoryAccessUseCase {
 
-    private final OrganizePort organizePort;
-    private final RepositoryPort repositoryPort;
-    private final OrganizeMemberPort organizeMemberPort;
-    private final RepositoryMemberPort repositoryMemberPort;
-    private final UserPort userPort;
+    private final OrganizePersistencePort organizePort;
+    private final RepositoryPersistencePort repositoryPort;
+    private final OrganizeMemberPersistencePort organizeMemberPort;
+    private final RepositoryMemberPersistencePort repositoryMemberPort;
+    private final UserPersistencePort userPort;
 
     public boolean canRead(OwnerType ownerType, String ownerName, String repositoryName, Long userId) {
         Optional<Repository> repository = resolveRepository(ownerType, ownerName, repositoryName);

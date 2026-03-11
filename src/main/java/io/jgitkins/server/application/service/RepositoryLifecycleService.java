@@ -10,8 +10,8 @@ import io.jgitkins.server.application.port.in.RepositoryDeleteUseCase;
 import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.out.RepositoryGitPort;
-import io.jgitkins.server.application.port.out.RepositoryPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.application.common.RepositoryPathHelper;
 import io.jgitkins.server.application.support.RepositoryLookupService;
 import io.jgitkins.server.application.support.RepositoryNamespaceResolver;
@@ -41,9 +41,9 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
         private final DomainEventPublisher domainEventPublisher;
 
         private final RepositoryGitPort repositoryGitPort;
-        private final RepositoryPort repositoryPort;
-        private final CurrentUserPort currentUserPort;
-        private final UserPort userPort;
+        private final RepositoryPersistencePort repositoryPort;
+        private final CurrentUserPort currentUserPersistencePort;
+        private final UserPersistencePort userPort;
 
         private final RepositoryValidator repositoryValidator;
         private final RepositoryLookupService repositoryLookupService;
@@ -112,7 +112,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
         @Override
         @Transactional(readOnly = true)
         public List<RepositoryResult> getRepositories() {
-                Optional<Long> requesterId = currentUserPort.currentUserId();
+                Optional<Long> requesterId = currentUserPersistencePort.currentUserId();
                 Map<OrganizeId, Boolean> membershipCache = new HashMap<>();
 
                 return repositoryPort.findAll().stream()
@@ -132,7 +132,7 @@ public class RepositoryLifecycleService implements RepositoryCreateUseCase,
                                 .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.USER_NOT_FOUND,
                                                 "User not found: " + normalizedUsername));
 
-                Optional<Long> requesterId = currentUserPort.currentUserId();
+                Optional<Long> requesterId = currentUserPersistencePort.currentUserId();
                 return repositoryPort.findAllByOwner(OwnerType.USER, OwnerId.of(ownerId)).stream()
                                 .filter(repo -> repositoryLookupService.isVisibleToUserOwner(repo, requesterId,
                                                 ownerId))

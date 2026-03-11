@@ -8,8 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import io.jgitkins.server.application.dto.command.JobCreateCommand;
 import io.jgitkins.server.application.dto.command.PushEventCommand;
 import io.jgitkins.server.application.port.in.JobCreateUseCase;
-import io.jgitkins.server.application.port.out.BranchPort;
-import io.jgitkins.server.application.port.out.RepositoryPort;
+import io.jgitkins.server.application.port.out.BranchPersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.OwnerId;
 import io.jgitkins.server.domain.model.vo.OwnerType;
@@ -32,10 +32,10 @@ class PushEventHandleServiceTest {
     private JobCreateUseCase jobCreateUseCase;
 
     @Mock
-    private RepositoryPort repositoryPort;
+    private RepositoryPersistencePort repositoryPort;
 
     @Mock
-    private BranchPort branchPort;
+    private BranchPersistencePort branchPort;
 
     @InjectMocks
     private PushEventHandleService service;

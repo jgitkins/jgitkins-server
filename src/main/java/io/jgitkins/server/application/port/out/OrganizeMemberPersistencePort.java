@@ -5,7 +5,7 @@ import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.UserId;
 import java.util.Optional;
 
-public interface OrganizeMemberPort {
+public interface OrganizeMemberPersistencePort {
 
     OrganizeMember save(OrganizeMember member);
 

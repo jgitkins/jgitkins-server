@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.UserCredentialPort;
+import io.jgitkins.server.application.port.out.UserCredentialPersistencePort;
 import io.jgitkins.server.domain.model.UserCredential;
 import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
 import io.jgitkins.server.infrastructure.exception.InfrastructureException;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UserCredentialMybatisAdapter implements UserCredentialPort {
+public class UserCredentialPersistenceAdapter implements UserCredentialPersistencePort {
 
     private final UserCredentialsEntityMbgMapper userCredentialsEntityMbgMapper;
     private final UserCredentialDomainMapper userCredentialDomainMapper;

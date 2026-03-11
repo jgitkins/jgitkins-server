@@ -7,8 +7,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.application.dto.RunnerAssignmentCandidate;
-import io.jgitkins.server.application.port.out.JobPort;
-import io.jgitkins.server.application.port.out.RunnerPort;
+import io.jgitkins.server.application.port.out.JobPersistencePort;
+import io.jgitkins.server.application.port.out.RunnerPersistencePort;
 import io.jgitkins.server.application.support.CloneUrlBuilder;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.vo.RunnerScopeType;
@@ -26,10 +26,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class JobDispatchServiceTest {
 
     @Mock
-    private JobPort jobPort;
+    private JobPersistencePort jobPort;
 
     @Mock
-    private RunnerPort runnerPort;
+    private RunnerPersistencePort runnerPort;
 
     @Mock
     private CloneUrlBuilder cloneUrlBuilder;

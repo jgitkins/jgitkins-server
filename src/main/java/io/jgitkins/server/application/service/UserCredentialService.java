@@ -8,7 +8,7 @@ import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.port.in.UserCredentialIssueUseCase;
 import io.jgitkins.server.application.port.in.UserCredentialQueryUseCase;
 import io.jgitkins.server.application.port.in.UserCredentialRevokeUseCase;
-import io.jgitkins.server.application.port.out.UserCredentialPort;
+import io.jgitkins.server.application.port.out.UserCredentialPersistencePort;
 import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.domain.model.UserCredential;
@@ -28,8 +28,8 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
     private static final SecureRandom RANDOM = new SecureRandom();
     private static final int TOKEN_BYTES = 32;
 
-    private final CurrentUserPort currentUserPort;
-    private final UserCredentialPort userCredentialPort;
+    private final CurrentUserPort currentUserPersistencePort;
+    private final UserCredentialPersistencePort userCredentialPort;
     private final PasswordEncoder passwordEncoder;
     private final UserCredentialApplicationMapper userCredentialApplicationMapper;
 
@@ -68,7 +68,7 @@ public class UserCredentialService implements UserCredentialIssueUseCase,
     }
 
     private Long currentUserId() {
-        return currentUserPort.currentUserId()
+        return currentUserPersistencePort.currentUserId()
                 .orElseThrow(() -> new ApplicationException(
                         ApplicationErrorCode.UNAUTHENTICATED,
                         "Unauthenticated"));

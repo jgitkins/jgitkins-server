@@ -3,7 +3,7 @@ package io.jgitkins.server.application.port.out;
 import io.jgitkins.server.domain.model.User;
 import java.util.Optional;
 
-public interface UserPort {
+public interface UserPersistencePort {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByUsername(String username);

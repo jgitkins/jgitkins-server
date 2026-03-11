@@ -6,8 +6,8 @@ import io.jgitkins.server.application.dto.result.UserIdentitySummary;
 import io.jgitkins.server.application.mapper.UserApplicationMapper;
 import io.jgitkins.server.application.port.in.AdminUserQueryUseCase;
 import io.jgitkins.server.application.port.in.AdminUserUpdateUseCase;
-import io.jgitkins.server.application.port.out.UserIdentityPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.UserIdentityPersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserStatus;
 import java.util.List;
@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminUserService implements AdminUserQueryUseCase, AdminUserUpdateUseCase {
 
-    private final UserPort userPort;
-    private final UserIdentityPort userIdentityPort;
+    private final UserPersistencePort userPort;
+    private final UserIdentityPersistencePort userIdentityPort;
     private final UserApplicationMapper userApplicationMapper;
 
     @Override

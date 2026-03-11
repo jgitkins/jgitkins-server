@@ -7,7 +7,7 @@ import io.jgitkins.server.domain.model.vo.OrganizeName;
 import java.util.List;
 import java.util.Optional;
 
-public interface OrganizePort {
+public interface OrganizePersistencePort {
     Organize save(Organize organize);
 
     Organize update(Organize organize);

@@ -3,8 +3,8 @@ package io.jgitkins.server.application.service;
 import io.jgitkins.server.application.dto.result.UserAdminDetail;
 import io.jgitkins.server.application.dto.result.UserAdminSummary;
 import io.jgitkins.server.application.mapper.UserApplicationMapper;
-import io.jgitkins.server.application.port.out.UserIdentityPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.UserIdentityPersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserAuthority;
 import io.jgitkins.server.domain.model.UserIdentity;
@@ -30,10 +30,10 @@ import static org.mockito.Mockito.when;
 class AdminUserServiceTest {
 
     @Mock
-    private UserPort userPort;
+    private UserPersistencePort userPort;
 
     @Mock
-    private UserIdentityPort userIdentityPort;
+    private UserIdentityPersistencePort userIdentityPort;
 
     private UserApplicationMapper userApplicationMapper = Mappers.getMapper(UserApplicationMapper.class);
 

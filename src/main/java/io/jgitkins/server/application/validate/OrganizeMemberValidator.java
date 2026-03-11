@@ -1,6 +1,6 @@
 package io.jgitkins.server.application.validate;
 
-import io.jgitkins.server.application.port.out.OrganizeMemberPort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
 import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.domain.error.DomainErrorCode;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrganizeMemberValidator {
 
-    private final OrganizeMemberPort organizeMemberPort;
+    private final OrganizeMemberPersistencePort organizeMemberPort;
 
     public OrganizeMemberRole resolveRole(OrganizeMemberRole role) {
         return role != null ? role : OrganizeMemberRole.MEMBER;

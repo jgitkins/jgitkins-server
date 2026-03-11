@@ -13,7 +13,7 @@ import io.jgitkins.server.application.dto.command.RunnerRegisterCommand;
 import io.jgitkins.server.application.dto.result.RunnerActivateResult;
 import io.jgitkins.server.application.dto.result.RunnerRegistrationResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
-import io.jgitkins.server.application.port.out.RunnerPort;
+import io.jgitkins.server.application.port.out.RunnerPersistencePort;
 import io.jgitkins.server.application.support.RunnerRuntimeConfigProvider;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.aggregate.Runner;
@@ -31,7 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class RunnerManagementServiceTest {
 
     @Mock
-    private RunnerPort runnerPort;
+    private RunnerPersistencePort runnerPort;
 
     @Mock
     private RunnerApplicationMapper runnerApplicationMapper;

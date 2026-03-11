@@ -5,7 +5,7 @@ import io.jgitkins.server.domain.Branch;
 import java.util.List;
 import java.util.Optional;
 
-public interface BranchPort {
+public interface BranchPersistencePort {
     void create(Branch branch);
     void delete(Long repositoryId, String branchName);
 

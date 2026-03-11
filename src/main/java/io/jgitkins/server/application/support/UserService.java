@@ -1,8 +1,8 @@
 package io.jgitkins.server.application.support;
 
 import io.jgitkins.server.application.dto.command.UserLoginOrSignUpCommand;
-import io.jgitkins.server.application.port.out.UserIdentityPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.UserIdentityPersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserIdentity;
 import io.jgitkins.server.domain.model.UserStatus;
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserService {
 
-        private final UserPort userPort;
-        private final UserIdentityPort userIdentityPort;
+        private final UserPersistencePort userPort;
+        private final UserIdentityPersistencePort userIdentityPort;
         private final UsernameAllocator usernameAllocator;
         private final UserProfileUpdater userProfileUpdater;
 

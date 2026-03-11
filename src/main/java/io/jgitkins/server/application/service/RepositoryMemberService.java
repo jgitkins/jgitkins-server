@@ -5,7 +5,7 @@ import io.jgitkins.server.application.dto.result.RepositoryMemberSummary;
 import io.jgitkins.server.application.port.in.RepositoryMemberAddUseCase;
 import io.jgitkins.server.application.port.in.RepositoryMemberQueryUseCase;
 import io.jgitkins.server.application.port.in.RepositoryMemberRemoveUseCase;
-import io.jgitkins.server.application.port.out.RepositoryMemberPort;
+import io.jgitkins.server.application.port.out.RepositoryMemberPersistencePort;
 import io.jgitkins.server.application.validate.RepositoryMemberValidator;
 import io.jgitkins.server.domain.model.RepositoryMember;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
@@ -22,7 +22,7 @@ public class RepositoryMemberService implements RepositoryMemberAddUseCase,
                                                 RepositoryMemberRemoveUseCase,
                                                 RepositoryMemberQueryUseCase {
 
-    private final RepositoryMemberPort repositoryMemberPort;
+    private final RepositoryMemberPersistencePort repositoryMemberPort;
     private final RepositoryMemberValidator repositoryMemberValidator;
 
     @Override

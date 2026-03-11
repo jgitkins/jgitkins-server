@@ -3,8 +3,8 @@ package io.jgitkins.server.application.validate;
 import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
-import io.jgitkins.server.application.port.out.OrganizeMemberPort;
-import io.jgitkins.server.application.port.out.RepositoryPort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OwnerId;
@@ -18,9 +18,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RepositoryValidator {
 
-    private final RepositoryPort repositoryPort;
-    private final OrganizeMemberPort organizeMemberPort;
-    private final CurrentUserPort currentUserPort;
+    private final RepositoryPersistencePort repositoryPort;
+    private final OrganizeMemberPersistencePort organizeMemberPort;
+    private final CurrentUserPort currentUserPersistencePort;
 
     public void validateCreation(OwnerType ownerType, Long organizeId, RepositoryName repositoryName) {
         validateOwnership(ownerType, organizeId);
@@ -70,7 +70,7 @@ public class RepositoryValidator {
         // 인증 실패는 ApplicationException으로 처리 - presentation 계층(Spring Security)에서 이미
         // 필터링하지만
         // 서비스 내부에서 currentUserId 조회 실패는 application 정책 위반으로 간주
-        return currentUserPort.currentUserId()
+        return currentUserPersistencePort.currentUserId()
                 .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.ACCESS_DENIED, "Unauthenticated"));
     }
 

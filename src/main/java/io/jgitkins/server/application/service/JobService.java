@@ -3,7 +3,7 @@ package io.jgitkins.server.application.service;
 import io.jgitkins.server.application.dto.command.JobCreateCommand;
 import io.jgitkins.server.application.port.in.JobCreateUseCase;
 import io.jgitkins.server.application.port.out.FileGitPort;
-import io.jgitkins.server.application.port.out.JobPort;
+import io.jgitkins.server.application.port.out.JobPersistencePort;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.model.vo.BranchName;
 import io.jgitkins.server.domain.model.vo.CommitHash;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class JobService implements JobCreateUseCase {
 
-    private final JobPort jobPort;
+    private final JobPersistencePort jobPort;
     private final FileGitPort fileGitPort;
 
     private static final String JENKINS_FILE_PATH = "Jenkinsfile";

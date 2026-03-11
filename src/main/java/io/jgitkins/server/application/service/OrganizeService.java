@@ -7,7 +7,7 @@ import io.jgitkins.server.application.port.in.OrganizeCreationUseCase;
 import io.jgitkins.server.application.port.in.OrganizeDeletionUseCase;
 import io.jgitkins.server.application.port.in.OrganizeLoadUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
-import io.jgitkins.server.application.port.out.OrganizePort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
 import io.jgitkins.server.application.validate.OrganizeValidator;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
@@ -24,8 +24,8 @@ public class OrganizeService implements OrganizeCreationUseCase,
                                         OrganizeLoadUseCase,
                                         OrganizeDeletionUseCase {
 
-    private final OrganizePort organizePort;
-    private final CurrentUserPort currentUserPort;
+    private final OrganizePersistencePort organizePort;
+    private final CurrentUserPort currentUserPersistencePort;
     private final OrganizeValidator organizeValidator;
     private final OrganizeApplicationMapper organizeApplicationMapper;
 
@@ -62,7 +62,7 @@ public class OrganizeService implements OrganizeCreationUseCase,
     @Override
     @Transactional(readOnly = true)
     public List<OrganizeCreationResult> getAccessibleOrganizes() {
-        return currentUserPort.currentUserId()
+        return currentUserPersistencePort.currentUserId()
                 .map(id -> {
                     UserId userId = UserId.of(id);
                     return organizePort.findAll().stream()

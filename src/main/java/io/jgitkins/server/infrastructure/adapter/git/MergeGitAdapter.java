@@ -25,12 +25,12 @@ import java.util.Objects;
 
 @Component
 @Slf4j
-public class MergeJGitAdapter implements MergeGitPort {
+public class MergeGitAdapter implements MergeGitPort {
 
     private final String rootPath;
 
-    public MergeJGitAdapter(@Value("${jgitkins.server.runtime.volume:${user.home}}")
-                            String runtimeVolume) {
+    public MergeGitAdapter(@Value("${jgitkins.server.runtime.volume:${user.home}}")
+                           String runtimeVolume) {
         this.rootPath = runtimeVolume;
     }
 

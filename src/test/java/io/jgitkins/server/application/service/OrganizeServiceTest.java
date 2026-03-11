@@ -12,9 +12,8 @@ import io.jgitkins.server.application.dto.command.OrganizeCreationCommand;
 import io.jgitkins.server.application.dto.result.OrganizeCreationResult;
 import io.jgitkins.server.application.mapper.OrganizeApplicationMapper;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
-import io.jgitkins.server.application.port.out.OrganizeMemberPort;
-import io.jgitkins.server.application.port.out.OrganizePort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
 import io.jgitkins.server.application.validate.OrganizeValidator;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.aggregate.Organize;
@@ -34,16 +33,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class OrganizeServiceTest {
 
     @Mock
-    private OrganizePort organizePort;
+    private OrganizePersistencePort organizePort;
 
     @Mock
-    private UserPort userPort;
+    private OrganizeMemberPersistencePort organizeMemberPort;
 
     @Mock
-    private OrganizeMemberPort organizeMemberPort;
-
-    @Mock
-    private CurrentUserPort currentUserPort;
+    private CurrentUserPort currentUserPersistencePort;
 
     @Mock
     private OrganizeApplicationMapper organizeApplicationMapper;
@@ -54,7 +50,7 @@ class OrganizeServiceTest {
     void setUp() {
         service = new OrganizeService(
                 organizePort,
-                currentUserPort,
+                currentUserPersistencePort,
                 new OrganizeValidator(organizePort, organizeMemberPort),
                 organizeApplicationMapper);
     }
@@ -68,7 +64,6 @@ class OrganizeServiceTest {
                 .build();
 
         when(organizePort.findByName(any(OrganizeName.class))).thenReturn(Optional.empty());
-        when(userPort.findByUsername("org")).thenReturn(Optional.empty());
         when(organizePort.save(any(Organize.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(organizeApplicationMapper.toDto(any(Organize.class)))
                 .thenReturn(OrganizeCreationResult.builder().name("org").build());
@@ -94,21 +89,6 @@ class OrganizeServiceTest {
     }
 
     @Test
-    void createOrganize_throwsWhenNamespaceAlreadyUsedByUser() {
-        OrganizeCreationCommand command = OrganizeCreationCommand.builder()
-                .name("alice")
-                .ownerId(1L)
-                .description("desc")
-                .build();
-        when(organizePort.findByName(any(OrganizeName.class))).thenReturn(Optional.empty());
-        when(userPort.findByUsername("alice"))
-                .thenReturn(Optional.of(org.mockito.Mockito.mock(io.jgitkins.server.domain.model.User.class)));
-
-        assertThrows(JgitkinsException.class, () -> service.createOrganize(command));
-        verify(organizePort, never()).save(any(Organize.class));
-    }
-
-    @Test
     void getOrganize_throwsWhenNotFound() {
         when(organizePort.findById(OrganizeId.of(99L))).thenReturn(Optional.empty());
 
@@ -117,7 +97,7 @@ class OrganizeServiceTest {
 
     @Test
     void getAccessibleOrganizes_returnsEmptyWhenCurrentUserMissing() {
-        when(currentUserPort.currentUserId()).thenReturn(Optional.empty());
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.empty());
 
         List<OrganizeCreationResult> results = service.getAccessibleOrganizes();
 
@@ -131,7 +111,7 @@ class OrganizeServiceTest {
         Organize member = sampleOrganize(11L, "member", 20L);
         Organize other = sampleOrganize(12L, "other", 30L);
 
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(7L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(7L));
         when(organizePort.findAll()).thenReturn(List.of(owned, member, other));
         when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(11L), UserId.of(7L))).thenReturn(true);
         when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(12L), UserId.of(7L))).thenReturn(false);

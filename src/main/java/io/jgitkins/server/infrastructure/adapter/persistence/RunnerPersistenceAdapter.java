@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.RunnerPort;
+import io.jgitkins.server.application.port.out.RunnerPersistencePort;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.vo.RunnerScopeType;
 import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-public class RunnerMybatisAdapter implements RunnerPort {
+public class RunnerPersistenceAdapter implements RunnerPersistencePort {
 
     private final RunnerEntityMbgMapper runnerEntityMbgMapper;
     private final RunnerAssignmentEntityMbgMapper runnerAssignmentEntityMbgMapper;

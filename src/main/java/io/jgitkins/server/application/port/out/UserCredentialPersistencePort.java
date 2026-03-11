@@ -5,7 +5,7 @@ import io.jgitkins.server.domain.model.UserCredential;
 import java.util.List;
 import java.util.Optional;
 
-public interface UserCredentialPort {
+public interface UserCredentialPersistencePort {
     UserCredential save(UserCredential credential);
 
     Optional<UserCredential> findByUserIdAndProvider(Long userId, String provider);

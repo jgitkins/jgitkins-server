@@ -6,7 +6,7 @@ import io.jgitkins.server.domain.model.vo.*;
 import java.util.List;
 import java.util.Optional;
 
-public interface RepositoryPort {
+public interface RepositoryPersistencePort {
 
     Repository save(Repository repository);
 

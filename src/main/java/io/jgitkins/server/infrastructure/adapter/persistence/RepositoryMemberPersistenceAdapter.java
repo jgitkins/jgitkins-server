@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.RepositoryMemberPort;
+import io.jgitkins.server.application.port.out.RepositoryMemberPersistencePort;
 import io.jgitkins.server.domain.model.RepositoryMember;
 import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.UserId;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class RepositoryMemberAdapter implements RepositoryMemberPort {
+public class RepositoryMemberPersistenceAdapter implements RepositoryMemberPersistencePort {
 
     private final RepositoryMemberEntityMbgMapper repositoryMemberEntityMbgMapper;
     private final RepositoryMemberDomainMapper repositoryMemberDomainMapper;

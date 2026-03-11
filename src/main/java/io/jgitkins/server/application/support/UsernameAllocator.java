@@ -1,7 +1,7 @@
 package io.jgitkins.server.application.support;
 
-import io.jgitkins.server.application.port.out.OrganizePort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
 import java.util.Optional;
 import java.util.UUID;
@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UsernameAllocator {
 
-	private final UserPort userPort;
-	private final OrganizePort organizePort;
+	private final UserPersistencePort userPort;
+	private final OrganizePersistencePort organizePort;
 
 	public String deriveBaseUsername(String email, String providerName, String providerSub) {
 		// TODO: email 등 문자열 기본 검증 책임은 호출자(Controller 또는 상위 Service)로 이전

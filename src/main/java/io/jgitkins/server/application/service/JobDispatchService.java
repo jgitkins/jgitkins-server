@@ -4,8 +4,8 @@ import io.jgitkins.server.application.dto.JobDispatchMessage;
 import io.jgitkins.server.application.dto.PendingJob;
 import io.jgitkins.server.application.dto.RunnerAssignmentCandidate;
 import io.jgitkins.server.application.port.in.JobDispatchUseCase;
-import io.jgitkins.server.application.port.out.JobPort;
-import io.jgitkins.server.application.port.out.RunnerPort;
+import io.jgitkins.server.application.port.out.JobPersistencePort;
+import io.jgitkins.server.application.port.out.RunnerPersistencePort;
 import io.jgitkins.server.application.support.CloneUrlBuilder;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.aggregate.Runner;
@@ -25,8 +25,8 @@ import java.util.Optional;
 @Slf4j
 public class JobDispatchService implements JobDispatchUseCase {
 
-    private final JobPort jobPort;
-    private final RunnerPort runnerPort;
+    private final JobPersistencePort jobPort;
+    private final RunnerPersistencePort runnerPort;
     private final CloneUrlBuilder cloneUrlBuilder;
 
     @Override

@@ -3,8 +3,8 @@ package io.jgitkins.server.application.service;
 import io.jgitkins.server.application.dto.JobResultStatus;
 import io.jgitkins.server.application.dto.command.JobResultReportCommand;
 import io.jgitkins.server.application.port.in.JobResultReportUseCase;
-import io.jgitkins.server.application.port.out.JobPort;
-import io.jgitkins.server.application.port.out.RunnerPort;
+import io.jgitkins.server.application.port.out.JobPersistencePort;
+import io.jgitkins.server.application.port.out.RunnerPersistencePort;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.JobHistory;
@@ -21,8 +21,8 @@ import java.util.Optional;
 @Slf4j
 public class JobResultReportService implements JobResultReportUseCase {
 
-    private final JobPort jobPort;
-    private final RunnerPort runnerPort;
+    private final JobPersistencePort jobPort;
+    private final RunnerPersistencePort runnerPort;
 
     @Override
     @Transactional

@@ -18,7 +18,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class RepositoryJGitAdapter implements RepositoryGitPort {
+public class RepositoryGitAdapter implements RepositoryGitPort {
 
     private final RepositoryResolver repositoryResolver;
 

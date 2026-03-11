@@ -1,9 +1,11 @@
 package io.jgitkins.server.application.validate;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.port.in.GitRepositoryAccessUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.application.support.RepositoryNamespaceResolver;
@@ -19,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class RepositoryAccessValidatorTest {
 
     @Mock
-    private CurrentUserPort currentUserPort;
+    private CurrentUserPort currentUserPersistencePort;
 
     @Mock
     private GitRepositoryAccessUseCase gitRepositoryAccessUseCase;
@@ -31,33 +33,33 @@ class RepositoryAccessValidatorTest {
 
     @BeforeEach
     void setUp() {
-        validator = new RepositoryAccessValidator(currentUserPort, null, gitRepositoryAccessUseCase);
+        validator = new RepositoryAccessValidator(currentUserPersistencePort, null, gitRepositoryAccessUseCase);
     }
 
     @Test
     void validateCanCommit_throwsUnauthorized_whenCurrentUserMissing() {
-        when(currentUserPort.currentUserId()).thenReturn(Optional.empty());
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.empty());
 
         JgitkinsException ex = assertThrows(JgitkinsException.class,
                 () -> validator.validateCanCommit("team", "repo"));
 
-        org.junit.jupiter.api.Assertions.assertEquals("UNAUTHORIZED", ex.getErrorCode().getCode());
+        assertEquals(ApplicationErrorCode.UNAUTHENTICATED, ex.getErrorCode());
     }
 
     @Test
     void validateCanCommit_throwsForbidden_whenWritePermissionDenied() {
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(7L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(7L));
         when(gitRepositoryAccessUseCase.canWrite(null, "team", "repo", 7L)).thenReturn(false);
 
         JgitkinsException ex = assertThrows(JgitkinsException.class,
                 () -> validator.validateCanCommit("team", "repo"));
 
-        org.junit.jupiter.api.Assertions.assertEquals("REPOSITORY_ACCESS_DENIED", ex.getErrorCode().getCode());
+        assertEquals(ApplicationErrorCode.ACCESS_DENIED, ex.getErrorCode());
     }
 
     @Test
     void validateCanCommit_allows_whenWritePermissionGranted() {
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(7L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(7L));
         when(gitRepositoryAccessUseCase.canWrite(null, "team", "repo", 7L)).thenReturn(true);
 
         assertDoesNotThrow(() -> validator.validateCanCommit("team", "repo"));

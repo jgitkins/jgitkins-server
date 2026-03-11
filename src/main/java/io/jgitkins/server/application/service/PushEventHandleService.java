@@ -5,8 +5,8 @@ import io.jgitkins.server.application.dto.command.JobCreateCommand;
 import io.jgitkins.server.application.dto.command.PushEventCommand;
 import io.jgitkins.server.application.port.in.JobCreateUseCase;
 import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
-import io.jgitkins.server.application.port.out.BranchPort;
-import io.jgitkins.server.application.port.out.RepositoryPort;
+import io.jgitkins.server.application.port.out.BranchPersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
 import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
@@ -21,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class PushEventHandleService implements PushEventHandleUseCase {
 
     private final JobCreateUseCase jobCreateUseCase;
-    private final RepositoryPort repositoryPort;
-    private final BranchPort branchPort;
+    private final RepositoryPersistencePort repositoryPort;
+    private final BranchPersistencePort branchPort;
 
     @Override
     @Transactional

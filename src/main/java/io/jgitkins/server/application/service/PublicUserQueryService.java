@@ -3,7 +3,7 @@ package io.jgitkins.server.application.service;
 import io.jgitkins.server.application.dto.result.UserSummary;
 import io.jgitkins.server.application.mapper.UserApplicationMapper;
 import io.jgitkins.server.application.port.in.PublicUserQueryUseCase;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PublicUserQueryService implements PublicUserQueryUseCase {
 
-    private final UserPort userPort;
+    private final UserPersistencePort userPort;
     private final UserApplicationMapper userApplicationMapper;
 
     @Override

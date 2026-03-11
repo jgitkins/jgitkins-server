@@ -3,7 +3,7 @@ package io.jgitkins.server.application.validate;
 import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
 import io.jgitkins.server.application.exception.ApplicationException;
-import io.jgitkins.server.application.port.out.BranchPort;
+import io.jgitkins.server.application.port.out.BranchPersistencePort;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BranchCreationValidator {
 
-    private final BranchPort branchPort;
+    private final BranchPersistencePort branchPort;
 
     /**
      * 브랜치 생성에 필요한 모든 비즈니스 규칙을 검증하고 소스 브랜치를 결정합니다.

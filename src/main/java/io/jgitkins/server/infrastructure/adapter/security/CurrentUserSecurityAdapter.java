@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CurrentUserAdapter implements CurrentUserPort {
+public class CurrentUserSecurityAdapter implements CurrentUserPort {
 
     // loading an authentication info about specific request
     @Override

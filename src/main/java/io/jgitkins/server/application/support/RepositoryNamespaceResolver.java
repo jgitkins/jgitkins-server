@@ -2,8 +2,8 @@ package io.jgitkins.server.application.support;
 
 import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.exception.ApplicationException;
-import io.jgitkins.server.application.port.out.OrganizePort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.OwnerId;
 import io.jgitkins.server.domain.model.vo.OwnerType;
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RepositoryNamespaceResolver {
 
-    private final OrganizePort organizePort;
-    private final UserPort userPort;
+    private final OrganizePersistencePort organizePort;
+    private final UserPersistencePort userPort;
 
     public NamespaceInfo resolve(String namespace) {
         if (namespace == null || namespace.isBlank()) {

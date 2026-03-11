@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.application.port.in.SignupUseCase;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.application.validate.ActivationValidator;
 import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.domain.model.User;
@@ -18,8 +18,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserProfileService implements SignupUseCase {
 
-    private final CurrentUserPort currentUserPort;
-    private final UserPort userPort;
+    private final CurrentUserPort currentUserPersistencePort;
+    private final UserPersistencePort userPort;
     private final ActivationValidator activationValidator;
 
     @Override
@@ -39,7 +39,7 @@ public class UserProfileService implements SignupUseCase {
     }
 
     private Long currentUserId() {
-        return currentUserPort.currentUserId()
+        return currentUserPersistencePort.currentUserId()
                 .orElseThrow(() -> new ApplicationException(PresentationErrorCode.UNAUTHORIZED, "Unauthenticated"));
     }
 

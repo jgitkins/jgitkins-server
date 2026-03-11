@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.result.RunnerDetailResult;
 import io.jgitkins.server.application.mapper.RunnerApplicationMapper;
-import io.jgitkins.server.application.port.out.RunnerPort;
+import io.jgitkins.server.application.port.out.RunnerPersistencePort;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.vo.RunnerScopeType;
 import io.jgitkins.server.domain.model.vo.RunnerStatus;
@@ -28,7 +28,7 @@ class RunnerReadServiceTest {
     private RunnerApplicationMapper runnerApplicationMapper;
 
     @Mock
-    private RunnerPort runnerPort;
+    private RunnerPersistencePort runnerPort;
 
     @InjectMocks
     private RunnerReadService service;

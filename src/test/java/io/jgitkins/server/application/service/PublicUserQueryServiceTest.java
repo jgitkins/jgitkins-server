@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.application.dto.result.UserSummary;
 import io.jgitkins.server.application.mapper.UserApplicationMapper;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserStatus;
 import java.time.LocalDateTime;
@@ -22,7 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PublicUserQueryServiceTest {
 
     @Mock
-    private UserPort userPort;
+    private UserPersistencePort userPort;
 
     private UserApplicationMapper userApplicationMapper = Mappers.getMapper(UserApplicationMapper.class);
 

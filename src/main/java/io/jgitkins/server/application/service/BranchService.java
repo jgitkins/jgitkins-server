@@ -9,8 +9,8 @@ import io.jgitkins.server.application.port.in.BranchCreateUseCase;
 import io.jgitkins.server.application.port.in.BranchDeleteUseCase;
 import io.jgitkins.server.application.port.in.BranchLoadUseCase;
 import io.jgitkins.server.application.port.out.BranchGitPort;
-import io.jgitkins.server.application.port.out.BranchPort;
-import io.jgitkins.server.application.port.out.RepositoryPort;
+import io.jgitkins.server.application.port.out.BranchPersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
 import io.jgitkins.server.application.support.RepositoryNamespaceResolver;
 import io.jgitkins.server.application.validate.BranchCreationValidator;
 import io.jgitkins.server.application.validate.RepositoryAccessValidator;
@@ -32,8 +32,8 @@ public class BranchService implements BranchLoadUseCase, BranchCreateUseCase, Br
     private final RepositoryAccessValidator repositoryAccessValidator;
 
     private final BranchGitPort branchGitPort;
-    private final BranchPort branchPort;
-    private final RepositoryPort repositoryPort;
+    private final BranchPersistencePort branchPort;
+    private final RepositoryPersistencePort repositoryPort;
 
     @Override
     public List<BranchSearchResult> getBranches(Long repositoryId) {

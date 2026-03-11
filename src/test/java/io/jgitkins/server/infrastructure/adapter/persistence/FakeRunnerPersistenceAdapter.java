@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.RunnerPort;
+import io.jgitkins.server.application.port.out.RunnerPersistencePort;
 import io.jgitkins.server.domain.aggregate.Runner;
 import org.springframework.context.annotation.Profile;
 
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Profile("test")
-public class FakeRunnerMybatisAdapter implements RunnerPort {
+public class FakeRunnerPersistenceAdapter implements RunnerPersistencePort {
 
     @Override
     public Runner save(Runner runner) {

@@ -2,7 +2,7 @@ package io.jgitkins.server.infrastructure.adapter.persistence;
 
 import io.jgitkins.server.application.dto.PendingJob;
 import io.jgitkins.server.application.dto.RunnerAssignmentCandidate;
-import io.jgitkins.server.application.port.out.JobPort;
+import io.jgitkins.server.application.port.out.JobPersistencePort;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.model.JobHistory;
 import io.jgitkins.server.domain.model.vo.JobStatus;
@@ -24,7 +24,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class JobMybatisAdapter implements JobPort {
+public class JobPersistenceAdapter implements JobPersistencePort {
 
     private final JobEntityMbgMapper jobEntityMbgMapper;
     private final JobHistoryEntityMbgMapper jobHistoryEntityMbgMapper;

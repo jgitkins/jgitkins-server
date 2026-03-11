@@ -2,8 +2,8 @@ package io.jgitkins.server.application.validate;
 
 import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.exception.ApplicationException;
-import io.jgitkins.server.application.port.out.OrganizeMemberPort;
-import io.jgitkins.server.application.port.out.OrganizePort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrganizeValidator {
 
-    private final OrganizePort organizePort;
-    private final OrganizeMemberPort organizeMemberPort;
+    private final OrganizePersistencePort organizePort;
+    private final OrganizeMemberPersistencePort organizeMemberPort;
 
     public void validateCreation(OrganizeName name) {
         if (organizePort.findByName(name).isPresent()) {

@@ -1,7 +1,7 @@
 package io.jgitkins.server.infrastructure.config.security.auth;
 
-import io.jgitkins.server.application.port.out.UserCredentialPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.UserCredentialPersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.model.UserCredential;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,8 @@ public class PatTokenAuthenticationService {
     private static final String PAT_PREFIX = "jkpat_";
     private static final String PROVIDER_PAT = "PAT";
 
-    private final UserPort userPort;
-    private final UserCredentialPort userCredentialPort;
+    private final UserPersistencePort userPort;
+    private final UserCredentialPersistencePort userCredentialPort;
     private final PasswordEncoder passwordEncoder;
 
     public Authentication authenticate(String username, String rawToken) {

@@ -3,7 +3,7 @@ package io.jgitkins.server.application.service;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.error.DomainErrorCode;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.application.validate.ActivationValidator;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.UserStatus;
@@ -28,10 +28,10 @@ import static org.mockito.Mockito.when;
 class UserProfileServiceTest {
 
     @Mock
-    private CurrentUserPort currentUserPort;
+    private CurrentUserPort currentUserPersistencePort;
 
     @Mock
-    private UserPort userPort;
+    private UserPersistencePort userPort;
 
     @Mock
     private ActivationValidator validator;
@@ -43,7 +43,7 @@ class UserProfileServiceTest {
     void activate_activatesAndSavesUser() {
         Username requested = Username.from("new_name");
         when(validator.validateUsername("new_name")).thenReturn(requested);
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(1L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(1L));
         User pending = User.createWithStatus("temp", "a@b.com", "User", null, UserStatus.PENDING).withId(1L);
         when(userPort.findById(1L)).thenReturn(Optional.of(pending));
         when(userPort.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -66,7 +66,7 @@ class UserProfileServiceTest {
     void activate_translatesAlreadyActivatedDomainException() {
         Username requested = Username.from("new_name");
         when(validator.validateUsername("new_name")).thenReturn(requested);
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(1L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(1L));
         User activeUser = User.createWithStatus("active_user", "a@b.com", "User", null, UserStatus.ACTIVE).withId(1L);
         when(userPort.findById(1L)).thenReturn(Optional.of(activeUser));
 

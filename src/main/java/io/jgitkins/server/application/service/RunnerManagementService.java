@@ -11,7 +11,7 @@ import io.jgitkins.server.application.support.RunnerRuntimeConfigProvider;
 import io.jgitkins.server.application.port.in.RunnerActivateUseCase;
 import io.jgitkins.server.application.port.in.RunnerDeleteUseCase;
 import io.jgitkins.server.application.port.in.RunnerRegisterUseCase;
-import io.jgitkins.server.application.port.out.RunnerPort;
+import io.jgitkins.server.application.port.out.RunnerPersistencePort;
 import io.jgitkins.server.domain.aggregate.Runner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class RunnerManagementService implements RunnerRegisterUseCase, RunnerDeleteUseCase, RunnerActivateUseCase {
 
-    private final RunnerPort runnerPort;
+    private final RunnerPersistencePort runnerPort;
     private final RunnerApplicationMapper runnerApplicationMapper;
     private final RunnerRuntimeConfigProvider runtimeConfigProvider;
 

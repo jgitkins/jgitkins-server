@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.OrganizeMemberPort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
 import io.jgitkins.server.domain.model.OrganizeMember;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.UserId;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class OrganizeMemberMybatisAdapter implements OrganizeMemberPort {
+public class OrganizeMemberPersistenceAdapter implements OrganizeMemberPersistencePort {
 
     private final OrganizeMemberEntityMbgMapper organizeMemberMapper;
 

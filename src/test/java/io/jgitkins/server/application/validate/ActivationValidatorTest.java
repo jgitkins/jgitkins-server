@@ -3,9 +3,9 @@ package io.jgitkins.server.application.validate;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.application.port.out.OrganizePort;
-import io.jgitkins.server.application.port.out.RepositoryPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.model.vo.OwnerId;
 import io.jgitkins.server.domain.model.vo.OwnerType;
 import org.junit.jupiter.api.Test;
@@ -18,13 +18,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ActivationValidatorTest {
 
     @Mock
-    private UserPort userPort;
+    private UserPersistencePort userPort;
 
     @Mock
-    private OrganizePort organizePort;
+    private OrganizePersistencePort organizePort;
 
     @Mock
-    private RepositoryPort repositoryPort;
+    private RepositoryPersistencePort repositoryPort;
 
     @InjectMocks
     private ActivationValidator validator;

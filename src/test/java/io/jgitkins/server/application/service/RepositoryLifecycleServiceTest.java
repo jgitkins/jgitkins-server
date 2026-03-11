@@ -12,11 +12,11 @@ import io.jgitkins.server.application.dto.command.RepositoryCreateCommand;
 import io.jgitkins.server.application.dto.result.RepositoryResult;
 import io.jgitkins.server.application.mapper.RepositoryApplicationMapper;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
-import io.jgitkins.server.application.port.out.OrganizeMemberPort;
-import io.jgitkins.server.application.port.out.OrganizePort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
 import io.jgitkins.server.application.port.out.RepositoryGitPort;
-import io.jgitkins.server.application.port.out.RepositoryPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.application.support.RepositoryLookupService;
 import io.jgitkins.server.application.support.RepositoryNamespaceResolver;
 import io.jgitkins.server.application.validate.RepositoryValidator;
@@ -49,21 +49,21 @@ class RepositoryLifecycleServiceTest {
     @Mock
     private RepositoryGitPort repositoryGitPort;
     @Mock
-    private RepositoryPort repositoryPort;
+    private RepositoryPersistencePort repositoryPort;
     @Mock
-    private OrganizeMemberPort organizeMemberPort;
+    private OrganizeMemberPersistencePort organizeMemberPort;
     @Mock
-    private OrganizePort organizePort;
+    private OrganizePersistencePort organizePort;
     @Mock
-    private CurrentUserPort currentUserPort;
+    private CurrentUserPort currentUserPersistencePort;
     @Mock
-    private UserPort userPort;
+    private UserPersistencePort userPort;
 
     private RepositoryLifecycleService service;
 
     @BeforeEach
     void setUp() {
-        RepositoryValidator validator = new RepositoryValidator(repositoryPort, organizeMemberPort, currentUserPort);
+        RepositoryValidator validator = new RepositoryValidator(repositoryPort, organizeMemberPort, currentUserPersistencePort);
         RepositoryLookupService lookupService = new RepositoryLookupService(repositoryPort, userPort, organizePort, organizeMemberPort);
         service = new RepositoryLifecycleService(
                 repositoryNamespaceResolver,
@@ -71,7 +71,7 @@ class RepositoryLifecycleServiceTest {
                 domainEventPublisher,
                 repositoryGitPort,
                 repositoryPort,
-                currentUserPort,
+                currentUserPersistencePort,
                 userPort,
                 validator,
                 lookupService
@@ -112,7 +112,7 @@ class RepositoryLifecycleServiceTest {
                 .mainBranch("main")
                 .build();
 
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(7L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(7L));
         when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(10L), UserId.of(7L))).thenReturn(false);
 
         assertThrows(JgitkinsException.class, () -> service.create(command));
@@ -131,7 +131,7 @@ class RepositoryLifecycleServiceTest {
         Repository saved = org.mockito.Mockito.mock(Repository.class);
         RepositoryResult result = RepositoryResult.builder().id(100L).name("sample-repo").build();
 
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(7L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(7L));
         when(repositoryPort.findByOwnerAndName(OwnerType.USER, OwnerId.of(7L), RepositoryName.from("sample-repo")))
                 .thenReturn(Optional.empty());
         when(repositoryNamespaceResolver.resolve(OwnerType.USER, OwnerId.of(7L))).thenReturn("alice");
@@ -168,7 +168,7 @@ class RepositoryLifecycleServiceTest {
         when(notVisibleRepo.getOwnerType()).thenReturn(OwnerType.USER);
         when(notVisibleRepo.getOwnerId()).thenReturn(OwnerId.of(99L));
 
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(7L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(7L));
         when(repositoryPort.findAll()).thenReturn(List.of(publicRepo, myPrivateRepo, orgPrivateRepo, notVisibleRepo));
         when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(10L), UserId.of(7L))).thenReturn(true);
 
@@ -188,7 +188,7 @@ class RepositoryLifecycleServiceTest {
         when(repositoryPort.findById(RepositoryId.of(1L))).thenReturn(Optional.of(repository));
         when(repository.getOwnerType()).thenReturn(OwnerType.USER);
         when(repository.getOwnerId()).thenReturn(OwnerId.of(10L));
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(20L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(20L));
 
         assertThrows(JgitkinsException.class, () -> service.deleteRepository(1L));
 
@@ -216,7 +216,7 @@ class RepositoryLifecycleServiceTest {
         Repository privateRepo = org.mockito.Mockito.mock(Repository.class);
 
         when(userPort.findUserIdByUsername("alice")).thenReturn(Optional.of(7L));
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(9L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(9L));
         when(repositoryPort.findAllByOwner(OwnerType.USER, OwnerId.of(7L))).thenReturn(List.of(publicRepo, privateRepo));
         when(publicRepo.getVisibility()).thenReturn(RepositoryVisibility.PUBLIC);
         when(privateRepo.getVisibility()).thenReturn(RepositoryVisibility.PRIVATE);

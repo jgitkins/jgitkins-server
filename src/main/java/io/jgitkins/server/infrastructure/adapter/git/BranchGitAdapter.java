@@ -20,7 +20,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class BranchJGitAdapter implements BranchGitPort {
+public class BranchGitAdapter implements BranchGitPort {
 
     private final RepositoryResolver repositoryResolver;
 

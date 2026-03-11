@@ -2,9 +2,9 @@ package io.jgitkins.server.application.validate;
 
 import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.exception.ApplicationException;
-import io.jgitkins.server.application.port.out.OrganizePort;
-import io.jgitkins.server.application.port.out.RepositoryPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
 import io.jgitkins.server.domain.model.vo.OwnerId;
 import io.jgitkins.server.domain.model.vo.OwnerType;
@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ActivationValidator {
 
-    private final UserPort userPort;
-    private final OrganizePort organizePort;
-    private final RepositoryPort repositoryPort;
+    private final UserPersistencePort userPort;
+    private final OrganizePersistencePort organizePort;
+    private final RepositoryPersistencePort repositoryPort;
 
     public Username validateUsername(String username) {
         return Username.from(username);

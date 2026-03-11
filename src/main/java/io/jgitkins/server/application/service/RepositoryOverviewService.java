@@ -27,7 +27,7 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 	private final RepositoryLoadUseCase repositoryLoadUseCase;
 	private final BranchLoadUseCase branchLoadUseCase;
 	private final FileTreeLoadUseCase fileTreeLoadUseCase;
-	private final CurrentUserPort currentUserPort;
+	private final CurrentUserPort currentUserPersistencePort;
 	private final GitRepositoryAccessUseCase gitRepositoryAccessUseCase;
 
 	@Override
@@ -43,7 +43,7 @@ public class RepositoryOverviewService implements RepositoryOverviewUseCase {
 
 		List<FileEntry> tree = fileTreeLoadUseCase.getTree(key.namespace(), key.repoName(), selectedBranch, ROOT_PATH);
 
-		Long userId = currentUserPort.currentUserId().orElse(null);
+		Long userId = currentUserPersistencePort.currentUserId().orElse(null);
 
 		GitRepositoryAccessUseCase.RepositoryPermission permission = gitRepositoryAccessUseCase.resolvePermission(null,
 				key != null ? key.namespace() : null, key != null ? key.repoName() : null, userId);

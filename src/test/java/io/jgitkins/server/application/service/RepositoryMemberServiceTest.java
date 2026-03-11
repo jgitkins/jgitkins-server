@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.application.dto.command.RepositoryMemberAddCommand;
 import io.jgitkins.server.application.dto.result.RepositoryMemberSummary;
-import io.jgitkins.server.application.port.out.RepositoryMemberPort;
+import io.jgitkins.server.application.port.out.RepositoryMemberPersistencePort;
 import io.jgitkins.server.application.validate.RepositoryMemberValidator;
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.model.RepositoryMember;
@@ -29,7 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class RepositoryMemberServiceTest {
 
     @Mock
-    private RepositoryMemberPort repositoryMemberPort;
+    private RepositoryMemberPersistencePort repositoryMemberPort;
 
     private RepositoryMemberService service;
 

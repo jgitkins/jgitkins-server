@@ -738,11 +738,11 @@
             "id": 32,
             "title": "Port, Adapter 클래스 Renaming (Modernly, BestPracticeful)",
             "description": "Port 및 Adapter 클래스명을 현대적이고 모범적인 사례에 맞게 변경하여 아키텍처 가시성을 높임.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "2",
-            "updatedAt": "2026-03-11T17:33:00.000Z"
+            "updatedAt": "2026-03-11T12:07:48.569Z"
           },
           {
             "id": 33,
@@ -755,7 +755,7 @@
             "updatedAt": "2026-03-11T17:33:00.000Z"
           }
         ],
-        "updatedAt": "2026-03-11T08:42:41.312Z"
+        "updatedAt": "2026-03-11T12:07:48.569Z"
       },
       {
         "id": "3",
@@ -844,7 +844,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-11T08:42:41.313Z",
+      "lastModified": "2026-03-11T12:07:48.570Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [

@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.BranchPort;
+import io.jgitkins.server.application.port.out.BranchPersistencePort;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
 import io.jgitkins.server.infrastructure.exception.InfrastructureException;
@@ -16,7 +16,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class BranchMybatisAdapter implements BranchPort {
+public class BranchPersistenceAdapter implements BranchPersistencePort {
 
     private final BranchDomainMapper branchDomainMapper;
     private final BranchEntityMbgMapper branchEntityMbgMapper;

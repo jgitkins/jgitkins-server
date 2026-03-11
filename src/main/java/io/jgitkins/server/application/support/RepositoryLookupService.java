@@ -6,10 +6,10 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import io.jgitkins.server.application.common.RepositoryPathHelper;
-import io.jgitkins.server.application.port.out.OrganizeMemberPort;
-import io.jgitkins.server.application.port.out.OrganizePort;
-import io.jgitkins.server.application.port.out.RepositoryPort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
@@ -27,10 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RepositoryLookupService {
 
-    private final RepositoryPort repositoryPort;
-    private final UserPort userPort;
-    private final OrganizePort organizePort;
-    private final OrganizeMemberPort organizeMemberPort;
+    private final RepositoryPersistencePort repositoryPort;
+    private final UserPersistencePort userPort;
+    private final OrganizePersistencePort organizePort;
+    private final OrganizeMemberPersistencePort organizeMemberPort;
 
     public Optional<Repository> findByPath(String namespace, String repoName) {
 

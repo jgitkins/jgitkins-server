@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
-import io.jgitkins.server.application.port.out.BranchPort;
+import io.jgitkins.server.application.port.out.BranchPersistencePort;
 import io.jgitkins.server.domain.Branch;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.BranchName;
@@ -22,7 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class BranchCreationValidatorTest {
 
     @Mock
-    private BranchPort branchPort;
+    private BranchPersistencePort branchPort;
 
     @InjectMocks
     private BranchCreationValidator validator;

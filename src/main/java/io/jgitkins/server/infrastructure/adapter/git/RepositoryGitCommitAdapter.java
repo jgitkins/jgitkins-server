@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class RepositoryJGitCommitAdapter implements CommitGitPort {
+public class RepositoryGitCommitAdapter implements CommitGitPort {
 
     private final RepositoryResolver repositoryResolver;
 

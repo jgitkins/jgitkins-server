@@ -3,8 +3,8 @@ package io.jgitkins.server.application.service;
 import io.jgitkins.server.application.dto.command.BranchCreateCommand;
 import io.jgitkins.server.application.mapper.BranchApplicationMapper;
 import io.jgitkins.server.application.port.out.BranchGitPort;
-import io.jgitkins.server.application.port.out.BranchPort;
-import io.jgitkins.server.application.port.out.RepositoryPort;
+import io.jgitkins.server.application.port.out.BranchPersistencePort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
 import io.jgitkins.server.application.support.RepositoryNamespaceResolver;
 import io.jgitkins.server.application.validate.BranchCreationValidator;
 import io.jgitkins.server.application.validate.RepositoryAccessValidator;
@@ -47,10 +47,10 @@ class BranchServiceTest {
     private BranchGitPort branchGitPort;
 
     @Mock
-    private BranchPort branchPort;
+    private BranchPersistencePort branchPort;
 
     @Mock
-    private RepositoryPort repositoryPort;
+    private RepositoryPersistencePort repositoryPort;
 
     @InjectMocks
     private BranchService service;

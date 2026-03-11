@@ -6,8 +6,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import io.jgitkins.server.application.port.out.OrganizePort;
-import io.jgitkins.server.application.port.out.UserPort;
+import io.jgitkins.server.application.port.out.OrganizePersistencePort;
+import io.jgitkins.server.application.port.out.UserPersistencePort;
 import io.jgitkins.server.domain.model.User;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
 import java.util.Optional;
@@ -17,8 +17,8 @@ class UsernameAllocatorTest {
 
     @Test
     void allocateUniqueUsername_returnsBaseWhenAvailable() {
-        UserPort userPort = mock(UserPort.class);
-        OrganizePort organizePort = mock(OrganizePort.class);
+        UserPersistencePort userPort = mock(UserPersistencePort.class);
+        OrganizePersistencePort organizePort = mock(OrganizePersistencePort.class);
         when(userPort.findByUsername(anyString())).thenReturn(Optional.empty());
         when(organizePort.findByName(any(OrganizeName.class))).thenReturn(Optional.empty());
 
@@ -31,8 +31,8 @@ class UsernameAllocatorTest {
 
     @Test
     void allocateUniqueUsername_fallsBackToProviderSuffixWhenBaseTaken() {
-        UserPort userPort = mock(UserPort.class);
-        OrganizePort organizePort = mock(OrganizePort.class);
+        UserPersistencePort userPort = mock(UserPersistencePort.class);
+        OrganizePersistencePort organizePort = mock(OrganizePersistencePort.class);
         when(userPort.findByUsername(anyString())).thenAnswer(invocation -> {
             String value = invocation.getArgument(0);
             if ("base".equals(value)) {

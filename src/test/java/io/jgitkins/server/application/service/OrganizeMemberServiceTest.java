@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.application.dto.command.OrganizeMemberAddCommand;
 import io.jgitkins.server.application.dto.result.OrganizeMemberSummary;
-import io.jgitkins.server.application.port.out.OrganizeMemberPort;
+import io.jgitkins.server.application.port.out.OrganizeMemberPersistencePort;
 import io.jgitkins.server.application.validate.OrganizeMemberValidator;
 import io.jgitkins.server.domain.model.OrganizeMember;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
@@ -27,7 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class OrganizeMemberServiceTest {
 
     @Mock
-    private OrganizeMemberPort organizeMemberPort;
+    private OrganizeMemberPersistencePort organizeMemberPort;
 
     private OrganizeMemberService service;
 

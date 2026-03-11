@@ -1,6 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.port.out.RepositoryPort;
+import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
 import io.jgitkins.server.domain.aggregate.Repository;
 import io.jgitkins.server.domain.model.vo.OwnerId;
 import io.jgitkins.server.domain.model.vo.OwnerType;
@@ -26,7 +26,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class RepositoryMybatisAdapter implements RepositoryPort {
+public class RepositoryPersistenceAdapter implements RepositoryPersistencePort {
 
     private final OrganizeEntityMbgMapper organizeEntityMbgMapper;
     private final RepositoryEntityMbgMapper repositoryEntityMbgMapper;

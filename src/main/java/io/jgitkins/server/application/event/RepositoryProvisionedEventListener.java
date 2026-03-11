@@ -28,8 +28,8 @@ public class RepositoryProvisionedEventListener {
 
     private final CommitFileFactory commitFileFactory;
 
-    private final RepositoryPort repositoryPort;
-    private final BranchPort branchPort;
+    private final RepositoryPersistencePort repositoryPort;
+    private final BranchPersistencePort branchPort;
     private final RepositoryNamespaceResolver repositoryNamespaceResolver;
 
     private final CommitGitPort commitGitPort;

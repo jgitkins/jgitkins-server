@@ -7,7 +7,7 @@ import io.jgitkins.server.domain.model.JobHistory;
 
 import java.util.Optional;
 
-public interface JobPort {
+public interface JobPersistencePort {
     void create(Job job);
 
     Optional<PendingJob> fetchPendingJobFor(RunnerAssignmentCandidate candidate);

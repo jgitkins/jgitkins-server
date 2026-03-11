@@ -12,11 +12,11 @@ import static org.mockito.Mockito.when;
 import io.jgitkins.server.application.dto.command.UserCredentialIssueCommand;
 import io.jgitkins.server.application.dto.result.UserCredentialIssueResult;
 import io.jgitkins.server.application.dto.result.UserCredentialSummary;
+import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.mapper.UserCredentialApplicationMapper;
 import io.jgitkins.server.application.port.out.CurrentUserPort;
 import io.jgitkins.server.common.exception.JgitkinsException;
-import io.jgitkins.server.application.port.out.UserCredentialPort;
-import io.jgitkins.server.presentation.common.error.PresentationErrorCode;
+import io.jgitkins.server.application.port.out.UserCredentialPersistencePort;
 import io.jgitkins.server.domain.model.UserCredential;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,10 +34,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 class UserCredentialServiceTest {
 
     @Mock
-    private UserCredentialPort port;
+    private UserCredentialPersistencePort port;
 
     @Mock
-    private CurrentUserPort currentUserPort;
+    private CurrentUserPort currentUserPersistencePort;
 
     @Mock
     private PasswordEncoder encoder;
@@ -48,12 +48,12 @@ class UserCredentialServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new UserCredentialService(currentUserPort, port, encoder, userCredentialApplicationMapper);
+        service = new UserCredentialService(currentUserPersistencePort, port, encoder, userCredentialApplicationMapper);
     }
 
     @Test
     void issueToken_issuesPlainCredentialAndPersistsHashedCredential() {
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(1L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(1L));
         when(encoder.encode(any())).thenReturn("hashed");
         when(port.save(any(UserCredential.class))).thenAnswer(invocation -> {
             UserCredential credential = invocation.getArgument(0);
@@ -84,7 +84,7 @@ class UserCredentialServiceTest {
         LocalDateTime updatedAt = LocalDateTime.of(2024, 1, 2, 0, 0);
         UserCredential credential = UserCredential.rehydrate(7L, 2L, "PAT", "n", "d", "hash", createdAt, updatedAt);
 
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(2L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(2L));
         when(port.findAllByUserIdAndProvider(2L, "PAT")).thenReturn(List.of(credential));
         List<UserCredentialSummary> result = service.getCredentials();
 
@@ -100,7 +100,7 @@ class UserCredentialServiceTest {
 
     @Test
     void removeCredential_deletesByCredentialIdAndUserId() {
-        when(currentUserPort.currentUserId()).thenReturn(Optional.of(3L));
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.of(3L));
 
         service.removeCredential(9L);
 
@@ -109,10 +109,10 @@ class UserCredentialServiceTest {
 
     @Test
     void getCredentials_throwsUnauthorizedWhenCurrentUserMissing() {
-        when(currentUserPort.currentUserId()).thenReturn(Optional.empty());
+        when(currentUserPersistencePort.currentUserId()).thenReturn(Optional.empty());
 
         JgitkinsException exception = assertThrows(JgitkinsException.class, () -> service.getCredentials());
 
-        assertSame(PresentationErrorCode.UNAUTHORIZED, exception.getErrorCode());
+        assertSame(ApplicationErrorCode.UNAUTHENTICATED, exception.getErrorCode());
     }
 }
