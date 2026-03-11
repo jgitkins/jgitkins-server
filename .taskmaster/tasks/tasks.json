@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
+        "id": "1",
         "title": "신규기능",
         "description": "사용자 가치 전달을 위한 기능 개발/확장 작업",
         "status": "in-progress",
@@ -386,7 +386,7 @@
         "updatedAt": "2026-02-19T14:15:00+09:00"
       },
       {
-        "id": 2,
+        "id": "2",
         "title": "리팩토링",
         "description": "구조 개선, 품질 개선, 테스트 체계 강화 작업",
         "status": "in-progress",
@@ -708,17 +708,36 @@
             "title": "예외 처리 구조 분석 및 개선 계획 수립",
             "description": "staged 예외 클래스 변경을 기준으로 현재 예외 처리 구조를 분석하고, docs 문서 및 후속 리팩토링 실행 계획을 정리한다.",
             "details": "<info added on 2026-03-10T09:02:50.825Z>\n진행 메모(2026-03-10): staged 예외 클래스 변경을 기준으로 예외 처리 구조 분석 문서와 실행 계획 문서를 작성함. 참조 문서: docs/exception-handling-analysis.md, docs/exception-handling-plan.md. 후속 구현 범위는 계층별 예외 타입 정리, GlobalExceptionHandler 타입 기반 분리, 도메인 예외 재포장 제거, ErrorResponse 삭제 여부 반영.\n</info added on 2026-03-10T09:02:50.825Z>",
-            "status": "in-progress",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 2,
-            "updatedAt": "2026-03-10T09:02:29.811Z",
+            "updatedAt": "2026-03-11T08:16:16.628Z",
             "parentId": "undefined"
+          },
+          {
+            "id": 30,
+            "title": "MyBatis 어댑터 예외 처리 일관성 확보",
+            "description": "RunnerMybatisAdapter, JobMybatisAdapter 등에서 발생하는 DB 예외를 InfrastructureException으로 일관되게 래핑하여 인프라 계층의 책임을 일원화합니다.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "2",
+            "updatedAt": "2026-03-11T08:28:10.184Z"
+          },
+          {
+            "id": 31,
+            "title": "JgitkinsException 추상 클래스 전환 및 구조 정돈",
+            "description": "JgitkinsException을 abstract로 변경하여 직접 인스턴스화를 방지하고, 이를 반영하여 GlobalExceptionHandler의 불필요한Fallback 로직을 제거합니다.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "2"
           }
         ],
-        "updatedAt": "2026-03-10T09:02:29.811Z"
+        "updatedAt": "2026-03-11T08:28:10.184Z"
       },
       {
-        "id": 3,
+        "id": "3",
         "title": "보안",
         "description": "인증/인가/자격증명/보안 회귀 강화 작업",
         "status": "in-progress",
@@ -778,7 +797,7 @@
         "updatedAt": "2026-02-17T00:00:00+09:00"
       },
       {
-        "id": 4,
+        "id": "4",
         "title": "운영/인프라",
         "description": "배포/모니터링/CI-CD/운영 안정성 개선 작업",
         "status": "pending",
@@ -790,7 +809,7 @@
         "updatedAt": "2026-02-16T23:43:00+09:00"
       },
       {
-        "id": 5,
+        "id": "5",
         "title": "버그/핫픽스",
         "description": "사용자 영향 버그 및 긴급 수정 작업",
         "status": "pending",
@@ -804,14 +823,12 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-10T09:02:29.814Z",
+      "lastModified": "2026-03-11T08:28:10.184Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [
         "master"
-      ],
-      "created": "2026-03-10T09:02:45.056Z",
-      "description": "Tasks for master context"
+      ]
     }
   }
 }

@@ -2,6 +2,8 @@ package io.jgitkins.server.infrastructure.adapter.persistence;
 
 import io.jgitkins.server.application.port.out.UserPort;
 import io.jgitkins.server.domain.model.User;
+import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
+import io.jgitkins.server.infrastructure.exception.InfrastructureException;
 import io.jgitkins.server.infrastructure.mapper.UserDomainMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.UserEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.UserEntity;
@@ -19,76 +21,105 @@ public class UserMybatisAdapter implements UserPort {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        if (email == null || email.isBlank()) {
-            return Optional.empty();
+        try {
+            if (email == null || email.isBlank()) {
+                return Optional.empty();
+            }
+            UserEntityCondition condition = new UserEntityCondition();
+            condition.createCriteria().andEmailEqualTo(email.trim());
+            condition.setOrderByClause("id desc limit 1");
+            return userEntityMbgMapper.selectByCondition(condition)
+                    .stream()
+                    .findFirst()
+                    .map(userDomainMapper::toDomain);
+        } catch (Exception e) {
+            throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+                    "Database operation failed during find user by email", e);
         }
-        UserEntityCondition condition = new UserEntityCondition();
-        condition.createCriteria().andEmailEqualTo(email.trim());
-        condition.setOrderByClause("id desc limit 1");
-        return userEntityMbgMapper.selectByCondition(condition)
-                .stream()
-                .findFirst()
-                .map(userDomainMapper::toDomain);
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
-        if (username == null || username.isBlank()) {
-            return Optional.empty();
+        try {
+            if (username == null || username.isBlank()) {
+                return Optional.empty();
+            }
+            UserEntityCondition condition = new UserEntityCondition();
+            condition.createCriteria().andUsernameEqualTo(username.trim());
+            condition.setOrderByClause("id desc limit 1");
+            return userEntityMbgMapper.selectByCondition(condition)
+                    .stream()
+                    .findFirst()
+                    .map(userDomainMapper::toDomain);
+        } catch (Exception e) {
+            throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+                    "Database operation failed during find user by username", e);
         }
-        UserEntityCondition condition = new UserEntityCondition();
-        condition.createCriteria().andUsernameEqualTo(username.trim());
-        condition.setOrderByClause("id desc limit 1");
-        return userEntityMbgMapper.selectByCondition(condition)
-                .stream()
-                .findFirst()
-                .map(userDomainMapper::toDomain);
     }
 
     @Override
     public Optional<User> findById(Long id) {
-        if (id == null) {
-            return Optional.empty();
+        try {
+            if (id == null) {
+                return Optional.empty();
+            }
+            UserEntity entity = userEntityMbgMapper.selectByPrimaryKey(id);
+            return Optional.ofNullable(userDomainMapper.toDomain(entity));
+        } catch (Exception e) {
+            throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+                    "Database operation failed during find user by id", e);
         }
-        UserEntity entity = userEntityMbgMapper.selectByPrimaryKey(id);
-        return Optional.ofNullable(userDomainMapper.toDomain(entity));
     }
 
     @Override
     public User save(User user) {
-        UserEntity entity = userDomainMapper.toEntity(user);
-        if (user.getId() == null) {
-            userEntityMbgMapper.insertSelective(entity);
-            return userDomainMapper.toDomain(entity);
+        try {
+            UserEntity entity = userDomainMapper.toEntity(user);
+            if (user.getId() == null) {
+                userEntityMbgMapper.insertSelective(entity);
+                return userDomainMapper.toDomain(entity);
+            }
+            userEntityMbgMapper.updateByPrimaryKeySelective(entity);
+            UserEntity updated = userEntityMbgMapper.selectByPrimaryKey(user.getId());
+            return userDomainMapper.toDomain(updated);
+        } catch (Exception e) {
+            throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+                    "Database operation failed during save user", e);
         }
-        userEntityMbgMapper.updateByPrimaryKeySelective(entity);
-        UserEntity updated = userEntityMbgMapper.selectByPrimaryKey(user.getId());
-        return userDomainMapper.toDomain(updated);
     }
 
     @Override
     public java.util.List<User> findAll() {
-        io.jgitkins.server.infrastructure.persistence.model.UserEntityCondition condition =
-                new io.jgitkins.server.infrastructure.persistence.model.UserEntityCondition();
-        condition.setOrderByClause("id desc");
-        return userEntityMbgMapper.selectByCondition(condition)
-                .stream()
-                .map(userDomainMapper::toDomain)
-                .toList();
+        try {
+            UserEntityCondition condition = new UserEntityCondition();
+            condition.setOrderByClause("id desc");
+            return userEntityMbgMapper.selectByCondition(condition)
+                    .stream()
+                    .map(userDomainMapper::toDomain)
+                    .toList();
+        } catch (Exception e) {
+            throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+                    "Database operation failed during find all users", e);
+        }
     }
 
     @Override
     public Optional<Long> findUserIdByUsername(String username) {
-        if (username == null || username.isBlank()) {
-            return Optional.empty();
+        try {
+            if (username == null || username.isBlank()) {
+                return Optional.empty();
+            }
+            UserEntityCondition condition = new UserEntityCondition();
+            condition.createCriteria().andUsernameEqualTo(username);
+            condition.setOrderByClause("id desc limit 1");
+            return userEntityMbgMapper.selectByCondition(condition)
+                    .stream()
+                    .findFirst()
+                    .map(entity -> entity.getId());
+        } catch (Exception e) {
+            throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+                    "Database operation failed during find user id by username", e);
         }
-        UserEntityCondition condition = new UserEntityCondition();
-        condition.createCriteria().andUsernameEqualTo(username);
-        condition.setOrderByClause("id desc limit 1");
-        return userEntityMbgMapper.selectByCondition(condition)
-                .stream()
-                .findFirst()
-                .map(entity -> entity.getId());
     }
 
 }

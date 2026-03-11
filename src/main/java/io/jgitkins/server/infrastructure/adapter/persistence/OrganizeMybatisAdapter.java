@@ -4,6 +4,8 @@ import io.jgitkins.server.application.port.out.OrganizePort;
 import io.jgitkins.server.domain.aggregate.Organize;
 import io.jgitkins.server.domain.model.vo.OrganizeId;
 import io.jgitkins.server.domain.model.vo.OrganizeName;
+import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
+import io.jgitkins.server.infrastructure.exception.InfrastructureException;
 import io.jgitkins.server.infrastructure.mapper.OrganizeDomainMapper;
 import io.jgitkins.server.infrastructure.persistence.mapper.OrganizeEntityMbgMapper;
 import io.jgitkins.server.infrastructure.persistence.model.OrganizeEntity;
@@ -24,44 +26,74 @@ public class OrganizeMybatisAdapter implements OrganizePort {
 
     @Override
     public Organize save(Organize organize) {
-        OrganizeEntity entity = organizeDomainMapper.toEntity(organize);
-        organizeEntityMbgMapper.insertSelective(entity);
-        return organizeDomainMapper.toDomain(entity);
+        try {
+            OrganizeEntity entity = organizeDomainMapper.toEntity(organize);
+            organizeEntityMbgMapper.insertSelective(entity);
+            return organizeDomainMapper.toDomain(entity);
+        } catch (Exception e) {
+            throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+                    "Database operation failed during save organize", e);
+        }
     }
 
     @Override
     public Organize update(Organize organize) {
-        OrganizeEntity entity = organizeDomainMapper.toEntity(organize);
-        organizeEntityMbgMapper.updateByPrimaryKeySelective(entity);
-        return organizeDomainMapper.toDomain(entity);
+        try {
+            OrganizeEntity entity = organizeDomainMapper.toEntity(organize);
+            organizeEntityMbgMapper.updateByPrimaryKeySelective(entity);
+            return organizeDomainMapper.toDomain(entity);
+        } catch (Exception e) {
+            throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+                    "Database operation failed during update organize", e);
+        }
     }
 
     @Override
     public Optional<Organize> findById(OrganizeId organizeId) {
-        if (organizeId == null) {
-            return Optional.empty();
+        try {
+            if (organizeId == null) {
+                return Optional.empty();
+            }
+            OrganizeEntity entity = organizeEntityMbgMapper.selectByPrimaryKey(organizeId.getValue());
+            return Optional.ofNullable(organizeDomainMapper.toDomain(entity));
+        } catch (Exception e) {
+            throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+                    "Database operation failed during find organize by id", e);
         }
-        OrganizeEntity entity = organizeEntityMbgMapper.selectByPrimaryKey(organizeId.getValue());
-        return Optional.ofNullable(organizeDomainMapper.toDomain(entity));
     }
 
     @Override
     public Optional<Organize> findByName(OrganizeName name) {
-        OrganizeEntityCondition condition = new OrganizeEntityCondition();
-        condition.createCriteria().andNameEqualTo(name.getValue());
-        List<OrganizeEntity> entities = organizeEntityMbgMapper.selectByCondition(condition);
-        return entities.stream().findFirst().map(organizeDomainMapper::toDomain);
+        try {
+            OrganizeEntityCondition condition = new OrganizeEntityCondition();
+            condition.createCriteria().andNameEqualTo(name.getValue());
+            List<OrganizeEntity> entities = organizeEntityMbgMapper.selectByCondition(condition);
+            return entities.stream().findFirst().map(organizeDomainMapper::toDomain);
+        } catch (Exception e) {
+            throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+                    "Database operation failed during find organize by name", e);
+        }
     }
 
     @Override
     public List<Organize> findAll() {
-        OrganizeEntityCondition condition = new OrganizeEntityCondition();
-        List<OrganizeEntity> entities = organizeEntityMbgMapper.selectByCondition(condition);
-        return entities.stream().map(organizeDomainMapper::toDomain).toList();
+        try {
+            OrganizeEntityCondition condition = new OrganizeEntityCondition();
+            List<OrganizeEntity> entities = organizeEntityMbgMapper.selectByCondition(condition);
+            return entities.stream().map(organizeDomainMapper::toDomain).toList();
+        } catch (Exception e) {
+            throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+                    "Database operation failed during find all organizes", e);
+        }
     }
 
     @Override
     public void delete(OrganizeId organizeId) {
-        organizeEntityMbgMapper.deleteByPrimaryKey(organizeId.getValue());
+        try {
+            organizeEntityMbgMapper.deleteByPrimaryKey(organizeId.getValue());
+        } catch (Exception e) {
+            throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
+                    "Database operation failed during delete organize", e);
+        }
     }
 }
