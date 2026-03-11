@@ -2,13 +2,13 @@ package io.jgitkins.server.presentation.advice;
 
 import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.common.error.ErrorCode;
-import io.jgitkins.server.common.exception.JgitkinsException;
 import io.jgitkins.server.domain.exception.DomainException;
 import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
 import io.jgitkins.server.infrastructure.exception.InfrastructureException;
 import io.jgitkins.server.presentation.advice.mapper.CompositeErrorHttpStatusMapper;
 import io.jgitkins.server.presentation.common.ApiResponse;
 import io.jgitkins.server.presentation.common.error.PresentationErrorCode;
+import io.jgitkins.server.presentation.exception.PresentationException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +46,15 @@ public class GlobalExceptionHandler {
         log.warn("Presentation exception errorCode=[{}], message=[{}]",
                 PresentationErrorCode.BAD_REQUEST.getCode(), message);
         return buildResponse(PresentationErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, message, SOURCE_PRESENTATION);
+    }
+
+    @ExceptionHandler(PresentationException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePresentationException(PresentationException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        HttpStatus status = statusMapper.map(errorCode);
+        log.warn("Presentation exception errorCode=[{}], status=[{}], message=[{}]",
+                errorCode.getCode(), status, ex.getMessage());
+        return buildResponse(errorCode, status, ex.getMessage(), SOURCE_PRESENTATION);
     }
 
     @ExceptionHandler(ApplicationException.class)

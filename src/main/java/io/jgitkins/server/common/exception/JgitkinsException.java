@@ -2,7 +2,7 @@ package io.jgitkins.server.common.exception;
 
 import io.jgitkins.server.common.error.ErrorCode;
 
-public class JgitkinsException extends RuntimeException {
+public abstract class JgitkinsException extends RuntimeException {
     private final ErrorCode errorCode;
 
     public JgitkinsException(ErrorCode errorCode) {

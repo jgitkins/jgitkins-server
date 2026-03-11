@@ -150,7 +150,8 @@ class RepositoryContentControllerTest {
                                 "hello.txt",
                                 MediaType.TEXT_PLAIN_VALUE,
                                 "hello".getBytes());
-                FileUploadInfo info = new FileUploadInfo("docs/hello.txt", "add", "alice", "alice@test.com");
+                FileUploadInfo info = FileUploadInfo.builder().filePath("docs/hello.txt")
+                                .commitMessage("add").authorName("alice").authorEmail("alice@test.com").build();
                 MockMultipartFile requestPart = new MockMultipartFile(
                                 "request",
                                 "",

@@ -728,13 +728,34 @@
             "id": 31,
             "title": "JgitkinsException 추상 클래스 전환 및 구조 정돈",
             "description": "JgitkinsException을 abstract로 변경하여 직접 인스턴스화를 방지하고, 이를 반영하여 GlobalExceptionHandler의 불필요한Fallback 로직을 제거합니다.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "2",
+            "updatedAt": "2026-03-11T08:42:41.312Z"
+          },
+          {
+            "id": 32,
+            "title": "Port, Adapter 클래스 Renaming (Modernly, BestPracticeful)",
+            "description": "Port 및 Adapter 클래스명을 현대적이고 모범적인 사례에 맞게 변경하여 아키텍처 가시성을 높임.",
             "status": "pending",
             "dependencies": [],
             "parentTaskId": 2,
-            "parentId": "2"
+            "parentId": "2",
+            "updatedAt": "2026-03-11T17:33:00.000Z"
+          },
+          {
+            "id": 33,
+            "title": "Port, Adapter 내 메서드명 Renaming (Modernly, BestPracticeful)",
+            "description": "Port 및 Adapter 내의 메서드명을 현대적이고 모범적인 사례에 맞게 변경하여 의도를 명확히 함.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "parentId": "2",
+            "updatedAt": "2026-03-11T17:33:00.000Z"
           }
         ],
-        "updatedAt": "2026-03-11T08:28:10.184Z"
+        "updatedAt": "2026-03-11T08:42:41.312Z"
       },
       {
         "id": "3",
@@ -823,7 +844,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-11T08:28:10.184Z",
+      "lastModified": "2026-03-11T08:42:41.313Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [

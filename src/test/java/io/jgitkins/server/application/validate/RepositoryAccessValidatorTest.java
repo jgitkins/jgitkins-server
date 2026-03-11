@@ -31,7 +31,7 @@ class RepositoryAccessValidatorTest {
 
     @BeforeEach
     void setUp() {
-        validator = new RepositoryAccessValidator(currentUserPort, gitRepositoryAccessUseCase, repositoryNamespaceResolver);
+        validator = new RepositoryAccessValidator(currentUserPort, null, gitRepositoryAccessUseCase);
     }
 
     @Test

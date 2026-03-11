@@ -1,22 +1,14 @@
 package io.jgitkins.server.presentation.advice;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.domain.error.DomainErrorCode;
 import io.jgitkins.server.domain.exception.DomainException;
 import io.jgitkins.server.infrastructure.common.error.InfrastructureErrorCode;
 import io.jgitkins.server.infrastructure.exception.InfrastructureException;
-import io.jgitkins.server.presentation.advice.mapper.ApplicationErrorHttpStatusMapper;
-import io.jgitkins.server.presentation.advice.mapper.CompositeErrorHttpStatusMapper;
-import io.jgitkins.server.presentation.advice.mapper.DomainErrorHttpStatusMapper;
-import io.jgitkins.server.presentation.advice.mapper.InfrastructureErrorHttpStatusMapper;
-import io.jgitkins.server.presentation.advice.mapper.PresentationErrorHttpStatusMapper;
+import io.jgitkins.server.presentation.advice.mapper.*;
 import io.jgitkins.server.presentation.common.error.PresentationErrorCode;
-import java.util.List;
+import io.jgitkins.server.presentation.exception.PresentationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +16,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class GlobalExceptionHandlerTest {
 
@@ -144,7 +142,7 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/test-errors/presentation-unauthorized")
         public ResponseEntity<Void> presentationUnauthorized() {
             // JgitkinsException fallback 경로 검증
-            throw new io.jgitkins.server.common.exception.JgitkinsException(PresentationErrorCode.UNAUTHORIZED,
+            throw new PresentationException(PresentationErrorCode.UNAUTHORIZED,
                     "token missing");
         }
     }

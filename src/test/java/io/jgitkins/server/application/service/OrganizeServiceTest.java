@@ -55,9 +55,8 @@ class OrganizeServiceTest {
         service = new OrganizeService(
                 organizePort,
                 currentUserPort,
-                new OrganizeValidator(organizePort, userPort, organizeMemberPort),
-                organizeApplicationMapper
-        );
+                new OrganizeValidator(organizePort, organizeMemberPort),
+                organizeApplicationMapper);
     }
 
     @Test
@@ -87,7 +86,8 @@ class OrganizeServiceTest {
                 .ownerId(1L)
                 .description("desc")
                 .build();
-        when(organizePort.findByName(any(OrganizeName.class))).thenReturn(Optional.of(sampleOrganize(1L, "duplicate", 1L)));
+        when(organizePort.findByName(any(OrganizeName.class)))
+                .thenReturn(Optional.of(sampleOrganize(1L, "duplicate", 1L)));
 
         assertThrows(JgitkinsException.class, () -> service.createOrganize(command));
         verify(organizePort, never()).save(any(Organize.class));
@@ -101,7 +101,8 @@ class OrganizeServiceTest {
                 .description("desc")
                 .build();
         when(organizePort.findByName(any(OrganizeName.class))).thenReturn(Optional.empty());
-        when(userPort.findByUsername("alice")).thenReturn(Optional.of(org.mockito.Mockito.mock(io.jgitkins.server.domain.model.User.class)));
+        when(userPort.findByUsername("alice"))
+                .thenReturn(Optional.of(org.mockito.Mockito.mock(io.jgitkins.server.domain.model.User.class)));
 
         assertThrows(JgitkinsException.class, () -> service.createOrganize(command));
         verify(organizePort, never()).save(any(Organize.class));
@@ -134,8 +135,10 @@ class OrganizeServiceTest {
         when(organizePort.findAll()).thenReturn(List.of(owned, member, other));
         when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(11L), UserId.of(7L))).thenReturn(true);
         when(organizeMemberPort.existsByOrganizeAndUser(OrganizeId.of(12L), UserId.of(7L))).thenReturn(false);
-        when(organizeApplicationMapper.toDto(owned)).thenReturn(OrganizeCreationResult.builder().id(10L).name("owned").build());
-        when(organizeApplicationMapper.toDto(member)).thenReturn(OrganizeCreationResult.builder().id(11L).name("member").build());
+        when(organizeApplicationMapper.toDto(owned))
+                .thenReturn(OrganizeCreationResult.builder().id(10L).name("owned").build());
+        when(organizeApplicationMapper.toDto(member))
+                .thenReturn(OrganizeCreationResult.builder().id(11L).name("member").build());
 
         List<OrganizeCreationResult> results = service.getAccessibleOrganizes();
 
@@ -171,7 +174,6 @@ class OrganizeServiceTest {
                 name + " description",
                 ownerId == null ? null : UserId.of(ownerId),
                 now,
-                now
-        );
+                now);
     }
 }
