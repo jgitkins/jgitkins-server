@@ -26,6 +26,9 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class RepositoryGitFileAdapter implements FileGitPort {
 
+    private static final String TYPE_TREE = "tree";
+    private static final String TYPE_BLOB = "blob";
+
     private final RepositoryResolver repositoryResolver;
 
     @Override
@@ -122,10 +125,12 @@ public class RepositoryGitFileAdapter implements FileGitPort {
         String name = fullPath.contains("/") ? fullPath.substring(fullPath.lastIndexOf("/") + 1) : fullPath;
         boolean isDirectory = mode == FileMode.TREE;
         long size = isDirectory ? 0 : repo.open(id).getSize();
+        String type = isDirectory ? TYPE_TREE : TYPE_BLOB;
 
         return FileEntry.builder()
                 .name(name)
                 .path(fullPath)
+                .type(type)
                 .isDirectory(isDirectory)
                 .size(size)
                 .build();

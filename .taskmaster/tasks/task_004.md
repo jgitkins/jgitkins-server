@@ -12,12 +12,8 @@
 
 **Details:**
 
-
 카테고리 기반 상위 Task
 
 **Test Strategy:**
 
-
 운영 시나리오 검증
-
-## Subtasks

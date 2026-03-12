@@ -78,6 +78,7 @@ class RepositoryContentControllerTest {
                         .param("dir", "src"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data[0].name").value("README.md"))
+                .andExpect(jsonPath("$.data[0].type").value("blob"))
                 .andExpect(jsonPath("$.error").doesNotExist());
 
         verify(fileTreeLoadUseCase).getTree("team", "repo", "main", "src");

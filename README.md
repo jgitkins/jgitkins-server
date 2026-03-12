@@ -64,7 +64,7 @@ _No tasks found._
 | 2 | 리팩토링 | in-progress | high | 31 |
 | 3 | 보안 | in-progress | high | 3 |
 | 4 | 운영/인프라 | pending | high | 0 |
-| 5 | 버그/핫픽스 | pending | high | 0 |
+| 5 | 버그/핫픽스 | in-progress | high | 1 |
 
 <!-- TASKS-TABLE:END -->
 

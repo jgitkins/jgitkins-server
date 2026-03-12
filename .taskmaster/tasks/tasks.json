@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": "1",
+        "id": 1,
         "title": "신규기능",
         "description": "사용자 가치 전달을 위한 기능 개발/확장 작업",
         "status": "in-progress",
@@ -386,7 +386,7 @@
         "updatedAt": "2026-02-19T14:15:00+09:00"
       },
       {
-        "id": "2",
+        "id": 2,
         "title": "리팩토링",
         "description": "구조 개선, 품질 개선, 테스트 체계 강화 작업",
         "status": "in-progress",
@@ -758,7 +758,7 @@
         "updatedAt": "2026-03-11T12:35:54.675Z"
       },
       {
-        "id": "3",
+        "id": 3,
         "title": "보안",
         "description": "인증/인가/자격증명/보안 회귀 강화 작업",
         "status": "in-progress",
@@ -818,7 +818,7 @@
         "updatedAt": "2026-02-17T00:00:00+09:00"
       },
       {
-        "id": "4",
+        "id": 4,
         "title": "운영/인프라",
         "description": "배포/모니터링/CI-CD/운영 안정성 개선 작업",
         "status": "pending",
@@ -830,26 +830,40 @@
         "updatedAt": "2026-02-16T23:43:00+09:00"
       },
       {
-        "id": "5",
+        "id": 5,
         "title": "버그/핫픽스",
         "description": "사용자 영향 버그 및 긴급 수정 작업",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [],
         "priority": "high",
         "details": "카테고리 기반 상위 Task",
         "testStrategy": "재현/수정/회귀 테스트",
-        "subtasks": [],
-        "updatedAt": "2026-02-16T23:43:00+09:00"
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "repository tree 디렉토리 오표시 핫픽스",
+            "description": "repositories/detail 화면에서 디렉토리가 파일 아이콘으로 노출되는 문제에 대해 원인 분석, server tree type 계약 복구, web 캐시 무효화, 회귀 테스트 및 배포 후 확인까지 하나의 핫픽스 단위로 처리한다.",
+            "details": "<info added on 2026-03-12T03:51:33.426Z>\nserver의 RepositoryGitFileAdapter.java에서 Git 객체(tree/blob)를 FileEntry.type으로 매핑하는 로직을 복구하여 디렉토리/파일 타입 오표시 문제를 해결했습니다. jgitkins-web의 tree 캐시 prefix는 v2로 유지하여 기존에 잘못된 타입으로 캐시된 데이터를 재사용하는 것을 방지했습니다. 이를 검증하기 위해 jgitkins-server/src/test/java/org/jgitkins/server/adapter/git/RepositoryGitFileAdapterTest.java에 bare repository 기반의 어댑터 테스트를 추가했으며, RepositoryContentController.java의 tree 응답 타입에 대한 검증 테스트를 jgitkins-server/src/test/java/org/jgitkins/server/controller/RepositoryContentControllerTest.java에 추가했습니다. 마지막으로 jgitkins-web/src/test/js/services/RepositoryDetailServiceTest.js 회귀 테스트를 통해 기존 기능에 대한 영향이 없음을 확인했습니다.\n</info added on 2026-03-12T03:51:33.426Z>",
+            "status": "in-progress",
+            "dependencies": [],
+            "parentTaskId": 5,
+            "updatedAt": "2026-03-12T03:50:18.837Z",
+            "parentId": "undefined"
+          }
+        ],
+        "updatedAt": "2026-03-12T03:50:18.837Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-11T12:35:54.675Z",
+      "lastModified": "2026-03-12T03:50:18.838Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [
         "master"
-      ]
+      ],
+      "created": "2026-03-12T03:51:22.012Z",
+      "description": "Tasks for master context"
     }
   }
 }
