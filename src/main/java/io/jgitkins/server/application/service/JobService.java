@@ -28,6 +28,7 @@ public class JobService implements JobCreateUseCase {
     @Transactional
     public void create(JobCreateCommand command) {
         // 1. Jenkinsfile 존재 여부 확인
+        // TODO: 별도의 JobValidator Support 클래스 생성하고 해당클래스 안에서 파일존재유무에 대한 검증을 진행방향 검토
         boolean hasJenkinsFile = fileGitPort.exists(command.getTaskCd(),
                                                                command.getRepoName(),
                                                                command.getCommitHash(),

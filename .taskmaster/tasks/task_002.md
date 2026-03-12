@@ -352,3 +352,10 @@ Port 및 Adapter 클래스명을 현대적이고 모범적인 사례에 맞게 �
 **Dependencies:** None  
 
 Port 및 Adapter 내의 메서드명을 현대적이고 모범적인 사례에 맞게 변경하여 의도를 명확히 함.
+
+### 2.34. PushEventHandleService 헥사고날 경계 재정렬 및 Job 도메인 이벤트 흐름 문서화
+
+**Status:** pending  
+**Dependencies:** None  
+
+PushEventHandleService, PushHook, PushEventCommand의 계층 경계를 재검토하고, JGit 의존 제거·입력 모델 재설계·후속 Job 트리거 분리를 위한 리팩토링 계획과 job 도메인 이벤트 흐름 문서를 작성한다.

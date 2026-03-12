@@ -22,6 +22,7 @@ public class PushHook implements PostReceiveHook {
 
     private final PushEventHandleUseCase pushEventHandleUseCase;
     private final PushEventRequestResolver pushEventRequestResolver;
+    private final PushEventCommandMapper pushEventCommandMapper;
 
     @Override
     public void onPostReceive(ReceivePack receivePack, Collection<ReceiveCommand> commands) {
@@ -30,12 +31,12 @@ public class PushHook implements PostReceiveHook {
 
         log.debug("push event: user=[{}] bare repo path=[{}]", requesterId, gitDirPath);
 
-        PushEventCommand pushEventCommand = PushEventCommand.from(gitDirPath, requesterId, commands);
-        if (pushEventCommand == null) {
+        java.util.Optional<PushEventCommand> pushEventCommand = pushEventCommandMapper.map(gitDirPath, requesterId, commands);
+        if (pushEventCommand.isEmpty()) {
             log.debug("push hook skipped: no applicable branch command found");
             return;
         }
 
-        pushEventHandleUseCase.handle(pushEventCommand);
+        pushEventHandleUseCase.handle(pushEventCommand.get());
     }
 }

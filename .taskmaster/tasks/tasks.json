@@ -753,9 +753,20 @@
             "parentTaskId": 2,
             "parentId": "2",
             "updatedAt": "2026-03-11T12:35:54.675Z"
+          },
+          {
+            "id": 34,
+            "title": "PushEventHandleService 헥사고날 경계 재정렬 및 Job 도메인 이벤트 흐름 문서화",
+            "description": "PushEventHandleService, PushHook, PushEventCommand의 계층 경계를 재검토하고, JGit 의존 제거·입력 모델 재설계·후속 Job 트리거 분리를 위한 리팩토링 계획과 job 도메인 이벤트 흐름 문서를 작성한다.",
+            "details": "<info added on 2026-03-12T05:05:57.786Z>\nPushEventCommand에서 org.eclipse.jgit.receive.ReceiveCommand 및 org.eclipse.jgit.lib.Constants 의존과 gitDirPath 기반 식별을 제거하고, `PushHookController`가 `PushHookRequest`를 처리하는 inbound adapter(`adapter.in.web.webhook`) 측에 `PushEventCommandMapper`를 도입하여 JGit 명령 해석과 저장소 식별 책임을 이동함. `PushEventHandleService`는 순수 command(repositoryId, taskCd, repoName) 기반 오케스트레이션만 담당하도록 정리함. `PushEventHandleServiceTest`와 `PushEventCommandMapperTest`로 회귀 검증을 추가하고 ArchitecturePackageConventionTest를 포함한 최소 회귀 세트를 통과함.\n</info added on 2026-03-12T05:05:57.786Z>",
+            "status": "in-progress",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "updatedAt": "2026-03-12T05:03:25.846Z",
+            "parentId": "undefined"
           }
         ],
-        "updatedAt": "2026-03-11T12:35:54.675Z"
+        "updatedAt": "2026-03-12T05:03:25.846Z"
       },
       {
         "id": 3,
@@ -856,13 +867,13 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-12T03:50:18.838Z",
+      "lastModified": "2026-03-12T05:03:25.849Z",
       "taskCount": 5,
       "completedCount": 0,
       "tags": [
         "master"
       ],
-      "created": "2026-03-12T03:51:22.012Z",
+      "created": "2026-03-12T05:05:45.393Z",
       "description": "Tasks for master context"
     }
   }

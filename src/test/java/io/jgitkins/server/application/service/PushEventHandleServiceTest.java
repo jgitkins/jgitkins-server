@@ -9,15 +9,6 @@ import io.jgitkins.server.application.dto.command.JobCreateCommand;
 import io.jgitkins.server.application.dto.command.PushEventCommand;
 import io.jgitkins.server.application.port.in.JobCreateUseCase;
 import io.jgitkins.server.application.port.out.BranchPersistencePort;
-import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
-import io.jgitkins.server.domain.aggregate.Repository;
-import io.jgitkins.server.domain.model.vo.OwnerId;
-import io.jgitkins.server.domain.model.vo.OwnerType;
-import io.jgitkins.server.domain.model.vo.RepositoryId;
-import io.jgitkins.server.domain.model.vo.RepositoryName;
-import io.jgitkins.server.domain.model.vo.RepositoryPath;
-import java.time.LocalDateTime;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -32,9 +23,6 @@ class PushEventHandleServiceTest {
     private JobCreateUseCase jobCreateUseCase;
 
     @Mock
-    private RepositoryPersistencePort repositoryPort;
-
-    @Mock
     private BranchPersistencePort branchPort;
 
     @InjectMocks
@@ -42,27 +30,10 @@ class PushEventHandleServiceTest {
 
     @Test
     void handle_createsJobWhenPushIsValid() {
-        String gitPath = "/path/to/repo.git";
-        Repository repository = Repository.rehydrate(
-                RepositoryId.of(9L),
-                OwnerType.USER,
-                OwnerId.of(1L),
-                RepositoryName.from("repo"),
-                RepositoryPath.from("user-repo"),
-                null,
-                null,
-                "desc",
-                null,
-                null,
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                null
-        );
-
-        when(repositoryPort.findByPath(gitPath)).thenReturn(Optional.of(repository));
-
         PushEventCommand command = PushEventCommand.builder()
-                .gitDirPath(gitPath)
+                .repositoryId(9L)
+                .taskCd("1")
+                .repoName("repo")
                 .branchName("main")
                 .branchCreated(true)
                 .commitHash("abc")

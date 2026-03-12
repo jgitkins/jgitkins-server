@@ -6,10 +6,7 @@ import io.jgitkins.server.application.dto.command.PushEventCommand;
 import io.jgitkins.server.application.port.in.JobCreateUseCase;
 import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
 import io.jgitkins.server.application.port.out.BranchPersistencePort;
-import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
-import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.domain.Branch;
-import io.jgitkins.server.domain.aggregate.Repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,25 +18,25 @@ import org.springframework.transaction.annotation.Transactional;
 public class PushEventHandleService implements PushEventHandleUseCase {
 
     private final JobCreateUseCase jobCreateUseCase;
-    private final RepositoryPersistencePort repositoryPort;
     private final BranchPersistencePort branchPort;
 
     @Override
     @Transactional
     public void handle(PushEventCommand command) {
-        // 1. 저장소 로딩 (Port 활용하여 경로 기반 조회)
-        Repository repository = repositoryPort.findByPath(command.getGitDirPath())
-                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
-                        "Repository not found for path: " + command.getGitDirPath()));
+        if (command.getRepositoryId() == null) {
+            throw new io.jgitkins.server.application.exception.ApplicationException(
+                    ApplicationErrorCode.REPOSITORY_NOT_FOUND,
+                    "Repository identifier is required for push event handling.");
+        }
 
-        log.debug("Handling push event for repository: [{}]", repository.getName().getValue());
+        log.debug("Handling push event for repositoryId=[{}], repoName=[{}]", command.getRepositoryId(), command.getRepoName());
 
         // 2. 브랜치 상태 영속화
-        updateBranchState(repository.getId().getValue(), command);
+        updateBranchState(command.getRepositoryId(), command);
 
         // 3. 후속 작업 트리거 (Job 생성 등)
-        if (shouldTriggerJob(command)) {
-            jobCreateUseCase.create(buildJobCommand(command, repository));
+        if (validateCanCreateJob(command)) {
+            jobCreateUseCase.create(buildJobCommand(command));
         }
     }
 
@@ -54,7 +51,7 @@ public class PushEventHandleService implements PushEventHandleUseCase {
         // UPDATE(Push)의 경우 현재 로직에서는 별도의 Branch 엔티티 갱신이 필요 없음 (커밋 해시는 Job에 기록됨)
     }
 
-    private boolean shouldTriggerJob(PushEventCommand command) {
+    private boolean validateCanCreateJob(PushEventCommand command) {
         if (command.isBranchDeleted()) {
             return false;
         }
@@ -71,11 +68,11 @@ public class PushEventHandleService implements PushEventHandleUseCase {
         return true;
     }
 
-    private JobCreateCommand buildJobCommand(PushEventCommand command, Repository repository) {
+    private JobCreateCommand buildJobCommand(PushEventCommand command) {
         return JobCreateCommand.builder()
-                .taskCd(repository.getOwnerId().toString()) // Namespace 역할
-                .repoName(repository.getName().getValue())
-                .repositoryId(repository.getId().getValue())
+                .taskCd(command.getTaskCd())
+                .repoName(command.getRepoName())
+                .repositoryId(command.getRepositoryId())
                 .branchName(command.getBranchName())
                 .commitHash(command.getCommitHash())
                 .triggeredBy(command.getTriggeredBy())
