@@ -1,4 +1,4 @@
-package io.jgitkins.server.application.dto;
+package io.jgitkins.server.application.dto.result;
 
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class JobDispatchMessage {
+public class JobDispatchResult {
     private final Long jobId;
     private final Long jobHistoryId;
     private final Long runnerId;

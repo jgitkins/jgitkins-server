@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PendingJob {
+public class DispatchableJob {
     private final Job job;
     private final Long organizeId;
     private final String repositoryClonePath;

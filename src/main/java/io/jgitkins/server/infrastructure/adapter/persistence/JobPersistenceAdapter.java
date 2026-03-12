@@ -1,7 +1,8 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
-import io.jgitkins.server.application.dto.PendingJob;
-import io.jgitkins.server.application.dto.RunnerAssignmentCandidate;
+import io.jgitkins.server.application.dto.DispatchableJob;
+import io.jgitkins.server.application.dto.JobDispatchScope;
+import io.jgitkins.server.application.dto.RunnerDispatchContext;
 import io.jgitkins.server.application.port.out.JobPersistencePort;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.model.JobHistory;
@@ -72,21 +73,18 @@ public class JobPersistenceAdapter implements JobPersistencePort {
         }
     }
 
+    // TODO: findNextDispatchableJob 변경필요
+    //  호출지에서 러너가 선전되었을 때, 해당 러너가 수행할 수 있는 Job을 꺼내는것이 목표
+    //  Job의 상태는 PENDING 이어야하며,
+    //  해당 Job에 대해 Runner 가 Accessable 해야함
+    //  추가로 Race 관리를 Valkey를 통해 진행할 수 있는지 확인 필요
     @Override
     @Transactional
-    public Optional<PendingJob> findPendingByCandidate(RunnerAssignmentCandidate candidate) {
+    public Optional<DispatchableJob> findNextDispatchableJob(RunnerDispatchContext context) {
         try {
-            // 1. Find jobs with PENDING status.
-            // Simplified: find jobs where the latest history is PENDING.
-            // In highly concurrent environment, this would need more complex SQL or
-            // locking.
-
-            // This is a simplified implementation.
             JobEntityCondition condition = new JobEntityCondition();
-            // Here we would filter by repositoryId or organizeId based on candidate scope.
-            // For now, let's just find any PENDING job.
 
-            List<JobEntity> jobs = jobEntityMbgMapper.selectByCondition(condition);
+            List<JobEntity> jobs = jobEntityMbgMapper.selectByCondition(condition); // 모든 Job?
             for (JobEntity jobEntity : jobs) {
                 JobHistoryEntityCondition historyCondition = new JobHistoryEntityCondition();
                 historyCondition.createCriteria().andJobIdEqualTo(jobEntity.getId());
@@ -94,22 +92,20 @@ public class JobPersistenceAdapter implements JobPersistencePort {
                 List<JobHistoryEntity> historyEntities = jobHistoryEntityMbgMapper.selectByCondition(historyCondition);
 
                 if (!historyEntities.isEmpty() && JobStatus.PENDING.name().equals(historyEntities.get(0).getStatus())) {
-                    // Check scope
                     RepositoryEntity repo = repositoryEntityMbgMapper.selectByPrimaryKey(jobEntity.getRepositoryId());
-                    if (repo != null) {
-                        // Logic to check if runner is assigned to this repo or its organization
-                        // ...
-
-                        List<JobHistory> histories = historyEntities.stream()
-                                .map(jobDomainMapper::toHistoryDomain)
-                                .toList();
-
-                        return Optional.of(PendingJob.builder()
-                                .job(jobDomainMapper.toDomain(jobEntity, histories))
-                                .organizeId("ORGANIZATION".equals(repo.getOwnerType()) ? repo.getOwnerId() : null)
-                                .repositoryClonePath(repo.getClonePath())
-                                .build());
+                    if (repo == null || !matchesScope(context, repo)) {
+                        continue;
                     }
+
+                    List<JobHistory> histories = historyEntities.stream()
+                            .map(jobDomainMapper::toHistoryDomain)
+                            .toList();
+
+                    return Optional.of(DispatchableJob.builder()
+                            .job(jobDomainMapper.toDomain(jobEntity, histories))
+                            .organizeId("ORGANIZATION".equals(repo.getOwnerType()) ? repo.getOwnerId() : null)
+                            .repositoryClonePath(repo.getClonePath())
+                            .build());
                 }
             }
 
@@ -149,5 +145,21 @@ public class JobPersistenceAdapter implements JobPersistencePort {
             throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
                     "Database operation failed during history persistence", e);
         }
+    }
+
+    private boolean matchesScope(RunnerDispatchContext context, RepositoryEntity repository) {
+        if (context.getDispatchScope() == JobDispatchScope.GLOBAL) {
+            return true;
+        }
+        if (context.getDispatchScope() == JobDispatchScope.ORGANIZE) {
+            return "ORGANIZATION".equals(repository.getOwnerType())
+                    && context.getScopeTargetId() != null
+                    && context.getScopeTargetId().equals(repository.getOwnerId());
+        }
+        if (context.getDispatchScope() == JobDispatchScope.REPOSITORY) {
+            return context.getScopeTargetId() != null
+                    && context.getScopeTargetId().equals(repository.getId());
+        }
+        return false;
     }
 }

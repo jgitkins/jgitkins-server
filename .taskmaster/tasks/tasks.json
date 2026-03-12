@@ -773,6 +773,15 @@
             "status": "pending",
             "dependencies": [],
             "parentTaskId": 2
+          },
+          {
+            "id": 36,
+            "title": "JobDispatchService 연관 코드 간결화 리팩토링",
+            "description": "JobDispatchService와 연관된 port/dto/grpc adapter/persistence query의 네이밍, 입력 모델 경계, 책임 배치를 재검토하고 간결한 오케스트레이션 구조로 정리하기 위한 사전 분석 및 리팩토링 작업",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2
           }
         ],
         "updatedAt": "2026-03-12T05:03:25.846Z"

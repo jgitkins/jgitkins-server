@@ -1,8 +1,10 @@
 package io.jgitkins.server.application.service;
 
-import io.jgitkins.server.application.dto.JobDispatchMessage;
-import io.jgitkins.server.application.dto.PendingJob;
-import io.jgitkins.server.application.dto.RunnerAssignmentCandidate;
+import io.jgitkins.server.application.dto.DispatchableJob;
+import io.jgitkins.server.application.dto.JobDispatchScope;
+import io.jgitkins.server.application.dto.RunnerDispatchContext;
+import io.jgitkins.server.application.dto.command.DispatchJobCommand;
+import io.jgitkins.server.application.dto.result.JobDispatchResult;
 import io.jgitkins.server.application.port.in.JobDispatchUseCase;
 import io.jgitkins.server.application.port.out.JobPersistencePort;
 import io.jgitkins.server.application.port.out.RunnerPersistencePort;
@@ -11,14 +13,12 @@ import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.aggregate.Runner;
 import io.jgitkins.server.domain.model.JobHistory;
 import io.jgitkins.server.domain.model.vo.RunnerId;
-import io.jgitkins.server.presentation.dto.RunnerJobFetchRequest;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,42 +31,48 @@ public class JobDispatchService implements JobDispatchUseCase {
 
     @Override
     @Transactional
-    public Optional<JobDispatchMessage> fetchJob(RunnerJobFetchRequest request) {
-        Optional<RunnerAssignmentCandidate> candidateOptional = resolveRunnerCandidate(request.getRunnerToken());
-        if (candidateOptional.isEmpty()) {
+    public Optional<JobDispatchResult> dispatch(DispatchJobCommand command) {
+        Optional<RunnerDispatchContext> runnerContext = resolveRunnerContext(command.getRunnerToken());
+        if (runnerContext.isEmpty()) {
             return Optional.empty();
         }
 
-        RunnerAssignmentCandidate candidate = candidateOptional.get();
-        Optional<PendingJob> pendingJob = jobPort.findPendingByCandidate(candidate);
-        if (pendingJob.isEmpty()) {
+        Optional<DispatchableJob> dispatchableJob = jobPort.findNextDispatchableJob(runnerContext.get());
+        if (dispatchableJob.isEmpty()) {
             return Optional.empty();
         }
-        return assignRunner(candidate, pendingJob.get());
+
+        return assignRunner(runnerContext.get(), dispatchableJob.get());
     }
 
-    private Optional<RunnerAssignmentCandidate> resolveRunnerCandidate(String runnerToken) {
+    private Optional<RunnerDispatchContext> resolveRunnerContext(String runnerToken) {
         if (runnerToken == null || runnerToken.isBlank()) {
             log.warn("Runner token is missing");
             return Optional.empty();
         }
-        Optional<Runner> runnerOptional = runnerPort.findByToken(runnerToken);
-        if (runnerOptional.isEmpty()) {
+
+        Optional<Runner> runner = runnerPort.findByToken(runnerToken);
+        if (runner.isEmpty()) {
             log.warn("Runner not found for token={}", runnerToken);
             return Optional.empty();
         }
-        Runner runner = runnerOptional.get();
-        return Optional.of(RunnerAssignmentCandidate.builder()
-                                                    .runnerId(runner.getId())
-                                                    .targetType(runner.getScopeType().name())
-                                                    .targetId(runner.getScopeTargetId())
-                                                    .build());
+
+        return Optional.of(toDispatchContext(runner.get()));
     }
 
-    private Optional<JobDispatchMessage> assignRunner(RunnerAssignmentCandidate candidate, PendingJob pendingJob) {
-        Job job = pendingJob.getJob();
+    private RunnerDispatchContext toDispatchContext(Runner runner) {
+        return RunnerDispatchContext.builder()
+                                    .runnerId(runner.getId())
+                                    .dispatchScope(JobDispatchScope.valueOf(runner.getScopeType().name()))
+                                    .scopeTargetId(runner.getScopeTargetId())
+                                    .build();
+    }
+
+    private Optional<JobDispatchResult> assignRunner(RunnerDispatchContext runnerContext,
+                                                     DispatchableJob dispatchableJob) {
+        Job job = dispatchableJob.getJob();
         JobHistory previousHistory = job.getLatestHistory();
-        RunnerId runnerId = RunnerId.of(String.valueOf(candidate.getRunnerId()));
+        RunnerId runnerId = RunnerId.of(String.valueOf(runnerContext.getRunnerId()));
         job.publish(runnerId);
 
         Optional<Long> historyId = jobPort.saveHistory(job, previousHistory);
@@ -75,29 +81,25 @@ public class JobDispatchService implements JobDispatchUseCase {
             return Optional.empty();
         }
 
-        JobDispatchMessage message = publishDispatchMessage(candidate, pendingJob, job, historyId.get());
-        return Optional.of(message);
+        return Optional.of(buildDispatchResult(runnerContext, dispatchableJob, job, historyId.get()));
     }
 
-    private JobDispatchMessage publishDispatchMessage(RunnerAssignmentCandidate candidate,
-                                                      PendingJob pendingJob,
-                                                      Job job,
-                                                      Long jobHistoryId) {
-
-        JobDispatchMessage message = JobDispatchMessage.builder()
-                                                        .jobId(parseJobId(job))
-                                                        .jobHistoryId(jobHistoryId)
-                                                        .runnerId(candidate.getRunnerId())
-                                                        .repositoryId(job.getRepositoryId().getValue())
-                                                        .organizeId(pendingJob.getOrganizeId())
-                                                        .commitHash(job.getCommitHash().getValue())
-                                                        .branchName(job.getBranchName().getValue())
-                                                        .triggeredBy(job.getTriggeredBy().getValue())
-                                                        .dispatchedAt(LocalDateTime.now())
-                                                        .cloneUrl(cloneUrlBuilder.build(pendingJob.getRepositoryClonePath()))
-                                                        .build();
-//        jobDispatchEventPort.publish(message);
-        return message;
+    private JobDispatchResult buildDispatchResult(RunnerDispatchContext runnerContext,
+                                                  DispatchableJob dispatchableJob,
+                                                  Job job,
+                                                  Long jobHistoryId) {
+        return JobDispatchResult.builder()
+                                .jobId(parseJobId(job))
+                                .jobHistoryId(jobHistoryId)
+                                .runnerId(runnerContext.getRunnerId())
+                                .repositoryId(job.getRepositoryId().getValue())
+                                .organizeId(dispatchableJob.getOrganizeId())
+                                .commitHash(job.getCommitHash().getValue())
+                                .branchName(job.getBranchName().getValue())
+                                .triggeredBy(job.getTriggeredBy().getValue())
+                                .dispatchedAt(LocalDateTime.now())
+                                .cloneUrl(cloneUrlBuilder.build(dispatchableJob.getRepositoryClonePath()))
+                                .build();
     }
 
     private Long parseJobId(Job job) {

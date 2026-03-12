@@ -1,12 +1,12 @@
 package io.jgitkins.server.presentation.api.grpc;
 
 import io.grpc.stub.StreamObserver;
-import io.jgitkins.server.application.dto.JobDispatchMessage;
 import io.jgitkins.server.application.dto.command.JobResultReportCommand;
+import io.jgitkins.server.application.dto.command.DispatchJobCommand;
 import io.jgitkins.server.application.dto.JobResultStatus;
-import io.jgitkins.server.presentation.dto.RunnerJobFetchRequest;
 import io.jgitkins.server.application.port.in.JobDispatchUseCase;
 import io.jgitkins.server.application.port.in.JobResultReportUseCase;
+import io.jgitkins.server.application.dto.result.JobDispatchResult;
 import io.jgitkins.server.grpc.JobDispatchRequest;
 import io.jgitkins.server.grpc.JobDispatchResponse;
 import io.jgitkins.server.grpc.JobDispatchServiceGrpc;
@@ -29,18 +29,18 @@ public class JobDispatchGrpcController extends JobDispatchServiceGrpc.JobDispatc
     @Override
     public void requestJob(JobDispatchRequest request, StreamObserver<JobDispatchResponse> responseObserver) {
         log.debug("request: ");
-        RunnerJobFetchRequest jobRequest = RunnerJobFetchRequest.builder()
-                                                                .runnerToken(request.getRunnerToken())
-                                                                .build();
+        DispatchJobCommand command = DispatchJobCommand.builder()
+                                                       .runnerToken(request.getRunnerToken())
+                                                       .build();
 
-        Optional<JobDispatchMessage> dispatchMessage = jobDispatchUseCase.fetchJob(jobRequest);
-        log.info("dispatchMessage: [{}]", dispatchMessage);
+        Optional<JobDispatchResult> dispatchResult = jobDispatchUseCase.dispatch(command);
+        log.info("dispatchResult: [{}]", dispatchResult);
 
         JobDispatchResponse.Builder responseBuilder = JobDispatchResponse.newBuilder();
 
-        if (dispatchMessage.isPresent()) {
+        if (dispatchResult.isPresent()) {
             responseBuilder.setHasJob(true)
-                           .setJob(toPayload(dispatchMessage.get()));
+                           .setJob(toPayload(dispatchResult.get()));
         } else {
             responseBuilder.setHasJob(false);
         }
@@ -66,17 +66,17 @@ public class JobDispatchGrpcController extends JobDispatchServiceGrpc.JobDispatc
         responseObserver.onCompleted();
     }
 
-    private JobPayload toPayload(JobDispatchMessage message) {
+    private JobPayload toPayload(JobDispatchResult result) {
         return JobPayload.newBuilder()
-                         .setJobId(toLong(message.getJobId()))
-                         .setJobHistoryId(toLong(message.getJobHistoryId()))
-                         .setRunnerId(toLong(message.getRunnerId()))
-                         .setRepositoryId(toLong(message.getRepositoryId()))
-                         .setOrganizeId(toLong(message.getOrganizeId()))
-                         .setCommitHash(toString(message.getCommitHash()))
-                         .setBranchName(toString(message.getBranchName()))
-                         .setTriggeredBy(toLong(message.getTriggeredBy()))
-                         .setCloneUrl(toString(message.getCloneUrl()))
+                         .setJobId(toLong(result.getJobId()))
+                         .setJobHistoryId(toLong(result.getJobHistoryId()))
+                         .setRunnerId(toLong(result.getRunnerId()))
+                         .setRepositoryId(toLong(result.getRepositoryId()))
+                         .setOrganizeId(toLong(result.getOrganizeId()))
+                         .setCommitHash(toString(result.getCommitHash()))
+                         .setBranchName(toString(result.getBranchName()))
+                         .setTriggeredBy(toLong(result.getTriggeredBy()))
+                         .setCloneUrl(toString(result.getCloneUrl()))
                          .build();
     }
 

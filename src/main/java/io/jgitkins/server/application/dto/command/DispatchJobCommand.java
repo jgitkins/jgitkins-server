@@ -1,10 +1,10 @@
-package io.jgitkins.server.presentation.dto;
+package io.jgitkins.server.application.dto.command;
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class RunnerJobFetchRequest {
+public class DispatchJobCommand {
     private final String runnerToken;
 }

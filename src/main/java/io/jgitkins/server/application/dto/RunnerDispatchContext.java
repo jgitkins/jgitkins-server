@@ -7,8 +7,8 @@ import lombok.ToString;
 @Getter
 @Builder
 @ToString
-public class RunnerAssignmentCandidate {
+public class RunnerDispatchContext {
     private final Long runnerId;
-    private final String targetType;
-    private final Long targetId;
+    private final JobDispatchScope dispatchScope;
+    private final Long scopeTargetId;
 }

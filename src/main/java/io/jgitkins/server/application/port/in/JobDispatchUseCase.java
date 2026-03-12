@@ -1,9 +1,9 @@
 package io.jgitkins.server.application.port.in;
 
-import io.jgitkins.server.application.dto.JobDispatchMessage;
-import io.jgitkins.server.presentation.dto.RunnerJobFetchRequest;
+import io.jgitkins.server.application.dto.command.DispatchJobCommand;
+import io.jgitkins.server.application.dto.result.JobDispatchResult;
 import java.util.Optional;
 
 public interface JobDispatchUseCase {
-    Optional<JobDispatchMessage> fetchJob(RunnerJobFetchRequest request);
+    Optional<JobDispatchResult> dispatch(DispatchJobCommand command);
 }
