@@ -32,17 +32,17 @@ public class JobDispatchService implements JobDispatchUseCase {
     @Override
     @Transactional
     public Optional<JobDispatchResult> dispatch(DispatchJobCommand command) {
-        Optional<RunnerDispatchContext> runnerContext = resolveRunnerContext(command.getRunnerToken());
+        Optional<RunnerDispatchContext> runnerContext = resolveRunnerContext(command.runnerToken());
         if (runnerContext.isEmpty()) {
             return Optional.empty();
         }
 
-        Optional<DispatchableJob> dispatchableJob = jobPort.findNextDispatchableJob(runnerContext.get());
-        if (dispatchableJob.isEmpty()) {
+        Optional<DispatchableJob> dispatchedJob = jobPort.findNextDispatchableJob(runnerContext.get());
+        if (dispatchedJob.isEmpty()) {
             return Optional.empty();
         }
 
-        return assignRunner(runnerContext.get(), dispatchableJob.get());
+        return assignRunner(runnerContext.get(), dispatchedJob.get());
     }
 
     private Optional<RunnerDispatchContext> resolveRunnerContext(String runnerToken) {
@@ -61,18 +61,18 @@ public class JobDispatchService implements JobDispatchUseCase {
     }
 
     private RunnerDispatchContext toDispatchContext(Runner runner) {
-        return RunnerDispatchContext.builder()
-                                    .runnerId(runner.getId())
-                                    .dispatchScope(JobDispatchScope.valueOf(runner.getScopeType().name()))
-                                    .scopeTargetId(runner.getScopeTargetId())
-                                    .build();
+        return new RunnerDispatchContext(
+                runner.getId(),
+                JobDispatchScope.valueOf(runner.getScopeType().name()),
+                runner.getScopeTargetId()
+        );
     }
 
     private Optional<JobDispatchResult> assignRunner(RunnerDispatchContext runnerContext,
                                                      DispatchableJob dispatchableJob) {
-        Job job = dispatchableJob.getJob();
+        Job job = dispatchableJob.job();
         JobHistory previousHistory = job.getLatestHistory();
-        RunnerId runnerId = RunnerId.of(String.valueOf(runnerContext.getRunnerId()));
+        RunnerId runnerId = RunnerId.of(String.valueOf(runnerContext.runnerId()));
         job.publish(runnerId);
 
         Optional<Long> historyId = jobPort.saveHistory(job, previousHistory);
@@ -88,18 +88,18 @@ public class JobDispatchService implements JobDispatchUseCase {
                                                   DispatchableJob dispatchableJob,
                                                   Job job,
                                                   Long jobHistoryId) {
-        return JobDispatchResult.builder()
-                                .jobId(parseJobId(job))
-                                .jobHistoryId(jobHistoryId)
-                                .runnerId(runnerContext.getRunnerId())
-                                .repositoryId(job.getRepositoryId().getValue())
-                                .organizeId(dispatchableJob.getOrganizeId())
-                                .commitHash(job.getCommitHash().getValue())
-                                .branchName(job.getBranchName().getValue())
-                                .triggeredBy(job.getTriggeredBy().getValue())
-                                .dispatchedAt(LocalDateTime.now())
-                                .cloneUrl(cloneUrlBuilder.build(dispatchableJob.getRepositoryClonePath()))
-                                .build();
+        return new JobDispatchResult(
+                parseJobId(job),
+                jobHistoryId,
+                runnerContext.runnerId(),
+                job.getRepositoryId().getValue(),
+                dispatchableJob.organizeId(),
+                job.getCommitHash().getValue(),
+                job.getBranchName().getValue(),
+                job.getTriggeredBy().getValue(),
+                LocalDateTime.now(),
+                cloneUrlBuilder.build(dispatchableJob.repositoryClonePath())
+        );
     }
 
     private Long parseJobId(Job job) {

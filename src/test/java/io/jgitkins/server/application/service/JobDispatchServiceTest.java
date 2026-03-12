@@ -53,7 +53,7 @@ class JobDispatchServiceTest {
 
     @Test
     void dispatch_returnsEmpty_whenRunnerTokenMissing() {
-        DispatchJobCommand command = DispatchJobCommand.builder().runnerToken(" ").build();
+        DispatchJobCommand command = new DispatchJobCommand(" ");
 
         Optional<JobDispatchResult> result = service.dispatch(command);
 
@@ -63,7 +63,7 @@ class JobDispatchServiceTest {
 
     @Test
     void dispatch_returnsEmpty_whenRunnerNotFound() {
-        DispatchJobCommand command = DispatchJobCommand.builder().runnerToken("token").build();
+        DispatchJobCommand command = new DispatchJobCommand("token");
         when(runnerPort.findByToken("token")).thenReturn(Optional.empty());
 
         Optional<JobDispatchResult> result = service.dispatch(command);
@@ -75,7 +75,7 @@ class JobDispatchServiceTest {
 
     @Test
     void dispatch_returnsEmpty_whenNoDispatchableJobForRunner() {
-        DispatchJobCommand command = DispatchJobCommand.builder().runnerToken("token").build();
+        DispatchJobCommand command = new DispatchJobCommand("token");
         Runner runner = runner(7L);
 
         when(runnerPort.findByToken("token")).thenReturn(Optional.of(runner));
@@ -91,7 +91,7 @@ class JobDispatchServiceTest {
 
     @Test
     void dispatch_returnsResult_whenDispatchSucceeds() {
-        DispatchJobCommand command = DispatchJobCommand.builder().runnerToken("token").build();
+        DispatchJobCommand command = new DispatchJobCommand("token");
         Runner runner = runner(7L);
         DispatchableJob dispatchableJob = dispatchableJob(101L, 55L, "org/repo.git");
 
@@ -103,15 +103,15 @@ class JobDispatchServiceTest {
         Optional<JobDispatchResult> result = service.dispatch(command);
 
         assertThat(result).isPresent();
-        assertThat(result.get().getJobId()).isEqualTo(101L);
-        assertThat(result.get().getJobHistoryId()).isEqualTo(999L);
-        assertThat(result.get().getRunnerId()).isEqualTo(7L);
-        assertThat(result.get().getRepositoryId()).isEqualTo(55L);
-        assertThat(result.get().getOrganizeId()).isEqualTo(12L);
-        assertThat(result.get().getCommitHash()).isEqualTo("abc123def456");
-        assertThat(result.get().getBranchName()).isEqualTo("main");
-        assertThat(result.get().getTriggeredBy()).isEqualTo(3L);
-        assertThat(result.get().getCloneUrl()).isEqualTo("https://git.example/org/repo.git");
+        assertThat(result.get().jobId()).isEqualTo(101L);
+        assertThat(result.get().jobHistoryId()).isEqualTo(999L);
+        assertThat(result.get().runnerId()).isEqualTo(7L);
+        assertThat(result.get().repositoryId()).isEqualTo(55L);
+        assertThat(result.get().organizeId()).isEqualTo(12L);
+        assertThat(result.get().commitHash()).isEqualTo("abc123def456");
+        assertThat(result.get().branchName()).isEqualTo("main");
+        assertThat(result.get().triggeredBy()).isEqualTo(3L);
+        assertThat(result.get().cloneUrl()).isEqualTo("https://git.example/org/repo.git");
 
         verify(jobPort).saveHistory(any(Job.class), any(JobHistory.class));
         verify(cloneUrlBuilder).build("org/repo.git");
@@ -119,7 +119,7 @@ class JobDispatchServiceTest {
 
     @Test
     void dispatch_returnsEmpty_whenAnotherDispatcherAlreadySavedHistory() {
-        DispatchJobCommand command = DispatchJobCommand.builder().runnerToken("token").build();
+        DispatchJobCommand command = new DispatchJobCommand("token");
         Runner runner = runner(7L);
         DispatchableJob dispatchableJob = dispatchableJob(101L, 55L, "org/repo.git");
 
@@ -168,10 +168,6 @@ class JobDispatchServiceTest {
                 ))
         );
 
-        return DispatchableJob.builder()
-                              .job(job)
-                              .organizeId(12L)
-                              .repositoryClonePath(clonePath)
-                              .build();
+        return new DispatchableJob(job, 12L, clonePath);
     }
 }

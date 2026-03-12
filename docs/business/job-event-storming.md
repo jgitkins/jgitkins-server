@@ -39,8 +39,7 @@ stateDiagram-v2
 stateDiagram-v2
     [*] --> Job생성됨: Push 후 Job 등록
     Job생성됨 --> 큐대기중: dispatch 대상 등록
-    큐대기중 --> 러너할당됨: 실행 가능한 runner 선택
-    러너할당됨 --> 실행중: runner가 작업 시작
+    큐대기중 --> 실행중: 실행가능한Runner에게 할당
 
     실행중 --> 실행성공: Job 결과 보고 성공
     실행중 --> 실행실패: Job 결과 보고 실패

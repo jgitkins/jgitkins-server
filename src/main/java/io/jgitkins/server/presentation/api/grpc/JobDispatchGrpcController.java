@@ -29,9 +29,7 @@ public class JobDispatchGrpcController extends JobDispatchServiceGrpc.JobDispatc
     @Override
     public void requestJob(JobDispatchRequest request, StreamObserver<JobDispatchResponse> responseObserver) {
         log.debug("request: ");
-        DispatchJobCommand command = DispatchJobCommand.builder()
-                                                       .runnerToken(request.getRunnerToken())
-                                                       .build();
+        DispatchJobCommand command = new DispatchJobCommand(request.getRunnerToken());
 
         Optional<JobDispatchResult> dispatchResult = jobDispatchUseCase.dispatch(command);
         log.info("dispatchResult: [{}]", dispatchResult);
@@ -68,15 +66,15 @@ public class JobDispatchGrpcController extends JobDispatchServiceGrpc.JobDispatc
 
     private JobPayload toPayload(JobDispatchResult result) {
         return JobPayload.newBuilder()
-                         .setJobId(toLong(result.getJobId()))
-                         .setJobHistoryId(toLong(result.getJobHistoryId()))
-                         .setRunnerId(toLong(result.getRunnerId()))
-                         .setRepositoryId(toLong(result.getRepositoryId()))
-                         .setOrganizeId(toLong(result.getOrganizeId()))
-                         .setCommitHash(toString(result.getCommitHash()))
-                         .setBranchName(toString(result.getBranchName()))
-                         .setTriggeredBy(toLong(result.getTriggeredBy()))
-                         .setCloneUrl(toString(result.getCloneUrl()))
+                         .setJobId(toLong(result.jobId()))
+                         .setJobHistoryId(toLong(result.jobHistoryId()))
+                         .setRunnerId(toLong(result.runnerId()))
+                         .setRepositoryId(toLong(result.repositoryId()))
+                         .setOrganizeId(toLong(result.organizeId()))
+                         .setCommitHash(toString(result.commitHash()))
+                         .setBranchName(toString(result.branchName()))
+                         .setTriggeredBy(toLong(result.triggeredBy()))
+                         .setCloneUrl(toString(result.cloneUrl()))
                          .build();
     }
 

@@ -3,6 +3,7 @@ package io.jgitkins.server.infrastructure.mapper;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.model.JobHistory;
 import io.jgitkins.server.domain.model.vo.*;
+import io.jgitkins.server.infrastructure.persistence.model.DispatchableJobRow;
 import io.jgitkins.server.infrastructure.persistence.model.JobEntity;
 import io.jgitkins.server.infrastructure.persistence.model.JobHistoryEntity;
 import org.mapstruct.Mapper;
@@ -36,6 +37,20 @@ public interface JobDomainMapper {
                 BranchName.of(entity.getBranchName()),
                 UserId.of(entity.getTriggeredBy()),
                 entity.getCreatedAt(),
+                histories);
+    }
+
+    default Job toDomain(DispatchableJobRow row, List<JobHistory> histories) {
+        if (row == null) {
+            return null;
+        }
+        return Job.reconstruct(
+                JobId.of(String.valueOf(row.jobId())),
+                RepositoryId.of(row.repositoryId()),
+                CommitHash.of(row.commitHash()),
+                BranchName.of(row.branchName()),
+                UserId.of(row.triggeredBy()),
+                row.jobCreatedAt(),
                 histories);
     }
 
