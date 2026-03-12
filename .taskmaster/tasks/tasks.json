@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
+        "id": "1",
         "title": "신규기능",
         "description": "사용자 가치 전달을 위한 기능 개발/확장 작업",
         "status": "in-progress",
@@ -202,14 +202,15 @@
             "title": "[16] Setup Git Repository Access Service",
             "description": "Create a foundational backend service layer for interacting with Git repositories. This service will abstract low-level Git operations, such as repository cloning, opening, and navigating through its contents.",
             "details": "Implement a Java service, e.g., `GitRepositoryService`, utilizing the JGit library. This service should provide methods for: 1. Initializing a Git repository object given a local path or URL. 2. Fetching references (branches, tags). 3. Resolving a tree object for a specific branch and path. 4. Resolving a blob object for a specific branch and path. Ensure proper resource management for Git repository objects (e.g., `Repository.close()`).\n\nExample pseudo-code for service method:\n```java\npublic class GitRepositoryService {\n    public Repository getRepository(String owner, String repoName) { /* ... */ }\n    public RevWalk getRevWalk(Repository repo) { /* ... */ }\n    public ObjectId resolveTree(Repository repo, String branch, String path) { /* ... */ }\n    public TreeWalk getTreeWalk(Repository repo, RevTree tree, String path) { /* ... */ }\n    public byte[] getBlobContent(Repository repo, ObjectId blobId) { /* ... */ }\n}\n```",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 1,
             "parentId": "1",
             "legacyTaskId": 16,
             "legacyDependencies": [],
             "legacyPriority": "high",
-            "legacyUpdatedAt": null
+            "legacyUpdatedAt": null,
+            "updatedAt": "2026-03-12T08:44:14.285Z"
           },
           {
             "id": 13,
@@ -248,14 +249,15 @@
             "title": "[19] Frontend Router Setup for Repository Views",
             "description": "Configure the frontend routing to handle repository-specific URLs, including dynamic parameters for owner type, owner, repository name, branch, and file/directory path.",
             "details": "Set up a main frontend component (e.g., `RepositoryView`) and define a route structure that captures all necessary parameters: `/repositories/:ownerType/:owner/:repoName/:branch/*path`. The `*path` segment should be optional and capture the remainder of the URL for file/directory paths.\n\nExample routing configuration (e.g., React Router, Vue Router, Angular Router):\n```javascript\n// Assuming a React-like router setup\n<Routes>\n  <Route path=\"/repositories/:ownerType/:owner/:repoName/:branch/*path\" element={<RepositoryView />} />\n</Routes>\n```\nThe `RepositoryView` component should be able to extract these parameters (e.g., `useParams()` in React Router) to pass to child components or use for API calls. Default the `branch` to 'main' or 'master' if not explicitly provided in the URL initially.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 1,
             "parentId": "1",
             "legacyTaskId": 19,
             "legacyDependencies": [],
             "legacyPriority": "high",
-            "legacyUpdatedAt": null
+            "legacyUpdatedAt": null,
+            "updatedAt": "2026-03-12T08:44:07.085Z"
           },
           {
             "id": 16,
@@ -295,7 +297,7 @@
             "title": "[22] Implement Frontend Tree Navigation Logic",
             "description": "Add interactivity to the `FileTree` UI component to handle user clicks on directories and branch selection, updating the URL and fetching new data.",
             "details": "Modify the `FileTree` component (Task 20) to:\n1.  On clicking a directory, update the current route's `path` parameter to reflect the new directory's path. Use the frontend router's navigation API (e.g., `navigate('/repositories/.../new/path')`).\n2.  Implement logic for the branch selection dropdown. When a new branch is selected, update the route's `branch` parameter, triggering a re-fetch of the file tree for the new branch.\n\nEnsure that URL changes automatically trigger the data fetching in Task 21.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 1,
             "parentId": "1",
@@ -305,7 +307,8 @@
               "21"
             ],
             "legacyPriority": "high",
-            "legacyUpdatedAt": null
+            "legacyUpdatedAt": null,
+            "updatedAt": "2026-03-12T08:43:15.257Z"
           },
           {
             "id": 19,
@@ -328,7 +331,7 @@
             "title": "[24] Integrate File Blob API and Navigation for File Details",
             "description": "Connect the `FileContentViewer` component to the backend API (Task 18) and implement navigation logic for clicking files in the tree view to display their content.",
             "details": "Extend the `RepositoryView` or a relevant child component:\n1.  Modify the `FileTree` component (Task 20) to handle clicks on *files*. When a file is clicked, update the current route's `path` parameter to point to the file's path.\n2.  When the URL's `path` parameter points to a file, trigger an API call to `GET /api/repositories/{ownerType}/{owner}/{repoName}/{branch}/**filePath` (Task 18).\n3.  Pass the fetched raw file content and its type to the `FileContentViewer` component (Task 23) for display.\n4.  Handle loading states and errors for file content fetching.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 1,
             "parentId": "1",
@@ -339,14 +342,15 @@
               "23"
             ],
             "legacyPriority": "high",
-            "legacyUpdatedAt": null
+            "legacyUpdatedAt": null,
+            "updatedAt": "2026-03-12T08:43:33.972Z"
           },
           {
             "id": 21,
             "title": "[25] Implement Robust Error Handling and Loading States",
             "description": "Add comprehensive error handling (e.g., repository not found, file/path not found, API errors) and loading indicators across both file tree and file detail views to improve user experience.",
             "details": "Enhance both frontend and backend:\n**Frontend:**\n1.  Display user-friendly error messages for failed API calls (e.g., 'Repository not found', 'File not found', 'Network error').\n2.  Implement visual loading indicators (spinners, skeletons) during all data fetches (file tree, file content).\n3.  Provide clear UI feedback when a branch is switched or directory is navigated.\n\n**Backend:**\n1.  Implement custom exception handling for specific Git errors (e.g., `RepositoryNotFoundException`, `BranchNotFoundException`, `PathNotFoundException`).\n2.  Map these exceptions to appropriate HTTP status codes (e.g., 404 Not Found, 500 Internal Server Error) and provide informative error bodies.\n\nEnsure that an unhandled error doesn't crash the application.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 1,
             "parentId": "1",
@@ -356,7 +360,8 @@
               "24"
             ],
             "legacyPriority": "medium",
-            "legacyUpdatedAt": null
+            "legacyUpdatedAt": null,
+            "updatedAt": "2026-03-12T08:42:44.980Z"
           },
           {
             "id": 22,
@@ -381,12 +386,22 @@
             "parentTaskId": 1,
             "parentId": "1",
             "updatedAt": "2026-02-19T14:15:00+09:00"
+          },
+          {
+            "id": 24,
+            "title": "gRPC 공통 예외 매핑 및 Status 응답 표준화",
+            "description": "gRPC controller에서 전파되는 application/domain/infrastructure 예외를 공통 계층에서 gRPC Status 코드로 변환하고, HTTP GlobalExceptionHandler와 별도로 gRPC 예외 처리 정책을 표준화한다",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 1,
+            "parentId": "undefined"
           }
         ],
-        "updatedAt": "2026-02-19T14:15:00+09:00"
+        "updatedAt": "2026-03-12T08:44:14.285Z"
       },
       {
-        "id": 2,
+        "id": "2",
         "title": "리팩토링",
         "description": "구조 개선, 품질 개선, 테스트 체계 강화 작업",
         "status": "in-progress",
@@ -610,10 +625,11 @@
             "title": "리팩토링 회귀 테스트 세트 확정",
             "description": "핵심 시나리오 기반 최소 회귀 세트를 정의하고 CI 기준선을 업데이트한다.",
             "details": "",
-            "status": "pending",
+            "status": "cancelled",
             "dependencies": [],
             "parentTaskId": 2,
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2026-03-12T08:46:13.672Z"
           },
           {
             "id": 21,
@@ -772,7 +788,8 @@
             "details": "",
             "status": "pending",
             "dependencies": [],
-            "parentTaskId": 2
+            "parentTaskId": 2,
+            "parentId": "undefined"
           },
           {
             "id": 36,
@@ -781,16 +798,17 @@
             "details": "",
             "status": "pending",
             "dependencies": [],
-            "parentTaskId": 2
+            "parentTaskId": 2,
+            "parentId": "undefined"
           }
         ],
-        "updatedAt": "2026-03-12T05:03:25.846Z"
+        "updatedAt": "2026-03-12T08:46:13.672Z"
       },
       {
-        "id": 3,
+        "id": "3",
         "title": "보안",
         "description": "인증/인가/자격증명/보안 회귀 강화 작업",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "details": "기존 기능별 Task를 카테고리 기반(신규기능/리팩토링/보안)으로 재구성함.",
@@ -834,20 +852,21 @@
             "title": "[27] OAuth 인증 실패/요청 검증 개선",
             "description": "OAuth 로그인 API의 요청 검증과 예외 매핑을 강화해 오류 응답을 일관화한다.",
             "details": "컨트롤러 요청 검증(@Valid) 및 도메인 예외를 4xx 계열로 매핑해 클라이언트가 원인을 명확히 알 수 있도록 개선한다.",
-            "status": "pending",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 3,
             "parentId": "3",
             "legacyTaskId": 27,
             "legacyDependencies": [],
             "legacyPriority": "high",
-            "legacyUpdatedAt": null
+            "legacyUpdatedAt": null,
+            "updatedAt": "2026-03-12T08:49:38.495Z"
           }
         ],
-        "updatedAt": "2026-02-17T00:00:00+09:00"
+        "updatedAt": "2026-03-12T08:49:38.495Z"
       },
       {
-        "id": 4,
+        "id": "4",
         "title": "운영/인프라",
         "description": "배포/모니터링/CI-CD/운영 안정성 개선 작업",
         "status": "pending",
@@ -859,10 +878,10 @@
         "updatedAt": "2026-02-16T23:43:00+09:00"
       },
       {
-        "id": 5,
+        "id": "5",
         "title": "버그/핫픽스",
         "description": "사용자 영향 버그 및 긴급 수정 작업",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [],
         "priority": "high",
         "details": "카테고리 기반 상위 Task",
@@ -873,26 +892,24 @@
             "title": "repository tree 디렉토리 오표시 핫픽스",
             "description": "repositories/detail 화면에서 디렉토리가 파일 아이콘으로 노출되는 문제에 대해 원인 분석, server tree type 계약 복구, web 캐시 무효화, 회귀 테스트 및 배포 후 확인까지 하나의 핫픽스 단위로 처리한다.",
             "details": "<info added on 2026-03-12T03:51:33.426Z>\nserver의 RepositoryGitFileAdapter.java에서 Git 객체(tree/blob)를 FileEntry.type으로 매핑하는 로직을 복구하여 디렉토리/파일 타입 오표시 문제를 해결했습니다. jgitkins-web의 tree 캐시 prefix는 v2로 유지하여 기존에 잘못된 타입으로 캐시된 데이터를 재사용하는 것을 방지했습니다. 이를 검증하기 위해 jgitkins-server/src/test/java/org/jgitkins/server/adapter/git/RepositoryGitFileAdapterTest.java에 bare repository 기반의 어댑터 테스트를 추가했으며, RepositoryContentController.java의 tree 응답 타입에 대한 검증 테스트를 jgitkins-server/src/test/java/org/jgitkins/server/controller/RepositoryContentControllerTest.java에 추가했습니다. 마지막으로 jgitkins-web/src/test/js/services/RepositoryDetailServiceTest.js 회귀 테스트를 통해 기존 기능에 대한 영향이 없음을 확인했습니다.\n</info added on 2026-03-12T03:51:33.426Z>",
-            "status": "in-progress",
+            "status": "done",
             "dependencies": [],
             "parentTaskId": 5,
-            "updatedAt": "2026-03-12T03:50:18.837Z",
+            "updatedAt": "2026-03-12T08:50:11.656Z",
             "parentId": "undefined"
           }
         ],
-        "updatedAt": "2026-03-12T03:50:18.837Z"
+        "updatedAt": "2026-03-12T08:50:11.656Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-12T05:03:25.849Z",
+      "lastModified": "2026-03-12T08:50:11.657Z",
       "taskCount": 5,
-      "completedCount": 0,
+      "completedCount": 2,
       "tags": [
         "master"
-      ],
-      "created": "2026-03-12T05:05:45.393Z",
-      "description": "Tasks for master context"
+      ]
     }
   }
 }

@@ -359,3 +359,10 @@ Public 저장소 조회는 허용하되 branch/file/directory 쓰기 API는 WRIT
 **Details:**
 
 권한 명세(READ/WRITE)를 기준으로 브랜치 생성/파일 업로드/디렉터리 생성 요청 시 권한 미보유 사용자를 403으로 차단한다. 권한 판별은 소유자/조직멤버/레포멤버 기준으로 수행하며, 웹 UI 제어와 무관하게 서버가 최종 보안 경계를 책임진다. 관련 API 테스트(WebMvc+Service)로 회귀를 보강한다.
+
+### 1.24. gRPC 공통 예외 매핑 및 Status 응답 표준화
+
+**Status:** pending  
+**Dependencies:** None  
+
+gRPC controller에서 전파되는 application/domain/infrastructure 예외를 공통 계층에서 gRPC Status 코드로 변환하고, HTTP GlobalExceptionHandler와 별도로 gRPC 예외 처리 정책을 표준화한다

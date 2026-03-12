@@ -60,11 +60,11 @@ _No tasks found._
 
 | ID | Title | Status | Priority | Subtasks |
 | --- | --- | --- | --- | --- |
-| 1 | 신규기능 | in-progress | high | 23 |
+| 1 | 신규기능 | in-progress | high | 24 |
 | 2 | 리팩토링 | in-progress | high | 34 |
-| 3 | 보안 | in-progress | high | 3 |
+| 3 | 보안 | done | high | 3 |
 | 4 | 운영/인프라 | pending | high | 0 |
-| 5 | 버그/핫픽스 | in-progress | high | 1 |
+| 5 | 버그/핫픽스 | done | high | 1 |
 
 <!-- TASKS-TABLE:END -->
 
