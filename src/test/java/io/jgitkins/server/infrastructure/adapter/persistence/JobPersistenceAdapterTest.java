@@ -77,16 +77,6 @@ class JobPersistenceAdapterTest {
         verifyNoMoreInteractions(jobDomainMapper);
     }
 
-    @Test
-    void findNextDispatchableJob_returnsEmpty_whenRepositoryScopeTargetMissing() {
-        RunnerDispatchContext context = new RunnerDispatchContext(7L, JobDispatchScope.REPOSITORY, null);
-
-        var result = adapter.findNextDispatchableJob(context);
-
-        assertThat(result).isEmpty();
-        verifyNoMoreInteractions(jobDispatchQueryMapper, jobEntityMbgMapper, jobHistoryEntityMbgMapper, jobDomainMapper);
-    }
-
     private DispatchableJobRow dispatchableJobRow(Long jobId,
                                                   Long repositoryId,
                                                   String ownerType,

@@ -1,7 +1,6 @@
 package io.jgitkins.server.infrastructure.adapter.persistence;
 
 import io.jgitkins.server.application.dto.DispatchableJob;
-import io.jgitkins.server.application.dto.JobDispatchScope;
 import io.jgitkins.server.application.dto.RunnerDispatchContext;
 import io.jgitkins.server.application.port.out.JobPersistencePort;
 import io.jgitkins.server.domain.aggregate.Job;
@@ -76,11 +75,7 @@ public class JobPersistenceAdapter implements JobPersistencePort {
     @Transactional
     public Optional<DispatchableJob> findNextDispatchableJob(RunnerDispatchContext context) {
         try {
-            if (!hasScopeTargetWhenRequired(context)) {
-                return Optional.empty();
-            }
-
-            return Optional.ofNullable(selectNextDispatchableJob(context))
+            return Optional.ofNullable(findNextDispatchableJobRow(context))
                            .flatMap(this::toDispatchableJob);
         } catch (Exception e) {
             throw new InfrastructureException(InfrastructureErrorCode.PERSISTENCE_OPERATION_FAILED,
@@ -119,7 +114,7 @@ public class JobPersistenceAdapter implements JobPersistencePort {
         }
     }
 
-    private DispatchableJobRow selectNextDispatchableJob(RunnerDispatchContext context) {
+    private DispatchableJobRow findNextDispatchableJobRow(RunnerDispatchContext context) {
         return jobDispatchQueryMapper.selectNextDispatchableJob(
                 context.dispatchScope().name(),
                 context.scopeTargetId()
@@ -145,12 +140,5 @@ public class JobPersistenceAdapter implements JobPersistencePort {
         return jobHistoryEntityMbgMapper.selectByCondition(historyCondition).stream()
                                         .map(jobDomainMapper::toHistoryDomain)
                                         .toList();
-    }
-
-    private boolean hasScopeTargetWhenRequired(RunnerDispatchContext context) {
-        if (context.dispatchScope() == JobDispatchScope.GLOBAL) {
-            return true;
-        }
-        return context.scopeTargetId() != null;
     }
 }
