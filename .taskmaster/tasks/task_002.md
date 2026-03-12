@@ -355,7 +355,20 @@ Port 및 Adapter 내의 메서드명을 현대적이고 모범적인 사례에 �
 
 ### 2.34. PushEventHandleService 헥사고날 경계 재정렬 및 Job 도메인 이벤트 흐름 문서화
 
-**Status:** pending  
+**Status:** in-progress  
 **Dependencies:** None  
 
 PushEventHandleService, PushHook, PushEventCommand의 계층 경계를 재검토하고, JGit 의존 제거·입력 모델 재설계·후속 Job 트리거 분리를 위한 리팩토링 계획과 job 도메인 이벤트 흐름 문서를 작성한다.
+
+**Details:**
+
+<info added on 2026-03-12T05:05:57.786Z>
+PushEventCommand에서 org.eclipse.jgit.receive.ReceiveCommand 및 org.eclipse.jgit.lib.Constants 의존과 gitDirPath 기반 식별을 제거하고, `PushHookController`가 `PushHookRequest`를 처리하는 inbound adapter(`adapter.in.web.webhook`) 측에 `PushEventCommandMapper`를 도입하여 JGit 명령 해석과 저장소 식별 책임을 이동함. `PushEventHandleService`는 순수 command(repositoryId, taskCd, repoName) 기반 오케스트레이션만 담당하도록 정리함. `PushEventHandleServiceTest`와 `PushEventCommandMapperTest`로 회귀 검증을 추가하고 ArchitecturePackageConventionTest를 포함한 최소 회귀 세트를 통과함.
+</info added on 2026-03-12T05:05:57.786Z>
+
+### 2.35. Git push 후처리 원자성 보장 전략 및 Pre/Post ReceiveHook 정책 정리
+
+**Status:** pending  
+**Dependencies:** None  
+
+Git 저장소 업데이트와 DB 논리 엔트리 사이의 원자성 한계를 분석하고, PreReceiveHook 사전 검증 범위와 PostReceiveHook 후처리 실패 보상·재처리 정책을 정리하는 리팩토링 과제를 추가한다.

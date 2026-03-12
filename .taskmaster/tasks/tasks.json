@@ -764,6 +764,15 @@
             "parentTaskId": 2,
             "updatedAt": "2026-03-12T05:03:25.846Z",
             "parentId": "undefined"
+          },
+          {
+            "id": 35,
+            "title": "Git push 후처리 원자성 보장 전략 및 Pre/Post ReceiveHook 정책 정리",
+            "description": "Git 저장소 업데이트와 DB 논리 엔트리 사이의 원자성 한계를 분석하고, PreReceiveHook 사전 검증 범위와 PostReceiveHook 후처리 실패 보상·재처리 정책을 정리하는 리팩토링 과제를 추가한다.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2
           }
         ],
         "updatedAt": "2026-03-12T05:03:25.846Z"
