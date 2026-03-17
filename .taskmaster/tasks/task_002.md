@@ -228,7 +228,7 @@ Application 계층에서 인프라 구현체/패키지를 직접 참조하는 �
 
 ### 2.20. 리팩토링 회귀 테스트 세트 확정
 
-**Status:** pending  
+**Status:** cancelled  
 **Dependencies:** None  
 
 핵심 시나리오 기반 최소 회귀 세트를 정의하고 CI 기준선을 업데이트한다.
@@ -379,3 +379,14 @@ Git 저장소 업데이트와 DB 논리 엔트리 사이의 원자성 한계를 
 **Dependencies:** None  
 
 JobDispatchService와 연관된 port/dto/grpc adapter/persistence query의 네이밍, 입력 모델 경계, 책임 배치를 재검토하고 간결한 오케스트레이션 구조로 정리하기 위한 사전 분석 및 리팩토링 작업
+
+### 2.37. Push로 인한 Job 생성 규칙 변경
+
+**Status:** pending  
+**Dependencies:** None  
+
+jgitkins.yml 의 on.push.rules 를 해석해 브랜치별 Jenkinsfile 을 선택하고, 매칭 실패 및 파일 미존재 시 job 생성 없이 skip 처리하도록 Push 후처리 흐름을 확장한다.
+
+**Details:**
+
+참조 문서: docs/jgitkins-branch-pipeline.md. 구현 범위: 1) jgitkins.yml 에 on.push.rules[].branches/file 스키마를 추가하고 애플리케이션 계층에서 읽을 수 있는 설정 모델/파서를 정의한다. 2) pushed branch 를 기준으로 rules 를 순차 탐색하여 첫 매칭 규칙을 선택하는 matcher 를 도입한다. 3) 매칭 규칙이 없으면 SKIPPED_NO_RULE 로 종료하고 job 을 생성하지 않는다. 4) 규칙은 있으나 해당 branch 에서 pipeline file 이 존재하지 않으면 SKIPPED_PIPELINE_NOT_FOUND 로 종료한다. 5) 매칭 성공 시 repository, branch, commit(afterSha), pipelineFile 을 포함한 Job 입력 모델을 구성해 dispatch 흐름으로 전달한다. 6) release/* 같은 패턴 branch 및 paths 조건 확장을 수용할 수 있도록 matcher 책임을 분리한다. 7) 규칙 매칭, skip 사유, pipeline file 선택, push 후처리 통합 시나리오에 대한 테스트를 추가한다.

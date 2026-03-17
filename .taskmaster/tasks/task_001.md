@@ -155,7 +155,7 @@ organizeId 의존 제거, ownerType(USER|ORG) + ownerId 모델링, RepositoryCre
 
 ### 1.12. [16] Setup Git Repository Access Service
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 Create a foundational backend service layer for interacting with Git repositories. This service will abstract low-level Git operations, such as repository cloning, opening, and navigating through its contents.
@@ -217,7 +217,7 @@ Consider using `ResponseEntity<byte[]>` for binary content and `String` for text
 
 ### 1.15. [19] Frontend Router Setup for Repository Views
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 Configure the frontend routing to handle repository-specific URLs, including dynamic parameters for owner type, owner, repository name, branch, and file/directory path.
@@ -272,7 +272,7 @@ Use a state management solution (e.g., React Context, Redux, Vuex, NGRX) for man
 
 ### 1.18. [22] Implement Frontend Tree Navigation Logic
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 Add interactivity to the `FileTree` UI component to handle user clicks on directories and branch selection, updating the URL and fetching new data.
@@ -304,7 +304,7 @@ The component should act as a viewer (read-only) as per the PRD's '읽을 수 �
 
 ### 1.20. [24] Integrate File Blob API and Navigation for File Details
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 Connect the `FileContentViewer` component to the backend API (Task 18) and implement navigation logic for clicking files in the tree view to display their content.
@@ -319,7 +319,7 @@ Extend the `RepositoryView` or a relevant child component:
 
 ### 1.21. [25] Implement Robust Error Handling and Loading States
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 Add comprehensive error handling (e.g., repository not found, file/path not found, API errors) and loading indicators across both file tree and file detail views to improve user experience.

@@ -2,7 +2,7 @@
 
 **Title:** 보안
 
-**Status:** in-progress
+**Status:** done
 
 **Dependencies:** None
 
@@ -50,7 +50,7 @@ Develop a comprehensive API for securely managing various types of credentials (
 
 ### 3.3. [27] OAuth 인증 실패/요청 검증 개선
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 OAuth 로그인 API의 요청 검증과 예외 매핑을 강화해 오류 응답을 일관화한다.
