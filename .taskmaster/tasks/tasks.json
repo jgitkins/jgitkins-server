@@ -801,14 +801,10 @@
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "undefined",
-            "updatedAt": "2026-03-17T12:23:00.317Z",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 2,
-            "parentId": "undefined"
+            "updatedAt": "2026-03-17T12:23:00.317Z"
           }
         ],
-        "updatedAt": "2026-03-12T08:46:13.672Z"
+        "updatedAt": "2026-03-17T12:23:00.317Z"
       },
       {
         "id": "3",
