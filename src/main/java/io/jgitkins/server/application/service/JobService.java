@@ -2,7 +2,6 @@ package io.jgitkins.server.application.service;
 
 import io.jgitkins.server.application.dto.command.JobCreateCommand;
 import io.jgitkins.server.application.port.in.JobCreateUseCase;
-import io.jgitkins.server.application.port.out.FileGitPort;
 import io.jgitkins.server.application.port.out.JobPersistencePort;
 import io.jgitkins.server.domain.aggregate.Job;
 import io.jgitkins.server.domain.model.vo.BranchName;
@@ -20,28 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class JobService implements JobCreateUseCase {
 
     private final JobPersistencePort jobPort;
-    private final FileGitPort fileGitPort;
-
-    private static final String JENKINS_FILE_PATH = "Jenkinsfile";
 
     @Override
     @Transactional
     public void create(JobCreateCommand command) {
-        // 1. Jenkinsfile 존재 여부 확인
-        // TODO: 별도의 JobValidator Support 클래스 생성하고 해당클래스 안에서 파일존재유무에 대한 검증을 진행방향 검토
-        boolean hasJenkinsFile = fileGitPort.exists(command.getTaskCd(),
-                                                               command.getRepoName(),
-                                                               command.getCommitHash(),
-                                                               JENKINS_FILE_PATH);
+        log.info("Creating job for repo: {}, commit: {}, path: {}",
+                command.getRepoName(), command.getCommitHash(), command.getPipelineFilePath());
 
-        if (!hasJenkinsFile) {
-            log.info("Jenkinsfile not found in repo: {}, commit: {}. Skipping job creation.", command.getRepoName(), command.getCommitHash());
-            return;
-        }
-
-        log.info("Jenkinsfile found. Creating job for repo: {}, commit: {}", command.getRepoName(), command.getCommitHash());
-
-        // 2. Job 도메인 객체 생성
         Job job = Job.create(RepositoryId.of(command.getRepositoryId()),
                              CommitHash.of(command.getCommitHash()),
                              BranchName.of(command.getBranchName()),

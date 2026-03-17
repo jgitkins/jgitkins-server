@@ -3,9 +3,11 @@ package io.jgitkins.server.application.service;
 import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.dto.command.JobCreateCommand;
 import io.jgitkins.server.application.dto.command.PushEventCommand;
+import io.jgitkins.server.application.dto.result.JobPlan;
 import io.jgitkins.server.application.port.in.JobCreateUseCase;
 import io.jgitkins.server.application.port.in.PushEventHandleUseCase;
 import io.jgitkins.server.application.port.out.BranchPersistencePort;
+import io.jgitkins.server.application.support.PushJobCreationPlanner;
 import io.jgitkins.server.domain.Branch;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ public class PushEventHandleService implements PushEventHandleUseCase {
 
     private final JobCreateUseCase jobCreateUseCase;
     private final BranchPersistencePort branchPort;
+    private final PushJobCreationPlanner pushJobCreationPlanner;
 
     @Override
     @Transactional
@@ -34,10 +37,22 @@ public class PushEventHandleService implements PushEventHandleUseCase {
         // 2. 브랜치 상태 영속화
         updateBranchState(command.getRepositoryId(), command);
 
-        // 3. 후속 작업 트리거 (Job 생성 등)
-        if (validateCanCreateJob(command)) {
-            jobCreateUseCase.create(buildJobCommand(command));
+        if (!canCreateJob(command)) {
+            return;
         }
+
+        JobPlan jobPlan = pushJobCreationPlanner.plan(
+                command.getTaskCd(),
+                command.getRepoName(),
+                command.getBranchName(),
+                command.getCommitHash());
+
+        if (jobPlan.isSkipped()) {
+            log.info("push event job skipped: reason={}", jobPlan.getSkipReason());
+            return;
+        }
+
+        jobCreateUseCase.create(buildJobCommand(command, jobPlan.getPipelineFilePath()));
     }
 
     private void updateBranchState(Long repositoryId, PushEventCommand command) {
@@ -51,7 +66,7 @@ public class PushEventHandleService implements PushEventHandleUseCase {
         // UPDATE(Push)의 경우 현재 로직에서는 별도의 Branch 엔티티 갱신이 필요 없음 (커밋 해시는 Job에 기록됨)
     }
 
-    private boolean validateCanCreateJob(PushEventCommand command) {
+    private boolean canCreateJob(PushEventCommand command) {
         if (command.isBranchDeleted()) {
             return false;
         }
@@ -68,13 +83,14 @@ public class PushEventHandleService implements PushEventHandleUseCase {
         return true;
     }
 
-    private JobCreateCommand buildJobCommand(PushEventCommand command) {
+    private JobCreateCommand buildJobCommand(PushEventCommand command, String pipelineFilePath) {
         return JobCreateCommand.builder()
                 .taskCd(command.getTaskCd())
                 .repoName(command.getRepoName())
                 .repositoryId(command.getRepositoryId())
                 .branchName(command.getBranchName())
                 .commitHash(command.getCommitHash())
+                .pipelineFilePath(pipelineFilePath)
                 .triggeredBy(command.getTriggeredBy())
                 .build();
     }

@@ -1,14 +1,17 @@
 package io.jgitkins.server.application.service;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.jgitkins.server.application.dto.command.JobCreateCommand;
 import io.jgitkins.server.application.dto.command.PushEventCommand;
+import io.jgitkins.server.application.dto.result.JobPlan;
+import io.jgitkins.server.application.dto.result.PipelineSkipReason;
 import io.jgitkins.server.application.port.in.JobCreateUseCase;
 import io.jgitkins.server.application.port.out.BranchPersistencePort;
+import io.jgitkins.server.application.support.PushJobCreationPlanner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -25,6 +28,9 @@ class PushEventHandleServiceTest {
     @Mock
     private BranchPersistencePort branchPort;
 
+    @Mock
+    private PushJobCreationPlanner pushJobCreationPlanner;
+
     @InjectMocks
     private PushEventHandleService service;
 
@@ -40,6 +46,9 @@ class PushEventHandleServiceTest {
                 .triggeredBy(1L)
                 .build();
 
+        org.mockito.Mockito.when(pushJobCreationPlanner.plan("1", "repo", "main", "abc"))
+                .thenReturn(JobPlan.create(".jgitkins/pipelines/main.Jenkinsfile"));
+
         service.handle(command);
 
         verify(branchPort).save(any());
@@ -50,5 +59,25 @@ class PushEventHandleServiceTest {
         assertEquals("1", job.getTaskCd());
         assertEquals("repo", job.getRepoName());
         assertEquals(9L, job.getRepositoryId());
+        assertEquals(".jgitkins/pipelines/main.Jenkinsfile", job.getPipelineFilePath());
+    }
+
+    @Test
+    void handle_skipsJobWhenPlannerReturnsSkip() {
+        PushEventCommand command = PushEventCommand.builder()
+                .repositoryId(9L)
+                .taskCd("1")
+                .repoName("repo")
+                .branchName("main")
+                .commitHash("abc")
+                .triggeredBy(1L)
+                .build();
+
+        org.mockito.Mockito.when(pushJobCreationPlanner.plan("1", "repo", "main", "abc"))
+                .thenReturn(JobPlan.skip(PipelineSkipReason.SKIPPED_NO_RULE));
+
+        service.handle(command);
+
+        verify(jobCreateUseCase, never()).create(any());
     }
 }

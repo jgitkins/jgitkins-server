@@ -11,5 +11,6 @@ public class JobCreateCommand {
     private final Long repositoryId;
     private final String commitHash;
     private final String branchName;
+    private final String pipelineFilePath;
     private final Long triggeredBy; // Users.id (FK)
 }
