@@ -17,6 +17,7 @@ import io.jgitkins.server.application.port.in.RepositoryCreateUseCase;
 import io.jgitkins.server.application.port.in.RepositoryDeleteUseCase;
 import io.jgitkins.server.application.port.in.RepositoryLoadUseCase;
 import io.jgitkins.server.application.port.in.RepositoryOverviewUseCase;
+import io.jgitkins.server.domain.model.vo.OwnerType;
 import io.jgitkins.server.presentation.dto.RepositoryCreateRequest;
 import io.jgitkins.server.presentation.mapper.RepositoryRequestMapper;
 import java.util.List;
@@ -57,7 +58,7 @@ class RepositoryManagementControllerTest {
     void create_returnsCreatedResponse() throws Exception {
         RepositoryCreateCommand command = RepositoryCreateCommand.builder()
                 .repoName("sample-repo")
-                .ownerType("USER")
+                .ownerType(OwnerType.USER)
                 .mainBranch("main")
                 .build();
         RepositoryResult result = RepositoryResult.builder()

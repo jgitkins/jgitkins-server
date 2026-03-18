@@ -16,13 +16,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
@@ -43,7 +37,7 @@ public class RepositoryManagementController {
 
     @Operation(summary = "Create Repository", description = "ownerType required.")
     @PostMapping
-    public ResponseEntity<ApiResponse<RepositoryResult>> create(@Valid @org.springframework.web.bind.annotation.RequestBody RepositoryCreateRequest request) {
+    public ResponseEntity<ApiResponse<RepositoryResult>> create(@Valid @RequestBody RepositoryCreateRequest request) {
         RepositoryCreateCommand createCommand = repositoryRequestMapper.toCommand(request);
         RepositoryResult result = repositoryCreateUseCase.create(createCommand);
         return ApiResponse.created(result.getId(), result);

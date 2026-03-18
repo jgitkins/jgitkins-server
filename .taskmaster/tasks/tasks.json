@@ -824,9 +824,20 @@
             "parentTaskId": 2,
             "updatedAt": "2026-03-18T06:53:36.156Z",
             "parentId": "undefined"
+          },
+          {
+            "id": 39,
+            "title": "저장소 생성 입력/생성 흐름 리팩토링",
+            "description": "Presentation DTO와 application command 경계를 정리하고 저장소 생성 오케스트레이션을 aggregate 선생성 기반으로 리팩토링한다.",
+            "status": "done",
+            "dependencies": [],
+            "details": "1) RepositoryCreateRequest를 presentation 계층의 값 기반 record와 validation 중심 입력 모델로 유지한다. 2) RepositoryCreateCommand를 record로 정리하고 application 계층에서 enum을 사용하도록 맞춘다. 3) RepositoryRequestMapper에서 String 입력을 application enum으로 변환한다. 4) RepositoryLifecycleService는 aggregate를 먼저 생성해 fast-fail을 유도하고, 이후 검증, 영속화, git 초기화, 이벤트 발행 순으로 오케스트레이션을 정리한다. 5) RepositoryLifecycleServiceTest와 RepositoryManagementControllerTest로 회귀를 확인한다.",
+            "testStrategy": "",
+            "updatedAt": "2026-03-18T13:23:37.017Z",
+            "parentId": "undefined"
           }
         ],
-        "updatedAt": "2026-03-18T12:54:18.030Z"
+        "updatedAt": "2026-03-18T13:23:37.017Z"
       },
       {
         "id": "3",
@@ -981,7 +992,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-18T12:54:18.031Z",
+      "lastModified": "2026-03-18T13:23:37.018Z",
       "taskCount": 5,
       "completedCount": 1,
       "tags": [

@@ -94,7 +94,7 @@ class RepositoryLifecycleServiceTest {
     void create_throwsWhenUserOwnerHasOrganizeId() {
         RepositoryCreateCommand command = RepositoryCreateCommand.builder()
                 .repoName("sample-repo")
-                .ownerType("USER")
+                .ownerType(OwnerType.USER)
                 .organizeId(10L)
                 .mainBranch("main")
                 .build();
@@ -107,7 +107,7 @@ class RepositoryLifecycleServiceTest {
     void create_throwsWhenOrganizationOwnerWithoutMembership() {
         RepositoryCreateCommand command = RepositoryCreateCommand.builder()
                 .repoName("sample-repo")
-                .ownerType("ORGANIZATION")
+                .ownerType(OwnerType.ORGANIZATION)
                 .organizeId(10L)
                 .mainBranch("main")
                 .build();
@@ -123,9 +123,9 @@ class RepositoryLifecycleServiceTest {
     void create_savesWhenUserOwnerAndInputIsValid() {
         RepositoryCreateCommand command = RepositoryCreateCommand.builder()
                 .repoName("sample-repo")
-                .ownerType("USER")
+                .ownerType(OwnerType.USER)
                 .mainBranch("main")
-                .visibility("PUBLIC")
+                .visibility(RepositoryVisibility.PUBLIC)
                 .description("desc")
                 .build();
         Repository saved = org.mockito.Mockito.mock(Repository.class);
@@ -136,7 +136,6 @@ class RepositoryLifecycleServiceTest {
                 .thenReturn(Optional.empty());
         when(repositoryNamespaceResolver.resolve(OwnerType.USER, OwnerId.of(7L))).thenReturn("alice");
         when(repositoryPort.save(any(Repository.class))).thenReturn(saved);
-        when(saved.getId()).thenReturn(RepositoryId.of(100L));
         when(saved.getDomainEvents()).thenReturn(List.of());
         when(repositoryApplicationMapper.toDto(saved)).thenReturn(result);
 

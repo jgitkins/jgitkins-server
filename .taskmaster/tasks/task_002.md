@@ -382,7 +382,7 @@ JobDispatchService와 연관된 port/dto/grpc adapter/persistence query의 네�
 
 ### 2.37. Push로 인한 Job 생성 규칙 변경
 
-**Status:** pending  
+**Status:** done  
 **Dependencies:** None  
 
 jgitkins.yml 의 on.push.rules 를 해석해 브랜치별 Jenkinsfile 을 선택하고, 매칭 실패 및 파일 미존재 시 job 생성 없이 skip 처리하도록 Push 후처리 흐름을 확장한다.
@@ -390,3 +390,21 @@ jgitkins.yml 의 on.push.rules 를 해석해 브랜치별 Jenkinsfile 을 선택
 **Details:**
 
 참조 문서: docs/jgitkins-branch-pipeline.md. 구현 범위: 1) jgitkins.yml 에 on.push.rules[].branches/file 스키마를 추가하고 애플리케이션 계층에서 읽을 수 있는 설정 모델/파서를 정의한다. 2) pushed branch 를 기준으로 rules 를 순차 탐색하여 첫 매칭 규칙을 선택하는 matcher 를 도입한다. 3) 매칭 규칙이 없으면 SKIPPED_NO_RULE 로 종료하고 job 을 생성하지 않는다. 4) 규칙은 있으나 해당 branch 에서 pipeline file 이 존재하지 않으면 SKIPPED_PIPELINE_NOT_FOUND 로 종료한다. 5) 매칭 성공 시 repository, branch, commit(afterSha), pipelineFile 을 포함한 Job 입력 모델을 구성해 dispatch 흐름으로 전달한다. 6) release/* 같은 패턴 branch 및 paths 조건 확장을 수용할 수 있도록 matcher 책임을 분리한다. 7) 규칙 매칭, skip 사유, pipeline file 선택, push 후처리 통합 시나리오에 대한 테스트를 추가한다.
+
+### 2.38. taskCd 명칭을 namespace 로 정렬하는 전역 리네이밍 리팩토링
+
+**Status:** done  
+**Dependencies:** None  
+
+현재 서버 전역에서 파일시스템 namespace 의미로 사용되는 taskCd 명칭을 namespace 로 일관되게 정리하기 위해 controller, application port/usecase/service, command DTO, git adapter, test 코드를 대상으로 명명 정합성과 외부 API 호환 전략을 함께 다루는 리팩토링 단위로 관리한다.
+
+### 2.39. 저장소 생성 입력/생성 흐름 리팩토링
+
+**Status:** done  
+**Dependencies:** None  
+
+Presentation DTO와 application command 경계를 정리하고 저장소 생성 오케스트레이션을 aggregate 선생성 기반으로 리팩토링한다.
+
+**Details:**
+
+1) RepositoryCreateRequest를 presentation 계층의 값 기반 record와 validation 중심 입력 모델로 유지한다. 2) RepositoryCreateCommand를 record로 정리하고 application 계층에서 enum을 사용하도록 맞춘다. 3) RepositoryRequestMapper에서 String 입력을 application enum으로 변환한다. 4) RepositoryLifecycleService는 aggregate를 먼저 생성해 fast-fail을 유도하고, 이후 검증, 영속화, git 초기화, 이벤트 발행 순으로 오케스트레이션을 정리한다. 5) RepositoryLifecycleServiceTest와 RepositoryManagementControllerTest로 회귀를 확인한다.

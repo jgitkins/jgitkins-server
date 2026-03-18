@@ -33,136 +33,140 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class RepositoryLifecycleService implements RepositoryCreateUseCase,
-                RepositoryLoadUseCase,
-                RepositoryDeleteUseCase {
+        RepositoryLoadUseCase,
+        RepositoryDeleteUseCase {
 
-        private final RepositoryNamespaceResolver repositoryNamespaceResolver;
-        private final RepositoryApplicationMapper repositoryApplicationMapper;
-        private final DomainEventPublisher domainEventPublisher;
+    private final RepositoryNamespaceResolver repositoryNamespaceResolver;
+    private final RepositoryApplicationMapper repositoryApplicationMapper;
+    private final DomainEventPublisher domainEventPublisher;
 
-        private final RepositoryGitPort repositoryGitPort;
-        private final RepositoryPersistencePort repositoryPort;
-        private final CurrentUserPort currentUserPersistencePort;
-        private final UserPersistencePort userPort;
+    private final RepositoryGitPort repositoryGitPort;
+    private final RepositoryPersistencePort repositoryPort;
+    private final CurrentUserPort currentUserPersistencePort;
+    private final UserPersistencePort userPort;
 
-        private final RepositoryValidator repositoryValidator;
-        private final RepositoryLookupService repositoryLookupService;
+    private final RepositoryValidator repositoryValidator;
+    private final RepositoryLookupService repositoryLookupService;
 
-        @Override
-        @Transactional
-        public RepositoryResult create(RepositoryCreateCommand command) {
-                long startedAt = System.nanoTime();
+    @Override
+    @Transactional
+    public RepositoryResult create(RepositoryCreateCommand command) {
+        Repository repository = createRepository(command);
+        validateRepositoryCreation(repository, command.organizeId());
 
-                // 1. 입력 검증 및 VO 생성 (Fast-Fail)
-                RepositoryName repositoryName = RepositoryName.from(command.getRepoName());
-                RepositoryPath repositoryPath = RepositoryPath.from(command.getRepoName());
-                OwnerType ownerType = OwnerType.from(command.getOwnerType());
-                BranchName defaultBranch = BranchName.of(command.getMainBranch());
-                RepositoryVisibility visibility = command.getVisibility() != null
-                                ? RepositoryVisibility.from(command.getVisibility())
-                                : RepositoryVisibility.PRIVATE;
+        Repository saved = repositoryPort.save(repository);
+        repositoryGitPort.initialize(
+                repositoryNamespaceResolver.resolve(repository.getOwnerType(), repository.getOwnerId()),
+                repository.getName().getValue());
 
-                InitialCommitOptions initialCommitOptions = InitialCommitOptions.of(
-                                command.isReadme(), command.getMessage(), command.getAuthorName(),
-                                command.getAuthorEmail());
+        publishDomainEvents(saved);
+        return repositoryApplicationMapper.toDto(saved);
+    }
 
-                // 2. 비즈니스 규칙 검증 (Validator 위임)
-                repositoryValidator.validateCreation(ownerType, command.getOrganizeId(), repositoryName);
+    @Override
+    @Transactional(readOnly = true)
+    public RepositoryResult getRepository(Long repositoryId) {
+        Repository repository = repositoryPort.findById(RepositoryId.of(repositoryId))
+                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
+                        "Repository not found: " + repositoryId));
+        return repositoryApplicationMapper.toDto(repository);
+    }
 
-                // 3. 컨텍스트 준비
-                OwnerId ownerId = resolveOwnerId(ownerType, command.getOrganizeId());
-                String namespace = repositoryNamespaceResolver.resolve(ownerType, ownerId);
-                String clonePath = RepositoryPathHelper.buildClonePath(namespace, repositoryPath.getValue());
+    @Override
+    @Transactional(readOnly = true)
+    public RepositoryResult getRepositoryByPath(String namespace, String repoName) {
+        Repository repository = repositoryLookupService.findByPath(namespace, repoName)
+                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
+                        String.format("Repository not found: %s/%s", namespace, repoName)));
+        return repositoryApplicationMapper.toDto(repository);
+    }
 
-                // 4. 애그리게이트 생성 및 저장
-                Repository repository = Repository.create(ownerType, ownerId, repositoryName, repositoryPath,
-                                defaultBranch, visibility, command.getDescription(), clonePath,
-                                command.getCredentialId(), initialCommitOptions);
+    @Override
+    @Transactional(readOnly = true)
+    public List<RepositoryResult> getRepositories() {
+        Optional<Long> requesterId = currentUserPersistencePort.resolveCurrentUserId();
+        Map<OrganizeId, Boolean> membershipCache = new HashMap<>();
 
-                Repository saved = repositoryPort.save(repository);
-                repositoryGitPort.initialize(namespace, repositoryName.getValue());
+        return repositoryPort.findAll().stream()
+                .filter(repo -> repositoryLookupService.isVisibleToRequester(repo, requesterId,
+                        membershipCache))
+                .map(repositoryApplicationMapper::toDto)
+                .toList();
+    }
 
-                publishDomainEvents(saved);
+    @Override
+    @Transactional(readOnly = true)
+    public List<RepositoryResult> getRepositoriesByUsername(String username) {
+        // TODO: Presentation 계층으로 이관 (Validator 통해 처리하기)
+        String normalizedUsername = username != null ? username.trim() : "";
 
-                long durationMs = (System.nanoTime() - startedAt) / 1_000_000;
-                log.info("Repository created. id={}, owner={}, name={}, duration={}ms",
-                                saved.getId().getValue(), ownerId, repositoryName.getValue(), durationMs);
+        Long ownerId = userPort.findUserIdByUsername(normalizedUsername)
+                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.USER_NOT_FOUND,
+                        "User not found: " + normalizedUsername));
 
-                return repositoryApplicationMapper.toDto(saved);
-        }
+        Optional<Long> requesterId = currentUserPersistencePort.resolveCurrentUserId();
+        return repositoryPort.findAllByOwner(OwnerType.USER, OwnerId.of(ownerId)).stream()
+                .filter(repo -> repositoryLookupService.isVisibleToUserOwner(repo, requesterId,
+                        ownerId))
+                .map(repositoryApplicationMapper::toDto)
+                .toList();
+    }
 
-        @Override
-        @Transactional(readOnly = true)
-        public RepositoryResult getRepository(Long repositoryId) {
-                Repository repository = repositoryPort.findById(RepositoryId.of(repositoryId))
-                                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
-                                                "Repository not found: " + repositoryId));
-                return repositoryApplicationMapper.toDto(repository);
-        }
+    @Override
+    @Transactional
+    public void deleteRepository(Long repositoryId) {
+        RepositoryId id = RepositoryId.of(repositoryId);
+        Repository repository = repositoryPort.findById(id)
+                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
+                        "Repository not found: " + repositoryId));
 
-        @Override
-        @Transactional(readOnly = true)
-        public RepositoryResult getRepositoryByPath(String namespace, String repoName) {
-                Repository repository = repositoryLookupService.findByPath(namespace, repoName)
-                                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
-                                                String.format("Repository not found: %s/%s", namespace, repoName)));
-                return repositoryApplicationMapper.toDto(repository);
-        }
+        repositoryValidator.enforceDeletionPermission(repository);
 
-        @Override
-        @Transactional(readOnly = true)
-        public List<RepositoryResult> getRepositories() {
-                Optional<Long> requesterId = currentUserPersistencePort.resolveCurrentUserId();
-                Map<OrganizeId, Boolean> membershipCache = new HashMap<>();
+        String namespace = repositoryNamespaceResolver.resolve(repository);
+        repositoryGitPort.deleteRepository(namespace, repository.getName().getValue());
 
-                return repositoryPort.findAll().stream()
-                                .filter(repo -> repositoryLookupService.isVisibleToRequester(repo, requesterId,
-                                                membershipCache))
-                                .map(repositoryApplicationMapper::toDto)
-                                .toList();
-        }
+        repositoryPort.deleteById(id);
+    }
 
-        @Override
-        @Transactional(readOnly = true)
-        public List<RepositoryResult> getRepositoriesByUsername(String username) {
-                // TODO: Presentation 계층으로 이관 (Validator 통해 처리하기)
-                String normalizedUsername = username != null ? username.trim() : "";
+    private OwnerId resolveOwnerId(OwnerType ownerType, Long organizeId) {
+        return ownerType == OwnerType.ORGANIZATION ? OwnerId.of(organizeId)
+                : OwnerId.of(repositoryValidator.requireCurrentUserId());
+    }
 
-                Long ownerId = userPort.findUserIdByUsername(normalizedUsername)
-                                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.USER_NOT_FOUND,
-                                                "User not found: " + normalizedUsername));
+    private Repository createRepository(RepositoryCreateCommand command) {
+        OwnerType ownerType = command.ownerType();
+        OwnerId ownerId = resolveOwnerId(ownerType, command.organizeId());
+        String namespace = repositoryNamespaceResolver.resolve(ownerType, ownerId);
 
-                Optional<Long> requesterId = currentUserPersistencePort.resolveCurrentUserId();
-                return repositoryPort.findAllByOwner(OwnerType.USER, OwnerId.of(ownerId)).stream()
-                                .filter(repo -> repositoryLookupService.isVisibleToUserOwner(repo, requesterId,
-                                                ownerId))
-                                .map(repositoryApplicationMapper::toDto)
-                                .toList();
-        }
+        return Repository.create(
+                ownerType,
+                ownerId,
+                RepositoryName.from(command.repoName()),
+                RepositoryPath.from(command.repoName()),
+                BranchName.of(command.mainBranch()),
+                command.visibility() != null ? command.visibility() : RepositoryVisibility.PRIVATE,
+                command.description(),
+                RepositoryPathHelper.buildClonePath(namespace, command.repoName()),
+                command.credentialId(),
+                InitialCommitOptions.of(
+                        command.readme(),
+                        command.message(),
+                        command.authorName(),
+                        command.authorEmail()
+                )
+        );
+    }
 
-        @Override
-        @Transactional
-        public void deleteRepository(Long repositoryId) {
-                RepositoryId id = RepositoryId.of(repositoryId);
-                Repository repository = repositoryPort.findById(id)
-                                .orElseThrow(() -> new ApplicationException(ApplicationErrorCode.REPOSITORY_NOT_FOUND,
-                                                "Repository not found: " + repositoryId));
+    private void validateRepositoryCreation(Repository repository, Long organizeId) {
+        repositoryValidator.validateOwnership(repository.getOwnerType(), organizeId);
+        repositoryValidator.validateRepositoryNameUnique(
+                repository.getOwnerType(),
+                repository.getOwnerId(),
+                repository.getName());
+    }
 
-                repositoryValidator.enforceDeletionPermission(repository);
-
-                String namespace = repositoryNamespaceResolver.resolve(repository);
-                repositoryGitPort.deleteRepository(namespace, repository.getName().getValue());
-
-                repositoryPort.deleteById(id);
-        }
-
-        private OwnerId resolveOwnerId(OwnerType ownerType, Long organizeId) {
-                return ownerType == OwnerType.ORGANIZATION ? OwnerId.of(organizeId)
-                                : OwnerId.of(repositoryValidator.requireCurrentUserId());
-        }
-
-        private void publishDomainEvents(Repository repository) {
-                domainEventPublisher.publish(repository.getDomainEvents());
-                repository.clearDomainEvents();
-        }
+    private void publishDomainEvents(Repository repository) {
+        domainEventPublisher.publish(repository.getDomainEvents());
+        repository.clearDomainEvents();
+    }
 }
