@@ -893,7 +893,7 @@
         "id": "5",
         "title": "버그/핫픽스",
         "description": "사용자 영향 버그 및 긴급 수정 작업",
-        "status": "done",
+        "status": "in-progress",
         "dependencies": [],
         "priority": "high",
         "details": "카테고리 기반 상위 Task",
@@ -909,16 +909,46 @@
             "parentTaskId": 5,
             "updatedAt": "2026-03-12T08:50:11.656Z",
             "parentId": "undefined"
+          },
+          {
+            "id": 2,
+            "title": "repositories/new owner namespace 초기화 계약 복구 핫픽스",
+            "description": "repositories/new 진입 시 owner 영역에 로그인 사용자 namespace 가 노출되지 않는 문제에 대해 원인 분석, view-model 계약 복구 기준 정리, owner slug 소스 분리, 최소 변경 범위 정의를 수행하는 핫픽스 단위로 관리한다.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 5,
+            "parentId": "undefined"
+          },
+          {
+            "id": 3,
+            "title": "조직 조회 API NullPointerException 추적 및 방어 핫픽스",
+            "description": "repositories/new 초기화 과정에서 연계 호출되는 조직 조회 API 경로에서 발생한 Unexpected exception 및 'Cannot read field \"w1\" because \"src\" is null' 오류에 대해 재현 경로 확인, 실제 예외 지점 식별, null-safe 처리와 계약 검증 범위를 정의하는 핫픽스 단위로 관리한다.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 5,
+            "parentId": "undefined"
+          },
+          {
+            "id": 4,
+            "title": "repository 생성 화면 owner/organization 초기화 회귀 검증 핫픽스",
+            "description": "개인 owner namespace 표시, 접근 가능한 organization 목록 노출, 초기화 실패 시 fallback 동작까지 포함한 repositories/new 회귀 검증 시나리오와 테스트 보강 범위를 정의하는 핫픽스 단위로 관리한다.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 5,
+            "parentId": "undefined"
           }
         ],
-        "updatedAt": "2026-03-12T08:50:11.656Z"
+        "updatedAt": "2026-03-18T04:44:21.480Z"
       }
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-17T12:23:00.317Z",
+      "lastModified": "2026-03-18T04:44:21.483Z",
       "taskCount": 5,
-      "completedCount": 2,
+      "completedCount": 1,
       "tags": [
         "master"
       ]
