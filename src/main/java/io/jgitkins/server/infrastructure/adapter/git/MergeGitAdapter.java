@@ -35,8 +35,8 @@ public class MergeGitAdapter implements MergeGitPort {
     }
 
     @Override
-    public MergeResult previewMerge(String taskCd, String repoName, String sourceBranch, String targetBranch) throws IOException {
-        File bareRepositoryPath = new File(rootPath + "/" + taskCd + "/" + repoName + ".git");
+    public MergeResult previewMerge(String namespace, String repoName, String sourceBranch, String targetBranch) throws IOException {
+        File bareRepositoryPath = new File(rootPath + "/" + namespace + "/" + repoName + ".git");
 
         try (Repository repo = new FileRepositoryBuilder()
                 .setGitDir(bareRepositoryPath)
@@ -114,8 +114,8 @@ public class MergeGitAdapter implements MergeGitPort {
     }
 
     @Override
-    public MergeResult merge(String taskCd, String repoName, MergeRequest req) throws IOException {
-        File bareRepositoryPath = new File(rootPath + "/" + taskCd + "/" + repoName + ".git");
+    public MergeResult merge(String namespace, String repoName, MergeRequest req) throws IOException {
+        File bareRepositoryPath = new File(rootPath + "/" + namespace + "/" + repoName + ".git");
 
         try (Repository repo = new FileRepositoryBuilder()
                 .setGitDir(bareRepositoryPath)

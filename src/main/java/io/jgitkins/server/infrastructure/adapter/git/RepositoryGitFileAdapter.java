@@ -32,8 +32,8 @@ public class RepositoryGitFileAdapter implements FileGitPort {
     private final RepositoryResolver repositoryResolver;
 
     @Override
-    public List<FileEntry> listTree(String taskCd, String repoName, String branch, String directory) {
-        try (Repository repository = repositoryResolver.openBareRepository(taskCd, repoName)) {
+    public List<FileEntry> listTree(String namespace, String repoName, String branch, String directory) {
+        try (Repository repository = repositoryResolver.openBareRepository(namespace, repoName)) {
             RevTree commitTree = resolveCommitTree(repository, branch);
             return listFiles(repository, commitTree, directory);
         } catch (IOException e) {
@@ -42,8 +42,8 @@ public class RepositoryGitFileAdapter implements FileGitPort {
     }
 
     @Override
-    public List<FileEntry> listAllFiles(String taskCd, String repoName, String branch) {
-        try (Repository repository = repositoryResolver.openBareRepository(taskCd, repoName)) {
+    public List<FileEntry> listAllFiles(String namespace, String repoName, String branch) {
+        try (Repository repository = repositoryResolver.openBareRepository(namespace, repoName)) {
             RevTree tree = resolveCommitTree(repository, branch);
             return collectAllFileEntries(repository, tree);
         } catch (IOException e) {
@@ -52,8 +52,8 @@ public class RepositoryGitFileAdapter implements FileGitPort {
     }
 
     @Override
-    public boolean exists(String taskCd, String repoName, String branch, String filePath) {
-        try (Repository repository = repositoryResolver.openBareRepository(taskCd, repoName)) {
+    public boolean exists(String namespace, String repoName, String branch, String filePath) {
+        try (Repository repository = repositoryResolver.openBareRepository(namespace, repoName)) {
             RevTree tree = resolveCommitTree(repository, branch);
             try (TreeWalk treeWalk = TreeWalk.forPath(repository, filePath, tree)) {
                 return treeWalk != null;

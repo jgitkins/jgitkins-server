@@ -5,5 +5,5 @@ import io.jgitkins.server.application.dto.FileEntry;
 import java.util.List;
 
 public interface FileLoadUseCase {
-    List<FileEntry> getAllFiles(String taskCd, String repoName, String reference);
+    List<FileEntry> getAllFiles(String namespace, String repoName, String reference);
 }

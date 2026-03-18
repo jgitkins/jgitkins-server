@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class JobCreateCommand {
-    private final String taskCd;
+    private final String namespace;
     private final String repoName;
     private final Long repositoryId;
     private final String commitHash;

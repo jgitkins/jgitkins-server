@@ -17,17 +17,17 @@ public class CommitService implements CommitLoadUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public CommitHistory getCommit(String taskCd,
+    public CommitHistory getCommit(String namespace,
                                    String repoName,
                                    String commitHash) {
-        return commitGitPort.loadCommit(taskCd, repoName, commitHash);
+        return commitGitPort.loadCommit(namespace, repoName, commitHash);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CommitHistory> getCommits(String taskCd,
+    public List<CommitHistory> getCommits(String namespace,
                                           String repoName,
                                           String branch) {
-        return commitGitPort.listCommitHistory(taskCd, repoName, branch);
+        return commitGitPort.listCommitHistory(namespace, repoName, branch);
     }
 }

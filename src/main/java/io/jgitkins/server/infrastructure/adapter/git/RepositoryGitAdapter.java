@@ -41,10 +41,10 @@ public class RepositoryGitAdapter implements RepositoryGitPort {
     }
 
     @Override
-    public void deleteRepository(String taskCd, String repoName) {
-        File gitDir = repositoryResolver.resolveGitDir(taskCd, repoName);
+    public void deleteRepository(String namespace, String repoName) {
+        File gitDir = repositoryResolver.resolveGitDir(namespace, repoName);
         if (!gitDir.exists()) {
-            log.info("Skip repository delete. repo not found path={}, task={}", gitDir.getAbsolutePath(), taskCd);
+            log.info("Skip repository delete. repo not found path={}, namespace={}", gitDir.getAbsolutePath(), namespace);
             return;
         }
         try {
@@ -62,13 +62,13 @@ public class RepositoryGitAdapter implements RepositoryGitPort {
     }
 
     @Override
-    public void updateHeadReference(String taskCd, String repoName, String branch) {
-        try (Repository repo = repositoryResolver.openBareRepository(taskCd, repoName)) {
+    public void updateHeadReference(String namespace, String repoName, String branch) {
+        try (Repository repo = repositoryResolver.openBareRepository(namespace, repoName)) {
             String mainRef = GitConstants.REFS_HEADS_PREFIX + branch;
             repo.updateRef(Constants.HEAD, true)
                     .link(mainRef);
         } catch (IOException e) {
-            throw new InfrastructureException(InfrastructureErrorCode.HEAD_POINT_FAILED, String.format("Failed to link HEAD for repo %s/%s", taskCd, repoName), e);
+            throw new InfrastructureException(InfrastructureErrorCode.HEAD_POINT_FAILED, String.format("Failed to link HEAD for repo %s/%s", namespace, repoName), e);
         }
     }
 

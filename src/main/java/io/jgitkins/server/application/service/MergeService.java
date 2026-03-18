@@ -16,12 +16,12 @@ public class MergeService implements MergeabilityCheckUseCase, MergeUseCase {
     private final MergeGitPort mergeGitPort;
 
     @Override
-    public MergeResult checkMergeability(String taskCd, String repoName, String sourceBranch, String targetBranch) throws IOException {
-        return mergeGitPort.previewMerge(taskCd, repoName, sourceBranch, targetBranch);
+    public MergeResult checkMergeability(String namespace, String repoName, String sourceBranch, String targetBranch) throws IOException {
+        return mergeGitPort.previewMerge(namespace, repoName, sourceBranch, targetBranch);
     }
 
     @Override
-    public MergeResult performMerge(String taskCd, String repoName, MergeRequest request) throws IOException {
-        return mergeGitPort.merge(taskCd, repoName, request);
+    public MergeResult performMerge(String namespace, String repoName, MergeRequest request) throws IOException {
+        return mergeGitPort.merge(namespace, repoName, request);
     }
 }

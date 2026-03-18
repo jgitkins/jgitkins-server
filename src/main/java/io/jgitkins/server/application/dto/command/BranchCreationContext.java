@@ -12,7 +12,7 @@ public class BranchCreationContext {
     private final String branchName;
     private final String sourceBranch;
     private final boolean physicalCreationRequired;
-    private final String taskCd;
+    private final String namespace;
     private final String repositoryName;
 
     public static BranchCreationContext of(BranchCreateCommand command,
@@ -24,7 +24,7 @@ public class BranchCreationContext {
                 .branchName(command.getBranchName())
                 .sourceBranch(resolvedSourceBranch)
                 .physicalCreationRequired(command.isPhysicalCreationRequired())
-                .taskCd(namespace)
+                .namespace(namespace)
                 .repositoryName(repository.getName().getValue())
                 .build();
     }

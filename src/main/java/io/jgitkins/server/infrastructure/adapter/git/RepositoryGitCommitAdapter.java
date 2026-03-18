@@ -36,8 +36,8 @@ public class RepositoryGitCommitAdapter implements CommitGitPort {
     private final RepositoryResolver repositoryResolver;
 
     @Override
-    public CommitHistory loadCommit(String taskCd, String repoName, String commitHash) {
-        try (Repository repository = repositoryResolver.openBareRepository(taskCd, repoName)) {
+    public CommitHistory loadCommit(String namespace, String repoName, String commitHash) {
+        try (Repository repository = repositoryResolver.openBareRepository(namespace, repoName)) {
             ObjectId commitId = repository.resolve(commitHash);
             // TODO: refactor do not known ApplicationException from adpater
             if (commitId == null) {
@@ -56,8 +56,8 @@ public class RepositoryGitCommitAdapter implements CommitGitPort {
     }
 
     @Override
-    public List<CommitHistory> listCommitHistory(String taskCd, String repoName, String branch) {
-        try (Repository repository = repositoryResolver.openBareRepository(taskCd, repoName);
+    public List<CommitHistory> listCommitHistory(String namespace, String repoName, String branch) {
+        try (Repository repository = repositoryResolver.openBareRepository(namespace, repoName);
                 Git git = new Git(repository)) {
             ObjectId branchHead = resolveBranchHead(repository, branch);
             if (branchHead == null) {
@@ -78,14 +78,14 @@ public class RepositoryGitCommitAdapter implements CommitGitPort {
     }
 
     @Override
-    public void commit(String taskCd,
+    public void commit(String namespace,
             String repoName,
             String branch,
             String message,
             String authorName,
             String authorEmail,
             List<CommitFile> files) {
-        try (Repository repository = repositoryResolver.openBareRepository(taskCd, repoName)) {
+        try (Repository repository = repositoryResolver.openBareRepository(namespace, repoName)) {
             ObjectId commitId = createCommit(repository, branch, message, authorName, authorEmail, files);
             updateBranchReference(repository, branch, commitId);
         } catch (IOException e) {

@@ -7,7 +7,7 @@ import lombok.Getter;
 @Builder
 public class PushEventCommand {
     private final Long repositoryId;
-    private final String taskCd;
+    private final String namespace;
     private final String repoName;
     private final String branchName;
     private final boolean branchCreated;

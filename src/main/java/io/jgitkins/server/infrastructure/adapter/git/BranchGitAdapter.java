@@ -26,12 +26,12 @@ public class BranchGitAdapter implements BranchGitPort {
 
     @Override
     public void createBranch(BranchCreationContext context) {
-        String taskCd = context.getTaskCd();
+        String namespace = context.getNamespace();
         String repoName = context.getRepositoryName();
         String sourceBranch = context.getSourceBranch();
         String branchName = context.getBranchName();
 
-        try (Repository repo = repositoryResolver.openBareRepository(taskCd, repoName)) {
+        try (Repository repo = repositoryResolver.openBareRepository(namespace, repoName)) {
             try (Git git = new Git(repo)) {
                 // TODO: refactor 수정필요 Adapter에서 ApplicationException 모르기
                 if (repo.resolve(sourceBranch) == null) {
@@ -57,8 +57,8 @@ public class BranchGitAdapter implements BranchGitPort {
     }
 
     @Override
-    public void deleteBranch(String taskCd, String repoName, String branchName) {
-        try (Repository repo = repositoryResolver.openBareRepository(taskCd, repoName)) {
+    public void deleteBranch(String namespace, String repoName, String branchName) {
+        try (Repository repo = repositoryResolver.openBareRepository(namespace, repoName)) {
             try (Git git = new Git(repo)) {
                 if (repo.resolve(branchName) == null) {
                     // TODO: refactor 수정필요 Adapter에서 ApplicationException 모르기

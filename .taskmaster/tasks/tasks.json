@@ -812,9 +812,20 @@
             "dependencies": [],
             "parentTaskId": 2,
             "parentId": "undefined"
+          },
+          {
+            "id": 38,
+            "title": "taskCd 명칭을 namespace 로 정렬하는 전역 리네이밍 리팩토링",
+            "description": "현재 서버 전역에서 파일시스템 namespace 의미로 사용되는 taskCd 명칭을 namespace 로 일관되게 정리하기 위해 controller, application port/usecase/service, command DTO, git adapter, test 코드를 대상으로 명명 정합성과 외부 API 호환 전략을 함께 다루는 리팩토링 단위로 관리한다.",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2,
+            "updatedAt": "2026-03-18T06:53:36.156Z",
+            "parentId": "undefined"
           }
         ],
-        "updatedAt": "2026-03-17T12:23:00.317Z"
+        "updatedAt": "2026-03-18T06:53:36.156Z"
       },
       {
         "id": "3",
@@ -969,7 +980,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-18T05:07:36.029Z",
+      "lastModified": "2026-03-18T06:53:36.159Z",
       "taskCount": 5,
       "completedCount": 1,
       "tags": [

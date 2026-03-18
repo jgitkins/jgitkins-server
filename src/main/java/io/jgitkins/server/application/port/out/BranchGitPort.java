@@ -4,6 +4,6 @@ import io.jgitkins.server.application.dto.command.BranchCreationContext;
 
 public interface BranchGitPort {
     void createBranch(BranchCreationContext context);
-    void deleteBranch(String taskCd, String repoName, String branchName);
+    void deleteBranch(String namespace, String repoName, String branchName);
 
 }

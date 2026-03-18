@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -24,22 +23,22 @@ public class RepositoryCommitController {
     private final CommitLoadUseCase commitLoadUseCase;
 
     @Operation(summary = "View Commit Detail", description = "커밋 상세 조회")
-    @GetMapping("/{taskCd}/{repoName}/commits/{commitHash}")
-    public ResponseEntity<ApiResponse<CommitHistory>> getCommitDetail(@PathVariable String taskCd,
+    @GetMapping("/{namespace}/{repoName}/commits/{commitHash}")
+    public ResponseEntity<ApiResponse<CommitHistory>> getCommitDetail(@PathVariable String namespace,
                                                                       @PathVariable String repoName,
                                                                       @PathVariable String commitHash) {
 
-        CommitHistory commitHistory = commitLoadUseCase.getCommit(taskCd, repoName, commitHash);
+        CommitHistory commitHistory = commitLoadUseCase.getCommit(namespace, repoName, commitHash);
         return ApiResponse.ok(commitHistory);
     }
 
     @Operation(summary = "View Commit Histories", description = "커밋 이력 조회")
-    @GetMapping("/{taskCd}/{repoName}/branches/{branch}/commits")
-    public ResponseEntity<ApiResponse<List<CommitHistory>>> getBranchCommitHistories(@PathVariable String taskCd,
+    @GetMapping("/{namespace}/{repoName}/branches/{branch}/commits")
+    public ResponseEntity<ApiResponse<List<CommitHistory>>> getBranchCommitHistories(@PathVariable String namespace,
                                                                                      @PathVariable String repoName,
                                                                                      @PathVariable String branch) {
 
-        List<CommitHistory> commitHistories = commitLoadUseCase.getCommits(taskCd, repoName, branch);
+        List<CommitHistory> commitHistories = commitLoadUseCase.getCommits(namespace, repoName, branch);
         return ApiResponse.ok(commitHistories);
     }
 }

@@ -4,5 +4,5 @@ import io.jgitkins.server.application.dto.pipeline.PipelineConfig;
 
 public interface PipelineConfigPort {
 
-    PipelineConfig read(String taskCd, String repoName, String commitHash);
+    PipelineConfig read(String namespace, String repoName, String commitHash);
 }

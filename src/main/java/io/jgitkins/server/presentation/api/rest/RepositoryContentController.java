@@ -38,14 +38,14 @@ public class RepositoryContentController {
     private final RepositoryLoadUseCase repositoryLoadUseCase;
 
     @Operation(summary = "File Upload")
-    @PostMapping(value = "/{taskCd}/{repoName}/files/{branch}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{namespace}/{repoName}/files/{branch}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RequestBody(required = true, content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, schema = @Schema(implementation = FileUploadRequest.class), encoding = @Encoding(name = "request", contentType = "application/json")))
-    public ResponseEntity<ApiResponse<String>> uploadFile(@PathVariable @NotBlank String taskCd,
+    public ResponseEntity<ApiResponse<String>> uploadFile(@PathVariable @NotBlank String namespace,
             @PathVariable @NotBlank String repoName,
             @PathVariable @NotBlank String branch,
             @Parameter(schema = @Schema(type = "string", format = "binary")) @RequestPart("file") MultipartFile file,
             @Valid @RequestPart("request") FileUploadInfo request) {
-        fileUploadUseCase.uploadFileToRepository(taskCd, repoName, branch, file, request);
+        fileUploadUseCase.uploadFileToRepository(namespace, repoName, branch, file, request);
         return ApiResponse.ok("File uploaded and committed.");
     }
 
@@ -66,12 +66,12 @@ public class RepositoryContentController {
     }
 
     @Operation(summary = "View File Tree", description = "트리 조회")
-    @GetMapping("/{taskCd}/{repoName}/refs/{branch}/tree")
-    public ResponseEntity<ApiResponse<List<FileEntry>>> getTree(@PathVariable String taskCd,
+    @GetMapping("/{namespace}/{repoName}/refs/{branch}/tree")
+    public ResponseEntity<ApiResponse<List<FileEntry>>> getTree(@PathVariable String namespace,
             @PathVariable String repoName,
             @PathVariable String branch,
             @RequestParam(name = "dir", required = false, defaultValue = "") String dir) {
-        List<FileEntry> files = fileTreeLoadUseCase.getTree(taskCd, repoName, branch, dir);
+        List<FileEntry> files = fileTreeLoadUseCase.getTree(namespace, repoName, branch, dir);
         return ApiResponse.ok(files);
     }
 

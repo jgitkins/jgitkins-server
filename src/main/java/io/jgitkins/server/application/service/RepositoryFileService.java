@@ -32,16 +32,16 @@ public class RepositoryFileService implements FileUploadUseCase,
 
     @Override
     @Transactional
-    public void uploadFileToRepository(String taskCd,
+    public void uploadFileToRepository(String namespace,
             String repoName,
             String branch,
             MultipartFile file,
             FileUploadInfo request) {
-        repositoryAccessValidator.validateCanCommit(taskCd, repoName);
+        repositoryAccessValidator.validateCanCommit(namespace, repoName);
 
         List<CommitFile> files = commitFileFactory.prepareUploadFile(file, request);
 
-        commitGitPort.commit(taskCd,
+        commitGitPort.commit(namespace,
                 repoName,
                 branch,
                 request.getCommitMessage(),
@@ -61,8 +61,8 @@ public class RepositoryFileService implements FileUploadUseCase,
 
     @Override
     @Transactional(readOnly = true)
-    public List<FileEntry> getAllFiles(String taskCd, String repoName, String reference) {
-        return fileGitPort.listAllFiles(taskCd, repoName, reference);
+    public List<FileEntry> getAllFiles(String namespace, String repoName, String reference) {
+        return fileGitPort.listAllFiles(namespace, repoName, reference);
     }
 
     private String resolveAuthorName(FileUploadInfo request) {

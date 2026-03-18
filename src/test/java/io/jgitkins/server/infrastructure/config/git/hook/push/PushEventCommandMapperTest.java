@@ -49,7 +49,7 @@ class PushEventCommandMapperTest {
 
         assertThat(result).isPresent();
         assertThat(result.get().getRepositoryId()).isEqualTo(9L);
-        assertThat(result.get().getTaskCd()).isEqualTo("users/alice");
+        assertThat(result.get().getNamespace()).isEqualTo("users/alice");
         assertThat(result.get().getRepoName()).isEqualTo("repo");
         assertThat(result.get().getBranchName()).isEqualTo("main");
         assertThat(result.get().getCommitHash()).isEqualTo("0123456789012345678901234567890123456789");
@@ -93,7 +93,7 @@ class PushEventCommandMapperTest {
 
         assertThat(result).isPresent();
         assertThat(result.get().getRepoName()).isEqualTo("private-m2");
-        assertThat(result.get().getTaskCd()).isEqualTo("hrk11mmmm");
+        assertThat(result.get().getNamespace()).isEqualTo("hrk11mmmm");
     }
 
     private Repository repository() {

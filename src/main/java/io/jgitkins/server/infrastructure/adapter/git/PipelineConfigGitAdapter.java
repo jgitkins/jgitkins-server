@@ -33,8 +33,8 @@ public class PipelineConfigGitAdapter implements PipelineConfigPort {
     }
 
     @Override
-    public PipelineConfig read(String taskCd, String repoName, String commitHash) {
-        try (Repository repository = repositoryResolver.openBareRepository(taskCd, repoName)) {
+    public PipelineConfig read(String namespace, String repoName, String commitHash) {
+        try (Repository repository = repositoryResolver.openBareRepository(namespace, repoName)) {
             RevTree tree = resolveCommitTree(repository, commitHash);
             String yamlText = readConfig(repository, tree);
             if (yamlText == null || yamlText.isBlank()) {

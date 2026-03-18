@@ -44,7 +44,7 @@ public class PushEventHandleService implements PushEventHandleUseCase {
         JobPlan jobPlan;
         try {
             jobPlan = pushJobCreationPlanner.plan(
-                    command.getTaskCd(),
+                    command.getNamespace(),
                     command.getRepoName(),
                     command.getBranchName(),
                     command.getCommitHash());
@@ -92,7 +92,7 @@ public class PushEventHandleService implements PushEventHandleUseCase {
 
     private JobCreateCommand buildJobCommand(PushEventCommand command, String pipelineFilePath) {
         return JobCreateCommand.builder()
-                .taskCd(command.getTaskCd())
+                .namespace(command.getNamespace())
                 .repoName(command.getRepoName())
                 .repositoryId(command.getRepositoryId())
                 .branchName(command.getBranchName())

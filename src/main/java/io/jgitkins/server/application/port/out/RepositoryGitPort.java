@@ -1,8 +1,8 @@
 package io.jgitkins.server.application.port.out;
 
 public interface RepositoryGitPort {
-    void initialize(String taskCd, String repoName);
-    void deleteRepository(String taskCd, String repoName);
+    void initialize(String namespace, String repoName);
+    void deleteRepository(String namespace, String repoName);
 
-    void updateHeadReference(String taskCd, String repoName, String branch);
+    void updateHeadReference(String namespace, String repoName, String branch);
 }

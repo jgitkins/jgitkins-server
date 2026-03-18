@@ -20,15 +20,15 @@ public class PushJobCreationPlanner {
     private final PipelineConfigPort configPort;
     private final FileGitPort fileGitPort;
 
-    public JobPlan plan(String taskCd, String repoName, String branchName, String commitHash) {
-        PipelineConfig config = configPort.read(taskCd, repoName, commitHash);
+    public JobPlan plan(String namespace, String repoName, String branchName, String commitHash) {
+        PipelineConfig config = configPort.read(namespace, repoName, commitHash);
         PipelineRule rule = config == null ? null : config.findRule(branchName);
         if (rule == null) {
             return JobPlan.skip(SKIPPED_NO_RULE);
         }
 
         String pipelineFilePath = toPipelineFilePath(rule.getFile());
-        if (!fileGitPort.exists(taskCd, repoName, commitHash, pipelineFilePath)) {
+        if (!fileGitPort.exists(namespace, repoName, commitHash, pipelineFilePath)) {
             return JobPlan.skip(SKIPPED_PIPELINE_NOT_FOUND);
         }
 

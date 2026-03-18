@@ -25,25 +25,25 @@ public class MergeController {
     private final MergeUseCase mergeUseCase;
 
     @Operation(summary = "Check Mergeability", description = "소스 브랜치가 타겟 브랜치로 병합 가능한지 확인")
-    @GetMapping("/repositories/{taskCd}/{repoName}/merge/check")
+    @GetMapping("/repositories/{namespace}/{repoName}/merge/check")
     public ResponseEntity<ApiResponse<MergeResult>> checkMergeability(
-            @PathVariable String taskCd,
+            @PathVariable String namespace,
             @PathVariable String repoName,
             @RequestParam String sourceBranch,
             @RequestParam String targetBranch
     ) throws IOException {
-        MergeResult result = mergeabilityCheckUseCase.checkMergeability(taskCd, repoName, sourceBranch, targetBranch);
+        MergeResult result = mergeabilityCheckUseCase.checkMergeability(namespace, repoName, sourceBranch, targetBranch);
         return ApiResponse.ok(result);
     }
 
     @Operation(summary = "Merge", description = "소스 브랜치를 타겟 브랜치로 병합")
-    @PostMapping("/repositories/{taskCd}/{repoName}/merge")
+    @PostMapping("/repositories/{namespace}/{repoName}/merge")
     public ResponseEntity<ApiResponse<MergeResult>> performMerge(
-            @PathVariable String taskCd,
+            @PathVariable String namespace,
             @PathVariable String repoName,
             @RequestBody MergeRequest request
     ) throws IOException {
-        MergeResult result = mergeUseCase.performMerge(taskCd, repoName, request);
+        MergeResult result = mergeUseCase.performMerge(namespace, repoName, request);
         return ApiResponse.ok(result);
     }
 

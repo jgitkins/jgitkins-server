@@ -39,7 +39,7 @@ class PushEventHandleServiceTest {
     void handle_createsJobWhenPushIsValid() {
         PushEventCommand command = PushEventCommand.builder()
                 .repositoryId(9L)
-                .taskCd("1")
+                .namespace("1")
                 .repoName("repo")
                 .branchName("main")
                 .branchCreated(true)
@@ -57,7 +57,7 @@ class PushEventHandleServiceTest {
         ArgumentCaptor<JobCreateCommand> captor = ArgumentCaptor.forClass(JobCreateCommand.class);
         verify(jobCreateUseCase).create(captor.capture());
         JobCreateCommand job = captor.getValue();
-        assertEquals("1", job.getTaskCd());
+        assertEquals("1", job.getNamespace());
         assertEquals("repo", job.getRepoName());
         assertEquals(9L, job.getRepositoryId());
         assertEquals(".jgitkins/pipelines/main.Jenkinsfile", job.getPipelineFilePath());
@@ -67,7 +67,7 @@ class PushEventHandleServiceTest {
     void handle_skipsJobWhenPlannerReturnsSkip() {
         PushEventCommand command = PushEventCommand.builder()
                 .repositoryId(9L)
-                .taskCd("1")
+                .namespace("1")
                 .repoName("repo")
                 .branchName("main")
                 .commitHash("abc")
@@ -86,7 +86,7 @@ class PushEventHandleServiceTest {
     void handle_skipsJobWhenPlannerThrows() {
         PushEventCommand command = PushEventCommand.builder()
                 .repositoryId(9L)
-                .taskCd("1")
+                .namespace("1")
                 .repoName("repo")
                 .branchName("main")
                 .commitHash("abc")

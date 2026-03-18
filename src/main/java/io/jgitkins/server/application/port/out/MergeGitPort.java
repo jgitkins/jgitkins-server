@@ -6,8 +6,7 @@ import io.jgitkins.server.application.dto.result.MergeResult;
 import java.io.IOException;
 
 public interface MergeGitPort {
-    MergeResult merge(String taskCd, String repoName, MergeRequest request) throws IOException;
-    MergeResult previewMerge(String taskCd, String repoName, String sourceBranch, String targetBranch) throws IOException;
+    MergeResult merge(String namespace, String repoName, MergeRequest request) throws IOException;
+    MergeResult previewMerge(String namespace, String repoName, String sourceBranch, String targetBranch) throws IOException;
 
 }
-

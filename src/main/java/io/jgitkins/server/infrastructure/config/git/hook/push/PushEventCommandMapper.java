@@ -54,7 +54,7 @@ public class PushEventCommandMapper {
 
         return Optional.of(PushEventCommand.builder()
                 .repositoryId(repository.getId().getValue())
-                .taskCd(namespace)
+                .namespace(namespace)
                 .repoName(repository.getName().getValue())
                 .branchName(branchName)
                 .branchCreated(command.getType() == ReceiveCommand.Type.CREATE)

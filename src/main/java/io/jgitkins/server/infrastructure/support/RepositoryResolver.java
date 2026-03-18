@@ -17,8 +17,8 @@ public class RepositoryResolver {
         this.rootPath = runtimeVolume;
     }
 
-    public Repository openBareRepository(String taskCd, String repoName) throws IOException {
-        return openBareRepository(resolveGitDir(taskCd, repoName));
+    public Repository openBareRepository(String namespace, String repoName) throws IOException {
+        return openBareRepository(resolveGitDir(namespace, repoName));
     }
 
     public Repository openBareRepository(File gitDir) throws IOException {
