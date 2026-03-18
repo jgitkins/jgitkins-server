@@ -31,7 +31,7 @@ class PushEventCommandMapperTest {
 
     @Test
     void map_buildsPurePushEventCommand() {
-        PushEventCommandMapper mapper = new PushEventCommandMapper(repositoryPort);
+        PushEventCommandMapper mapper = new PushEventCommandMapper(repositoryPort, "/bare");
         when(repositoryPort.findByPath("/bare/users/alice/repo.git"))
                 .thenReturn(Optional.of(repository()));
 
@@ -49,7 +49,7 @@ class PushEventCommandMapperTest {
 
         assertThat(result).isPresent();
         assertThat(result.get().getRepositoryId()).isEqualTo(9L);
-        assertThat(result.get().getTaskCd()).isEqualTo("1");
+        assertThat(result.get().getTaskCd()).isEqualTo("users/alice");
         assertThat(result.get().getRepoName()).isEqualTo("repo");
         assertThat(result.get().getBranchName()).isEqualTo("main");
         assertThat(result.get().getCommitHash()).isEqualTo("0123456789012345678901234567890123456789");
@@ -58,7 +58,7 @@ class PushEventCommandMapperTest {
 
     @Test
     void map_throwsWhenRepositoryCannotBeResolved() {
-        PushEventCommandMapper mapper = new PushEventCommandMapper(repositoryPort);
+        PushEventCommandMapper mapper = new PushEventCommandMapper(repositoryPort, "/bare");
         when(repositoryPort.findByPath("/bare/users/alice/repo.git")).thenReturn(Optional.empty());
 
         ReceiveCommand command = new ReceiveCommand(
@@ -69,6 +69,31 @@ class PushEventCommandMapperTest {
 
         assertThrows(ApplicationException.class,
                 () -> mapper.map("/bare/users/alice/repo.git", 7L, List.of(command)));
+    }
+
+    @Test
+    void map_fallsBackToClonePathWhenAbsoluteGitDirIsProvided() {
+        PushEventCommandMapper mapper = new PushEventCommandMapper(repositoryPort, "/Users/hwiryungkim/jgitkins/bare");
+        when(repositoryPort.findByPath("/Users/hwiryungkim/jgitkins/bare/hrk11mmmm/private-m2.git"))
+                .thenReturn(Optional.empty());
+        when(repositoryPort.findByClonePath("/hrk11mmmm/private-m2.git"))
+                .thenReturn(Optional.of(privateRepository()));
+
+        ReceiveCommand command = new ReceiveCommand(
+                ObjectId.zeroId(),
+                ObjectId.fromString("0123456789012345678901234567890123456789"),
+                "refs/heads/main"
+        );
+
+        Optional<PushEventCommand> result = mapper.map(
+                "/Users/hwiryungkim/jgitkins/bare/hrk11mmmm/private-m2.git",
+                7L,
+                List.of(command)
+        );
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getRepoName()).isEqualTo("private-m2");
+        assertThat(result.get().getTaskCd()).isEqualTo("hrk11mmmm");
     }
 
     private Repository repository() {
@@ -82,6 +107,24 @@ class PushEventCommandMapperTest {
                 null,
                 "desc",
                 "/users/alice/repo.git",
+                null,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                null
+        );
+    }
+
+    private Repository privateRepository() {
+        return Repository.rehydrate(
+                RepositoryId.of(19L),
+                OwnerType.USER,
+                OwnerId.of(11L),
+                RepositoryName.from("private-m2"),
+                RepositoryPath.from("private-m2"),
+                null,
+                null,
+                "desc",
+                "/hrk11mmmm/private-m2.git",
                 null,
                 LocalDateTime.now(),
                 LocalDateTime.now(),

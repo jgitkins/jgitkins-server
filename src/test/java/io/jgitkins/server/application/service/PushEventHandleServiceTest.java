@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.doThrow;
 
 import io.jgitkins.server.application.dto.command.JobCreateCommand;
 import io.jgitkins.server.application.dto.command.PushEventCommand;
@@ -75,6 +76,25 @@ class PushEventHandleServiceTest {
 
         org.mockito.Mockito.when(pushJobCreationPlanner.plan("1", "repo", "main", "abc"))
                 .thenReturn(JobPlan.skip(PipelineSkipReason.SKIPPED_NO_RULE));
+
+        service.handle(command);
+
+        verify(jobCreateUseCase, never()).create(any());
+    }
+
+    @Test
+    void handle_skipsJobWhenPlannerThrows() {
+        PushEventCommand command = PushEventCommand.builder()
+                .repositoryId(9L)
+                .taskCd("1")
+                .repoName("repo")
+                .branchName("main")
+                .commitHash("abc")
+                .triggeredBy(1L)
+                .build();
+
+        doThrow(new IllegalStateException("pipeline config load failed"))
+                .when(pushJobCreationPlanner).plan("1", "repo", "main", "abc");
 
         service.handle(command);
 

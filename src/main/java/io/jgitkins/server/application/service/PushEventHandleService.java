@@ -41,11 +41,18 @@ public class PushEventHandleService implements PushEventHandleUseCase {
             return;
         }
 
-        JobPlan jobPlan = pushJobCreationPlanner.plan(
-                command.getTaskCd(),
-                command.getRepoName(),
-                command.getBranchName(),
-                command.getCommitHash());
+        JobPlan jobPlan;
+        try {
+            jobPlan = pushJobCreationPlanner.plan(
+                    command.getTaskCd(),
+                    command.getRepoName(),
+                    command.getBranchName(),
+                    command.getCommitHash());
+        } catch (RuntimeException ex) {
+            log.warn("push event job planning skipped due to planner error. repo=[{}] branch=[{}] commit=[{}]",
+                    command.getRepoName(), command.getBranchName(), command.getCommitHash(), ex);
+            return;
+        }
 
         if (jobPlan.isSkipped()) {
             log.info("push event job skipped: reason={}", jobPlan.getSkipReason());
