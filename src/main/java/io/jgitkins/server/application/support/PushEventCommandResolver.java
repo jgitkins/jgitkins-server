@@ -1,67 +1,53 @@
-package io.jgitkins.server.infrastructure.config.git.hook.push;
+package io.jgitkins.server.application.support;
 
 import io.jgitkins.server.application.common.RepositoryPathHelper;
 import io.jgitkins.server.application.common.error.ApplicationErrorCode;
 import io.jgitkins.server.application.dto.command.PushEventCommand;
+import io.jgitkins.server.application.dto.command.PushHookRequest;
 import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
 import io.jgitkins.server.domain.aggregate.Repository;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.transport.ReceiveCommand;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Optional;
-
 @Component
-public class PushEventCommandMapper {
+public class PushEventCommandResolver {
 
     private final RepositoryPersistencePort repositoryPort;
     private final Path repoRootPath;
 
-    public PushEventCommandMapper(RepositoryPersistencePort repositoryPort,
-            @org.springframework.beans.factory.annotation.Value("${jgitkins.server.runtime.volume:${user.home}}") String runtimeVolume) {
+    public PushEventCommandResolver(
+            RepositoryPersistencePort repositoryPort,
+            @Value("${jgitkins.server.runtime.volume:${user.home}}") String runtimeVolume) {
         this.repositoryPort = repositoryPort;
         this.repoRootPath = Paths.get(runtimeVolume).toAbsolutePath().normalize();
     }
 
-    public Optional<PushEventCommand> map(String gitDirPath, Long triggeredBy, Collection<ReceiveCommand> commands) {
-        Optional<ReceiveCommand> lastCommand = commands.stream()
-                .filter(cmd -> cmd.getRefName().startsWith(Constants.R_HEADS))
-                .reduce((first, second) -> second);
-
-        if (lastCommand.isEmpty()) {
-            return Optional.empty();
-        }
-
-        ReceiveCommand command = lastCommand.get();
-        String branchName = extractBranchName(command.getRefName()).orElse(null);
-        if (branchName == null) {
-            return Optional.empty();
-        }
-
-        Repository repository = resolveRepository(gitDirPath)
+    public PushEventCommand resolve(PushHookRequest request) {
+        Repository repository = resolveRepository(request.gitDirPath())
                 .orElseThrow(() -> new ApplicationException(
                         ApplicationErrorCode.REPOSITORY_NOT_FOUND,
-                        "Repository not found for path: " + gitDirPath));
+                        "Repository not found for path: " + request.gitDirPath()));
+
         String namespace = extractNamespace(repository)
                 .orElseThrow(() -> new ApplicationException(
                         ApplicationErrorCode.REPOSITORY_NOT_FOUND,
-                        "Repository namespace not found for path: " + gitDirPath));
+                        "Repository namespace not found for path: " + request.gitDirPath()));
 
-        return Optional.of(PushEventCommand.builder()
+        return PushEventCommand.builder()
                 .repositoryId(repository.getId().getValue())
                 .namespace(namespace)
                 .repoName(repository.getName().getValue())
-                .branchName(branchName)
-                .branchCreated(command.getType() == ReceiveCommand.Type.CREATE)
-                .branchDeleted(command.getType() == ReceiveCommand.Type.DELETE)
-                .commitHash(command.getNewId() != null ? command.getNewId().getName() : null)
-                .triggeredBy(triggeredBy)
-                .build());
+                .branchName(request.branchName())
+                .branchCreated(request.branchCreated())
+                .branchDeleted(request.branchDeleted())
+                .commitHash(request.commitHash())
+                .triggeredBy(request.triggeredBy())
+                .build();
     }
 
     private Optional<Repository> resolveRepository(String gitDirPath) {
@@ -78,6 +64,7 @@ public class PushEventCommandMapper {
         if (repository == null || !StringUtils.hasText(repository.getClonePath())) {
             return Optional.empty();
         }
+
         String clonePath = repository.getClonePath().trim().replaceAll("^/+", "").replaceAll("/+$", "");
         int lastSlash = clonePath.lastIndexOf('/');
         if (lastSlash <= 0) {
@@ -90,24 +77,20 @@ public class PushEventCommandMapper {
         if (!StringUtils.hasText(gitDirPath)) {
             return Optional.empty();
         }
+
         Path absoluteGitDir = Paths.get(gitDirPath).toAbsolutePath().normalize();
         if (!absoluteGitDir.startsWith(repoRootPath)) {
             return Optional.empty();
         }
+
         Path relativePath = repoRootPath.relativize(absoluteGitDir);
         if (relativePath.getNameCount() < 2) {
             return Optional.empty();
         }
+
         String clonePath = RepositoryPathHelper.buildClonePath(
                 relativePath.subpath(0, relativePath.getNameCount() - 1).toString().replace('\\', '/'),
                 relativePath.getFileName().toString());
         return Optional.of(clonePath);
-    }
-
-    private Optional<String> extractBranchName(String refName) {
-        if (refName == null || !refName.startsWith(Constants.R_HEADS)) {
-            return Optional.empty();
-        }
-        return Optional.of(refName.substring(Constants.R_HEADS.length()));
     }
 }

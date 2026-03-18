@@ -7,6 +7,7 @@ import io.jgitkins.server.application.dto.pipeline.PipelineConfig;
 import io.jgitkins.server.application.dto.pipeline.PipelineRule;
 import io.jgitkins.server.application.dto.result.JobPlan;
 import io.jgitkins.server.application.dto.result.PipelineSkipReason;
+import io.jgitkins.server.application.dto.support.PushJobPlanRequest;
 import io.jgitkins.server.application.port.out.FileGitPort;
 import io.jgitkins.server.application.port.out.PipelineConfigPort;
 import java.util.List;
@@ -17,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class PushJobCreationPlannerTest {
+class PushJobCreationPolicyTest {
 
     @Mock
     private PipelineConfigPort configPort;
@@ -26,7 +27,7 @@ class PushJobCreationPlannerTest {
     private FileGitPort fileGitPort;
 
     @InjectMocks
-    private PushJobCreationPlanner planner;
+    private PushJobCreationPolicy policy;
 
     @Test
     void plan_returnsCreate_whenRuleMatchesAndFileExists() {
@@ -35,7 +36,7 @@ class PushJobCreationPlannerTest {
         when(fileGitPort.exists("1", "repo", "abc", ".jgitkins/pipelines/main.Jenkinsfile"))
                 .thenReturn(true);
 
-        JobPlan result = planner.plan("1", "repo", "main", "abc");
+        JobPlan result = policy.plan(new PushJobPlanRequest("1", "repo", "main", "abc"));
 
         assertThat(result.isSkipped()).isFalse();
         assertThat(result.getPipelineFilePath()).isEqualTo(".jgitkins/pipelines/main.Jenkinsfile");
@@ -46,7 +47,7 @@ class PushJobCreationPlannerTest {
         when(configPort.read("1", "repo", "abc"))
                 .thenReturn(new PipelineConfig(List.of(new PipelineRule(List.of("develop"), "pipelines/dev.Jenkinsfile"))));
 
-        JobPlan result = planner.plan("1", "repo", "main", "abc");
+        JobPlan result = policy.plan(new PushJobPlanRequest("1", "repo", "main", "abc"));
 
         assertThat(result.isSkipped()).isTrue();
         assertThat(result.getSkipReason()).isEqualTo(PipelineSkipReason.SKIPPED_NO_RULE);
@@ -59,9 +60,20 @@ class PushJobCreationPlannerTest {
         when(fileGitPort.exists("1", "repo", "abc", ".jgitkins/pipelines/main.Jenkinsfile"))
                 .thenReturn(false);
 
-        JobPlan result = planner.plan("1", "repo", "main", "abc");
+        JobPlan result = policy.plan(new PushJobPlanRequest("1", "repo", "main", "abc"));
 
         assertThat(result.isSkipped()).isTrue();
         assertThat(result.getSkipReason()).isEqualTo(PipelineSkipReason.SKIPPED_PIPELINE_NOT_FOUND);
+    }
+
+    @Test
+    void plan_returnsSkipPolicyError_whenUnexpectedExceptionOccurs() {
+        when(configPort.read("1", "repo", "abc"))
+                .thenThrow(new IllegalStateException("pipeline config load failed"));
+
+        JobPlan result = policy.plan(new PushJobPlanRequest("1", "repo", "main", "abc"));
+
+        assertThat(result.isSkipped()).isTrue();
+        assertThat(result.getSkipReason()).isEqualTo(PipelineSkipReason.SKIPPED_POLICY_ERROR);
     }
 }

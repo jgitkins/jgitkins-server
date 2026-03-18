@@ -1,10 +1,11 @@
-package io.jgitkins.server.infrastructure.config.git.hook.push;
+package io.jgitkins.server.application.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import io.jgitkins.server.application.dto.command.PushEventCommand;
+import io.jgitkins.server.application.dto.command.PushHookRequest;
 import io.jgitkins.server.application.exception.ApplicationException;
 import io.jgitkins.server.application.port.out.RepositoryPersistencePort;
 import io.jgitkins.server.domain.aggregate.Repository;
@@ -14,86 +15,81 @@ import io.jgitkins.server.domain.model.vo.RepositoryId;
 import io.jgitkins.server.domain.model.vo.RepositoryName;
 import io.jgitkins.server.domain.model.vo.RepositoryPath;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.transport.ReceiveCommand;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class PushEventCommandMapperTest {
+class PushEventCommandResolverTest {
 
     @Mock
     private RepositoryPersistencePort repositoryPort;
 
     @Test
-    void map_buildsPurePushEventCommand() {
-        PushEventCommandMapper mapper = new PushEventCommandMapper(repositoryPort, "/bare");
+    void resolve_buildsPushEventCommandFromPushHookRequest() {
+        PushEventCommandResolver resolver = new PushEventCommandResolver(repositoryPort, "/bare");
         when(repositoryPort.findByPath("/bare/users/alice/repo.git"))
                 .thenReturn(Optional.of(repository()));
 
-        ReceiveCommand command = new ReceiveCommand(
-                ObjectId.zeroId(),
-                ObjectId.fromString("0123456789012345678901234567890123456789"),
-                "refs/heads/main"
-        );
-
-        Optional<PushEventCommand> result = mapper.map(
+        PushHookRequest request = new PushHookRequest(
                 "/bare/users/alice/repo.git",
                 7L,
-                List.of(command)
+                "main",
+                true,
+                false,
+                "0123456789012345678901234567890123456789"
         );
 
-        assertThat(result).isPresent();
-        assertThat(result.get().getRepositoryId()).isEqualTo(9L);
-        assertThat(result.get().getNamespace()).isEqualTo("users/alice");
-        assertThat(result.get().getRepoName()).isEqualTo("repo");
-        assertThat(result.get().getBranchName()).isEqualTo("main");
-        assertThat(result.get().getCommitHash()).isEqualTo("0123456789012345678901234567890123456789");
-        assertThat(result.get().isBranchCreated()).isTrue();
+        PushEventCommand result = resolver.resolve(request);
+
+        assertThat(result.getRepositoryId()).isEqualTo(9L);
+        assertThat(result.getNamespace()).isEqualTo("users/alice");
+        assertThat(result.getRepoName()).isEqualTo("repo");
+        assertThat(result.getBranchName()).isEqualTo("main");
+        assertThat(result.getCommitHash()).isEqualTo("0123456789012345678901234567890123456789");
+        assertThat(result.isBranchCreated()).isTrue();
     }
 
     @Test
-    void map_throwsWhenRepositoryCannotBeResolved() {
-        PushEventCommandMapper mapper = new PushEventCommandMapper(repositoryPort, "/bare");
+    void resolve_throwsWhenRepositoryCannotBeResolved() {
+        PushEventCommandResolver resolver = new PushEventCommandResolver(repositoryPort, "/bare");
         when(repositoryPort.findByPath("/bare/users/alice/repo.git")).thenReturn(Optional.empty());
 
-        ReceiveCommand command = new ReceiveCommand(
-                ObjectId.zeroId(),
-                ObjectId.fromString("0123456789012345678901234567890123456789"),
-                "refs/heads/main"
+        PushHookRequest request = new PushHookRequest(
+                "/bare/users/alice/repo.git",
+                7L,
+                "main",
+                true,
+                false,
+                "0123456789012345678901234567890123456789"
         );
 
-        assertThrows(ApplicationException.class,
-                () -> mapper.map("/bare/users/alice/repo.git", 7L, List.of(command)));
+        assertThrows(ApplicationException.class, () -> resolver.resolve(request));
     }
 
     @Test
-    void map_fallsBackToClonePathWhenAbsoluteGitDirIsProvided() {
-        PushEventCommandMapper mapper = new PushEventCommandMapper(repositoryPort, "/Users/hwiryungkim/jgitkins/bare");
+    void resolve_fallsBackToClonePathWhenAbsoluteGitDirIsProvided() {
+        PushEventCommandResolver resolver = new PushEventCommandResolver(repositoryPort, "/Users/hwiryungkim/jgitkins/bare");
         when(repositoryPort.findByPath("/Users/hwiryungkim/jgitkins/bare/hrk11mmmm/private-m2.git"))
                 .thenReturn(Optional.empty());
         when(repositoryPort.findByClonePath("/hrk11mmmm/private-m2.git"))
                 .thenReturn(Optional.of(privateRepository()));
 
-        ReceiveCommand command = new ReceiveCommand(
-                ObjectId.zeroId(),
-                ObjectId.fromString("0123456789012345678901234567890123456789"),
-                "refs/heads/main"
-        );
-
-        Optional<PushEventCommand> result = mapper.map(
+        PushHookRequest request = new PushHookRequest(
                 "/Users/hwiryungkim/jgitkins/bare/hrk11mmmm/private-m2.git",
                 7L,
-                List.of(command)
+                "main",
+                true,
+                false,
+                "0123456789012345678901234567890123456789"
         );
 
-        assertThat(result).isPresent();
-        assertThat(result.get().getRepoName()).isEqualTo("private-m2");
-        assertThat(result.get().getNamespace()).isEqualTo("hrk11mmmm");
+        PushEventCommand result = resolver.resolve(request);
+
+        assertThat(result.getRepoName()).isEqualTo("private-m2");
+        assertThat(result.getNamespace()).isEqualTo("hrk11mmmm");
     }
 
     private Repository repository() {
