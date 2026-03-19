@@ -1,10 +1,8 @@
 package io.jgitkins.server.presentation.dto;
 
-import lombok.Getter;
-
-@Getter
-public class OrganizeUpdateRequest {
-    private String name;
-    private Long ownerId;
-    private String description;
+public record OrganizeUpdateRequest(
+        String name,
+        Long ownerId,
+        String description
+) {
 }

@@ -35,8 +35,8 @@ public class RepositoryMemberController {
                                                        @RequestBody RepositoryMemberAddRequest request) {
         RepositoryMemberAddCommand command = RepositoryMemberAddCommand.builder()
                 .repositoryId(repositoryId)
-                .userId(request.getUserId())
-                .role(request.getRole())
+                .userId(request.userId())
+                .role(request.role())
                 .build();
         repositoryMemberAddUseCase.addRepositoryMember(command);
         return ApiResponse.ok();

@@ -35,8 +35,8 @@ public class OrganizeMemberController {
                                                        @RequestBody OrganizeMemberAddRequest request) {
         OrganizeMemberAddCommand command = OrganizeMemberAddCommand.builder()
                 .organizeId(organizeId)
-                .userId(request.getUserId())
-                .role(request.getRole())
+                .userId(request.userId())
+                .role(request.role())
                 .build();
         organizeMemberAddUseCase.addOrganizeMember(command);
         return ApiResponse.ok();

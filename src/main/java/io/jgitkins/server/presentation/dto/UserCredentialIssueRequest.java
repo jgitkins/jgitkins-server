@@ -1,18 +1,14 @@
 package io.jgitkins.server.presentation.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-public class UserCredentialIssueRequest {
+public record UserCredentialIssueRequest(
+        @NotBlank
+        String name,
 
-    @NotBlank
-    private String name;
+        @NotBlank
+        String description,
 
-    @NotBlank
-    private String description;
-
-    private String expiration;
+        String expiration
+) {
 }

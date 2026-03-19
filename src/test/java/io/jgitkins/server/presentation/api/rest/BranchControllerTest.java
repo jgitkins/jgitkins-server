@@ -71,6 +71,27 @@ class BranchControllerTest {
     }
 
     @Test
+    void create_acceptsLegacyNameAlias() throws Exception {
+        BranchCreateCommand command = BranchCreateCommand.builder()
+                .repositoryId(1L)
+                .branchName("feature-alias")
+                .sourceBranch("main")
+                .build();
+        when(branchRequestMapper.toCommand(any(Long.class), any(BranchCreateRequest.class))).thenReturn(command);
+
+        mockMvc.perform(post("/api/repositories/1/branches")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(java.util.Map.of(
+                                "name", "feature-alias",
+                                "sourceBranch", "main"
+                        ))))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("feature-alias")));
+
+        verify(branchCreateUseCase).createBranch(command);
+    }
+
+    @Test
     void getBranches_returnsList() throws Exception {
         when(branchLoadUseCase.getBranches(1L)).thenReturn(List.of(
                 BranchSearchResult.builder().repositoryId(1L).name("main").defaultBranch(true).build(),

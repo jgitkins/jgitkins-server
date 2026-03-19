@@ -92,9 +92,7 @@ class RunnerControllerTest {
 
     @Test
     void registerRunner_returnsCreated() throws Exception {
-        RunnerCreateRequest request = new RunnerCreateRequest();
-        request.setDescription("runner-01");
-        request.setScopeType(RunnerScopeType.GLOBAL);
+        RunnerCreateRequest request = new RunnerCreateRequest("runner-01", RunnerScopeType.GLOBAL, null);
 
         RunnerRegisterCommand command = RunnerRegisterCommand.builder()
                 .description("runner-01")
@@ -130,11 +128,7 @@ class RunnerControllerTest {
                 .status("ONLINE")
                 .registeredAt(LocalDateTime.now())
                 .build();
-        RunnerResponse response = RunnerResponse.builder()
-                .runnerId(1L)
-                .description("runner")
-                .status("ONLINE")
-                .build();
+        RunnerResponse response = new RunnerResponse(1L, null, "runner", "ONLINE", null, null);
 
         when(runnerLoadUseCase.getRunners()).thenReturn(List.of(detail));
         when(runnerResponseMapper.toResponses(any())).thenReturn(List.of(response));
@@ -155,11 +149,7 @@ class RunnerControllerTest {
                 .status("OFFLINE")
                 .registeredAt(LocalDateTime.now())
                 .build();
-        RunnerResponse response = RunnerResponse.builder()
-                .runnerId(2L)
-                .description("runner-2")
-                .status("OFFLINE")
-                .build();
+        RunnerResponse response = new RunnerResponse(2L, null, "runner-2", "OFFLINE", null, null);
 
         when(runnerLoadUseCase.getRunner(2L)).thenReturn(detail);
         when(runnerResponseMapper.toResponse(detail)).thenReturn(response);

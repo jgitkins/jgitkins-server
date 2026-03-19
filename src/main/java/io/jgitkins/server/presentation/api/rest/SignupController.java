@@ -24,7 +24,7 @@ public class SignupController {
     @Operation(summary = "Activate signup with username")
     @PostMapping("/activate")
     public ResponseEntity<ApiResponse<Void>> activate(@Valid @RequestBody UserUsernameUpdateRequest request) {
-        signupUseCase.activate(request.getUsername());
+        signupUseCase.activate(request.username());
         return ApiResponse.ok();
     }
 }

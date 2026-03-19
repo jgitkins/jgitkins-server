@@ -37,7 +37,7 @@ public class BranchController {
         BranchCreateCommand createCommand = branchRequestMapper.toCommand(repositoryId, request);
         branchCreateUseCase.createBranch(createCommand);
 
-        URI location = LocationUriBuilder.create(request.getBranchName());
+        URI location = LocationUriBuilder.create(request.branchName());
         return ResponseEntity.created(location).build();
 
     }

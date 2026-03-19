@@ -43,7 +43,7 @@ public class AdminUserController {
     @PatchMapping("/{userId}/status")
     public ResponseEntity<ApiResponse<Void>> updateStatus(@PathVariable Long userId,
                                                           @RequestBody UserStatusUpdateRequest request) {
-        adminUserUpdateUseCase.updateUserStatus(userId, request.getStatus());
+        adminUserUpdateUseCase.updateUserStatus(userId, request.status());
         return ApiResponse.ok();
     }
 }

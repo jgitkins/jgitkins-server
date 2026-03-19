@@ -71,7 +71,7 @@ public class RunnerController {
     public ResponseEntity<ApiResponse<RunnerActivateResult>> activateRunner(@Valid @RequestBody RunnerActivateRequest request,
                                                                             HttpServletRequest httpServletRequest) {
         String clientIp = extractClientIp(httpServletRequest);
-        RunnerActivateResult result = runnerActivateUseCase.activate(request.getToken(), clientIp);
+        RunnerActivateResult result = runnerActivateUseCase.activate(request.token(), clientIp);
         return ApiResponse.ok(result);
     }
 

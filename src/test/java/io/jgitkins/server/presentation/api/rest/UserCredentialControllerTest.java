@@ -56,10 +56,7 @@ class UserCredentialControllerTest {
 
     @Test
     void issue_returnsCreated() throws Exception {
-        UserCredentialIssueRequest request = new UserCredentialIssueRequest();
-        request.setName("my-pat");
-        request.setDescription("for ci");
-        request.setExpiration("2026-12-31");
+        UserCredentialIssueRequest request = new UserCredentialIssueRequest("my-pat", "for ci", "2026-12-31");
 
         when(userCredentialIssueUseCase.issueCredential(any()))
                 .thenReturn(new UserCredentialIssueResult(10L, "token-value"));

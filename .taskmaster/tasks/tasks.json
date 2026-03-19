@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": "1",
+        "id": 1,
         "title": "신규기능",
         "description": "사용자 가치 전달을 위한 기능 개발/확장 작업",
         "status": "in-progress",
@@ -401,7 +401,7 @@
         "updatedAt": "2026-03-12T08:44:14.285Z"
       },
       {
-        "id": "2",
+        "id": 2,
         "title": "리팩토링",
         "description": "구조 개선, 품질 개선, 테스트 체계 강화 작업",
         "status": "in-progress",
@@ -835,12 +835,23 @@
             "testStrategy": "",
             "updatedAt": "2026-03-18T13:23:37.017Z",
             "parentId": "undefined"
+          },
+          {
+            "id": 40,
+            "title": "presentation/dto 패키지 DTO record 전환",
+            "description": "src/main/java/io/jgitkins/server/presentation/dto 패키지의 class 기반 DTO들을 Java record로 통일하고, validation/Jackson/매퍼/컨트롤러 호환성을 함께 정리한다.",
+            "status": "done",
+            "dependencies": [],
+            "details": "대상 패키지의 DTO 선언을 전수 점검하여 이미 record인 타입(, )은 유지하고, class 기반 요청/응답 DTO(, , , , , , , , , , , )를 우선 전환 대상으로 삼는다. 전환 시 Lombok Getter/Setter/Builder 제거 여부를 검토하고, record canonical constructor 및 component annotation 방식으로 Jakarta Validation, Swagger/OpenAPI Schema, Jackson 역직렬화가 동일하게 동작하도록 맞춘다. Controller, mapper, service, test 코드에서 setter/기본 생성자/Builder 의존이 남아 있는지 함께 정리한다. 처럼 응답 DTO에 Builder를 사용 중인 경우에는 정적 팩토리/직접 생성으로 치환하고, 변경 후 WebMvc 및 직렬화 회귀 테스트 범위를 정의한다.\n<info added on 2026-03-19T12:53:01.808Z>\n실행 메모 보강: 이 서브태스크의 실제 범위는 src/main/java/io/jgitkins/server/presentation/dto 패키지의 class 기반 DTO를 Java record로 전환하는 것이다. 이미 record인 RepositoryCreateRequest, OAuthLoginRequest 는 유지한다. 우선 전환 후보는 BranchCreateRequest, OrganizeCreationRequest, OrganizeMemberAddRequest, OrganizeUpdateRequest, RepositoryMemberAddRequest, RepositoryUpdateRequest, RunnerActivateRequest, RunnerCreateRequest, RunnerResponse, UserCredentialIssueRequest, UserStatusUpdateRequest, UserUsernameUpdateRequest 이다. 전환 시 Lombok Getter/Setter/Builder 제거 여부를 검토하고, record canonical constructor 또는 component annotation 방식으로 Jakarta Validation, Swagger/OpenAPI Schema, Jackson 역직렬화가 동일하게 동작하도록 맞춘다. controller, mapper, service, test 코드에서 setter, 기본 생성자, Builder 의존이 남아 있는지 함께 정리한다. 특히 RunnerResponse 는 Builder 기반 응답 조립을 record 생성 또는 정적 팩토리 방식으로 치환하는 방향을 우선 검토한다. 변경 후 WebMvc 테스트와 JSON 직렬화/역직렬화 회귀 범위를 정의하고 필요한 테스트를 추가한다.\n</info added on 2026-03-19T12:53:01.808Z>\n<info added on 2026-03-19T12:59:03.087Z>\n<info added on 2026-03-20T00:00:00Z>\n구현 완료 메모: src/main/java/io/jgitkins/server/presentation/dto 패키지의 class 기반 DTO를 record로 전환했다. 변경 대상은 BranchCreateRequest, OrganizeCreationRequest, OrganizeMemberAddRequest, OrganizeUpdateRequest, RepositoryMemberAddRequest, RepositoryUpdateRequest, RunnerActivateRequest, RunnerCreateRequest, RunnerResponse, UserCredentialIssueRequest, UserStatusUpdateRequest, UserUsernameUpdateRequest 이며, 기존 record인 RepositoryCreateRequest, OAuthLoginRequest 는 유지했다. Lombok Getter/Setter/Builder 의존을 제거했고, BranchController/OrganizeMemberController/RepositoryMemberController/RunnerController/AdminUserController/SignupController/UserCredentialController 를 record accessor 기준으로 정리했다. RunnerControllerTest 와 UserCredentialControllerTest 는 setter/builder 기반 생성을 record 생성자로 치환했고, BranchControllerTest 에는 @JsonAlias(name -> branchName) 호환 회귀 테스트를 추가했다. 검증은 ./gradlew test --tests io.jgitkins.server.presentation.api.rest.BranchControllerTest --tests io.jgitkins.server.presentation.api.rest.RunnerControllerTest --tests io.jgitkins.server.presentation.api.rest.UserCredentialControllerTest --tests io.jgitkins.server.presentation.api.rest.SignupControllerTest --tests io.jgitkins.server.presentation.api.rest.AdminUserControllerTest --tests io.jgitkins.server.presentation.api.rest.OrganizeControllerTest --tests io.jgitkins.server.presentation.api.rest.OrganizeMemberControllerTest --tests io.jgitkins.server.presentation.api.rest.RepositoryMemberControllerTest 로 통과했다.\n</info added on 2026-03-20T00:00:00Z>\n</info added on 2026-03-19T12:59:03.087Z>\n<info added on 2026-03-19T12:59:20.287Z>\n구현 완료 메모: src/main/java/io/jgitkins/server/presentation/dto 패키지의 class 기반 DTO를 record로 전환했다. 변경 대상은 BranchCreateRequest, OrganizeCreationRequest, OrganizeMemberAddRequest, OrganizeUpdateRequest, RepositoryMemberAddRequest, RepositoryUpdateRequest, RunnerActivateRequest, RunnerCreateRequest, RunnerResponse, UserCredentialIssueRequest, UserStatusUpdateRequest, UserUsernameUpdateRequest 이며, 기존 record인 RepositoryCreateRequest, OAuthLoginRequest 는 유지했다. Lombok Getter/Setter/Builder 의존을 제거했고, BranchController, OrganizeMemberController, RepositoryMemberController, RunnerController, AdminUserController, SignupController, UserCredentialController 를 record accessor 기준으로 정리했다. RunnerControllerTest 와 UserCredentialControllerTest 는 setter/builder 기반 생성을 record 생성자로 치환했고, BranchControllerTest 에는 JsonAlias name -> branchName 호환 회귀 테스트를 추가했다. 검증은 gradlew test 로 BranchControllerTest, RunnerControllerTest, UserCredentialControllerTest, SignupControllerTest, AdminUserControllerTest, OrganizeControllerTest, OrganizeMemberControllerTest, RepositoryMemberControllerTest 를 대상으로 통과했다.\n</info added on 2026-03-19T12:59:20.287Z>",
+            "testStrategy": "",
+            "updatedAt": "2026-03-19T12:59:14.141Z",
+            "parentId": "undefined"
           }
         ],
-        "updatedAt": "2026-03-18T13:23:37.017Z"
+        "updatedAt": "2026-03-19T12:59:14.141Z"
       },
       {
-        "id": "3",
+        "id": 3,
         "title": "보안",
         "description": "인증/인가/자격증명/보안 회귀 강화 작업",
         "status": "done",
@@ -901,7 +912,7 @@
         "updatedAt": "2026-03-12T08:49:38.495Z"
       },
       {
-        "id": "4",
+        "id": 4,
         "title": "운영/인프라",
         "description": "배포/모니터링/CI-CD/운영 안정성 개선 작업",
         "status": "pending",
@@ -913,7 +924,7 @@
         "updatedAt": "2026-02-16T23:43:00+09:00"
       },
       {
-        "id": "5",
+        "id": 5,
         "title": "버그/핫픽스",
         "description": "사용자 영향 버그 및 긴급 수정 작업",
         "status": "in-progress",
@@ -992,12 +1003,14 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2026-03-18T13:23:37.018Z",
+      "lastModified": "2026-03-19T12:59:14.142Z",
       "taskCount": 5,
       "completedCount": 1,
       "tags": [
         "master"
-      ]
+      ],
+      "created": "2026-03-19T12:59:14.148Z",
+      "description": "Tasks for master context"
     }
   }
 }
