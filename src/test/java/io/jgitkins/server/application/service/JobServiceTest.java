@@ -31,7 +31,6 @@ class JobServiceTest {
 
     private JobCreateCommand command(String pipelineFilePath) {
         return JobCreateCommand.builder()
-                .namespace("1")
                 .repoName("repo")
                 .repositoryId(9L)
                 .commitHash("abc1234")

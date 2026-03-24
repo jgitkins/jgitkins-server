@@ -6,6 +6,7 @@ import static io.jgitkins.server.application.dto.result.PipelineSkipReason.SKIPP
 import io.jgitkins.server.application.dto.pipeline.PipelineConfig;
 import io.jgitkins.server.application.dto.pipeline.PipelineRule;
 import io.jgitkins.server.application.dto.result.JobPlan;
+import io.jgitkins.server.application.dto.support.PushJobPlanRequest;
 import io.jgitkins.server.application.port.out.FileGitPort;
 import io.jgitkins.server.application.port.out.PipelineConfigPort;
 import lombok.RequiredArgsConstructor;
@@ -20,19 +21,26 @@ public class PushJobCreationPlanner {
     private final PipelineConfigPort configPort;
     private final FileGitPort fileGitPort;
 
-    public JobPlan plan(String namespace, String repoName, String branchName, String commitHash) {
-        PipelineConfig config = configPort.read(namespace, repoName, commitHash);
-        PipelineRule rule = config == null ? null : config.findRule(branchName);
+    public JobPlan plan(PushJobPlanRequest request) {
+        PipelineConfig config = configPort.read(request.namespace(), request.repoName(), request.commitHash());
+        PipelineRule rule = resolveRule(config, request.branchName());
         if (rule == null) {
             return JobPlan.skip(SKIPPED_NO_RULE);
         }
 
         String pipelineFilePath = toPipelineFilePath(rule.getFile());
-        if (!fileGitPort.exists(namespace, repoName, commitHash, pipelineFilePath)) {
+        if (!fileGitPort.exists(request.namespace(), request.repoName(), request.commitHash(), pipelineFilePath)) {
             return JobPlan.skip(SKIPPED_PIPELINE_NOT_FOUND);
         }
 
         return JobPlan.create(pipelineFilePath);
+    }
+
+    private PipelineRule resolveRule(PipelineConfig config, String branchName) {
+        if (config == null) {
+            return null;
+        }
+        return config.findRule(branchName).orElse(null);
     }
 
     private String toPipelineFilePath(String file) {

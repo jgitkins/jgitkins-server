@@ -10,6 +10,7 @@ import io.jgitkins.server.application.dto.command.JobCreateCommand;
 import io.jgitkins.server.application.dto.command.PushEventCommand;
 import io.jgitkins.server.application.dto.result.JobPlan;
 import io.jgitkins.server.application.dto.result.PipelineSkipReason;
+import io.jgitkins.server.application.dto.support.PushJobPlanRequest;
 import io.jgitkins.server.application.port.in.JobCreateUseCase;
 import io.jgitkins.server.application.port.out.BranchPersistencePort;
 import io.jgitkins.server.application.support.PushJobCreationPlanner;
@@ -47,7 +48,7 @@ class PushEventHandleServiceTest {
                 .triggeredBy(1L)
                 .build();
 
-        org.mockito.Mockito.when(pushJobCreationPlanner.plan("1", "repo", "main", "abc"))
+        org.mockito.Mockito.when(pushJobCreationPlanner.plan(new PushJobPlanRequest("1", "repo", "main", "abc")))
                 .thenReturn(JobPlan.create(".jgitkins/pipelines/main.Jenkinsfile"));
 
         service.handle(command);
@@ -57,7 +58,6 @@ class PushEventHandleServiceTest {
         ArgumentCaptor<JobCreateCommand> captor = ArgumentCaptor.forClass(JobCreateCommand.class);
         verify(jobCreateUseCase).create(captor.capture());
         JobCreateCommand job = captor.getValue();
-        assertEquals("1", job.getNamespace());
         assertEquals("repo", job.getRepoName());
         assertEquals(9L, job.getRepositoryId());
         assertEquals(".jgitkins/pipelines/main.Jenkinsfile", job.getPipelineFilePath());
@@ -74,7 +74,7 @@ class PushEventHandleServiceTest {
                 .triggeredBy(1L)
                 .build();
 
-        org.mockito.Mockito.when(pushJobCreationPlanner.plan("1", "repo", "main", "abc"))
+        org.mockito.Mockito.when(pushJobCreationPlanner.plan(new PushJobPlanRequest("1", "repo", "main", "abc")))
                 .thenReturn(JobPlan.skip(PipelineSkipReason.SKIPPED_NO_RULE));
 
         service.handle(command);
@@ -94,7 +94,7 @@ class PushEventHandleServiceTest {
                 .build();
 
         doThrow(new IllegalStateException("pipeline config load failed"))
-                .when(pushJobCreationPlanner).plan("1", "repo", "main", "abc");
+                .when(pushJobCreationPlanner).plan(new PushJobPlanRequest("1", "repo", "main", "abc"));
 
         service.handle(command);
 

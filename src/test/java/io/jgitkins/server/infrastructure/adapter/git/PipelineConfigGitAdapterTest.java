@@ -37,10 +37,10 @@ class PipelineConfigGitAdapterTest {
         PipelineConfig config = adapter.read("team", "demo", commit.getName());
 
         assertThat(config.getRules()).hasSize(2);
-        assertThat(config.findRule("main")).isNotNull();
-        assertThat(config.findRule("main").getFile()).isEqualTo("pipelines/main.Jenkinsfile");
-        assertThat(config.findRule("release/1.0")).isNotNull();
-        assertThat(config.findRule("release/1.0").getFile()).isEqualTo("pipelines/release.Jenkinsfile");
+        assertThat(config.findRule("main")).isPresent();
+        assertThat(config.findRule("main").orElseThrow().getFile()).isEqualTo("pipelines/main.Jenkinsfile");
+        assertThat(config.findRule("release/1.0")).isPresent();
+        assertThat(config.findRule("release/1.0").orElseThrow().getFile()).isEqualTo("pipelines/release.Jenkinsfile");
     }
 
     @Test

@@ -7,6 +7,7 @@ import io.jgitkins.server.application.dto.pipeline.PipelineConfig;
 import io.jgitkins.server.application.dto.pipeline.PipelineRule;
 import io.jgitkins.server.application.dto.result.JobPlan;
 import io.jgitkins.server.application.dto.result.PipelineSkipReason;
+import io.jgitkins.server.application.dto.support.PushJobPlanRequest;
 import io.jgitkins.server.application.port.out.FileGitPort;
 import io.jgitkins.server.application.port.out.PipelineConfigPort;
 import java.util.List;
@@ -35,7 +36,7 @@ class PushJobCreationPlannerTest {
         when(fileGitPort.exists("1", "repo", "abc", ".jgitkins/pipelines/main.Jenkinsfile"))
                 .thenReturn(true);
 
-        JobPlan result = planner.plan("1", "repo", "main", "abc");
+        JobPlan result = planner.plan(new PushJobPlanRequest("1", "repo", "main", "abc"));
 
         assertThat(result.isSkipped()).isFalse();
         assertThat(result.getPipelineFilePath()).isEqualTo(".jgitkins/pipelines/main.Jenkinsfile");
@@ -46,7 +47,7 @@ class PushJobCreationPlannerTest {
         when(configPort.read("1", "repo", "abc"))
                 .thenReturn(new PipelineConfig(List.of(new PipelineRule(List.of("develop"), "pipelines/dev.Jenkinsfile"))));
 
-        JobPlan result = planner.plan("1", "repo", "main", "abc");
+        JobPlan result = planner.plan(new PushJobPlanRequest("1", "repo", "main", "abc"));
 
         assertThat(result.isSkipped()).isTrue();
         assertThat(result.getSkipReason()).isEqualTo(PipelineSkipReason.SKIPPED_NO_RULE);
@@ -59,7 +60,7 @@ class PushJobCreationPlannerTest {
         when(fileGitPort.exists("1", "repo", "abc", ".jgitkins/pipelines/main.Jenkinsfile"))
                 .thenReturn(false);
 
-        JobPlan result = planner.plan("1", "repo", "main", "abc");
+        JobPlan result = planner.plan(new PushJobPlanRequest("1", "repo", "main", "abc"));
 
         assertThat(result.isSkipped()).isTrue();
         assertThat(result.getSkipReason()).isEqualTo(PipelineSkipReason.SKIPPED_PIPELINE_NOT_FOUND);
