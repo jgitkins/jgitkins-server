@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Slf4j // TODO: rename 필요? 어쨌든 Push 이벤트가 호출됐을 때 PostHook 이 호출하는 서비스이다보니, 명칭에 Post 수식이 필요한지 검토 필요
 public class PushEventHandleService implements PushEventHandleUseCase {
 
     private final JobCreateUseCase jobCreateUseCase;

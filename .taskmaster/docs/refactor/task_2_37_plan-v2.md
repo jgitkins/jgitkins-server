@@ -44,7 +44,7 @@
 ```java
 PushHook -> PushHookCommandTranslator -> PushEventCommandResolver -> PushEventHandleService
 ```
-    - 위 흐름에서 `PushHook`는 유지하고, translator 는 hook 입력 해석까지만 담당하며 command 확정은 resolver 가 담당하는 구조를 목표로 함.
+    - 위 흐름에서 `PushHook`는 유지하고, translator 가 `PushEventHandleService` 호출 직전까지 command 생성을 담당하는 구조를 목표로 함.
 
 - **단계 2**: 구조 대안을 비교함.
     - ~~**방안 1**: `PushEventHandleService` 내부 private method 확장으로 유지함.~~
@@ -73,7 +73,7 @@ JobCreationDecision decision = jobCreationValidator.validate(command);
 JobPlan jobPlan = pushJobCreationPolicy.plan(PushJobPlanRequest.from(command));
 ```
     - application 계층으로 이동 가능한 책임은 “JGit 타입 해석”이 아니라 “저장소 식별 규칙과 command 생성”임을 명확히 함.
-
+    
 - **단계 4**: 테스트 및 검증을 수행함.
     - branch delete, commit hash 없음, triggeredBy 없음, rule 미매칭, pipeline file 미존재, rule 판단 예외 시나리오를 유지 검증함.
     - hook -> raw request 변환 테스트, raw request -> command resolver 테스트, service 오케스트레이션 테스트를 분리 유지함.
@@ -120,7 +120,6 @@ if (jobPlan.isSkipped()) {
 ```java
 PushHookRequest request = pushHookCommandTranslator.translate(gitDirPath, triggeredBy, commands);
 PushEventCommand command = pushEventCommandResolver.resolve(request);
-
 JobCreationDecision decision = jobCreationValidator.validate(command);
 if (decision.isSkipped()) {
     return;
@@ -202,7 +201,6 @@ PushEventCommandResolver
 - namespace 계산
 - PushEventCommand 생성
 ```
-
 ### 주의사항
 - **포맷팅 금지**: 리팩토링과 무관한 정렬 변경은 수행하지 않음.
 - **기존 기능 보장**: push 후 branch 반영 및 job skip 정책은 그대로 유지함.
